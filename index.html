@@ -1,133 +1,107 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>寻找实词</title>
-<style>
-    body {
-        font-family: "Microsoft Yahei UI", Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #f0f2f5;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-    .container {
-        width: 100%;
-        max-width: 800px;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    h1 {
-        text-align: center;
-        color: #333;
-    }
-    label {
-        font-weight: bold;
-        color: #555;
-    }
-    textarea {
-        width: 100%;
-        min-height: 150px;
-        resize: none;
-        margin-bottom: 20px;
-        padding: 15px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-        font-size: 16px;
-        font-family: "Microsoft Yahei UI", Arial, sans-serif;
-        overflow: hidden;
-    }
-    button {
-        display: block;
-        width: 100%;
-        padding: 15px;
-        border: none;
-        background-color: #5bcefa;
-        color: #fff;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 18px;
-        font-weight: bold;
-    }
-    button:hover {
-        background-color: #4ab3d1;
-    }
-    #output {
-        width: 100%;
-        min-height: 100px;
-        border: 1px solid #ccc;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-        box-sizing: border-box;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-        font-size: 16px;
-        font-family: "Microsoft Yahei UI", Arial, sans-serif;
-    }
-    .highlight {
-        color: #5bcefa;
-        font-weight: bold;
-    }
-    .highlighted-words {
-        color: #f6a8b8;
-        font-weight: bold;
-    }
-    footer {
-        text-align: center;
-        padding: 10px 0;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恨古人工具箱</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei UI", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #5bcefa;
+        }
+        p {
+            text-align: center;
+            color: #f6a8b8;
+        }
+        .toolbox {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .toolbox li {
+            margin: 10px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            width: 200px; /* 固定宽度 */
+        }
+        .toolbox li:hover {
+            transform: scale(1.1);
+        }
+        .toolbox li a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+        }
+        .toolbox li p {
+            color: #333;
+        }
+        .toolbox li a:hover {
+            color: #5bcefa;
+        }
+        .toolbox li p:hover {
+            color: #f6a8b8;
+        }
+        footer {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>寻找实词</h1>
-        <label for="textInput">输入古文：</label><br>
-        <textarea id="textInput" placeholder="请输入一段古文" oninput="autoResize(this)" autofocus="true" onkeydown="handleKeyDown(event)"></textarea><br>
-        <button onclick="processText()">开始寻找（Ctrl+Enter）</button><br>
-        <label for="output">古文输出：</label><br>
-        <div id="output" contenteditable="false"></div><br>
-        <label for="highlightedWords">含有的实词：</label><br>
-        <textarea id="highlightedWords" class="highlighted-words" readonly></textarea><br>
-    </div>
+
+<div class="container">
+    <h1>恨古人工具箱</h1>
+    <p>不恨古人吾不见，恨古人不见吾狂耳</p>
+    <ul class="toolbox">
+        <li>
+            <a href="shici">
+                <h2>寻找实词</h2>
+                <p>根据上海中考的150个实词要求找寻古文中的实词</p>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <h2>开发中……</h2>
+                <p>更多工具绝赞添加中</p>
+            </a>
+        </li>
+        <!-- 在此添加更多工具 -->
+    </ul>
     <footer>
-        &copy; 2024 <a style="text-decoration: none;color: #5bcefa;" href="https://www.lsc7.top" > 小方盒LSCube</a>
+        &copy; 2024 <a href="https://www.lsc7.top/" style="color: #5bcefa;text-decoration: none;">小方盒LSCube</a>
+        <p id="hitokoto">
+            <a href="#" style="color: #f6a8b8;text-decoration: none;" id="hitokoto_text">:D 获取中...</a>
+          </p>
+          <script>
+            fetch('https://v1.hitokoto.cn')
+              .then(response => response.json())
+              .then(data => {
+                const hitokoto = document.querySelector('#hitokoto_text')
+                hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`
+                hitokoto.innerText = data.hitokoto
+              })
+              .catch(console.error)
+          </script>
     </footer>
-
-
-    <script>
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = textarea.scrollHeight + 'px';
-        }
-        function processText() {
-            var inputText = document.getElementById("textInput").value;
-            var outputDiv = document.getElementById("output");
-            var highlightedWordsTextArea = document.getElementById("highlightedWords");
-
-            var wordList = ["比", "鄙", "兵", "病", "乘", "持", "从", "达", "当", "道", "得", "尔", "伐", "犯", "方", "负", "赋", "更", "苟", "故", "顾", "观", "归", "过", "好", "号", "还", "会", "惠", "及", "极", "计", "济", "假", "间", "简", "见", "竭", "尽", "进", "居", "举", "具", "俱", "聚", "遽", "决", "绝", "类", "临", "虑", "论", "漫", "明", "名", "命", "难", "平", "戚", "强", "窃", "请", "穷", "求", "取", "去", "全", "任", "入", "若", "善", "少", "舍", "涉", "生", "胜", "师", "施", "实", "食", "使", "释", "市", "恃", "数", "属", "说", "素", "汤", "徒", "亡", "为", "委", "务", "鲜", "向", "效", "谢", "信", "行", "形", "兴", "修", "徐", "许", "寻", "业", "遗", "贻", "夷", "异", "易", "诣", "益", "阴", "引", "盈", "余", "狱", "御", "缘", "远", "云", "章", "知", "止", "志", "致", "质", "专", "走", "足", "卒", "作", "坐", "卑鄙", "布衣", "菲薄", "其实", "亲戚", "驱驰", "无论", "牺牲", "鸿儒", "白丁", "阡陌", "交通", "问津", "绝境", "妻子"];
-
-            outputDiv.innerHTML = inputText.replace(new RegExp('(' + wordList.join('|') + ')', 'g'), '<span class="highlight">$1</span>');
-
-            var highlightedWords = [];
-            wordList.forEach(function(word) {
-                if (inputText.indexOf(word) !== -1) {
-                    highlightedWords.push(word);
-                }
-            });
-            highlightedWordsTextArea.value = highlightedWords.join(' ');
-        }
-        function handleKeyDown(event) {
-        if (event.ctrlKey && event.keyCode === 13) {
-            processText();
-        }
-    }
-    </script>
+</div>
 </body>
 </html>

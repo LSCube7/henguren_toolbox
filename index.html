@@ -15,6 +15,7 @@
         height: 100vh;
         background-color: #f0f2f5;
         flex-direction: column;
+        overflow: hidden;
     }
     .container {
         width: 100%;
@@ -86,7 +87,7 @@
     <div class="container">
         <h1>寻找实词</h1>
         <label for="textInput">输入古文：</label><br>
-        <textarea id="textInput" placeholder="请输入一段古文" oninput="autoResize(this)"></textarea><br>
+        <textarea id="textInput" placeholder="请输入一段古文" oninput="autoResize(this)" autofocus="true"></textarea><br>
         <button onclick="processText()">开始寻找</button><br>
         <label for="output">古文输出：</label><br>
         <div id="output" contenteditable="false"></div><br>

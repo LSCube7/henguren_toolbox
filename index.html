@@ -12,10 +12,9 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
         background-color: #f0f2f5;
         flex-direction: column;
-        overflow: hidden;
+        min-height: 100vh;
     }
     .container {
         width: 100%;
@@ -42,6 +41,7 @@
         box-sizing: border-box;
         font-size: 16px;
         font-family: "Microsoft Yahei UI", Arial, sans-serif;
+        overflow: hidden;
     }
     button {
         display: block;
@@ -87,8 +87,8 @@
     <div class="container">
         <h1>寻找实词</h1>
         <label for="textInput">输入古文：</label><br>
-        <textarea id="textInput" placeholder="请输入一段古文" oninput="autoResize(this)" autofocus="true"></textarea><br>
-        <button onclick="processText()">开始寻找</button><br>
+        <textarea id="textInput" placeholder="请输入一段古文" oninput="autoResize(this)" autofocus="true" onkeydown="handleKeyDown(event)"></textarea><br>
+        <button onclick="processText()">开始寻找（Crtl+Enter）</button><br>
         <label for="output">古文输出：</label><br>
         <div id="output" contenteditable="false"></div><br>
         <label for="highlightedWords">含有的实词：</label><br>
@@ -121,6 +121,11 @@
             });
             highlightedWordsTextArea.value = highlightedWords.join(' ');
         }
+        function handleKeyDown(event) {
+        if (event.ctrlKey && event.keyCode === 13) {
+            processText();
+        }
+    }
     </script>
 </body>
 </html>

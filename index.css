@@ -1,0 +1,45 @@
+h1 {
+    text-align: center;
+    color: #5bcefa;
+}
+p {
+    text-align: center;
+    color: #f6a8b8;
+}
+.toolbox {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.toolbox li {
+    margin: 10px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    width: 200px; /* 固定宽度 */
+}
+.toolbox li:hover {
+    transform: scale(1.1);
+}
+.toolbox li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+.toolbox li p {
+    color: #333;
+}
+.toolbox li a:hover {
+    color: #5bcefa;
+}
+.toolbox li p:hover {
+    color: #f6a8b8;
+}
+footer {
+    text-align: center;
+}

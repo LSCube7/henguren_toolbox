@@ -1,0 +1,83 @@
+h1 {
+    text-align: center;
+    color: #333;
+}
+label {
+    font-weight: bold;
+    color: #555;
+}
+textarea {
+    width: 100%;
+    min-height: 100px;
+    resize: none;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-family: "Microsoft Yahei UI", Arial, sans-serif;
+    overflow: hidden;
+}
+button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    background-color: #5bcefa;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+button:hover {
+    background-color: #4ab3d1;
+}
+#output {
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-size: 16px;
+    font-family: "Microsoft Yahei UI", Arial, sans-serif;
+}
+.highlight {
+    color: #5bcefa;
+    font-weight: bold;
+}
+.highlighted-words {
+    color: #f6a8b8;
+    font-weight: bold;
+}
+footer {
+    text-align: center;
+    padding: 10px 0;
+}
+.change {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+.change:hover {
+    color: #5bcefa;
+    font-weight: bolder;
+}
+.wordCount {
+    width: 100%;
+    min-height: 20px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-size: 16px;
+    font-family: "Microsoft Yahei UI", Arial, sans-serif;
+}

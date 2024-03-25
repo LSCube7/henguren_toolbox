@@ -86,22 +86,22 @@
         </li>
         <!-- 在此添加更多工具 -->
     </ul>
-    <footer>
-        &copy; 2024 <a href="https://www.lsc7.top/" style="color: #5bcefa;text-decoration: none;">小方盒LSCube</a>
-        <p id="hitokoto">
-            <a href="#" style="color: #f6a8b8;text-decoration: none;" id="hitokoto_text">:D 获取中...</a>
-          </p>
-          <script>
-            fetch('https://v1.hitokoto.cn')
-              .then(response => response.json())
-              .then(data => {
-                const hitokoto = document.querySelector('#hitokoto_text')
-                hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`
-                hitokoto.innerText = data.hitokoto
-              })
-              .catch(console.error)
-          </script>
-    </footer>
 </div>
+<footer>
+    &copy; 2024 <a href="https://github.com/LSCube7/henguren_toolbox" style="color: #5bcefa;text-decoration: none;">小方盒LSCube</a>
+    <p id="hitokoto">
+        <a href="#" style="color: #f6a8b8;text-decoration: none;" id="hitokoto_text">:D 获取中...</a>
+      </p>
+      <script>
+        fetch('https://v1.hitokoto.cn')
+          .then(response => response.json())
+          .then(data => {
+            const hitokoto = document.querySelector('#hitokoto_text')
+            hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`
+            hitokoto.innerText = data.hitokoto
+          })
+          .catch(console.error)
+      </script>
+</footer>
 </body>
 </html>

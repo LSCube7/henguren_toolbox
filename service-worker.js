@@ -1,12 +1,5 @@
 const CACHE_NAME = "henguren-toolbox-cache-v1";
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/share/index.css",
-  "/shici/index.css",
-  "/shici/index.js",
-  "/shici/index.html",
-  "/index.css",
   // Add paths to other static assets such as JavaScript files, images, etc.
 ];
 

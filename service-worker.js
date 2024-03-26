@@ -1,60 +1,60 @@
-const CACHE_NAME = 'henguren-toolbox-cache-v1';
+const CACHE_NAME = "henguren-toolbox-cache-v1";
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/share/index.css',
-  '/shici/index.css',
-  '/shici/index.js',
-  '/shici/index.html',
-  '/index.css'
+  "/",
+  "/index.html",
+  "/share/index.css",
+  "/shici/index.css",
+  "/shici/index.js",
+  "/shici/index.html",
+  "/index.css",
   // Add paths to other static assets such as JavaScript files, images, etc.
 ];
 
-self.addEventListener('install', function(event) {
+self.addEventListener("install", function (event) {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(function (cache) {
+      console.log("Opened cache");
+      return cache.addAll(urlsToCache);
+    })
   );
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener("fetch", function (event) {
   const { request } = event;
-  if (request.url.startsWith('http')) {
+  if (request.url.startsWith("http")) {
     event.respondWith(
-      caches.match(request)
-        .then(function(response) {
-          if (response) {
+      caches.match(request).then(function (response) {
+        if (response) {
+          return response;
+        }
+
+        return fetch(request).then(function (response) {
+          if (
+            !response ||
+            response.status !== 200 ||
+            response.type !== "basic"
+          ) {
             return response;
           }
 
-          return fetch(request)
-            .then(function(response) {
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
+          const responseToCache = response.clone();
 
-              const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(request, responseToCache);
+          });
 
-              caches.open(CACHE_NAME)
-                .then(function(cache) {
-                  cache.put(request, responseToCache);
-                });
-
-              return response;
-            });
-        })
+          return response;
+        });
+      })
     );
   }
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener("activate", function (event) {
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
+    caches.keys().then(function (cacheNames) {
       return Promise.all(
-        cacheNames.map(function(cacheName) {
+        cacheNames.map(function (cacheName) {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }

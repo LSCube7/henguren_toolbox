@@ -1,48 +1,70 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#5bcefa">
-<script type="text/javascript" src="/shici/index.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="../manifest.json" />
+    <meta name="theme-color" content="#5bcefa" />
+    <script type="text/javascript" src="/shici/index.js"></script>
 
-<title>寻找实词|恨古人工具箱</title>
-<style>
-    @import url(share/index.css);
-    @import url(shici/index.css);
-</style>
-</head>
-<body>
+    <title>寻找实词|恨古人工具箱</title>
+    <style>
+      @import url(share/index.css);
+      @import url(shici/index.css);
+    </style>
+  </head>
+  <body>
     <div class="container">
-        <a href="../" class="change">←返回首页</a>
-        <h1>寻找实词</h1>
-        <label for="textInput">输入古文：</label><br>
-        <textarea id="textInput" placeholder="请输入一段古文" oninput="autoResize(this)" autofocus="true" onkeydown="handleKeyDown(event)"></textarea><br>
-        <button onclick="processText()">开始寻找（Ctrl+Enter）</button><br>
-        <label for="output">古文输出：</label><br>
-        <div id="output" contenteditable="false"></div><br>
-        <label for="highlightedWords">含有的实词：</label><br>
-        <textarea id="highlightedWords" class="highlighted-words" readonly></textarea><br>
-        <label for="wordCount">统计信息：</label><br>
-        <textarea class="wordCount" id="wordCount" readonly></textarea><br>
+      <a href="../" class="change">←返回首页</a>
+      <h1>寻找实词</h1>
+      <label for="textInput">输入古文：</label><br />
+      <textarea
+        id="textInput"
+        placeholder="请输入一段古文"
+        oninput="autoResize(this)"
+        autofocus="true"
+        onkeydown="handleKeyDown(event)"
+      ></textarea
+      ><br />
+      <button onclick="processText()">开始寻找（Ctrl+Enter）</button><br />
+      <label for="output">古文输出：</label><br />
+      <div id="output" contenteditable="false"></div>
+      <br />
+      <label for="highlightedWords">含有的实词：</label><br />
+      <textarea
+        id="highlightedWords"
+        class="highlighted-words"
+        readonly
+      ></textarea
+      ><br />
+      <label for="wordCount">统计信息：</label><br />
+      <textarea class="wordCount" id="wordCount" readonly></textarea><br />
     </div>
     <footer>
-        &copy; 2024 <a href="https://github.com/LSCube7/henguren_toolbox" style="color: #5bcefa;text-decoration: none;">小方盒LSCube</a>
-        <p id="hitokoto">
-            <a href="#" style="color: #f6a8b8;text-decoration: none;" id="hitokoto_text">:D 获取中...</a>
-          </p>
-          <script>
-            fetch('https://v1.hitokoto.cn')
-              .then(response => response.json())
-              .then(data => {
-                const hitokoto = document.querySelector('#hitokoto_text')
-                hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`
-                hitokoto.innerText = data.hitokoto
-              })
-              .catch(console.error)
-          </script>
+      &copy; 2024
+      <a
+        href="https://github.com/LSCube7/henguren_toolbox"
+        style="color: #5bcefa; text-decoration: none"
+        >小方盒LSCube</a
+      >
+      <p id="hitokoto">
+        <a
+          href="#"
+          style="color: #f6a8b8; text-decoration: none"
+          id="hitokoto_text"
+          >:D 获取中...</a
+        >
+      </p>
+      <script>
+        fetch("https://v1.hitokoto.cn")
+          .then((response) => response.json())
+          .then((data) => {
+            const hitokoto = document.querySelector("#hitokoto_text");
+            hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`;
+            hitokoto.innerText = data.hitokoto;
+          })
+          .catch(console.error);
+      </script>
     </footer>
-
-</body>
+  </body>
 </html>

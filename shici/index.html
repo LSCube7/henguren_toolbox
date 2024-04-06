@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../share/index.css" />
+    <link rel="stylesheet" href="./index.css" />
     <meta name="theme-color" content="#5bcefa" />
-    <script type="text/javascript" src="../shici/index.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+    <script src="../share/footer.js"></script>
 
     <title>寻找实词|恨古人工具箱</title>
-    <style>
-      @import url(../share/index.css);
-      @import url(../shici/index.css);
-    </style>
+    <style></style>
   </head>
   <body>
     <div class="container">
@@ -40,31 +40,6 @@
       <label for="wordCount">统计信息：</label><br />
       <textarea class="wordCount" id="wordCount" readonly></textarea><br />
     </div>
-    <footer>
-      &copy; 2024
-      <a
-        href="https://github.com/LSCube7/henguren_toolbox"
-        style="color: #5bcefa; text-decoration: none"
-        >小方盒LSCube</a
-      >
-      <p id="hitokoto">
-        <a
-          href="#"
-          style="color: #f6a8b8; text-decoration: none"
-          id="hitokoto_text"
-          >:D 获取中...</a
-        >
-      </p>
-      <script>
-        fetch("https://v1.hitokoto.cn")
-          .then((response) => response.json())
-          .then((data) => {
-            const hitokoto = document.querySelector("#hitokoto_text");
-            hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`;
-            hitokoto.innerText = data.hitokoto;
-          })
-          .catch(console.error);
-      </script>
-    </footer>
+    <footer></footer>
   </body>
 </html>

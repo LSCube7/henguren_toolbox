@@ -13,3 +13,20 @@ body {
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+footer p {
+  color: #000;
+}
+footer {
+  font-size: 95%;
+  text-align: center;
+}
+.change {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+.change:hover {
+  color: #5bcefa;
+  font-weight: bolder;
+}

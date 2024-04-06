@@ -51,22 +51,24 @@ button:hover {
   color: #5bcefa;
   font-weight: bold;
 }
+.highlight .definition {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+.highlight:hover .definition {
+  display: block;
+}
 .highlighted-words {
   color: #f6a8b8;
   font-weight: bold;
-}
-footer {
-  text-align: center;
-  padding: 10px 0;
-}
-.change {
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-}
-.change:hover {
-  color: #5bcefa;
-  font-weight: bolder;
 }
 .wordCount {
   width: 100%;

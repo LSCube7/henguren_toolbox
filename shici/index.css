@@ -54,18 +54,24 @@ button:hover {
 .highlight .definition {
   display: none;
   position: absolute;
-  top: 100%;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%); /* 水平居中 */
+  width: max-content;
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 5px;
-  border-radius: 3px;
+  border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  z-index: 1000;
+  color: #5bcefa;
+  font-size: 100%;
 }
 .highlight:hover .definition {
   display: block;
 }
+.highlight:hover {
+  color: #4ab3d1;
+}
+
 .highlighted-words {
   color: #f6a8b8;
   font-weight: bold;

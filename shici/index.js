@@ -23,7 +23,7 @@ async function processText() {
 
   clearDefinitions();
 
-  outputDiv.innerHTML = inputText.replace(new RegExp('(' + wordList.join('|') + ')', 'g'), '<span class="highlight" onmouseover="showDefinitions(event)">$1<span class="definition"></span></span>');
+  outputDiv.innerHTML = inputText.replace(new RegExp('(' + wordList.join('|') + ')', 'g'), '<span class="highlight" onmouseover="showDefinitions(event)" onmouseout="clearDefinitions()">$1<span class="definition"></span></span>');
 
   var highlightedWords = [];
   wordList.forEach(function(word) {
@@ -77,6 +77,8 @@ function clearDefinitions() {
   });
   highlightedWord = null;
 }
+
+
 
 function handleKeyDown(event) {
   if (event.ctrlKey && event.keyCode === 13) {

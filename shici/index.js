@@ -39,7 +39,7 @@ async function processText() {
 
 async function loadDefinitions() {
   try {
-      var response = await fetch('definitions.json');
+      var response = await fetch('../shici/definitions.json');
       definitions = await response.json();
   } catch (error) {
       console.error('Error loading definitions:', error);

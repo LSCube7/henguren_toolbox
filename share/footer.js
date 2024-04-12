@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
 fetch("https://v1.hitokoto.cn")
   .then((response) => response.json())
   .then((data) => {
@@ -14,3 +15,11 @@ fetch("https://v1.hitokoto.cn")
     hitokoto.innerText = data.hitokoto;
   })
   .catch(console.error);
+
+window.addEventListener('load', function() {
+  if ('serviceWorker' in navigator) {
+    // 发送消息给 Service Worker 请求重新加载页面
+    navigator.serviceWorker.controller.postMessage({ type: 'RELOAD_PAGE' });
+  }
+});
+

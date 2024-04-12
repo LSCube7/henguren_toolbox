@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'henguren-toolbox-cache-v1.4-hot';
+const CACHE_NAME = 'henguren-toolbox-cache-v1.4-hotfix-2';
 const urlsToCache = [
   // Add paths to other static assets such as JavaScript files, images, etc.
 ];

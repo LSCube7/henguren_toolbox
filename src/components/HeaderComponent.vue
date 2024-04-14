@@ -3,40 +3,39 @@
     <div class="left">
       <!-- LOGO -->
       <router-link to="/" class="logo-link">
-        <img src="@/assets/png/android-chrome-512x512.png" alt="Logo" class="logo">
+        <img src="@/assets/png/android-chrome-192x192.png" alt="Logo" class="logo">
       </router-link>
       <!-- 标题 -->
       <h1 class="title" @click="goHome">恨古人工具箱</h1>
     </div>
     <div class="right">
+      <!-- 更新日志按钮 -->
+
+      <button @click="openColorPicker" class="color-picker-button">自定义</button>
+      <button @click="openChangeLog" class="change-log-button">更新日志</button>
       <!-- GitHub图标 -->
       <a href="https://github.com/LSCube7/henguren_toolbox" target="_blank" class="github-link">
-        <img src="@/assets/png/github.png" alt="GitHub" class="github-icon">
+        <img src="@/assets/png/github.svg" alt="GitHub" class="github-icon">
       </a>
-      <!-- ChangeLog 触发按钮 -->
-      <!-- <button @click="showChangeLog">ChangeLog</button> -->
+      <!-- 新增按钮：打开颜色选择器 -->
     </div>
   </header>
-  <ChangeLog />
 </template>
 
 <script>
-//import ChangeLog from '@/components/ChangeLog.vue'; // 导入 ChangeLog 组件
-
 export default {
-  components: {
-    //ChangeLog
-  },
   methods: {
     goHome() {
       this.$router.push('/');
     },
-    /* showChangeLog() {
-      // 在此处触发显示 ChangeLog 弹窗的逻辑
-      // 可以通过事件或状态管理器来实现
-      // 这里简单起见，直接使用事件触发显示
-      this.$emit('showChangeLog');
-    } */
+    openChangeLog() {
+      // 触发父组件的方法来显示更新日志
+      this.$emit('open-changelog');
+    },
+    openColorPicker() {
+      // 触发父组件的方法来显示颜色选择器
+      this.$emit('open-colorpicker');
+    }
   }
 };
 </script>
@@ -47,7 +46,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   background-color: #fff;
-  color: #000;
+  color: var(--text-color);
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -83,7 +82,7 @@ export default {
 }
 
 .title:hover {
-  color: #5bcefa;
+  color: var(--primary-color);
 }
 
 .right {
@@ -98,5 +97,42 @@ export default {
 .github-icon {
   width: 40px;
   height: auto;
+}
+
+.change-log-button {
+  padding: 8px 16px;
+  background-color: #fff;
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: large;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.change-log-button:hover {
+  background-color: #fff;
+  color: var(--primary-color);
+}
+
+/* 新增的按钮样式 */
+.color-picker-button {
+  padding: 8px 16px;
+  background-color: #fff;
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: large;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 10px;
+  /* 为了与其他按钮分隔开 */
+}
+
+.color-picker-button:hover {
+  background-color: #fff;
+  color: var(--primary-color);
 }
 </style>

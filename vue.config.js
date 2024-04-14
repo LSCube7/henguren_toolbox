@@ -7,4 +7,11 @@ module.exports = defineConfig({
     themeColor: "#000000",
     msTileColor: "#5bcefa",
   },
+
+  pluginOptions: {
+    "style-resources-loader": {
+      preProcessor: "sass",
+      patterns: ["./src/assets/colors.scss"],
+    },
+  },
 });

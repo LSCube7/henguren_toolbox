@@ -1,16 +1,16 @@
 <template>
-  <div v-if="showChangeLog" class="change-log-wrapper">
+  <div class="change-log-wrapper">
     <div class="change-log">
       <div class="change-log-content" v-html="changeLogHtml"></div>
       <button @click="dismissChangeLog" class="close-button">关闭</button>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   data() {
     return {
-      showChangeLog: false,
       changeLogHtml: '' // ChangeLog HTML内容将在 mounted 钩子中填充
     };
   },
@@ -20,12 +20,6 @@ export default {
       .then(response => response.text())
       .then(html => {
         this.changeLogHtml = html;
-        // 检查本地存储是否已经查看过版本更新
-        const viewedChangeLog = localStorage.getItem("viewedChangeLog");
-        if (!viewedChangeLog) {
-          // 如果未查看过，则显示 ChangeLog
-          this.showChangeLog = true;
-        }
       })
       .catch(error => {
         console.error('Error fetching ChangeLog HTML:', error);
@@ -33,13 +27,13 @@ export default {
   },
   methods: {
     dismissChangeLog() {
-      // 隐藏 ChangeLog，并将状态标记为已查看
-      this.showChangeLog = false;
-      localStorage.setItem("viewedChangeLog", true);
+      // 隐藏 ChangeLog
+      this.$emit('close');
     }
   }
 };
 </script>
+
 <style scoped>
 .change-log-wrapper {
   position: fixed;
@@ -55,7 +49,7 @@ export default {
 
 .change-log {
   width: 600px;
-  max-height: 400px;
+  max-height: 600px;
   background-color: white;
   padding: 20px;
   border-radius: 8px;

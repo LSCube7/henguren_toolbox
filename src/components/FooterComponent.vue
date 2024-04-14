@@ -1,25 +1,28 @@
 <template>
   <footer>
     &copy; 2024
-    <a href="https://github.com/LSCube7/henguren_toolbox" style="color: #5bcefa; text-decoration: none">小方盒LSCube</a>
+    <a href="https://github.com/LSCube7/henguren_toolbox"
+      style="color: var(--primary-color); text-decoration: none">小方盒LSCube</a>
     <p id="LICENSE">
       An
-      <a href="https://github.com/LSCube7/henguren_toolbox" style="color: #f6a8b8; text-decoration: none">Opensource
+      <a href="https://github.com/LSCube7/henguren_toolbox"
+        style="color: var(--secondary-color); text-decoration: none">Opensource
         Project</a>
       Under the
-      <a href="../LICENSE" type="text/plain" target="_blank" style="color: #5bcefa; text-decoration: none">MIT
+      <a href="../LICENSE" type="text/plain" target="_blank"
+        style="color: var(--primary-color); text-decoration: none">MIT
         LICENSE</a>
     </p>
     <p id="Thanks">
       Thanks to
-      <a href="https://vercel.com" style="color: #f6a8b8; text-decoration: none">Vercel</a>,
-      <a href="https://cloudflare.com" style="color: #f6a8b8; text-decoration: none">Cloudflare</a>
+      <a href="https://vercel.com" style="color: var(--secondary-color); text-decoration: none">Vercel</a>,
+      <a href="https://cloudflare.com" style="color: var(--secondary-color); text-decoration: none">Cloudflare</a>
       and
-      <a href="https://openai.com" style="color: #f6a8b8; text-decoration: none">OpenAI</a>
+      <a href="https://openai.com" style="color: var(--secondary-color); text-decoration: none">OpenAI</a>
     </p>
     <p id="hitokoto">
       Hitokoto:
-      <a href="#" style="color: #f6a8b8; text-decoration: none" id="hitokoto_text">:D 获取中...</a>
+      <a href="#" style="color: var(--secondary-color); text-decoration: none" id="hitokoto_text">:D 获取中...</a>
     </p>
   </footer>
 </template>

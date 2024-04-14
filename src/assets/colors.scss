@@ -1,0 +1,19 @@
+// colors.scss
+
+$primary-color: #5bcefa;
+$secondary-color: #f6a8b8;
+$text-color: #333;
+$primary-background-color: #f0f2f5;
+$secondary-background-color: #f9f9f9;
+$border-color: #ccc;
+
+$hover-color: darken($primary-color,10%);
+:root{
+    --primary-color: #{$primary-color};
+    --secondary-color: #{$secondary-color};
+    --text-color: #{$text-color};
+    --primary-background-color: #{$primary-background-color};
+    --secondary-background-color: #{$secondary-background-color};
+    --hover-color: #{$hover-color};
+    --border-color: #{$border-color};
+}

@@ -97,7 +97,7 @@ export default {
 <style scoped>
 h1 {
   text-align: center;
-  color: #333;
+  color: var(--text-color);
   margin-bottom: 20px;
 }
 
@@ -109,13 +109,13 @@ table {
 
 th,
 td {
-  border: 1px solid #5bcefa;
+  border: 1px solid var(--primary-color);
   padding: 12px;
   text-align: center;
 }
 
 th {
-  background-color: #f6a8b8;
+  background-color: var(--secondary-color);
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -130,12 +130,13 @@ tr:hover {
 }
 
 td:hover {
-  color: #5bcefa;
+  color: var(--hover-color);
   cursor: pointer;
+  font-weight: bold;
 }
 
 .cancel-button {
-  background-color: #5bcefa;
+  background-color: var(--primary-color);
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -148,7 +149,7 @@ td:hover {
 }
 
 .cancel-button:hover {
-  background-color: #4ab3d1;
+  background-color: var(--hover-color);
   /* hover颜色 */
 }
 

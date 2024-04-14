@@ -129,12 +129,12 @@ export default {
 <style scoped>
 h1 {
   text-align: center;
-  color: #333;
+  color: var(--text-color);
 }
 
 label {
   font-weight: bold;
-  color: #555;
+  color: var(--text-color);
 }
 
 textarea {
@@ -143,7 +143,7 @@ textarea {
   resize: none;
   margin-bottom: 20px;
   padding: 15px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   box-sizing: border-box;
   font-size: 16px;
@@ -156,22 +156,26 @@ button {
   width: 100%;
   padding: 15px;
   border: none;
-  background-color: #5bcefa;
+  background-color: var(--primary-color);
   color: #fff;
   border-radius: 5px;
   cursor: pointer;
   font-size: 18px;
   font-weight: bold;
+  
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 button:hover {
-  background-color: #4ab3d1;
+  background-color: var(--hover-color);
+  transform: scale(1.005);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #output {
   width: 100%;
   min-height: 100px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   padding: 15px;
   margin-bottom: 20px;
   border-radius: 5px;
@@ -182,43 +186,43 @@ button:hover {
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
 }
 
-::v-deep .highlight {
-  color: #5bcefa;
+:deep(.highlight) {
+  color: var(--primary-color);
   font-weight: bold;
 }
 
-::v-deep .highlight .definition {
+:deep(.highlight .definition) {
   display: none;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
   background-color: #fff;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   padding: 5px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  color: #5bcefa;
+  color: var(--primary-color);
   font-size: 100%;
 }
 
-::v-deep .highlight:hover .definition {
+:deep(.highlight:hover .definition) {
   display: block;
 }
 
-::v-deep .highlight:hover {
-  color: #4ab3d1;
+:deep(.highlight:hover) {
+  color: var(--hover-color);
 }
 
 .highlighted-words {
-  color: #f6a8b8;
+  color: var(--secondary-color);
   font-weight: bold;
 }
 
 .wordCount {
   width: 100%;
   min-height: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   padding: 15px;
   margin-bottom: 20px;
   border-radius: 5px;

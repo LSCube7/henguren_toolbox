@@ -1,22 +1,24 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import HomePage from '@/HomePage.vue'; // 导入首页组件
-import ShiciFinder from '@/ShiciFinder.vue'; // 导入寻词组件
-import WenchangTable from '@/WenchangTable.vue'
-// 导入其他组件...
+import { createRouter, createWebHistory } from "vue-router";
+import HomePage from "@/HomePage.vue"; // 导入首页组件
+import ShiciFinder from "@/ShiciFinder.vue"; // 导入寻词组件
+import WenchangTable from "@/WenchangTable.vue";
 
 const routes = [
   {
-    path: '/',
+    path: "/",
     component: HomePage, // 指定首页组件为 HomePage.vue
+    // meta:{title:"恨古人工具箱|首页"}
   },
   {
-    path: '/shici',
+    path: "/shici",
     component: ShiciFinder,
+    // meta:{title:"恨古人工具箱|寻找实词"}
   },
   {
-    path: '/wenchang',
+    path: "/wenchang",
     component: WenchangTable,
-  }
+    // meta:{title:"恨古人工具箱|文学常识"}
+  },
   // 其他路由...
 ];
 
@@ -24,5 +26,4 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
 export default router;

@@ -100,32 +100,40 @@ h1 {
   color: #333;
   margin-bottom: 20px;
 }
+
 table {
   border-collapse: collapse;
   width: 100%;
   margin-bottom: 30px;
 }
-th, td {
+
+th,
+td {
   border: 1px solid #5bcefa;
   padding: 12px;
   text-align: center;
 }
+
 th {
   background-color: #f6a8b8;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }
+
 tr:hover {
   background-color: #ddd;
 }
+
 td:hover {
   color: #5bcefa;
   cursor: pointer;
 }
+
 .cancel-button {
   background-color: #5bcefa;
   color: #fff;
@@ -134,12 +142,14 @@ td:hover {
   border-radius: 5px;
   margin-bottom: 10px;
   cursor: pointer;
-font-weight: bold;
-  float: right; /* 右对齐 */
+  font-weight: bold;
+  float: right;
+  /* 右对齐 */
 }
 
 .cancel-button:hover {
-  background-color: #4ab3d1; /* hover颜色 */
+  background-color: #4ab3d1;
+  /* hover颜色 */
 }
 
 .cancel-button:focus {

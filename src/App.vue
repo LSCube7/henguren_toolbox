@@ -23,17 +23,17 @@ export default {
   },
   data() {
     return {
-     // isChangeLogVisible: false // 添加 isChangeLogVisible 变量，用于控制 ChangeLog 的显示和隐藏
+      // isChangeLogVisible: false // 添加 isChangeLogVisible 变量，用于控制 ChangeLog 的显示和隐藏
     };
   },
- /* methods: {
-    showChangeLogDialog() {
-      this.isChangeLogVisible = true; // 使用 isChangeLogVisible 控制 ChangeLog 的显示
-    },
-    hideChangeLogDialog() {
-      this.isChangeLogVisible = false; // 使用 isChangeLogVisible 控制 ChangeLog 的隐藏
-    }
-  } */
+  /* methods: {
+     showChangeLogDialog() {
+       this.isChangeLogVisible = true; // 使用 isChangeLogVisible 控制 ChangeLog 的显示
+     },
+     hideChangeLogDialog() {
+       this.isChangeLogVisible = false; // 使用 isChangeLogVisible 控制 ChangeLog 的隐藏
+     }
+   } */
 };
 </script>
 
@@ -47,6 +47,7 @@ html {
   padding: 0;
   background-color: #f0f2f5;
 }
+
 #container {
   width: 100%;
   max-width: 1200px;
@@ -56,18 +57,22 @@ html {
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 footer p {
   color: #000;
 }
+
 footer {
   font-size: 95%;
   text-align: center;
 }
+
 .change {
   text-decoration: none;
   color: #333;
   font-weight: bold;
 }
+
 .change:hover {
   color: #5bcefa;
   font-weight: bolder;

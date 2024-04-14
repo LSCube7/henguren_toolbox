@@ -2,28 +2,17 @@
   <div class="container">
     <h1>寻找实词</h1>
     <label for="textInput">输入古文：</label><br />
-    <textarea
-      id="textInput"
-      placeholder="请输入一段古文"
-      v-model="inputText"
-      @input="autoResize"
-      autofocus
-      @keydown.ctrl.enter.prevent="processText"
-    ></textarea>
+    <textarea id="textInput" placeholder="请输入一段古文" v-model="inputText" @input="autoResize" autofocus
+      @keydown.ctrl.enter.prevent="processText"></textarea>
     <br />
     <button @click="processText">开始寻找（Ctrl+Enter）</button>
     <br />
     <label for="output">古文输出：</label><br />
-    <div id="output" v-html="highlightedText"   @mouseover="showDefinitions" @mouseout="clearDefinitions"></div>
+    <div id="output" v-html="highlightedText" @mouseover="showDefinitions" @mouseout="clearDefinitions"></div>
 
     <br />
     <label for="highlightedWords">含有的实词：</label><br />
-    <textarea
-      id="highlightedWords"
-      class="highlighted-words"
-      v-model="highlightedWords"
-      readonly
-    ></textarea>
+    <textarea id="highlightedWords" class="highlighted-words" v-model="highlightedWords" readonly></textarea>
     <br />
     <label for="wordCount">统计信息：</label><br />
     <textarea id="wordCount" class="wordCount" v-model="wordCountInfo" readonly></textarea>
@@ -43,8 +32,8 @@ export default {
       wordCountInfo: '',
       highlightedWord: null,
       definitionDisplay: 'none',
-    definitionLeft: '0',
-    definitionTop: '0'
+      definitionLeft: '0',
+      definitionTop: '0'
     };
   },
   methods: {
@@ -55,64 +44,64 @@ export default {
     },
 
     async processText() {
-  const wordList = Object.keys(definitions);
-  const inputText = this.inputText;
-  let highlightedWords = [];
-  let uniqueWords = new Set();
-  let orderedWords = [];
+      const wordList = Object.keys(definitions);
+      const inputText = this.inputText;
+      let highlightedWords = [];
+      let uniqueWords = new Set();
+      let orderedWords = [];
 
-  this.clearDefinitions();
+      this.clearDefinitions();
 
-  // Filter words from the text according to the order in the definitions.json
-  for (let word of wordList) {
-    if (inputText.includes(word)) {
-      orderedWords.push(word);
-    }
-  }
+      // Filter words from the text according to the order in the definitions.json
+      for (let word of wordList) {
+        if (inputText.includes(word)) {
+          orderedWords.push(word);
+        }
+      }
 
-  this.highlightedText = inputText.replace(new RegExp('(' + orderedWords.join('|') + ')', 'g'), (match) => {
-    if (definitions[match]) {
-      highlightedWords.push(match);
-      uniqueWords.add(match);
-      return `<span class="highlight" :style="{ display: definitionDisplay, left: definitionLeft, top: definitionTop }">${match}<span class="definition"></span></span>`;
-    }
-    return match;
-  });
+      this.highlightedText = inputText.replace(new RegExp('(' + orderedWords.join('|') + ')', 'g'), (match) => {
+        if (definitions[match]) {
+          highlightedWords.push(match);
+          uniqueWords.add(match);
+          return `<span class="highlight" :style="{ display: definitionDisplay, left: definitionLeft, top: definitionTop }">${match}<span class="definition"></span></span>`;
+        }
+        return match;
+      });
 
-  this.highlightedWords = orderedWords.join(' ');
-  this.wordCountInfo = `共含有实词 ${orderedWords.length} 个`;
-},
+      this.highlightedWords = orderedWords.join(' ');
+      this.wordCountInfo = `共含有实词 ${orderedWords.length} 个`;
+    },
 
-showDefinitions(event) {
-  const highlightedText = event.target.textContent.trim();
-  const definitionSpan = event.target.querySelector('.definition');
+    showDefinitions(event) {
+      const highlightedText = event.target.textContent.trim();
+      const definitionSpan = event.target.querySelector('.definition');
 
-  if (!definitionSpan || highlightedText === this.highlightedWord) return;
+      if (!definitionSpan || highlightedText === this.highlightedWord) return;
 
-  this.clearDefinitions();
+      this.clearDefinitions();
 
-  this.highlightedWord = highlightedText;
+      this.highlightedWord = highlightedText;
 
-  const wordDefinitions = definitions[highlightedText];
+      const wordDefinitions = definitions[highlightedText];
 
-  if (wordDefinitions && wordDefinitions.length > 0) {
-    const definitionsList = document.createElement('ul');
-    wordDefinitions.forEach((definition) => {
-      const listItem = document.createElement('li');
-      listItem.textContent = definition;
-      definitionsList.appendChild(listItem);
-    });
-    definitionSpan.appendChild(definitionsList);
-    // Calculate the position of the definition box based on the mouse position
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
-    const offset = 15; // Adjust this value to set the distance between the mouse and the definition box
-    definitionSpan.style.position = 'fixed';
-    definitionSpan.style.left = `${mouseX}px`;
-    definitionSpan.style.top = `${mouseY + offset}px`; // Add an offset to show the definition box below the mouse
-    definitionSpan.style.display = 'block';
-  }
-},
+      if (wordDefinitions && wordDefinitions.length > 0) {
+        const definitionsList = document.createElement('ul');
+        wordDefinitions.forEach((definition) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = definition;
+          definitionsList.appendChild(listItem);
+        });
+        definitionSpan.appendChild(definitionsList);
+        // Calculate the position of the definition box based on the mouse position
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        const offset = 15; // Adjust this value to set the distance between the mouse and the definition box
+        definitionSpan.style.position = 'fixed';
+        definitionSpan.style.left = `${mouseX}px`;
+        definitionSpan.style.top = `${mouseY + offset}px`; // Add an offset to show the definition box below the mouse
+        definitionSpan.style.display = 'block';
+      }
+    },
 
 
 
@@ -138,8 +127,6 @@ showDefinitions(event) {
 
 
 <style scoped>
-
-
 h1 {
   text-align: center;
   color: #333;

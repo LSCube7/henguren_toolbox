@@ -41,13 +41,13 @@ export default {
     data() {
         return {
             selectedColors: {
-                primaryColor: localStorage.getItem('primaryColor') || '#5bcefa', // 初始颜色
+                primaryColor: localStorage.getItem('--primary-color') || '#5bcefa', // 初始颜色
                 // 其他颜色变量的初始值
-                secondaryColor: localStorage.getItem('secondaryColor') || '#f6a8b8',
-                textColor: localStorage.getItem('textColor') || '#333',
-                primaryBackgroundColor: localStorage.getItem('primaryBackgroundColor') || '#f0f2f5',
-                secondaryBackgroundColor: localStorage.getItem('secondaryBackgroundColor') || '#f9f9f9',
-                borderColor: localStorage.getItem('borderColor') || '#ccc'
+                secondaryColor: localStorage.getItem('--secondary-color') || '#f6a8b8',
+                textColor: localStorage.getItem('--text-color') || '#333',
+                primaryBackgroundColor: localStorage.getItem('--primary-background-color') || '#f0f2f5',
+                secondaryBackgroundColor: localStorage.getItem('--secondary-background-color') || '#f9f9f9',
+                borderColor: localStorage.getItem('--border-color') || '#ccc'
             },
         };
     },
@@ -71,14 +71,11 @@ export default {
             this.$emit('close');
         },
         applyColors() {
-            // 应用用户选择的颜色到页面的 CSS 变量中
             const styles = this.dynamicStyles;
             Object.keys(styles).forEach(key => {
                 document.documentElement.style.setProperty(key, styles[key]);
-                // 保存颜色到本地存储
-                localStorage.setItem(key.replace('--', ''), styles[key]);
+                localStorage.setItem(key, styles[key]); // 直接使用CSS变量名作为键名
             });
-            // 关闭颜色选择弹窗
             this.$emit('close', this.selectedColors);
         },
         resetColors() {
@@ -193,11 +190,11 @@ export default {
 }
 
 button {
-    padding: 8px 16px;
+    padding: 0.5rem 1rem;
     background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -207,12 +204,13 @@ button:hover {
 }
 
 .color-picker-dialog {
-    width: 600px;
-    max-height: 1000px;
+    width: 37.5rem;
+    max-height: 80%;
+    max-width: 80%;
     background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    box-shadow: 0em 0em 0.625rem rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     justify-content: space-between;

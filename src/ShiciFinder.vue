@@ -2,14 +2,12 @@
   <div class="container">
     <h1>寻找实词</h1>
     <label for="textInput">输入古文：</label><br />
-    <textarea id="textInput" placeholder="请输入一段古文" v-model="inputText" @input="autoResize" autofocus
-      @keydown.ctrl.enter.prevent="processText"></textarea>
+    <textarea id="textInput" placeholder="请输入一段古文" v-model="inputText" @input="autoResize" autofocus @keydown.ctrl.enter.prevent="processText"></textarea>
     <br />
     <button @click="processText">开始寻找（Ctrl+Enter）</button>
     <br />
     <label for="output">古文输出：</label><br />
-    <div id="output" v-html="highlightedText" @mouseover="showDefinitions" @mouseout="clearDefinitions"></div>
-
+    <div id="output" v-html="highlightedText"></div>
     <br />
     <label for="highlightedWords">含有的实词：</label><br />
     <textarea id="highlightedWords" class="highlighted-words" v-model="highlightedWords" readonly></textarea>
@@ -17,6 +15,7 @@
     <label for="wordCount">统计信息：</label><br />
     <textarea id="wordCount" class="wordCount" v-model="wordCountInfo" readonly></textarea>
     <br />
+    <button @click="copyDefinitions">复制义项（LaTeX格式）</button>
   </div>
 </template>
 
@@ -47,29 +46,20 @@ export default {
       const wordList = Object.keys(definitions);
       const inputText = this.inputText;
       let highlightedWords = [];
-      let uniqueWords = new Set();
-      let orderedWords = [];
+      let latexLines = [];
 
-      this.clearDefinitions();
-
-      // Filter words from the text according to the order in the definitions.json
-      for (let word of wordList) {
-        if (inputText.includes(word)) {
-          orderedWords.push(word);
-        }
-      }
-
-      this.highlightedText = inputText.replace(new RegExp('(' + orderedWords.join('|') + ')', 'g'), (match) => {
+      this.highlightedText = inputText.replace(new RegExp('(' + wordList.join('|') + ')', 'g'), match => {
         if (definitions[match]) {
           highlightedWords.push(match);
-          uniqueWords.add(match);
-          return `<span class="highlight" :style="{ display: definitionDisplay, left: definitionLeft, top: definitionTop }">${match}<span class="definition"></span></span>`;
+          latexLines.push(`\\text{${match}} & : \\text{${definitions[match].join('; ')}} \\\\`);
+          return `<span class="highlight">${match}<span class="definition">${definitions[match].join('\n ')}</span></span>`;
         }
         return match;
       });
 
-      this.highlightedWords = orderedWords.join(' ');
-      this.wordCountInfo = `共含有实词 ${orderedWords.length} 个`;
+      this.highlightedWords = highlightedWords.join(' ');
+      this.wordCountInfo = `共含有实词 ${highlightedWords.length} 个`;
+      this.latexContent = `\\begin{align*}\n${latexLines.join('\n')}\n\\end{align*}`;
     },
 
     showDefinitions(event) {
@@ -97,7 +87,7 @@ export default {
         const mouseY = event.clientY;
         const offset = 15; // Adjust this value to set the distance between the mouse and the definition box
         definitionSpan.style.position = 'fixed';
-        definitionSpan.style.left = `${mouseX}px`;
+        definitionSpan.style.left = `${mouseX + 64}px`;
         definitionSpan.style.top = `${mouseY + offset}px`; // Add an offset to show the definition box below the mouse
         definitionSpan.style.display = 'block';
       }
@@ -113,7 +103,36 @@ export default {
       });
       this.highlightedWord = null;
     },
+    copyDefinitions() {
+    let latexContent = "";
+    // 遍历highlightedWords中的每个词条和它的定义，转换为LaTeX格式
+    this.highlightedWords.split(' ').forEach(word => {
+      if (definitions[word]) {
+        // 开始构建每个实词的LaTeX表示
+        latexContent += `${word}\\left\\{\\begin{matrix}\n`;
+        // 将每个定义添加为矩阵的一行，确保特殊字符被正确转义
+        definitions[word].forEach((def, index) => {
+          def = def.replace(/&/g, '\\&'); // 转义特殊字符&
+          latexContent += def;
+          if (index < definitions[word].length - 1) {
+            latexContent += " \\\\\n"; // 不是最后一项则添加换行
+          }
+        });
+        // 结束这个实词的LaTeX表示
+        latexContent += `\\end{matrix}\\right.\n`;
+      }
+    });
+
+    // 使用 Clipboard API 复制到剪贴板
+    navigator.clipboard.writeText(latexContent).then(() => {
+      alert('义项已复制到剪贴板');
+    }).catch(err => {
+      console.error('无法复制到剪贴板', err);
+      alert('复制失败，请检查浏览器权限设置。');
+    });
+  }
   },
+
 
 
 };
@@ -139,14 +158,14 @@ label {
 
 textarea {
   width: 100%;
-  min-height: 100px;
+  min-height: 6.25rem;
   resize: none;
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
+  margin-bottom: 1.25rem;
+  padding: 0.9375rem;
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.3125rem;
   box-sizing: border-box;
-  font-size: 16px;
+  font-size: 1rem;
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
   overflow: hidden;
 }
@@ -154,13 +173,13 @@ textarea {
 button {
   display: block;
   width: 100%;
-  padding: 15px;
+  padding: 0.9375rem;
   border: none;
   background-color: var(--primary-color);
   color: #fff;
-  border-radius: 5px;
+  border-radius: 0.3125rem;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: bold;
   
   transition: transform 0.3s, box-shadow 0.3s;
@@ -169,20 +188,20 @@ button {
 button:hover {
   background-color: var(--hover-color);
   transform: scale(1.005);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }
 
 #output {
   width: 100%;
-  min-height: 100px;
-  border: 1px solid var(--border-color);
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 5px;
+  min-height: 6.25rem;
+  border: 0.0625rem solid var(--border-color);
+  padding: 0.9375rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.3125rem;
   box-sizing: border-box;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  font-size: 16px;
+  font-size: 1rem;
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
 }
 
@@ -198,10 +217,10 @@ button:hover {
   transform: translateX(-50%);
   width: max-content;
   background-color: #fff;
-  border: 1px solid var(--border-color);
-  padding: 5px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 0.0625rem solid var(--border-color);
+  padding: 0.3125rem;
+  border-radius: 0.3125rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
   color: var(--primary-color);
   font-size: 100%;
 }
@@ -221,15 +240,15 @@ button:hover {
 
 .wordCount {
   width: 100%;
-  min-height: 20px;
-  border: 1px solid var(--border-color);
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 5px;
+  min-height: 1.25rem;
+  border: 0.0625rem solid var(--border-color);
+  padding: 0.9375rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.3125rem;
   box-sizing: border-box;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  font-size: 16px;
+  font-size: 1rem;
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
 }
 </style>

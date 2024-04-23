@@ -8,10 +8,5 @@ module.exports = defineConfig({
     msTileColor: "#5bcefa",
   },
 
-  pluginOptions: {
-    "style-resources-loader": {
-      preProcessor: "sass",
-      patterns: ["./src/assets/colors.scss"],
-    },
-  },
+
 });

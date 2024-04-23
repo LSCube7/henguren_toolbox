@@ -98,19 +98,19 @@ export default {
 h1 {
   text-align: center;
   color: var(--text-color);
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: 1.875rem;
 }
 
 th,
 td {
-  border: 1px solid var(--primary-color);
-  padding: 12px;
+  border: 0.0625rem solid var(--primary-color);
+  padding: 0.75rem;
   text-align: center;
 }
 
@@ -118,7 +118,7 @@ th {
   background-color: var(--secondary-color);
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.0625rem;
 }
 
 tr:nth-child(even) {
@@ -139,9 +139,9 @@ td:hover {
   background-color: var(--primary-color);
   color: #fff;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.3125rem;
+  margin-bottom: 0.625rem;
   cursor: pointer;
   font-weight: bold;
   float: right;

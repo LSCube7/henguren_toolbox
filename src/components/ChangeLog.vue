@@ -48,23 +48,24 @@ export default {
 }
 
 .change-log {
-  width: 600px;
-  max-height: 600px;
+  width: 37.5rem;
+  max-height: 80%;
+  max-width: 80%;
   background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  box-shadow: 0rem 0rem 0.625rem rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .close-button {
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   background-color: #5bcefa;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   transition: background-color 0.3s;
 }

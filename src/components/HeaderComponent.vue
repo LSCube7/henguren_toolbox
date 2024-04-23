@@ -47,16 +47,16 @@ export default {
   align-items: center;
   background-color: #fff;
   color: var(--text-color);
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.625rem;
+  border-radius: 0.625rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
   /* 添加过渡效果 */
 }
 
 .header:hover {
   transform: scale(1.005);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
 }
 
 .left {
@@ -69,13 +69,13 @@ export default {
 }
 
 .logo {
-  width: 40px;
+  width: 2.5rem;
   height: auto;
-  margin-right: 10px;
+  margin-right: 0.625rem;
 }
 
 .title {
-  font-size: 24px;
+  font-size: larger;
   margin: 0;
   cursor: pointer;
   /* 添加鼠标指针 */
@@ -95,18 +95,18 @@ export default {
 }
 
 .github-icon {
-  width: 40px;
+  width: 2.5rem;
   height: auto;
 }
 
 .change-log-button {
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   background-color: #fff;
   color: var(--text-color);
   font-weight: bold;
   font-size: large;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -118,16 +118,16 @@ export default {
 
 /* 新增的按钮样式 */
 .color-picker-button {
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   background-color: #fff;
   color: var(--text-color);
   font-weight: bold;
   font-size: large;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 10px;
+  margin-left: 0.625rem;
   /* 为了与其他按钮分隔开 */
 }
 

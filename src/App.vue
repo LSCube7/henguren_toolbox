@@ -30,10 +30,11 @@ export default {
     return {
       isChangeLogVisible: false,
       isColorPickerVisible: false,
-      currentAppVersion: '2.1.0' // 假设当前应用程序版本号为 1.0.0
+      currentAppVersion: '2.2.0'
     };
   },
   mounted() {
+    this.applyInitialColors();
     // 检查是否是第一次打开应用程序或者版本更新后第一次打开
     const viewedChangeLog = localStorage.getItem("viewedChangeLog");
     const lastViewedVersion = localStorage.getItem("lastViewedVersion");
@@ -62,7 +63,19 @@ export default {
     closeColorPickerDialog() {
       // 关闭颜色选择器
       this.isColorPickerVisible = false;
-    }
+    },
+    applyInitialColors() {
+      const colorKeys = [
+        '--primary-color', '--secondary-color', '--text-color',
+        '--primary-background-color', '--secondary-background-color', '--border-color'
+      ];
+      colorKeys.forEach(key => {
+        const savedColor = localStorage.getItem(key);
+        if (savedColor) {
+          document.documentElement.style.setProperty(key, savedColor);
+        }
+      });
+    },
   }
 };
 </script>
@@ -73,17 +86,27 @@ html {
   font-family: "Microsoft YaHei UI", Arial, sans-serif;
   margin: 0;
   padding: 0;
+  /* 使用 CSS 变量定义颜色 */
+  --primary-color: #5bcefa;
+  --secondary-color: #f6a8b8;
+  --text-color: #333;
+  --primary-background-color: #f0f2f5;
+  --secondary-background-color: #f9f9f9;
+  --border-color: #ccc;
+  --hover-color: #4ab3d1;
+  /* 悬停颜色 */
   background-color: var(--primary-background-color);
+
+
 }
 
 #container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
+  max-width: 75rem;
+  margin: 1.25rem auto;
+  padding: 1.25rem;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
 }
 
 footer p {

@@ -29,13 +29,13 @@
 <style scoped>
 h1 {
   text-align: center;
-  color: #5bcefa;
+  color: var(--primary-color);
 
 }
 
 p {
   text-align: center;
-  color: #f6a8b8;
+  color: var(--secondary-color);
 }
 
 .toolbox {
@@ -47,40 +47,40 @@ p {
 }
 
 .toolbox li {
-  margin: 10px;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0.625rem;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-  background-color: #f9f9f9;
-  width: 200px;
+  background-color: var(--secondary-background-color);
+  width: 12.5rem;
   /* 固定宽度 */
 }
 
 .toolbox li:hover {
   transform: scale(1.1);
 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
 }
 
 .toolbox li h2 {
   text-decoration: none !important;
-  color: #333;
+  color: var(--text-color);
   display: block;
 }
 
 .toolbox li p {
-  color: #333;
+  color: var(--text-color);
 }
 
 .toolbox li h2:hover {
-  color: #5bcefa;
+  color: var(--primary-color);
   text-decoration: none;
 }
 
 .toolbox li p:hover {
-  color: #f6a8b8;
+  color: var(--secondary-color);
 }
 
 .router-link {

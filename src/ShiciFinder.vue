@@ -2,7 +2,8 @@
   <div class="container">
     <h1>寻找实词</h1>
     <label for="textInput">输入古文：</label><br />
-    <textarea id="textInput" placeholder="请输入一段古文" v-model="inputText" @input="autoResize" autofocus @keydown.ctrl.enter.prevent="processText"></textarea>
+    <textarea id="textInput" placeholder="请输入一段古文" v-model="inputText" @input="autoResize" autofocus
+      @keydown.ctrl.enter.prevent="processText"></textarea>
     <br />
     <button @click="processText">开始寻找（Ctrl+Enter）</button>
     <br />
@@ -47,6 +48,14 @@ export default {
       const inputText = this.inputText;
       let highlightedWords = [];
       let latexLines = [];
+      let orderedWords = [];
+
+      // Filter words from the text according to the order in the definitions.json
+      for (let word of wordList) {
+        if (inputText.includes(word)) {
+          orderedWords.push(word);
+        }
+      }
 
       this.highlightedText = inputText.replace(new RegExp('(' + wordList.join('|') + ')', 'g'), match => {
         if (definitions[match]) {
@@ -57,8 +66,10 @@ export default {
         return match;
       });
 
-      this.highlightedWords = highlightedWords.join(' ');
-      this.wordCountInfo = `共含有实词 ${highlightedWords.length} 个`;
+
+
+      this.highlightedWords = orderedWords.join(' ');
+      this.wordCountInfo = `共含有实词 ${orderedWords.length} 个`;
       this.latexContent = `\\begin{align*}\n${latexLines.join('\n')}\n\\end{align*}`;
     },
 
@@ -104,33 +115,33 @@ export default {
       this.highlightedWord = null;
     },
     copyDefinitions() {
-    let latexContent = "";
-    // 遍历highlightedWords中的每个词条和它的定义，转换为LaTeX格式
-    this.highlightedWords.split(' ').forEach(word => {
-      if (definitions[word]) {
-        // 开始构建每个实词的LaTeX表示
-        latexContent += `${word}\\left\\{\\begin{matrix}\n`;
-        // 将每个定义添加为矩阵的一行，确保特殊字符被正确转义
-        definitions[word].forEach((def, index) => {
-          def = def.replace(/&/g, '\\&'); // 转义特殊字符&
-          latexContent += def;
-          if (index < definitions[word].length - 1) {
-            latexContent += " \\\\\n"; // 不是最后一项则添加换行
-          }
-        });
-        // 结束这个实词的LaTeX表示
-        latexContent += `\\end{matrix}\\right.\n`;
-      }
-    });
+      let latexContent = "";
+      // 遍历highlightedWords中的每个词条和它的定义，转换为LaTeX格式
+      this.highlightedWords.split(' ').forEach(word => {
+        if (definitions[word]) {
+          // 开始构建每个实词的LaTeX表示
+          latexContent += `$$\n${word}\\left\\{\\begin{matrix}\n`;
+          // 将每个定义添加为矩阵的一行，确保特殊字符被正确转义
+          definitions[word].forEach((def, index) => {
+            def = def.replace(/&/g, '\\&'); // 转义特殊字符&
+            latexContent += def;
+            if (index < definitions[word].length - 1) {
+              latexContent += " \\\\\n"; // 不是最后一项则添加换行
+            }
+          });
+          // 结束这个实词的LaTeX表示
+          latexContent += `\\end{matrix}\\right.\n$$\n`;
+        }
+      });
 
-    // 使用 Clipboard API 复制到剪贴板
-    navigator.clipboard.writeText(latexContent).then(() => {
-      alert('义项已复制到剪贴板');
-    }).catch(err => {
-      console.error('无法复制到剪贴板', err);
-      alert('复制失败，请检查浏览器权限设置。');
-    });
-  }
+      // 使用 Clipboard API 复制到剪贴板
+      navigator.clipboard.writeText(latexContent).then(() => {
+        alert('义项已复制到剪贴板');
+      }).catch(err => {
+        console.error('无法复制到剪贴板', err);
+        alert('复制失败，请检查浏览器权限设置。');
+      });
+    }
   },
 
 
@@ -181,7 +192,7 @@ button {
   cursor: pointer;
   font-size: 1.125rem;
   font-weight: bold;
-  
+
   transition: transform 0.3s, box-shadow 0.3s;
 }
 

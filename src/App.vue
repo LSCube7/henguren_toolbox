@@ -30,7 +30,7 @@ export default {
     return {
       isChangeLogVisible: false,
       isColorPickerVisible: false,
-      currentAppVersion: '2.2.0'
+      currentAppVersion: '2.2.1'
     };
   },
   mounted() {

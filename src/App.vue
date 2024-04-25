@@ -1,4 +1,6 @@
 <template>
+  
+  <SpeedInsights />
   <div>
     <HeaderComponent @open-changelog="openChangeLogDialog" @open-colorpicker="openColorPickerDialog" />
     <div id="container">
@@ -12,8 +14,11 @@
 
   </div>
 
-  <SpeedInsights />
 </template>
+
+<script setup>
+import { SpeedInsights } from '@vercel/speed-insights/vue';
+</script>
 
 <script>
 import FooterComponent from '@/components/FooterComponent.vue'; // 导入底部组件
@@ -21,7 +26,6 @@ import HeaderComponent from '@/components/HeaderComponent.vue';
 import ChangeLog from '@/components/ChangeLog.vue'; // 导入更新日志组件
 import ColorPicker from '@/components/ColorPicker.vue'; // 导入颜色选择器组件
 import { inject } from '@vercel/analytics';
-import { SpeedInsights } from '@vercel/speed-insights/vue';
 inject();
 
 export default {

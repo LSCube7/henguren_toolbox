@@ -11,6 +11,8 @@
     <ColorPicker v-if="isColorPickerVisible" @close="closeColorPickerDialog" :showColorPicker="isColorPickerVisible" />
 
   </div>
+
+  <SpeedInsights />
 </template>
 
 <script>
@@ -18,6 +20,9 @@ import FooterComponent from '@/components/FooterComponent.vue'; // 导入底部�
 import HeaderComponent from '@/components/HeaderComponent.vue';
 import ChangeLog from '@/components/ChangeLog.vue'; // 导入更新日志组件
 import ColorPicker from '@/components/ColorPicker.vue'; // 导入颜色选择器组件
+import { inject } from '@vercel/analytics';
+import { SpeedInsights } from '@vercel/speed-insights/vue';
+inject();
 
 export default {
   components: {

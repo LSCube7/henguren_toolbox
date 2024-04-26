@@ -5,8 +5,7 @@ module.exports = defineConfig({
   pwa: {
     name: "恨古人工具箱",
     themeColor: "#000000",
-    msTileColor: "#5bcefa",
-    updatePopup: true
+    msTileColor: "#5bcefa"
   },
 
 

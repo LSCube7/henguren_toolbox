@@ -3,10 +3,8 @@
     <div class="left">
       <!-- LOGO -->
       <router-link to="/" class="logo-link">
-        <img src="@/assets/png/android-chrome-192x192.png" alt="Logo" class="logo">
+        <img src="@/assets/png/henguren-horizontal.svg" alt="Logo" class="logo">
       </router-link>
-      <!-- 标题 -->
-      <h1 class="title" @click="goHome">恨古人工具箱</h1>
     </div>
     <div class="right">
       <!-- 更新日志按钮 -->
@@ -69,7 +67,7 @@ export default {
 }
 
 .logo {
-  width: 2.5rem;
+  width: 10rem;
   height: auto;
   margin-right: 0.625rem;
 }

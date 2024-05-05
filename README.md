@@ -1,4 +1,5 @@
 # 恨古人工具箱 · ![GitHub License](https://img.shields.io/github/license/LSCube7/henguren_toolbox) ![GitHub deployments](https://img.shields.io/github/deployments/LSCube7/henguren_toolbox/production?logo=vercel&label=vercel)
+![Alt](https://repobeats.axiom.co/api/embed/1ebed7c0ec7e92206d1dda5839ba13ef5cd88090.svg "Repobeats analytics image")
 
 
 一个基于Vue的工具箱，可以帮助同学们更高效地学习。

@@ -17,11 +17,15 @@
     <textarea id="wordCount" class="wordCount" v-model="wordCountInfo" readonly></textarea>
     <br />
     <button @click="copyDefinitions">复制义项（LaTeX格式）</button>
+    <br />
+    <button @click="saveDefinitions">下载义项tex文件</button>
   </div>
 </template>
 
 <script>
 import definitions from '@/assets/js/shici/definitions.json';
+import FileSaver from 'file-saver';
+
 
 export default {
   data() {
@@ -120,7 +124,7 @@ export default {
       this.highlightedWords.split(' ').forEach(word => {
         if (definitions[word]) {
           // 开始构建每个实词的LaTeX表示
-          latexContent += `$$\n${word}\\left\\{\\begin{matrix}\n`;
+          latexContent += `$$\n${word}\\left\\{\\begin{array}{l}\n`;
           // 将每个定义添加为矩阵的一行，确保特殊字符被正确转义
           definitions[word].forEach((def, index) => {
             def = def.replace(/&/g, '\\&'); // 转义特殊字符&
@@ -130,7 +134,7 @@ export default {
             }
           });
           // 结束这个实词的LaTeX表示
-          latexContent += `\\end{matrix}\\right.\n$$\n`;
+          latexContent += `\\end{array}\\right.\n$$\n`;
         }
       });
 
@@ -141,7 +145,31 @@ export default {
         console.error('无法复制到剪贴板', err);
         alert('复制失败，请检查浏览器权限设置。');
       });
+    },
+    saveDefinitions() {
+      let latexContent = "";
+      // 遍历highlightedWords中的每个词条和它的定义，转换为LaTeX格式
+      this.highlightedWords.split(' ').forEach(word => {
+        if (definitions[word]) {
+          // 开始构建每个实词的LaTeX表示
+          latexContent += `$$\n${word}\\left\\{\\begin{array}{l}\n`;
+          // 将每个定义添加为矩阵的一行，确保特殊字符被正确转义
+          definitions[word].forEach((def, index) => {
+            def = def.replace(/&/g, '\\&'); // 转义特殊字符&
+            latexContent += def;
+            if (index < definitions[word].length - 1) {
+              latexContent += " \\\\\n"; // 不是最后一项则添加换行
+            }
+          });
+          // 结束这个实词的LaTeX表示
+          latexContent += `\\end{array}\\right.\n$$\n`;
+        }
+      });
+      let latexFileContent = "%!Tex Program = xelatex\n\\documentclass[twocolumn]{article}\n\\usepackage[fleqn]{amsmath}\n\\usepackage[UTF8]{ctex}\n\\setCJKmainfont{楷体}\n\\xeCJKsetup{CJKmath=true}\n\\begin{document}" + latexContent + "\\end{document}";
+      const latexBlob = new Blob([latexFileContent], {type: "text/x-tex;charset=utf-8"});
+      FileSaver.saveAs(latexBlob, "definitions.tex")
     }
+
   },
 
 

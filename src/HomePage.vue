@@ -15,6 +15,12 @@
       </router-link>
     </li>
     <li>
+      <router-link to="/vocab" class="router-link">
+        <h2>单词测试</h2>
+        <p>测试英语书后的单词，轻松助你通过Ⅱ卷，支持自定义单词列表</p>
+      </router-link>
+    </li>
+    <li>
       <router-link to="#" class="router-link">
         <h2>开发中……</h2>
         <p>更多工具绝赞添加中</p>

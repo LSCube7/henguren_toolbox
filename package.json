@@ -1,6 +1,6 @@
 {
   "name": "henguren",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,7 +15,7 @@
     "register-service-worker": "^1.7.2",
     "sass": "^1.75.0",
     "sass-loader": "^14.2.0",
-    "vue": "^3.2.13",
+    "vue": "^3.5.13",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {

@@ -1,0 +1,472 @@
+{
+    "vocabulary": [
+        {
+            "word": "make-up",
+            "en_definition": [
+                "substances used especially by women to make their faces look more attractive, or used by actors to change their appearance"
+            ],
+            "zh_definition": [
+                "化妆品"
+            ]
+        },
+        {
+            "word": "ideal",
+            "en_definition": [
+                "perfect; most suitable"
+            ],
+            "zh_definition": [
+                "完美的；理想的；最合适的"
+            ]
+        },
+        {
+            "word": "broad",
+            "en_definition": [
+                "wide"
+            ],
+            "zh_definition": [
+                "宽阔的；广阔的"
+            ]
+        },
+        {
+            "word": "short-sighted",
+            "en_definition": [
+                "able to see things clearly only if they are very close"
+            ],
+            "zh_definition": [
+                "近视的"
+            ]
+        },
+        {
+            "word": "shallow",
+            "en_definition": [
+                "(of a person, an idea, a comment, etc.) not showing serious thought, feelings, etc. about something"
+            ],
+            "zh_definition": [
+                "肤浅的；浅薄的"
+            ]
+        },
+        {
+            "word": "normal",
+            "en_definition": [
+                "typical, usual or ordinary; what you would expect"
+            ],
+            "zh_definition": [
+                "典型的；正常的；一般的"
+            ]
+        },
+        {
+            "word": "representation",
+            "en_definition": [
+                "the act of presenting somebody/something in a particular way; something that shows or describes something"
+            ],
+            "zh_definition": [
+                "表现；描述；描绘；表现形式"
+            ]
+        },
+        {
+            "word": "shave",
+            "en_definition": [
+                "to cut hair from the skin, especially the face, using a razor"
+            ],
+            "zh_definition": [
+                "剃（须发）；（尤指）刮脸"
+            ]
+        },
+        {
+            "word": "generation",
+            "en_definition": [
+                "all the people born and living at about the same time"
+            ],
+            "zh_definition": [
+                "一代人；一辈人"
+            ]
+        },
+        {
+            "word": "metal",
+            "en_definition": [
+                "a type of solid mineral substance that is usually hard and shiny and that heat and electricity can travel through, for example tin, iron and gold"
+            ],
+            "zh_definition": [
+                "金属"
+            ]
+        },
+        {
+            "word": "stretch",
+            "en_definition": [
+                "to make something longer, wider or looser, for example by pulling it; to become longer, etc. in this way"
+            ],
+            "zh_definition": [
+                "拉长；拽宽；撑大；抻松"
+            ]
+        },
+        {
+            "word": "elegant",
+            "en_definition": [
+                "(of people or their behaviour) attractive and showing a good sense of style"
+            ],
+            "zh_definition": [
+                "优美的；文雅的"
+            ]
+        },
+        {
+            "word": "odd",
+            "en_definition": [
+                "strange or unusual"
+            ],
+            "zh_definition": [
+                "奇怪的；怪异的；反常的"
+            ]
+        },
+        {
+            "word": "enable",
+            "en_definition": [
+                "to make it possible for somebody to do something"
+            ],
+            "zh_definition": [
+                "使能够；使有机会"
+            ]
+        },
+        {
+            "word": "display",
+            "en_definition": [
+                "to show signs of something, especially a quality or feeling"
+            ],
+            "zh_definition": [
+                "显示，显露，表现（尤指特性或情感）"
+            ]
+        },
+        {
+            "word": "vary",
+            "en_definition": [
+                "(of a group of similar things) to be different from each other in size, shape, etc."
+            ],
+            "zh_definition": [
+                "（大小、形状等）相异，不同，有别"
+            ]
+        },
+        {
+            "word": "surround",
+            "en_definition": [
+                "to be well around something/somebody"
+            ],
+            "zh_definition": [
+                "围绕；环绕"
+            ]
+        },
+        {
+            "word": "sex",
+            "en_definition": [
+                "the state of being male or female"
+            ],
+            "zh_definition": [
+                "性别"
+            ]
+        },
+        {
+            "word": "context",
+            "en_definition": [
+                "the words that come just before and after a word, phrase or statement and help you to understand its meaning"
+            ],
+            "zh_definition": [
+                "上下文；语境"
+            ]
+        },
+        {
+            "word": "gender",
+            "en_definition": [
+                "the fact of being male or female, especially when considered with reference to social and cultural differences, not differences in biology"
+            ],
+            "zh_definition": [
+                "性别（尤指社会和文化差异，而非生理差异）"
+            ]
+        },
+        {
+            "word": "trend",
+            "en_definition": [
+                "a general direction in which a situation is changing or developing"
+            ],
+            "zh_definition": [
+                "趋势；倾向；动向"
+            ]
+        },
+        {
+            "word": "occupation",
+            "en_definition": [
+                "a job or profession"
+            ],
+            "zh_definition": [
+                "工作；职业"
+            ]
+        },
+        {
+            "word": "campus",
+            "en_definition": [
+                "the building of a university or college and the land around them"
+            ],
+            "zh_definition": [
+                "（大学、学院的）校园，校区"
+            ]
+        },
+        {
+            "word": "personality",
+            "en_definition": [
+                "the various aspects of a person’s character that combine to make them different from other people"
+            ],
+            "zh_definition": [
+                "性格；个性；人格"
+            ]
+        },
+        {
+            "word": "external",
+            "en_definition": [
+                "connected with or located on the outside of something/somebody"
+            ],
+            "zh_definition": [
+                "外部的；外面的"
+            ]
+        },
+        {
+            "word": "relief",
+            "en_definition": [
+                "the feeling of happiness that you have when something unpleasant stops or does not happen"
+            ],
+            "zh_definition": [
+                "（不快过后的）宽慰；轻松；解脱"
+            ]
+        },
+        {
+            "word": "duty",
+            "en_definition": [
+                "something that you feel you have to do because it is your moral or legal responsibility"
+            ],
+            "zh_definition": [
+                "责任；义务；本分"
+            ]
+        },
+        {
+            "word": "effort",
+            "en_definition": [
+                "the physical or mental energy that you need to do something; something that takes a lot of energy"
+            ],
+            "zh_definition": [
+                "气力；努力；费力的事"
+            ]
+        },
+        {
+            "word": "ignore",
+            "en_definition": [
+                "to pay no attention to something"
+            ],
+            "zh_definition": [
+                "忽视；对......不予理会"
+            ]
+        },
+        {
+            "word": "hide-and-seek",
+            "en_definition": [
+                "a children’s game in which one player covers his or her eyes while the other players hide and then tries to find them"
+            ],
+            "zh_definition": [
+                "捉迷藏游戏"
+            ]
+        },
+        {
+            "word": "branch",
+            "en_definition": [
+                "a part of a tree that grows out from the main stem and on which leaves, flowers and fruit grow"
+            ],
+            "zh_definition": [
+                "树枝"
+            ]
+        },
+        {
+            "word": "mass",
+            "en_definition": [
+                "a large amount or quantity of something"
+            ],
+            "zh_definition": [
+                "大量；许多"
+            ]
+        },
+        {
+            "word": "individual",
+            "en_definition": [
+                "considered separately rather than as part of a group"
+            ],
+            "zh_definition": [
+                "单独的；个别的"
+            ]
+        },
+        {
+            "word": "pattern",
+            "en_definition": [
+                "a regular arrangement of lines, shapes, colours, etc. as a design on material, carpets, etc."
+            ],
+            "zh_definition": [
+                "图案；花样；式样"
+            ]
+        },
+        {
+            "word": "observe",
+            "en_definition": [
+                "(formal) to see or notice something/somebody"
+            ],
+            "zh_definition": [
+                "看到；注意到；观察到"
+            ]
+        },
+        {
+            "word": "constantly",
+            "en_definition": [
+                "all the time; repeatedly"
+            ],
+            "zh_definition": [
+                "始终；一直；重复不断地"
+            ]
+        },
+        {
+            "word": "dive",
+            "en_definition": [
+                "to swim underwater wearing breathing equipment, collecting or looking at things"
+            ],
+            "zh_definition": [
+                "（戴呼吸装备）潜水"
+            ]
+        },
+        {
+            "word": "sort",
+            "en_definition": [
+                "a group or type of people or things that are similar in a particular way"
+            ],
+            "zh_definition": [
+                "种类；类别"
+            ]
+        },
+        {
+            "word": "impression",
+            "en_definition": [
+                "an idea, a feeling or an opinion that you get about somebody/something, or that somebody/something gives you"
+            ],
+            "zh_definition": [
+                "印象；感想"
+            ]
+        },
+        {
+            "word": "react",
+            "en_definition": [
+                "to change or behave in a particular way as a result of or in response to something"
+            ],
+            "zh_definition": [
+                "起反应；（对......）作出反应；回应"
+            ]
+        },
+        {
+            "word": "column",
+            "en_definition": [
+                "a part of a newspaper or magazine which appears regularly and deals with a particular subject or is written by a particular writer"
+            ],
+            "zh_definition": [
+                "专栏；栏目"
+            ]
+        },
+        {
+            "word": "sample",
+            "en_definition": [
+                "example of something"
+            ],
+            "zh_definition": [
+                "样本"
+            ]
+        },
+        {
+            "word": "emphasis",
+            "en_definition": [
+                "the extra force given to a word or phrase when spoken, especially in order to show importance"
+            ],
+            "zh_definition": [
+                "（对某个词或短语的）强调"
+            ]
+        },
+        {
+            "word": "suit",
+            "en_definition": [
+                "a set of clothes made of the same cloth, including a jacket and trousers/pants or a skirt"
+            ],
+            "zh_definition": [
+                "西装；西服；套装"
+            ]
+        },
+        {
+            "word": "exist",
+            "en_definition": [
+                "to be real; to be present in a place or situation"
+            ],
+            "zh_definition": [
+                "存在；实际上有"
+            ]
+        },
+        {
+            "word": "symbol",
+            "en_definition": [
+                "a person, an object, an event, etc. that represents a more general quality or situation"
+            ],
+            "zh_definition": [
+                "象征"
+            ]
+        },
+        {
+            "word": "various",
+            "en_definition": [
+                "several; different"
+            ],
+            "zh_definition": [
+                "各种不同的；各种各样的"
+            ]
+        },
+        {
+            "word": "wedding",
+            "en_definition": [
+                "a marriage ceremony, and the meal or party that usually follows it"
+            ],
+            "zh_definition": [
+                "婚礼；结婚庆典"
+            ]
+        },
+        {
+            "word": "carve",
+            "en_definition": [
+                "to make objects, pattern, etc. by cutting away material from wood or stone"
+            ],
+            "zh_definition": [
+                "雕刻"
+            ]
+        },
+        {
+            "word": "delicate",
+            "en_definition": [
+                "made or formed in a very careful and detailed way"
+            ],
+            "zh_definition": [
+                "精致的；精细的；精密的"
+            ]
+        },
+        {
+            "word": "practical",
+            "en_definition": [
+                "connected with real situations rather than with ideas or theories"
+            ],
+            "zh_definition": [
+                "实际的；真实的；客观存在的"
+            ]
+        },
+        {
+            "word": "plastic surgery",
+            "en_definition": [
+                "operations that improve your appearance after you have been injured, or because you want to look more attractive"
+            ],
+            "zh_definition": [
+                "整容外科手术"
+            ]
+        }
+    ]
+}

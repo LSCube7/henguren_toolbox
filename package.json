@@ -2,6 +2,7 @@
   "name": "henguren",
   "version": "2.5.0",
   "private": true,
+  "packageManager": "pnpm@10.8.0",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

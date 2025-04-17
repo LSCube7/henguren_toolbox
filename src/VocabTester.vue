@@ -15,6 +15,13 @@
     </div>
     <div v-else-if="currentWordIndex < shuffledWords.length">
       <h2>测试中</h2>
+      <!-- 添加进度条 -->
+      <div class="progress-bar-container">
+        <div class="progress-text">
+          {{ currentWordIndex + 1 }}/{{ shuffledWords.length }}（{{ progressPercentage }}%）
+        </div>
+        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+      </div>
       <div class="test-container">
         <p class="definition">英文释义: {{ shuffledWords[currentWordIndex].en_definition.join("; ") }}</p>
         <div class="input-container">
@@ -77,6 +84,9 @@ export default {
   computed: {
     correctRate() {
       return ((this.correctCount / this.shuffledWords.length) * 100).toFixed(2);
+    },
+    progressPercentage() {
+      return ((this.currentWordIndex / this.shuffledWords.length) * 100).toFixed(2);
     },
   },
   created() {
@@ -190,6 +200,32 @@ export default {
   margin: 0 auto;
   padding: 1.25rem;
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 0.3125rem;
+  overflow: hidden;
+  margin: 1rem 0;
+  position: relative; /* 确保子元素的绝对定位基于容器 */
+  text-align: center;
+}
+
+.progress-bar {
+  height: 1rem;
+  background-color: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  color: var(--text-color);
+  font-weight: bold;
+  z-index: 1; /* 确保文本在进度条上方 */
 }
 
 h1 {

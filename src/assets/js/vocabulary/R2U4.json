@@ -1,0 +1,305 @@
+{
+  "vocabulary": [
+    {
+      "word": "nationality",
+      "en_definition": ["one’s legal right to belong to a nation"],
+      "zh_definition": ["国籍"]
+    },
+    {
+      "word": "journal",
+      "en_definition": [
+        "a written record of the things you do, see, etc. every day",
+        "a newspaper or magazine"
+      ],
+      "zh_definition": ["日志；日记", "报纸；刊物；杂志"]
+    },
+    {
+      "word": "authority",
+      "en_definition": [
+        "the power to give orders to people",
+        "the power to influence people because they respect your knowledge or official position"
+      ],
+      "zh_definition": ["权力", "权威；威信；影响力"]
+    },
+    {
+      "word": "brick",
+      "en_definition": [
+        "something used for building walls, houses and other buildings"
+      ],
+      "zh_definition": ["砖；砖块"]
+    },
+    {
+      "word": "gain",
+      "en_definition": ["an advantage or improvement"],
+      "zh_definition": ["好处；利益；改进"]
+    },
+    {
+      "word": "attract",
+      "en_definition": ["to interest you and make you want it"],
+      "zh_definition": ["吸引；使喜爱"]
+    },
+    {
+      "word": "shark",
+      "en_definition": [
+        "a large sea fish with very sharp teeth and a pointed fin on its back"
+      ],
+      "zh_definition": ["鲨鱼"]
+    },
+    {
+      "word": "target",
+      "en_definition": [
+        "an object, a person or a place that people aim at when attacking",
+        "a result that you try to achieve"
+      ],
+      "zh_definition": ["（攻击的）目标，对象", "目标；指标"]
+    },
+    {
+      "word": "approach",
+      "en_definition": [
+        "to come near to somebody / something in distance or time"
+      ],
+      "zh_definition": ["（在距离或时间上）靠近，接近"]
+    },
+    {
+      "word": "attack",
+      "en_definition": [
+        "an act of using violence to try to hurt or kill somebody",
+        "to use violence to try to hurt or kill somebody"
+      ],
+      "zh_definition": ["袭击；攻击", "袭击；攻击"]
+    },
+    {
+      "word": "sharp",
+      "en_definition": [
+        "having a fine edge or point, especially of something that can cut or make a hole in something"
+      ],
+      "zh_definition": ["锋利的；尖的"]
+    },
+    {
+      "word": "skin",
+      "en_definition": ["the layer of tissue that covers the body"],
+      "zh_definition": ["皮；皮肤"]
+    },
+    {
+      "word": "strength",
+      "en_definition": ["the quality of being physically strong"],
+      "zh_definition": ["体力；力气；力量"]
+    },
+    {
+      "word": "wrap",
+      "en_definition": [
+        "to put something firmly around something / somebody",
+        "to cover something completely in paper or other material"
+      ],
+      "zh_definition": ["用......缠绕（或围紧）", "包，裹（礼物等）"]
+    },
+    {
+      "word": "bleed",
+      "en_definition": ["to lose blood, especially from a wound or an injury"],
+      "zh_definition": ["流血；失血"]
+    },
+    {
+      "word": "bite",
+      "en_definition": ["to use your teeth to cut into or through something"],
+      "zh_definition": ["咬"]
+    },
+    {
+      "word": "defeat",
+      "en_definition": [
+        "failure to win or to be successful",
+        "to win against somebody in a war, competition, sports game, etc."
+      ],
+      "zh_definition": ["失败", "击败，战胜"]
+    },
+    {
+      "word": "destroy",
+      "en_definition": [
+        "to damage something so badly that it no longer exists, works, etc."
+      ],
+      "zh_definition": ["摧毁"]
+    },
+    {
+      "word": "intelligent",
+      "en_definition": [
+        "(of an animal, a being, etc.) able to understand and learn things",
+        "good at learning, understanding"
+      ],
+      "zh_definition": ["有智力的；有理解和学习能力的", "有才智的；聪明的"]
+    },
+    {
+      "word": "struggle",
+      "en_definition": [
+        "to fight somebody or try to get away from them",
+        "to try very hard to do something when it is difficult"
+      ],
+      "zh_definition": ["搏斗；扭打；挣扎脱身", "奋斗；努力"]
+    },
+    {
+      "word": "sink",
+      "en_definition": [
+        "to go down below the surface or towards the bottom of a liquid or soft substance"
+      ],
+      "zh_definition": ["下沉"]
+    },
+    {
+      "word": "ahead",
+      "en_definition": ["further forward in space or time; in front"],
+      "zh_definition": ["向前面，在前面"]
+    },
+    {
+      "word": "maintain",
+      "en_definition": [
+        "to make something continue at the same level, standard, etc.",
+        "to keep stating that something is true, even though other people do not agree"
+      ],
+      "zh_definition": ["维持；保持", "坚持（意见），固执己见"]
+    },
+    {
+      "word": "dramatically",
+      "en_definition": [
+        "by a strikingly large amount or to a strikingly large extent; greatly"
+      ],
+      "zh_definition": ["巨大地"]
+    },
+    {
+      "word": "curious",
+      "en_definition": ["having a strong desire to know about something"],
+      "zh_definition": ["求知欲强的；好奇的"]
+    },
+    {
+      "word": "shortage",
+      "en_definition": [
+        "a situation when there is not enough of the people or things that are needed"
+      ],
+      "zh_definition": ["不足；缺少；短缺"]
+    },
+    {
+      "word": "grain",
+      "en_definition": [
+        "the small hard seeds of food plants such as wheat, rice, etc.",
+        "a single seed of such a plant"
+      ],
+      "zh_definition": ["谷物；谷粒"]
+    },
+    {
+      "word": "decade",
+      "en_definition": ["a period of ten years"],
+      "zh_definition": ["十年，十年期（尤指一个年代）"]
+    },
+    {
+      "word": "self-sufficient",
+      "en_definition": [
+        "able to do or produce everything that you need without the help of other people"
+      ],
+      "zh_definition": ["自给自足；自立的"]
+    },
+    {
+      "word": "medal",
+      "en_definition": [
+        "a flat piece of metal, usually shaped like a coin, that is given to the winner of a competition"
+      ],
+      "zh_definition": ["奖章；勋章"]
+    },
+    {
+      "word": "outstanding",
+      "en_definition": ["extremely good; excellent"],
+      "zh_definition": ["优秀的；杰出的；出色的"]
+    },
+    {
+      "word": "institute",
+      "en_definition": [
+        "an organization that has a particular purpose, especially one that is connected with education or a particular profession"
+      ],
+      "zh_definition": ["（教育、专业等）机构"]
+    },
+    {
+      "word": "request",
+      "en_definition": [
+        "the action of asking for something formally and politely"
+      ],
+      "zh_definition": ["（正式或礼貌的）要求，请求"]
+    },
+    {
+      "word": "atmosphere",
+      "en_definition": ["the mixture of gases that surrounds the Earth"],
+      "zh_definition": ["（围绕地球的）大气，大气层"]
+    },
+    {
+      "word": "lack",
+      "en_definition": [
+        "the state of not having something or not having enough of something"
+      ],
+      "zh_definition": ["缺乏；匮乏；短缺"]
+    },
+    {
+      "word": "clue",
+      "en_definition": [
+        "some words or a piece of information that helps you find the answers to a game or a question"
+      ],
+      "zh_definition": ["提示词语，解答提示"]
+    },
+    {
+      "word": "literature",
+      "en_definition": ["pieces of writing that are valued as works of art"],
+      "zh_definition": ["文学；文学作品"]
+    },
+    {
+      "word": "failure",
+      "en_definition": [
+        "a person or thing that is not successful",
+        "lack of success in doing or achieving something"
+      ],
+      "zh_definition": ["失败的人（或事物）", "失败"]
+    },
+    {
+      "word": "realistic",
+      "en_definition": [
+        "accepting in a sensible way what it is actually possible to do or achieve in a particular situation"
+      ],
+      "zh_definition": ["现实的；实际的；实事求是的"]
+    },
+    {
+      "word": "professional",
+      "en_definition": ["doing something as a paid job rather than as a hobby"],
+      "zh_definition": ["专业的；职业的"]
+    },
+    {
+      "word": "false",
+      "en_definition": ["wrong; not correct or true"],
+      "zh_definition": ["错误的；不正确的"]
+    },
+    {
+      "word": "permanently",
+      "en_definition": [
+        "lasting for a long time or for all time in the future"
+      ],
+      "zh_definition": ["永久地；永恒地"]
+    },
+    {
+      "word": "setback",
+      "en_definition": [
+        "a difficulty or problem that delays or prevents something or makes a situation worse"
+      ],
+      "zh_definition": ["挫折；阻碍"]
+    },
+    {
+      "word": "title",
+      "en_definition": [
+        "the name of a book, poem, painting, piece of music, etc."
+      ],
+      "zh_definition": ["（书、诗歌、图画、乐曲等的）名称，标题，题目"]
+    },
+    {
+      "word": "cell phone",
+      "en_definition": ["a mobile phone"],
+      "zh_definition": ["移动电话；手机"]
+    },
+    {
+      "word": "in addition",
+      "en_definition": [
+        "used when you want to mention another person or thing after something else"
+      ],
+      "zh_definition": ["除......以外（还）"]
+    }
+  ]
+}

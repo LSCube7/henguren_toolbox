@@ -10,12 +10,29 @@
       </ul>
       <div class="upload-container">
         <label for="fileUpload">上传自定义单词列表：</label>
-        <input type="file" id="fileUpload" @change="uploadCustomList" class="upload-button"/>
+        <input type="file" id="fileUpload" @change="uploadCustomList" class="upload-button" />
       </div>
+
+      <!-- 新增高级设置 -->
+      <details class="advanced-settings">
+        <summary>高级设置</summary>
+        <br/>
+        <div class="settings-container">
+          <label>
+            <input type="checkbox" v-model="showHint" @change="saveShowHintSetting" />
+            显示首字母提示
+          </label>
+          <br />
+          <label>
+            <input type="checkbox" v-model="enableSlipDetection" @change="saveSlipDetectionSetting" />
+            启用手滑判定
+          </label>
+        </div>
+      </details>
     </div>
+
     <div v-else-if="currentWordIndex < shuffledWords.length">
       <h2>测试中</h2>
-      <!-- 添加进度条 -->
       <div class="progress-bar-container">
         <div class="progress-text">
           {{ currentWordIndex + 1 }}/{{ shuffledWords.length }}（{{ progressPercentage }}%）
@@ -25,7 +42,7 @@
       <div class="test-container">
         <p class="definition">英文释义: {{ shuffledWords[currentWordIndex].en_definition.join("; ") }}</p>
         <div class="input-container">
-          <span class="hint">{{ shuffledWords[currentWordIndex].word[0] }}</span>
+          <span v-if="showHint" class="hint">{{ shuffledWords[currentWordIndex].word[0] }}</span>
           <input
             v-model="userInput"
             placeholder="输入单词"
@@ -34,10 +51,26 @@
           />
         </div>
         <button @click="checkAnswer" class="submit-button">提交</button>
-        <p v-if="feedback" :class="{ correct: feedback.correct, incorrect: !feedback.correct }" class="feedback">
+        <p
+          v-if="feedback"
+          :class="{
+            correct: feedback.correct,
+            incorrect: !feedback.correct && !feedback.slip,
+            slip: feedback.slip,
+          }"
+          class="feedback"
+        >
           {{ feedback.message }}
+          <button
+            v-if="feedback.slip"
+            @click="markSlipAsIncorrect"
+            class="mark-incorrect-button"
+          >
+            判定为错误
+          </button>
         </p>
       </div>
+      <button @click="exitTest" class="exit-button">退出测试</button>
     </div>
     <div v-else>
       <h2>测试完成</h2>
@@ -79,6 +112,8 @@ export default {
       incorrectWords: [],
       correctWords: [],
       isTesting: false,
+      showHint: true, // 新增属性，默认显示首字母
+      enableSlipDetection: false, // 新增属性，默认不启用手滑判定
     };
   },
   computed: {
@@ -91,8 +126,28 @@ export default {
   },
   created() {
     this.wordLists = listData;
+    // 从 localStorage 读取用户设置
+    const savedShowHint = localStorage.getItem("showHint");
+    if (savedShowHint !== null) {
+      this.showHint = savedShowHint === "true";
+    }
+    const savedEnableSlipDetection = localStorage.getItem("enableSlipDetection");
+    if (savedEnableSlipDetection !== null) {
+      this.enableSlipDetection = savedEnableSlipDetection === "true";
+    }
   },
   methods: {
+    toggleHint() {
+      this.showHint = !this.showHint;
+      // 保存用户设置到 localStorage
+      localStorage.setItem("showHint", this.showHint);
+    },
+    saveShowHintSetting() {
+      localStorage.setItem("showHint", this.showHint);
+    },
+    saveSlipDetectionSetting() {
+      localStorage.setItem("enableSlipDetection", this.enableSlipDetection);
+    },
     async startTest(listName) {
       this.selectedList = listName;
       const listModule = await import(`./assets/js/vocabulary/${listName}.json`);
@@ -122,22 +177,75 @@ export default {
       const currentWord = this.shuffledWords[this.currentWordIndex];
       const correctAnswer = currentWord.word.toLowerCase();
       const userAnswer = this.userInput.trim().toLowerCase();
+
+      // 如果用户输入忽略了首字母，调整正确答案进行比较
+      const adjustedCorrectAnswer = correctAnswer.slice(1);
+
       const isCorrect =
-      userAnswer === correctAnswer || userAnswer === correctAnswer.slice(1);
+        userAnswer === correctAnswer || userAnswer === adjustedCorrectAnswer;
 
       if (isCorrect) {
-      this.correctCount++;
-      this.correctWords.push(currentWord);
-      this.feedback = { correct: true, message: "正确！" };
+        this.correctCount++;
+        this.correctWords.push(currentWord);
+        this.feedback = { correct: true, message: "正确！" };
+      } else if (
+        this.enableSlipDetection &&
+        (this.isSlip(userAnswer, correctAnswer) ||
+          this.isSlip(userAnswer, adjustedCorrectAnswer))
+      ) {
+        this.feedback = {
+          correct: false,
+          slip: true,
+          message: `手滑！你输入的是: ${userAnswer}，正确答案是: ${currentWord.word}`,
+        };
       } else {
-      this.incorrectWords.push(currentWord);
-      this.feedback = {
-        correct: false,
-        message: `错误！正确答案是: ${currentWord.word}`,
-      };
+        this.incorrectWords.push(currentWord);
+        this.feedback = {
+          correct: false,
+          message: `错误！正确答案是: ${currentWord.word}`,
+        };
       }
+
       this.userInput = "";
       this.currentWordIndex++;
+    },
+    isSlip(userAnswer, correctAnswer) {
+      // 计算 Levenshtein 距离
+      const calculateLevenshteinDistance = (a, b) => {
+        const matrix = Array.from({ length: a.length + 1 }, () =>
+          Array(b.length + 1).fill(0)
+        );
+
+        for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+        for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+
+        for (let i = 1; i <= a.length; i++) {
+          for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[i][j] = Math.min(
+              matrix[i - 1][j] + 1, // 删除
+              matrix[i][j - 1] + 1, // 插入
+              matrix[i - 1][j - 1] + cost // 替换
+            );
+          }
+        }
+
+        return matrix[a.length][b.length];
+      };
+
+      // 调用函数计算距离
+      const distance = calculateLevenshteinDistance(userAnswer, correctAnswer);
+
+      // 如果编辑距离为 1 或 2，则判定为手滑
+      return distance >= 1 && distance <= 2;
+    },
+    markSlipAsIncorrect() {
+      const currentWord = this.shuffledWords[this.currentWordIndex - 1];
+      this.incorrectWords.push(currentWord);
+      this.feedback = {
+      correct: false,
+      message: `错误！正确答案是: ${currentWord.word}`,
+      };
     },
     resetTest() {
       this.isTesting = false;
@@ -190,6 +298,19 @@ export default {
         reader.readAsText(file);
       }
     },
+    exitTest() {
+      // 重置测试状态
+      this.isTesting = false;
+      this.selectedList = null;
+      this.words = [];
+      this.shuffledWords = [];
+      this.currentWordIndex = 0;
+      this.userInput = "";
+      this.feedback = null;
+      this.correctCount = 0;
+      this.incorrectWords = [];
+      this.correctWords = [];
+    },
   },
 };
 </script>
@@ -208,7 +329,7 @@ export default {
   border-radius: 0.3125rem;
   overflow: hidden;
   margin: 1rem 0;
-  position: relative; /* 确保子元素的绝对定位基于容器 */
+  position: relative; 
   text-align: center;
 }
 
@@ -225,7 +346,7 @@ export default {
   font-size: 0.875rem;
   color: var(--text-color);
   font-weight: bold;
-  z-index: 1; /* 确保文本在进度条上方 */
+  z-index: 1; 
 }
 
 h1 {
@@ -320,6 +441,7 @@ h2 {
 .submit-button {
   background-color: var(--primary-color);
   color: #fff;
+  width: 6rem;
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -347,6 +469,28 @@ h2 {
   color: red;
 }
 
+.slip {
+  color: orange;
+}
+
+.mark-incorrect-button {
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 0.3125rem 0.625rem;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 0.625rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.mark-incorrect-button:hover {
+  background-color: #ff7875;
+  transform: scale(1.05);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
 .result {
   text-align: center;
   font-size: 1.25rem;
@@ -368,6 +512,31 @@ h2 {
 
 .reset-button:hover {
   background-color: var(--hover-color);
+  transform: scale(1.05);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.advanced-settings {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.exit-button {
+  display: block;
+  margin: 1rem auto;
+  width: 6rem;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.exit-button:hover {
+  background-color: #ff7875;
   transform: scale(1.05);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }

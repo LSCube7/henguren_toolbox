@@ -13,10 +13,26 @@
         <input type="file" id="fileUpload" @change="uploadCustomList" class="upload-button" />
       </div>
 
+
+
+      <ul class="list-container">
+        <li v-for="list in wordLists" :key="list.name" class="list-item">
+          <label>
+            <input type="checkbox" v-model="selectedLists" :value="list.name" />
+            {{ list.title }}
+          </label>
+        </li>
+      </ul>
+      <div class="batch-test-container">
+        <button @click="startBatchTest" class="batch-test-button" :disabled="selectedLists.length === 0">
+          开始批量测试
+        </button>
+      </div>
+
       <!-- 新增高级设置 -->
       <details class="advanced-settings">
         <summary>高级设置</summary>
-        <br/>
+        <br />
         <div class="settings-container">
           <label>
             <input type="checkbox" v-model="showHint" @change="saveShowHintSetting" />
@@ -43,32 +59,21 @@
         <p class="definition">英文释义: {{ shuffledWords[currentWordIndex].en_definition.join("; ") }}</p>
         <div class="input-container">
           <span v-if="showHint" class="hint">{{ shuffledWords[currentWordIndex].word[0] }}</span>
-          <input
-            v-model="userInput"
-            placeholder="输入单词"
-            class="input-box"
-            @keydown.enter.prevent="checkAnswer"
-          />
+          <input v-model="userInput" placeholder="输入单词" class="input-box" @keydown.enter.prevent="checkAnswer" />
         </div>
         <button @click="checkAnswer" class="submit-button">提交</button>
-        <p
-          v-if="feedback"
-          :class="{
-            correct: feedback.correct,
-            incorrect: !feedback.correct && !feedback.slip,
-            slip: feedback.slip,
-          }"
-          class="feedback"
-        >
+        <p v-if="feedback" :class="{
+          correct: feedback.correct,
+          incorrect: !feedback.correct && !feedback.slip,
+          slip: feedback.slip,
+        }" class="feedback">
           {{ feedback.message }}
-          <button
-            v-if="feedback.slip"
-            @click="markSlipAsIncorrect"
-            class="mark-incorrect-button"
-          >
+          <button v-if="feedback.slip" @click="markSlipAsIncorrect" class="mark-incorrect-button">
             判定为错误
           </button>
         </p>
+        <br />
+        <button @click="generatePrintableTest" class="print-button">创建测试打印版</button>
       </div>
       <button @click="exitTest" class="exit-button">退出测试</button>
     </div>
@@ -79,7 +84,8 @@
         <details open>
           <summary>错误单词 ({{ incorrectWords.length }})</summary>
           <ul>
-            <li v-for="word in incorrectWords" :key="word.word">{{ word.word }} - {{ word.en_definition.join("; ") }}</li>
+            <li v-for="word in incorrectWords" :key="word.word">{{ word.word }} - {{ word.en_definition.join("; ") }}
+            </li>
           </ul>
         </details>
         <details>
@@ -114,6 +120,7 @@ export default {
       isTesting: false,
       showHint: true, // 新增属性，默认显示首字母
       enableSlipDetection: false, // 新增属性，默认不启用手滑判定
+      selectedLists: [], // 新增属性，存储选中的单词列表
     };
   },
   computed: {
@@ -152,11 +159,33 @@ export default {
       this.selectedList = listName;
       const listModule = await import(`./assets/js/vocabulary/${listName}.json`);
       this.words = listModule.vocabulary.flatMap((word) =>
-      word.en_definition.map((definition) => ({
-        word: word.word,
-        en_definition: [definition],
-      }))
+        word.en_definition.map((definition) => ({
+          word: word.word,
+          en_definition: [definition],
+        }))
       );
+      this.shuffledWords = this.shuffleArray([...this.words]);
+      this.isTesting = true;
+      this.currentWordIndex = 0;
+      this.correctCount = 0;
+      this.feedback = null;
+      this.userInput = "";
+      this.incorrectWords = [];
+      this.correctWords = [];
+    },
+    async startBatchTest() {
+      const allWords = [];
+      for (const listName of this.selectedLists) {
+        const listModule = await import(`./assets/js/vocabulary/${listName}.json`);
+        const words = listModule.vocabulary.flatMap((word) =>
+          word.en_definition.map((definition) => ({
+            word: word.word,
+            en_definition: [definition],
+          }))
+        );
+        allWords.push(...words);
+      }
+      this.words = allWords;
       this.shuffledWords = this.shuffleArray([...this.words]);
       this.isTesting = true;
       this.currentWordIndex = 0;
@@ -168,8 +197,8 @@ export default {
     },
     shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
     },
@@ -243,8 +272,8 @@ export default {
       const currentWord = this.shuffledWords[this.currentWordIndex - 1];
       this.incorrectWords.push(currentWord);
       this.feedback = {
-      correct: false,
-      message: `错误！正确答案是: ${currentWord.word}`,
+        correct: false,
+        message: `错误！正确答案是: ${currentWord.word}`,
       };
     },
     resetTest() {
@@ -260,21 +289,21 @@ export default {
       this.correctWords = [];
     },
     downloadIncorrectWords() {
-    const timestamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
-    const incorrectData = {
-      vocabulary: this.incorrectWords.map((word) => ({
-        word: word.word,
-        en_definition: word.en_definition,
-      })),
-    };
-    const blob = new Blob([JSON.stringify(incorrectData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `incorrect_words_${timestamp}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  },
+      const timestamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
+      const incorrectData = {
+        vocabulary: this.incorrectWords.map((word) => ({
+          word: word.word,
+          en_definition: word.en_definition,
+        })),
+      };
+      const blob = new Blob([JSON.stringify(incorrectData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `incorrect_words_${timestamp}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    },
     uploadCustomList(event) {
       const file = event.target.files[0];
       if (file) {
@@ -311,6 +340,75 @@ export default {
       this.incorrectWords = [];
       this.correctWords = [];
     },
+    generatePrintableTest() {
+      const currentDate = new Date().toLocaleString(); // 获取当前时间
+      const sourceInfo = this.selectedList ? `来源：${this.selectedList}` : `来源：${this.selectedLists}`; // 动态来源信息
+      // 构建打印版的 HTML 内容
+      const printableContent = `
+      <html>
+        <head>
+          <title>测试打印版</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+            }
+            h1 {
+              text-align: center;
+              color: #333;
+            }
+            .word-list, .answer-list {
+              margin-top: 20px;
+            }
+            .answer-item {
+              margin-bottom: 10px;
+              white-space: normal; /* 防止换行 */
+            }
+            .word-item {
+              margin-bottom: 10px;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>单词测试打印版</h1>
+          <div class="word-list">
+                        ${this.shuffledWords
+          .map(
+            (word, index) => `
+                  <div class="word-item">
+                     ${index + 1}. &nbsp;&nbsp; ${this.showHint ? `<span class="hint">${word.word[0]}</span>`
+                : ""
+              }________  ${word.en_definition.join("; ")}
+                  </div>
+                `
+          )
+          .join("")}
+          </div>
+          <div class="answer-list">
+            <h2>答案</h2>
+            <div class="answer-item">
+              ${this.shuffledWords
+                .map((word, index) => `${index + 1}. ${word.word}`)
+                .join(" &nbsp;&nbsp; ")} <!-- 使用空格分隔答案 -->
+            </div>
+          </div>
+          <div class="footer">
+            <p>${sourceInfo}</p>
+            <p>生成时间：${currentDate}</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+      // 打开新窗口并写入内容
+      const printWindow = window.open("", "_blank");
+      printWindow.document.open();
+      printWindow.document.write(printableContent);
+      printWindow.document.close();
+
+      // 调用打印功能
+      printWindow.print();
+    },
   },
 };
 </script>
@@ -329,7 +427,7 @@ export default {
   border-radius: 0.3125rem;
   overflow: hidden;
   margin: 1rem 0;
-  position: relative; 
+  position: relative;
   text-align: center;
 }
 
@@ -346,7 +444,7 @@ export default {
   font-size: 0.875rem;
   color: var(--text-color);
   font-weight: bold;
-  z-index: 1; 
+  z-index: 1;
 }
 
 h1 {
@@ -537,6 +635,59 @@ h2 {
 
 .exit-button:hover {
   background-color: #ff7875;
+  transform: scale(1.05);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.batch-test-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.batch-test-button {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.batch-test-button:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.batch-test-button:disabled {
+  background-color: #ccc;
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: not-allowed;
+}
+
+.print-button {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.3125rem;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.print-button:hover {
+  background-color: var(--hover-color);
   transform: scale(1.05);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }

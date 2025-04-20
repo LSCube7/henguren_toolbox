@@ -1,19 +1,30 @@
 <template>
-  
   <SpeedInsights />
   <div>
-    <HeaderComponent @open-changelog="openChangeLogDialog" @open-colorpicker="openColorPickerDialog" />
+    <!-- 头部组件，监听 open-changelog 和 open-colorpicker 事件 -->
+    <HeaderComponent 
+      @open-changelog="openChangeLogDialog" 
+      @open-colorpicker="openColorPickerDialog" 
+    />
     <div id="container">
-      <router-view /> <!-- 这里显示路由匹配的组件 -->
+      <router-view /> <!-- 路由匹配的组件 -->
     </div>
-    <FooterComponent /> <!-- FooterComponent 是你的底部组件 -->
-    <!-- 使用 v-if 控制 ChangeLogDialog 的显示与隐藏 -->
-    <ChangeLog v-if="isChangeLogVisible" @close="closeChangeLogDialog" />
-    <!-- 使用 v-if 控制 ColorPicker 的显示与隐藏 -->
-    <ColorPicker v-if="isColorPickerVisible" @close="closeColorPickerDialog" :showColorPicker="isColorPickerVisible" />
+    <FooterComponent /> <!-- 底部组件 -->
 
+    <!-- 更新日志弹窗 -->
+    <ChangeLog 
+      v-if="isChangeLogVisible" 
+      @close="closeChangeLogDialog"
+      :showChangeLog="isChangeLogVisible" 
+    />
+
+    <!-- 颜色选择器弹窗 -->
+    <ColorPicker 
+      v-if="isColorPickerVisible" 
+      @close="closeColorPickerDialog" 
+      :showColorPicker="isColorPickerVisible" 
+    />
   </div>
-
 </template>
 
 <script setup>
@@ -21,10 +32,10 @@ import { SpeedInsights } from '@vercel/speed-insights/vue';
 </script>
 
 <script>
-import FooterComponent from '@/components/FooterComponent.vue'; // 导入底部组件
+import FooterComponent from '@/components/FooterComponent.vue';
 import HeaderComponent from '@/components/HeaderComponent.vue';
-import ChangeLog from '@/components/ChangeLog.vue'; // 导入更新日志组件
-import ColorPicker from '@/components/ColorPicker.vue'; // 导入颜色选择器组件
+import ChangeLog from '@/components/ChangeLog.vue';
+import ColorPicker from '@/components/ColorPicker.vue';
 import { inject } from '@vercel/analytics';
 inject();
 
@@ -33,47 +44,46 @@ export default {
     FooterComponent,
     HeaderComponent,
     ChangeLog,
-    ColorPicker // 注册 ColorPicker 组件
+    ColorPicker
   },
   data() {
     return {
-      isChangeLogVisible: false,
-      isColorPickerVisible: false,
-      currentAppVersion: '2.4.0'
+      isChangeLogVisible: false, // 控制更新日志弹窗的显示
+      isColorPickerVisible: false, // 控制颜色选择器弹窗的显示
+      currentAppVersion: '2.4.0' // 当前应用版本
     };
   },
   mounted() {
     this.applyInitialColors();
-    // 检查是否是第一次打开应用程序或者版本更新后第一次打开
+
+    // 检查是否需要显示更新日志
     const viewedChangeLog = localStorage.getItem("viewedChangeLog");
     const lastViewedVersion = localStorage.getItem("lastViewedVersion");
     if (!viewedChangeLog || lastViewedVersion !== this.currentAppVersion) {
-      // 如果是第一次打开应用程序或者版本更新后第一次打开，则显示更新日志
       this.openChangeLogDialog();
     }
   },
   methods: {
     openChangeLogDialog() {
-      // 打开更新日志
+      // 打开更新日志弹窗
       this.isChangeLogVisible = true;
-      // 将状态标记为已查看，并保存当前应用程序版本号
       localStorage.setItem("viewedChangeLog", true);
       localStorage.setItem("lastViewedVersion", this.currentAppVersion);
     },
     closeChangeLogDialog() {
-      // 关闭更新日志
+      // 关闭更新日志弹窗
       this.isChangeLogVisible = false;
     },
     openColorPickerDialog() {
-      // 打开颜色选择器
+      // 打开颜色选择器弹窗
       this.isColorPickerVisible = true;
-
     },
     closeColorPickerDialog() {
-      // 关闭颜色选择器
+      // 关闭颜色选择器弹窗
       this.isColorPickerVisible = false;
     },
     applyInitialColors() {
+      // 应用保存的颜色设置
       const colorKeys = [
         '--primary-color', '--secondary-color', '--text-color',
         '--primary-background-color', '--secondary-background-color', '--border-color'
@@ -84,7 +94,7 @@ export default {
           document.documentElement.style.setProperty(key, savedColor);
         }
       });
-    },
+    }
   }
 };
 </script>
@@ -95,7 +105,6 @@ html {
   font-family: "Microsoft YaHei UI", Arial, sans-serif;
   margin: 0;
   padding: 0;
-  /* 使用 CSS 变量定义颜色 */
   --primary-color: #5bcefa;
   --secondary-color: #f6a8b8;
   --text-color: #333;
@@ -103,10 +112,7 @@ html {
   --secondary-background-color: #f9f9f9;
   --border-color: #ccc;
   --hover-color: #4ab3d1;
-  /* 悬停颜色 */
   background-color: var(--primary-background-color);
-
-
 }
 
 #container {

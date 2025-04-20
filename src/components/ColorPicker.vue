@@ -1,31 +1,39 @@
 <template>
-    <div class="color-picker-dialog-wrapper">
+    <div 
+        class="color-picker-dialog-wrapper" 
+        v-if="showColorPicker" 
+        @animationend="handleAnimationEnd"
+        :class="{ 'fade-out': isClosing }"
+    >
         <!-- 颜色选择弹窗 -->
-        <div v-if="showColorPicker" class="color-picker-dialog">
+        <div class="color-picker-dialog">
+            <!-- 标题 -->
+            <div class="dialog-header">
+                <h3>颜色选择器</h3>
+                <button @click="closeColorPicker" class="close-button">×</button>
+            </div>
 
             <!-- 输入框，允许用户设置各种颜色 -->
-            <label for="primaryColor">主要颜色：</label>
-            <input type="color" id="primaryColor" v-model="selectedColors.primaryColor">
-            <label for="secondaryColor">次要颜色：</label>
-            <input type="color" id="secondaryColor" v-model="selectedColors.secondaryColor">
-            <label for="textColor">文本颜色：</label>
-            <input type="color" id="textColor" v-model="selectedColors.textColor">
-            <label for="primaryBackgroundColor">主要背景颜色：</label>
-            <input type="color" id="primaryBackgroundColor" v-model="selectedColors.primaryBackgroundColor">
-            <label for="secondaryBackgroundColor">次要背景颜色：</label>
-            <input type="color" id="secondaryBackgroundColor" v-model="selectedColors.secondaryBackgroundColor">
-            <label for="borderColor">边框颜色：</label>
-            <input type="color" id="borderColor" v-model="selectedColors.borderColor">
-            <br>
+            <div class="color-inputs">
+                <label for="primaryColor">主要颜色：</label>
+                <input type="color" id="primaryColor" v-model="selectedColors.primaryColor">
+                <label for="secondaryColor">次要颜色：</label>
+                <input type="color" id="secondaryColor" v-model="selectedColors.secondaryColor">
+                <label for="textColor">文本颜色：</label>
+                <input type="color" id="textColor" v-model="selectedColors.textColor">
+                <label for="primaryBackgroundColor">主要背景颜色：</label>
+                <input type="color" id="primaryBackgroundColor" v-model="selectedColors.primaryBackgroundColor">
+                <label for="secondaryBackgroundColor">次要背景颜色：</label>
+                <input type="color" id="secondaryBackgroundColor" v-model="selectedColors.secondaryBackgroundColor">
+                <label for="borderColor">边框颜色：</label>
+                <input type="color" id="borderColor" v-model="selectedColors.borderColor">
+            </div>
 
-            <!-- 同样的方式设置其他颜色 -->
-
-            <button @click="applyColors">应用</button>
-            <br>
-            <button @click="resetColors">恢复默认</button>
-            <br>
-            <!-- 关闭按钮 -->
-            <button @click="closeColorPicker" class="close-button">关闭</button>
+            <!-- 按钮 -->
+            <div class="dialog-footer">
+                <button @click="applyColors">应用</button>
+                <button @click="resetColors">恢复默认</button>
+            </div>
         </div>
     </div>
 </template>
@@ -49,6 +57,7 @@ export default {
                 secondaryBackgroundColor: localStorage.getItem('--secondary-background-color') || '#f9f9f9',
                 borderColor: localStorage.getItem('--border-color') || '#ccc'
             },
+            isClosing: false // 控制淡出动画
         };
     },
     computed: {
@@ -67,8 +76,15 @@ export default {
     },
     methods: {
         closeColorPicker() {
-            // 关闭颜色选择弹窗
-            this.$emit('close');
+            // 开始淡出动画
+            this.isClosing = true;
+        },
+        handleAnimationEnd() {
+            // 动画结束后关闭弹窗
+            if (this.isClosing) {
+                this.isClosing = false;
+                this.$emit('close');
+            }
         },
         applyColors() {
             const styles = this.dynamicStyles;
@@ -76,7 +92,7 @@ export default {
                 document.documentElement.style.setProperty(key, styles[key]);
                 localStorage.setItem(key, styles[key]); // 直接使用CSS变量名作为键名
             });
-            this.$emit('close', this.selectedColors);
+            this.closeColorPicker();
         },
         resetColors() {
             // 恢复默认颜色
@@ -96,8 +112,7 @@ export default {
                 // 移除本地存储中的颜色
                 this.applyColors();
             });
-            // 关闭颜色选择弹窗
-            this.$emit('close', defaultColors);
+            this.closeColorPicker();
         },
         calculateHoverColor(color) {
             // 计算悬停颜色（将主要颜色变暗 10%）
@@ -177,16 +192,71 @@ export default {
 
 <style scoped>
 /* 页面内容样式 */
-.content {
-    /* 使用 CSS 变量定义颜色 */
-    --primary-color: var(--primary-color, #5bcefa);
-    --secondary-color: var(--secondary-color, #f6a8b8);
-    --text-color: var(--text-color, #333);
-    --primary-background-color: var(--primary-background-color, #f0f2f5);
-    --secondary-background-color: var(--secondary-background-color, #f9f9f9);
-    --border-color: var(--border-color, #ccc);
-    --hover-color: var(--hover-color, #4ab3d1);
-    /* 悬停颜色 */
+.color-picker-dialog-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.color-picker-dialog-wrapper.fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+}
+
+.color-picker-dialog {
+    width: 35rem;
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.5rem;
+}
+
+.dialog-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+}
+
+.color-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.color-inputs label {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
 }
 
 button {
@@ -203,29 +273,23 @@ button:hover {
     background-color: var(--hover-color);
 }
 
-.color-picker-dialog {
-    width: 37.5rem;
-    max-height: 80%;
-    max-width: 80%;
-    background-color: white;
-    padding: 1.25rem;
-    border-radius: 0.5rem;
-    box-shadow: 0em 0em 0.625rem rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
+/* 弹窗淡入效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
-.color-picker-dialog-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+/* 弹窗淡出效果 */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
 </style>

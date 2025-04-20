@@ -1,44 +1,27 @@
 <template>
   <footer>
-    &copy; 2024
-    <a href="https://github.com/LSCube7/henguren_toolbox"
-      style="color: var(--primary-color); text-decoration: none">小方盒LSCube</a>
+    &copy; 2024-2025
+    <a href="https://lsc7.top"
+      style="color: var(--primary-color); text-decoration: none" target="_blank">小方盒LSCube</a>
     <p id="LICENSE">
       An
       <a href="https://github.com/LSCube7/henguren_toolbox"
         style="color: var(--secondary-color); text-decoration: none">Opensource
         Project</a>
       Under the
-      <a href="../LICENSE" type="text/plain" target="_blank"
-        style="color: var(--primary-color); text-decoration: none">MIT
-        LICENSE</a>
+      <router-link to="/license" style="color: var(--primary-color); text-decoration: none !important;">MIT LICENSE</router-link>
     </p>
     <p id="Thanks">
       Thanks to
-      <a href="https://vercel.com" style="color: var(--secondary-color); text-decoration: none">Vercel</a>,
-      <a href="https://cloudflare.com" style="color: var(--secondary-color); text-decoration: none">Cloudflare</a>
+      <a href="https://vercel.com" style="color: var(--secondary-color); text-decoration: none" target="_blank">Vercel</a>
       and
-      <a href="https://openai.com" style="color: var(--secondary-color); text-decoration: none">OpenAI</a>
-    </p>
-    <p id="hitokoto">
-      Hitokoto:
-      <a href="#" style="color: var(--secondary-color); text-decoration: none" id="hitokoto_text">:D 获取中...</a>
+      <a href="https://cloudflare.com" style="color: var(--secondary-color); text-decoration: none" target="_blank">Cloudflare</a>
     </p>
   </footer>
 </template>
 
 <script>
 export default {
-  mounted() {
-    fetch("https://v1.hitokoto.cn")
-      .then((response) => response.json())
-      .then((data) => {
-        const hitokoto = this.$el.querySelector("#hitokoto_text");
-        hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`;
-        hitokoto.innerText = data.hitokoto;
-      })
-      .catch(console.error);
-  },
 };
 </script>
 

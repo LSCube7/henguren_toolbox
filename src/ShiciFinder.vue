@@ -207,6 +207,7 @@ textarea {
   font-size: 1rem;
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
   overflow: hidden;
+  background-color: var(--background-color);
 }
 
 button {
@@ -215,7 +216,7 @@ button {
   padding: 0.9375rem;
   border: none;
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   border-radius: 0.3125rem;
   cursor: pointer;
   font-size: 1.125rem;

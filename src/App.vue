@@ -108,6 +108,7 @@ html {
   --primary-color: #5bcefa;
   --secondary-color: #f6a8b8;
   --text-color: #333;
+  --background-color: #fff;
   --primary-background-color: #f0f2f5;
   --secondary-background-color: #f9f9f9;
   --border-color: #ccc;
@@ -119,7 +120,7 @@ html {
   max-width: 75rem;
   margin: 1.25rem auto;
   padding: 1.25rem;
-  background-color: #fff;
+  background-color: var(--background-color);
   border-radius: 0.5rem;
   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
 }

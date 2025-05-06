@@ -116,7 +116,7 @@ td {
 
 th {
   background-color: var(--secondary-color);
-  color: #fff;
+  color: var(--text-color);
   text-transform: uppercase;
   letter-spacing: 0.0625rem;
 }

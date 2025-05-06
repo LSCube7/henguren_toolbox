@@ -9,7 +9,7 @@
     <div class="right">
       <!-- 更新日志按钮 -->
 
-      <button @click="openColorPicker" class="color-picker-button">自定义</button>
+      <button @click="openColorPicker" class="color-picker-button">设置</button>
       <button @click="openChangeLog" class="change-log-button">更新日志</button>
       <!-- GitHub图标 -->
       <a href="https://github.com/LSCube7/henguren_toolbox" target="_blank" class="github-link">
@@ -43,7 +43,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--background-color);
   color: var(--text-color);
   padding: 0.625rem;
   border-radius: 0.625rem;
@@ -99,7 +99,7 @@ export default {
 
 .change-log-button {
   padding: 0.5rem 1rem;
-  background-color: #fff;
+  background-color: var(--background-color);
   color: var(--text-color);
   font-weight: bold;
   font-size: large;
@@ -110,14 +110,14 @@ export default {
 }
 
 .change-log-button:hover {
-  background-color: #fff;
+  background-color: var(--background-color);
   color: var(--primary-color);
 }
 
 /* 新增的按钮样式 */
 .color-picker-button {
   padding: 0.5rem 1rem;
-  background-color: #fff;
+  background-color: var(--background-color);
   color: var(--text-color);
   font-weight: bold;
   font-size: large;
@@ -130,7 +130,7 @@ export default {
 }
 
 .color-picker-button:hover {
-  background-color: #fff;
+  background-color: var(--background-color);
   color: var(--primary-color);
 }
 </style>

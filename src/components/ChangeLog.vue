@@ -40,6 +40,7 @@ export default {
     };
   },
   mounted() {
+    window.addEventListener('keydown', this.handleKeydown);
     // 发起网络请求获取 ChangeLog HTML内容
     fetch('../ChangeLog.html')
       .then(response => response.text())
@@ -50,7 +51,15 @@ export default {
         console.error('Error fetching ChangeLog HTML:', error);
       });
   },
+    beforeUnmount() {
+        window.removeEventListener('keydown', this.handleKeydown);
+    },
   methods: {
+    handleKeydown(event) {
+            if (event.key === 'Escape') {
+                this.dismissChangeLog(); // 按下 Esc 键时关闭页面
+            }
+        },
     dismissChangeLog() {
       // 开始淡出动画
       this.isClosing = true;

@@ -1,0 +1,37 @@
+[
+    {
+        "id": 0,
+        "name": "Preset 1",
+        "colors": ["#5bcefa", "#f6a8b8", "#333333", "#ffffff", "#f0f2f5", "#f9f9f9", "#cccccc"]
+    },
+    {
+        "id": 1,
+        "name": "清新自然",
+        "colors": ["#a8d5ba", "#f9e79f", "#34495e", "#ecf0f1", "#d5dbdb", "#7f8c8d", "#b2babb"]
+    },
+    {
+        "id": 2,
+        "name": "深夜星空",
+        "colors": ["#1e1e2f", "#3a3a5f", "#ffffff", "#121212", "#2c2c3c", "#444466", "#666666"]
+    },
+    {
+        "id": 3,
+        "name": "晨曦微光",
+        "colors": ["#ffcc80", "#ffab91", "#4e342e", "#fff3e0", "#ffe0b2", "#d7ccc8", "#a1887f"]
+    },
+    {
+        "id": 4,
+        "name": "森林绿意",
+        "colors": ["#2e7d32", "#66bb6a", "#ffffff", "#e8f5e9", "#c8e6c9", "#a5d6a7", "#81c784"]
+    },
+    {
+        "id": 5,
+        "name": "海洋深蓝",
+        "colors": ["#1565c0", "#42a5f5", "#ffffff", "#e3f2fd", "#bbdefb", "#90caf9", "#64b5f6"]
+    },
+    {
+        "id": 6,
+        "name": "暮光黄昏",
+        "colors": ["#ff7043", "#ffa726", "#ffffff", "#fff8e1", "#ffe0b2", "#ffcc80", "#ffab91"]
+    }
+]

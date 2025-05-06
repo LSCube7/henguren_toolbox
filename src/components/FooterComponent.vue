@@ -27,5 +27,7 @@ export default {
 
 
 <style scoped>
-/* 样式 */
+footer {
+  color: var(--text-color);
+}
 </style>

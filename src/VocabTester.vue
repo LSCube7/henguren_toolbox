@@ -3,29 +3,99 @@
     <h1>单词测试器</h1>
     <div v-if="!isTesting">
       <h2>选择单词列表</h2>
-      <ul class="list-container">
-        <li v-for="list in wordLists" :key="list.name" class="list-item">
-          <button @click="startTest(list.name)" class="list-button">{{ list.title }}</button>
-        </li>
-      </ul>
-      <div class="upload-container">
-        <label for="fileUpload">上传自定义单词列表：</label>
-        <input type="file" id="fileUpload" @change="uploadCustomList" class="upload-button" />
+
+      <!-- 必修/选修册选择 -->
+      <div class="preset-grid">
+        <div 
+          v-for="book in books" 
+          :key="book.name" 
+          class="preset-card"
+          :class="{ 'active-card': isBookFullySelected(book.name) }"
+          @click="toggleBookSelection(book.name)"
+        >
+          <div class="preset-title">{{ book.title }}</div>
+          <div class="unit-grid">
+            <div 
+              v-for="unit in getUnitsForBook(book.name)" 
+              :key="unit.name" 
+              class="unit-card"
+              :class="{ 'active-card': selectedUnits.includes(unit.name) }"
+              @click.stop="toggleUnitSelection(unit.name)"
+            >
+              Unit {{ unit.name.slice(-1) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- 自定义上传卡片 -->
+        <div class="preset-card custom-card">
+          <div class="preset-title">自定义单词列表</div>
+          <div class="unit-grid">
+            <div 
+              v-for="(file, index) in uploadedFiles" 
+              :key="index" 
+              class="unit-card"
+              :class="{ 'active-card': selectedFiles.includes(file.name) }"
+              @click="toggleFileSelection(file.name)"
+              style="width: 2.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+            >
+              {{ file.name }}
+            </div>
+            <label class="unit-card upload-card" style="width: 2.5rem;">
+              上传...
+              <input 
+                type="file" 
+                accept=".json" 
+                @change="uploadCustomList" 
+                style="display: none;" 
+              />
+            </label>
+          </div>
+        </div>
       </div>
 
+      <!-- 开始测试按钮 -->
+      <div class="start-test-container">
+        <div class="test-options">
+          <button 
+            class="test-option-button" 
+            :class="{ active: testMode === 'all' }" 
+            :disabled="selectedUnits.length === 0"
+            @click="setTestMode('all')"
+          >
+            全部
+          </button>
+          <button 
+            class="test-option-button" 
+            :class="{ active: testMode === 'custom' }" 
+            :disabled="selectedUnits.length === 0"
+            @click="setTestMode('custom')"
+          >
+            自定义
+          </button>
+        </div>
 
+        <div v-if="testMode === 'custom'" class="custom-test-container">
+          <label for="test-count" class="test-count-label">测试数量：</label>
+          <input 
+            id="test-count" 
+            type="number" 
+            v-model.number="testCount" 
+            class="test-count-input" 
+            placeholder=""
+            @input="validateTestCount"
+          />
+          <span class="test-count-hint" :class="{ error: testCountError }">
+            {{ testCountError || `范围：1-${maxTestCount}` }}
+          </span>
+        </div>
 
-      <ul class="list-container">
-        <li v-for="list in wordLists" :key="list.name" class="list-item">
-          <label>
-            <input type="checkbox" v-model="selectedLists" :value="list.name" />
-            {{ list.title }}
-          </label>
-        </li>
-      </ul>
-      <div class="batch-test-container">
-        <button @click="startBatchTest" class="batch-test-button" :disabled="selectedLists.length === 0">
-          开始批量测试
+        <button 
+          @click="startTestHandler" 
+          class="start-test-button" 
+          :disabled="selectedUnits.length === 0 && selectedFiles.length === 0"
+        >
+          开始测试
         </button>
       </div>
 
@@ -107,8 +177,12 @@ import listData from "./assets/js/vocabulary/list.json";
 export default {
   data() {
     return {
-      wordLists: [],
-      selectedList: null,
+      books: [
+        { name: "R2", title: "必修二" },
+        { name: "R3", title: "必修三" },
+      ],
+      selectedUnits: [],
+      wordLists: listData,
       words: [],
       shuffledWords: [],
       currentWordIndex: 0,
@@ -121,6 +195,13 @@ export default {
       showHint: true, // 新增属性，默认显示首字母
       enableSlipDetection: false, // 新增属性，默认不启用手滑判定
       selectedLists: [], // 新增属性，存储选中的单词列表
+      testCount: 10, // 默认测试数量为10
+      testCountError: null, // 新增属性，存储测试数量的错误信息
+      testMode: 'all', // 新增属性，默认测试模式为全部
+      maxTestCount: 100, // 新增属性，最大测试数量
+      uploadedFileName: "", // 新增属性，存储上传的文件名
+      uploadedFiles: [], // 新增属性，存储上传的文件列表
+      selectedFiles: [], // 初始化选中的文件列表
     };
   },
   computed: {
@@ -175,17 +256,30 @@ export default {
     },
     async startBatchTest() {
       const allWords = [];
-      for (const listName of this.selectedLists) {
-        const listModule = await import(`./assets/js/vocabulary/${listName}.json`);
-        const words = listModule.vocabulary.flatMap((word) =>
-          word.en_definition.map((definition) => ({
-            word: word.word,
-            en_definition: [definition],
-          }))
-        );
-        allWords.push(...words);
+
+      for (const unitName of this.selectedUnits) {
+        try {
+          // 动态加载单元的 JSON 文件
+          const listModule = await import(`./assets/js/vocabulary/${unitName}.json`);
+          const words = listModule.vocabulary.flatMap((word) =>
+            word.en_definition.map((definition) => ({
+              word: word.word,
+              en_definition: [definition],
+            }))
+          );
+          allWords.push(...words);
+        } catch (error) {
+          console.error(`无法加载单元 ${unitName} 的数据:`, error);
+        }
       }
-      this.words = allWords;
+
+      // 根据用户选择的测试数量生成测试内容
+      if (this.testCount >= allWords.length) {
+        this.words = allWords;
+      } else {
+        this.words = this.shuffleArray(allWords).slice(0, this.testCount);
+      }
+
       this.shuffledWords = this.shuffleArray([...this.words]);
       this.isTesting = true;
       this.currentWordIndex = 0;
@@ -304,6 +398,13 @@ export default {
       link.click();
       URL.revokeObjectURL(url);
     },
+    toggleFileSelection(fileName) {
+      if (this.selectedFiles.includes(fileName)) {
+        this.selectedFiles = this.selectedFiles.filter((file) => file !== fileName);
+      } else {
+        this.selectedFiles.push(fileName);
+      }
+    },
     uploadCustomList(event) {
       const file = event.target.files[0];
       if (file) {
@@ -311,20 +412,37 @@ export default {
         reader.onload = (e) => {
           try {
             const customList = JSON.parse(e.target.result);
-            this.words = customList.vocabulary || [];
-            this.shuffledWords = this.shuffleArray([...this.words]);
-            this.isTesting = true;
-            this.currentWordIndex = 0;
-            this.correctCount = 0;
-            this.feedback = null;
-            this.userInput = "";
-            this.incorrectWords = [];
-            this.correctWords = [];
+            if (!customList.vocabulary || !Array.isArray(customList.vocabulary)) {
+              throw new Error("文件格式不正确，缺少 'vocabulary' 数组");
+            }
+            this.uploadedFiles.push({ name: file.name, content: customList });
+            this.selectedFiles.push(file.name); // 默认选中上传的文件
           } catch (error) {
-            alert("上传的文件格式不正确！");
+            alert("上传的文件格式不正确！请确保文件包含 'vocabulary' 数组。");
           }
         };
         reader.readAsText(file);
+      }
+    },
+    startCustomTest() {
+      if (this.selectedFiles.length > 0) {
+        this.words = this.selectedFiles.flatMap((fileName) => {
+          const file = this.uploadedFiles.find((f) => f.name === fileName);
+          return file ? file.content.vocabulary.map((word) => ({
+            word: word.word,
+            en_definition: word.en_definition || [],
+          })) : [];
+        });
+        this.shuffledWords = this.shuffleArray([...this.words]);
+        this.isTesting = true;
+        this.currentWordIndex = 0;
+        this.correctCount = 0;
+        this.feedback = null;
+        this.userInput = "";
+        this.incorrectWords = [];
+        this.correctWords = [];
+      } else {
+        alert("请先上传有效的单词列表！");
       }
     },
     exitTest() {
@@ -409,6 +527,143 @@ export default {
       // 调用打印功能
       printWindow.print();
     },
+    selectBookType(type) {
+      this.selectedBookType = type;
+      this.selectedUnits = []; // 重置单元选择
+    },
+    async toggleBookSelection(bookName) {
+      const units = this.getUnitsForBook(bookName).map((unit) => unit.name);
+      const isFullySelected = units.every((unit) => this.selectedUnits.includes(unit));
+
+      if (isFullySelected) {
+        // 如果该册的所有单元已选中，则取消选择
+        this.selectedUnits = this.selectedUnits.filter((unit) => !units.includes(unit));
+      } else {
+        // 如果该册的部分或全部单元未选中，则全选
+        this.selectedUnits = [...new Set([...this.selectedUnits, ...units])];
+      }
+
+      // 更新总单词数
+      this.maxTestCount = await this.getTotalWords();
+      this.validateTestCount(); // 验证当前输入的测试数量
+    },
+    async toggleUnitSelection(unitName) {
+      if (this.selectedUnits.includes(unitName)) {
+        this.selectedUnits = this.selectedUnits.filter((unit) => unit !== unitName);
+      } else {
+        this.selectedUnits.push(unitName);
+      }
+
+      // 更新总单词数
+      this.maxTestCount = await this.getTotalWords();
+      this.validateTestCount(); // 验证当前输入的测试数量
+    },
+    getUnitsForSelectedBook() {
+      const prefix = this.selectedBook === "required" ? "R" : "O";
+      return this.wordLists.filter((list) => list.name.startsWith(prefix));
+    },
+    getUnitsForSelectedBookType() {
+      const prefix = this.selectedBookType === "required" ? "R" : "O";
+      return this.wordLists.filter((list) => list.name.startsWith(prefix));
+    },
+    getUnitsForBook(bookName) {
+      return this.wordLists.filter((list) => list.name.startsWith(bookName));
+    },
+    isBookFullySelected(bookName) {
+      const units = this.getUnitsForBook(bookName).map((unit) => unit.name);
+      return units.every((unit) => this.selectedUnits.includes(unit));
+    },
+    async validateTestCount() {
+  const totalWords = await this.getTotalWords();
+  this.maxTestCount = totalWords; // 直接赋值，无需使用 this.$set
+
+  if (this.testCount <= 0) {
+    this.testCountError = "测试数量必须大于 0";
+  } else if (this.testCount > totalWords) {
+    this.testCountError = `测试数量不能超过 ${totalWords}`;
+  } else {
+    this.testCountError = null;
+  }
+},
+    async getTotalWords() {
+      let totalWords = 0;
+
+      for (const unitName of this.selectedUnits) {
+        try {
+          // 动态加载单元的 JSON 文件
+          const listModule = await import(`./assets/js/vocabulary/${unitName}.json`);
+          const vocabulary = listModule.vocabulary || [];
+          totalWords += vocabulary.length;
+        } catch (error) {
+          console.error(`无法加载单元 ${unitName} 的数据:`, error);
+        }
+      }
+
+      return totalWords;
+    },
+    async setTestMode(mode) {
+      this.testMode = mode;
+      if (mode === "all") {
+        this.testCountError = null; // 清除错误信息
+      } else if (mode === "custom") {
+        this.maxTestCount = await this.getTotalWords(); // 动态获取最大测试数量
+        this.validateTestCount(); // 验证当前输入的测试数量
+      }
+    },
+    async startTestHandler() {
+      const allWords = [];
+
+      // 加载选中的单元单词
+      for (const unitName of this.selectedUnits) {
+        try {
+          const listModule = await import(`./assets/js/vocabulary/${unitName}.json`);
+          // 每个en_definition分开测试
+          const words = listModule.vocabulary.flatMap((word) =>
+            word.en_definition.map((definition) => ({
+              word: word.word,
+              en_definition: [definition],
+            }))
+          );
+          allWords.push(...words);
+        } catch (error) {
+          console.error(`无法加载单元 ${unitName} 的数据:`, error);
+        }
+      }
+
+      // 加载选中的自定义文件单词
+      for (const fileName of this.selectedFiles) {
+        const file = this.uploadedFiles.find((f) => f.name === fileName);
+        if (file) {
+          // 每个en_definition分开测试
+          const words = file.content.vocabulary.flatMap((word) =>
+            word.en_definition.map((definition) => ({
+              word: word.word,
+              en_definition: [definition],
+            }))
+          );
+          allWords.push(...words);
+        }
+      }
+
+      // 根据测试模式和测试数量生成测试内容
+      if (allWords.length > 0) {
+        if (this.testMode === 'custom' && this.testCount > 0) {
+          this.words = this.shuffleArray(allWords).slice(0, this.testCount);
+        } else {
+          this.words = allWords;
+        }
+        this.shuffledWords = this.shuffleArray([...this.words]);
+        this.isTesting = true;
+        this.currentWordIndex = 0;
+        this.correctCount = 0;
+        this.feedback = null;
+        this.userInput = "";
+        this.incorrectWords = [];
+        this.correctWords = [];
+      } else {
+        alert("请先选择单词列表或上传自定义单词列表！");
+      }
+    },
   },
 };
 </script>
@@ -419,6 +674,7 @@ export default {
   margin: 0 auto;
   padding: 1.25rem;
   font-family: "Microsoft Yahei UI", Arial, sans-serif;
+  color: var(--text-color);
 }
 
 .progress-bar-container {
@@ -473,7 +729,7 @@ h2 {
 
 .list-button {
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -495,7 +751,7 @@ h2 {
 
 .upload-button {
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -538,7 +794,7 @@ h2 {
 
 .submit-button {
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   width: 6rem;
   border: none;
   padding: 0.625rem 1.25rem;
@@ -573,7 +829,7 @@ h2 {
 
 .mark-incorrect-button {
   background-color: #ff4d4f;
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.3125rem 0.625rem;
   border-radius: 0.3125rem;
@@ -599,7 +855,7 @@ h2 {
   display: block;
   margin: 0 auto;
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -624,7 +880,7 @@ h2 {
   margin: 1rem auto;
   width: 6rem;
   background-color: #ff4d4f;
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -647,7 +903,7 @@ h2 {
 
 .batch-test-button {
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -663,8 +919,8 @@ h2 {
 }
 
 .batch-test-button:disabled {
-  background-color: #ccc;
-  color: #fff;
+  background-color: var(--border-color);
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -676,7 +932,7 @@ h2 {
 
 .print-button {
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.3125rem;
@@ -691,4 +947,272 @@ h2 {
   transform: scale(1.05);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }
+
+.book-grid, .unit-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.book-card, .unit-card {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: center;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.book-card:hover, .unit-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.book-card.selected, .unit-card.selected {
+  background-color: var(--hover-color);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+}
+
+.start-test-container {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.start-test-button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.start-test-button:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.start-test-button:disabled {
+  background-color: var(--border-color);
+  color: var(--text-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.preset-card:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+}
+
+.active-card {
+  border: 2px solid var(--primary-color);
+}
+
+.unit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.unit-card {
+  background-color: var(--secondary-background-color);
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.unit-card:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+}
+
+.unit-card.active-card {
+  border: 2px solid var(--primary-color);
+}
+
+.start-test-container {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.start-test-button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.start-test-button:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.test-count-label {
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
+
+.test-count-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  width: 5rem;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.preset-title {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.test-options {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.test-option-button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 0 0.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.test-option-button.active {
+  background-color: var(--hover-color);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
+}
+
+.test-option-button:disabled {
+  background-color: var(--border-color);
+  color: var(--text-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.test-option-button:hover:enabled {
+  transform: scale(1.05);
+}
+
+.custom-test-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.test-count-label {
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
+
+.test-count-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  width: 5rem;
+  text-align: center;
+}
+
+.test-count-hint {
+  font-size: 0.875rem;
+  margin-left: 0.5rem;
+  color: var(--text-color);
+}
+
+.test-count-hint.error {
+  color: red;
+}
+
+.custom-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  cursor: default;
+}
+
+.upload-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 修改 upload-small-card 和 upload-status-card 样式以与 unit-card 保持一致 */
+.upload-small-card, .upload-status-card {
+  background-color: var(--secondary-background-color);
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.upload-small-card:hover, .upload-status-card:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+}
+
+.upload-small-card {
+  border: 1px solid var(--border-color);
+}
+
+.upload-status-card {
+  border: 1px solid var(--primary-color);
+}
+
 </style>

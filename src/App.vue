@@ -50,7 +50,7 @@ export default {
     return {
       isChangeLogVisible: false, // 控制更新日志弹窗的显示
       isColorPickerVisible: false, // 控制颜色选择器弹窗的显示
-      currentAppVersion: '2.6.1' // 当前应用版本
+      currentAppVersion: '2.7.0' // 当前应用版本
     };
   },
   mounted() {

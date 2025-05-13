@@ -1,6 +1,6 @@
 {
   "name": "henguren",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "private": true,
   "packageManager": "pnpm@10.8.0",
   "scripts": {

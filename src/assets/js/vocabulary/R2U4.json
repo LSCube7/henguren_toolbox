@@ -1,27 +1,6 @@
 {
   "vocabulary": [
     {
-      "word": "nationality",
-      "en_definition": ["one’s legal right to belong to a nation"],
-      "zh_definition": ["国籍"]
-    },
-    {
-      "word": "journal",
-      "en_definition": [
-        "a written record of the things you do, see, etc. every day",
-        "a newspaper or magazine"
-      ],
-      "zh_definition": ["日志；日记", "报纸；刊物；杂志"]
-    },
-    {
-      "word": "authority",
-      "en_definition": [
-        "the power to give orders to people",
-        "the power to influence people because they respect your knowledge or official position"
-      ],
-      "zh_definition": ["权力", "权威；威信；影响力"]
-    },
-    {
       "word": "brick",
       "en_definition": [
         "something used for building walls, houses and other buildings"

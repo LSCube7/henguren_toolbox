@@ -180,6 +180,7 @@ export default {
       books: [
         { name: "R2", title: "必修二" },
         { name: "R3", title: "必修三" },
+        { name: "O1", title: "选择性必修一" }
       ],
       selectedUnits: [],
       wordLists: listData,

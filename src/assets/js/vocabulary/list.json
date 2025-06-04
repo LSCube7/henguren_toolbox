@@ -3,5 +3,7 @@
   { "name": "R3U1", "title": "必修三 Unit 1" },
   { "name": "R3U2", "title": "必修三 Unit 2" },
   { "name": "R3U3", "title": "必修三 Unit 3" },
-  { "name": "R3U4", "title": "必修三 Unit 4" }
+  { "name": "R3U4", "title": "必修三 Unit 4" },
+  { "name": "O1U1", "title": "选择性必修一 Unit 1" },
+  { "name": "O1U2", "title": "选择性必修一 Unit 2" }
 ]

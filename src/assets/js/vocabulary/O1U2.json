@@ -1,0 +1,404 @@
+{
+  "vocabulary": [
+    {
+      "word": "wave",
+      "en_definition": ["a raised line of water that moves across the surface of the sea, ocean, etc."],
+      "zh_definition": ["海浪"]
+    },
+    {
+      "word": "victim",
+      "en_definition": ["a person who has been attacked, or killed as the result of a crime, disease, an accident, etc."],
+      "zh_definition": ["受害者；牺牲品"]
+    },
+    {
+      "word": "tide",
+      "en_definition": ["a regular rise and fall of the sea"],
+      "zh_definition": ["潮汐；潮水"]
+    },
+    {
+      "word": "overflow",
+      "en_definition": ["to be so full that the contents go over the sides"],
+      "zh_definition": ["漫出；溢出"]
+    },
+    {
+      "word": "mosquito",
+      "en_definition": ["a flying insect that bites humans and animals and sucks their blood"],
+      "zh_definition": ["蚊子"]
+    },
+    {
+      "word": "fellow",
+      "en_definition": [
+        "used to describe somebody who is the same as you in some way, or in the same situation",
+        "a way of referring to a man or boy"
+      ],
+      "zh_definition": ["同伴的；同类的；同事的", "男人；家伙"]
+    },
+    {
+      "word": "predict",
+      "en_definition": ["to say that something will happen in the future"],
+      "zh_definition": ["预言；预告"]
+    },
+    {
+      "word": "distant",
+      "en_definition": ["far away in space or time"],
+      "zh_definition": ["遥远的"]
+    },
+    {
+      "word": "shelter",
+      "en_definition": ["the fact of having a place to live or stay, considered as a basic human need"],
+      "zh_definition": ["居所；住处"]
+    },
+    {
+      "word": "nominate",
+      "en_definition": ["to formally suggest that somebody should be chosen for an important role, prize, position, etc."],
+      "zh_definition": ["提名；推荐"]
+    },
+    {
+      "word": "anger",
+      "en_definition": ["the strong feeling that you have when you think something that happened is bad and unfair"],
+      "zh_definition": ["怒火"]
+    },
+    {
+      "word": "frustration",
+      "en_definition": ["the feeling of being annoyed for failure"],
+      "zh_definition": ["懊恼；沮丧；受挫"]
+    },
+    {
+      "word": "preserve",
+      "en_definition": ["to keep a particular quality, feature, etc. to make sure that something is kept"],
+      "zh_definition": ["保护；保存"]
+    },
+    {
+      "word": "ancestor",
+      "en_definition": ["a person in your family who lived a long time ago"],
+      "zh_definition": ["祖宗；祖先"]
+    },
+    {
+      "word": "threaten",
+      "en_definition": [
+        "to be a danger to something",
+        "to say that you will cause trouble, hurt somebody if you don't get what you want"
+      ],
+      "zh_definition": ["危及；对......构成威胁", "威胁；恐吓"]
+    },
+    {
+      "word": "folk",
+      "en_definition": [
+        "traditional and typical of the ordinary people of a country or community",
+        "people in general"
+      ],
+      "zh_definition": ["传统民间的；民俗的", "人们"]
+    },
+    {
+      "word": "forever",
+      "en_definition": ["used to say that a particular situation or state will always exist"],
+      "zh_definition": ["永远"]
+    },
+    {
+      "word": "inform",
+      "en_definition": ["to tell somebody about something, especially in an official way"],
+      "zh_definition": ["通知；通告"]
+    },
+    {
+      "word": "nevertheless",
+      "en_definition": ["despite something that you have just mentioned"],
+      "zh_definition": ["尽管如此；然而"]
+    },
+    {
+      "word": "native",
+      "en_definition": [
+        "connected with the place where you have always lived or lived for a long time",
+        "connected with the place where you were born and lived for the first years of your life"
+      ],
+      "zh_definition": ["本地的；当地的", "出生地的"]
+    },
+    {
+      "word": "landscape",
+      "en_definition": ["everything you can see when you look across a large area of land, especially in the country"],
+      "zh_definition": ["（陆上，尤指乡村的）风景，景色"]
+    },
+    {
+      "word": "visual",
+      "en_definition": ["connected with seeing or sight"],
+      "zh_definition": ["视力的；视觉的"]
+    },
+    {
+      "word": "antique",
+      "en_definition": ["an object such as a piece of furniture that is old and often valuable"],
+      "zh_definition": ["文物；古董"]
+    },
+    {
+      "word": "pub",
+      "en_definition": ["a building where people go to drink and meet their friends"],
+      "zh_definition": ["酒吧；酒馆"]
+    },
+    {
+      "word": "rural",
+      "en_definition": ["connected with or like the countryside"],
+      "zh_definition": ["乡村的；农村的"]
+    },
+    {
+      "word": "urban",
+      "en_definition": ["connected with a town or city"],
+      "zh_definition": ["城市的；都市的"]
+    },
+    {
+      "word": "plain",
+      "en_definition": ["not decorated or complicated; simple"],
+      "zh_definition": ["朴素的；简单的"]
+    },
+    {
+      "word": "responsibility",
+      "en_definition": ["a duty to deal with or take care of somebody / something, so that you may be blamed if something goes wrong"],
+      "zh_definition": ["责任；负责"]
+    },
+    {
+      "word": "varied",
+      "en_definition": ["of many different types"],
+      "zh_definition": ["各种各样的；形形色色的"]
+    },
+    {
+      "word": "tune",
+      "en_definition": ["a series of musical notes that are sung or played in a particular order to form a piece of music"],
+      "zh_definition": ["曲调；曲子"]
+    },
+    {
+      "word": "bride",
+      "en_definition": ["a woman on her wedding day, or just before or just after it"],
+      "zh_definition": ["新娘；即将（或刚刚）结婚的女子"]
+    },
+    {
+      "word": "bridegroom",
+      "en_definition": ["a man on his wedding day, or just before or just after it"],
+      "zh_definition": ["新郎；即将（或刚刚）结婚的男子"]
+    },
+    {
+      "word": "bless",
+      "en_definition": ["to have something good such as ability, great happiness, etc."],
+      "zh_definition": ["享有（幸福等）；赋有（能力等）"]
+    },
+    {
+      "word": "calligraphy",
+      "en_definition": ["beautiful handwriting done with a special pen or brush"],
+      "zh_definition": ["书法"]
+    },
+    {
+      "word": "structure",
+      "en_definition": ["the way in which the parts of something are connected together, arranged or organized; a particular arrangement of parts"],
+      "zh_definition": ["结构；构造"]
+    },
+    {
+      "word": "precise",
+      "en_definition": ["clear and accurate"],
+      "zh_definition": ["准确的；精确的"]
+    },
+    {
+      "word": "advocate",
+      "en_definition": [
+        "a person who supports or speaks in favour of somebody or of a public plan or action",
+        "to support something publicly"
+      ],
+      "zh_definition": ["支持者", "拥护；支持；提倡"]
+    },
+    {
+      "word": "recycle",
+      "en_definition": ["to treat things that have been used so that they can be used again"],
+      "zh_definition": ["回收利用"]
+    },
+    {
+      "word": "bin",
+      "en_definition": ["a container that you put waste in"],
+      "zh_definition": ["垃圾箱"]
+    },
+    {
+      "word": "widespread",
+      "en_definition": ["existing or happening over a large area or among many people"],
+      "zh_definition": ["分布广的；普遍的；广泛的"]
+    },
+    {
+      "word": "intention",
+      "en_definition": ["what you intend or plan to do; your aim"],
+      "zh_definition": ["打算；计划；意图；目的"]
+    },
+    {
+      "word": "energy-efficient",
+      "en_definition": ["doing something well thoroughly with no waste of energy"],
+      "zh_definition": ["节能的"]
+    },
+    {
+      "word": "appointment",
+      "en_definition": ["a formal arrangement to meet somebody at a particular time, especially for a reason connected with their work"],
+      "zh_definition": ["约会；预约；约定"]
+    },
+    {
+      "word": "dentist",
+      "en_definition": ["a person whose job is to take care of people's teeth"],
+      "zh_definition": ["牙科医生"]
+    },
+    {
+      "word": "skip",
+      "en_definition": ["to jump over a rope which is held at both ends by yourself or by two other people"],
+      "zh_definition": ["跳绳"]
+    },
+    {
+      "word": "contest",
+      "en_definition": ["a competition in which people try to win something"],
+      "zh_definition": ["比赛；竞赛"]
+    },
+    {
+      "word": "barbecue",
+      "en_definition": ["an outdoor meal or party when food is cooked over an open fire"],
+      "zh_definition": ["户外烧烤"]
+    },
+    {
+      "word": "garbage",
+      "en_definition": ["waste food, paper, etc. that you throw away"],
+      "zh_definition": ["（生活）垃圾；废物"]
+    },
+    {
+      "word": "ban",
+      "en_definition": [
+        "to decide or say officially that something is not allowed",
+        "an official rule that says that something is not allowed"
+      ],
+      "zh_definition": ["明令禁止；取缔", "禁令"]
+    },
+    {
+      "word": "access",
+      "en_definition": [
+        "the opportunity or right to use something or to see somebody / something",
+        "a way of entering or reaching a place"
+      ],
+      "zh_definition": ["（使用或见到的）机会，权利", "通道；入径"]
+    },
+    {
+      "word": "dormitory",
+      "en_definition": ["a room for several people to sleep in, especially in a school or other institution"],
+      "zh_definition": ["集体宿舍"]
+    },
+    {
+      "word": "perspective",
+      "en_definition": ["a particular attitude towards something; a way of thinking about something"],
+      "zh_definition": ["态度；观点；思考方法"]
+    },
+    {
+      "word": "defend",
+      "en_definition": ["to protect somebody / something from attack"],
+      "zh_definition": ["保护；防御"]
+    },
+    {
+      "word": "violence",
+      "en_definition": ["violent behaviour that is intended to hurt or kill somebody"],
+      "zh_definition": ["暴力；暴行"]
+    },
+    {
+      "word": "campaign",
+      "en_definition": [
+        "to take part in a series of planned activities, for example to win an election",
+        "a series of planned activities that are intended to achieve a social or commercial aim"
+      ],
+      "zh_definition": ["参加运动", "运动（为社会、商业等目的而进行的一系列有计划的活动）"]
+    },
+    {
+      "word": "conserve",
+      "en_definition": ["to use as little of something as possible so that it lasts a long time"],
+      "zh_definition": ["节省；节约"]
+    },
+    {
+      "word": "habitat",
+      "en_definition": ["the place where a particular type of animal or plant is normally found"],
+      "zh_definition": ["（动植物的）生活环境；栖息地"]
+    },
+    {
+      "word": "essay",
+      "en_definition": ["a short piece of writing on a particular subject"],
+      "zh_definition": ["文章；论说文"]
+    },
+    {
+      "word": "convinced",
+      "en_definition": ["completely sure about something"],
+      "zh_definition": ["坚信的；深信的；确信的"]
+    },
+    {
+      "word": "opposing",
+      "en_definition": ["(of attitudes, views, etc.) very different from each other"],
+      "zh_definition": ["相反的；极不相同的"]
+    },
+    {
+      "word": "marathon",
+      "en_definition": ["a long running race of about 42 kilometres"],
+      "zh_definition": ["马拉松赛跑"]
+    },
+    {
+      "word": "sponsor",
+      "en_definition": [
+        "a person or company that pays for some events in return for advertising",
+        "to pay the costs of a particular event"
+      ],
+      "zh_definition": ["赞助者；赞助商", "赞助"]
+    },
+    {
+      "word": "enthusiasm",
+      "en_definition": ["a strong feeling of excitement and interest in something and a desire to become involved in it"],
+      "zh_definition": ["热情；热心"]
+    },
+    {
+      "word": "rewarding",
+      "en_definition": ["worth doing"],
+      "zh_definition": ["值得做的"]
+    },
+    {
+      "word": "transform",
+      "en_definition": [
+        "to completely change the appearance or character of somebody / something, especially so that it is better",
+        "to change the form of something"
+      ],
+      "zh_definition": ["使改观", "使改变形态"]
+    },
+    {
+      "word": "stretch",
+      "en_definition": [
+        "to put your arms or legs out straight and tighten your muscles",
+        "to make something longer, wider or looser; to become longer"
+      ],
+      "zh_definition": ["伸展", "拉长；撑大"]
+    },
+    {
+      "word": "involve",
+      "en_definition": ["to make somebody take part in or experience something"],
+      "zh_definition": ["加入；牵涉到"]
+    }
+  ],
+  "phrases": [
+    {
+      "phrase": "palm tree",
+      "en_definition": ["a straight tree with a mass of long leaves at the top, growing in tropical countries"],
+      "zh_definition": ["棕榈树"]
+    },
+    {
+      "phrase": "crystal clear",
+      "en_definition": ["completely clear and bright"],
+      "zh_definition": ["清澈透明的；晶莹的"]
+    },
+    {
+      "phrase": "coconut milk",
+      "en_definition": ["the white juice of coconut"],
+      "zh_definition": ["椰奶"]
+    },
+    {
+      "phrase": "the human face",
+      "en_definition": ["a person who is involved in a subject, issue, etc. and makes it easier for ordinary people to understand and have sympathy with it"],
+      "zh_definition": ["（某主题、话题等的）标志性人物"]
+    },
+    {
+      "phrase": "weather forecast",
+      "en_definition": ["a description of what the weather will be like tomorrow or for the next few days"],
+      "zh_definition": ["天气预报"]
+    },
+    {
+      "phrase": "relay race",
+      "en_definition": ["a race between teams in which each member of the team runs or swims one section of the race"],
+      "zh_definition": ["接力赛"]
+    }
+  ]
+}

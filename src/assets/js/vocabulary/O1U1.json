@@ -1,0 +1,399 @@
+{
+  "vocabulary": [
+    {
+      "word": "associate",
+      "en_definition": ["to make a connection between people or things in your mind"],
+      "zh_definition": ["联想；联系"]
+    },
+    {
+      "word": "tablet",
+      "en_definition": [
+        "a small computer easy to carry, usually without a physical keyboard",
+        "a small solid piece of medicine"
+      ],
+      "zh_definition": ["平板电脑", "药片"]
+    },
+    {
+      "word": "fashion",
+      "en_definition": ["a popular style of clothes, hair, etc. at a particular time or place"],
+      "zh_definition": ["流行款式"]
+    },
+    {
+      "word": "item",
+      "en_definition": [
+        "a single object",
+        "one thing on a list of things to buy or do"
+      ],
+      "zh_definition": ["一件商品或物品", "项目"]
+    },
+    {
+      "word": "abandon",
+      "en_definition": [
+        "to leave a thing or a place, especially because it's impossible or dangerous to stay",
+        "to leave somebody especially somebody you are responsible for, with no intention of returning"
+      ],
+      "zh_definition": ["离弃；舍弃；丢弃", "遗弃；抛弃"]
+    },
+    {
+      "word": "drawer",
+      "en_definition": ["a part of a piece of furniture used for keeping things in"],
+      "zh_definition": ["抽屉"]
+    },
+    {
+      "word": "essential",
+      "en_definition": ["completely necessary; extremely important"],
+      "zh_definition": ["完全必要的；极其重要的"]
+    },
+    {
+      "word": "vital",
+      "en_definition": ["necessary or essential in order for something to succeed or exist"],
+      "zh_definition": ["必不可少的；重要的"]
+    },
+    {
+      "word": "crucial",
+      "en_definition": ["extremely important"],
+      "zh_definition": ["至关重要的"]
+    },
+    {
+      "word": "anxiety",
+      "en_definition": ["the state of feeling nervous or worried that something bad is going to happen"],
+      "zh_definition": ["焦虑"]
+    },
+    {
+      "word": "optimistic",
+      "en_definition": ["expecting good things to happen or something to be successful"],
+      "zh_definition": ["乐观的"]
+    },
+    {
+      "word": "release",
+      "en_definition": [
+        "to let a substance flow out",
+        "to make something available to the public"
+      ],
+      "zh_definition": ["排放；释放", "公开；发行"]
+    },
+    {
+      "word": "chemical",
+      "en_definition": [
+        "a substance used in a chemical process",
+        "connected with chemistry"
+      ],
+      "zh_definition": ["化学品", "化学的"]
+    },
+    {
+      "word": "miserable",
+      "en_definition": ["very unhappy or uncomfortable"],
+      "zh_definition": ["痛苦的；非常难受的"]
+    },
+    {
+      "word": "lack",
+      "en_definition": [
+        "the state of having none or not enough of something",
+        "to have none or not enough of something"
+      ],
+      "zh_definition": ["缺乏", "缺乏；不足"]
+    },
+    {
+      "word": "mood",
+      "en_definition": ["the way you are feeling at a particular time"],
+      "zh_definition": ["情绪；心情"]
+    },
+    {
+      "word": "affect",
+      "en_definition": [
+        "to produce a change in somebody / something",
+        "to touch the feelings of somebody"
+      ],
+      "zh_definition": ["影响", "深深打动；使悲伤"]
+    },
+    {
+      "word": "theory",
+      "en_definition": ["a formal set of ideas that explain why something happens or exists"],
+      "zh_definition": ["学说；理论"]
+    },
+    {
+      "word": "imply",
+      "en_definition": ["to suggest that something is true or that you feel or think something, without saying so directly"],
+      "zh_definition": ["暗示；含有......的意思"]
+    },
+    {
+      "word": "mutual",
+      "en_definition": ["used to describe feelings that two or more people have for each other equally, or actions that affect two or more people equally"],
+      "zh_definition": ["相互的；彼此的"]
+    },
+    {
+      "word": "contrast",
+      "en_definition": ["a difference between two or more people or things"],
+      "zh_definition": ["对比；对照"]
+    },
+    {
+      "word": "depressed",
+      "en_definition": ["very sad and without hope"],
+      "zh_definition": ["忧郁的；沮丧的"]
+    },
+    {
+      "word": "incredibly",
+      "en_definition": ["extremely; in a way that is difficult to believe"],
+      "zh_definition": ["极其地；令人难以置信地"]
+    },
+    {
+      "word": "presentation",
+      "en_definition": [
+        "a meeting at which something, especially a new product or idea, a piece of work, is shown to a group of people",
+        "the act of showing something or of giving something to somebody"
+      ],
+      "zh_definition": ["展示会；介绍会；发布会", "提交；授予；出示"]
+    },
+    {
+      "word": "urge",
+      "en_definition": [
+        "a strong desire to do something",
+        "to advise or try hard to persuade somebody to do something"
+      ],
+      "zh_definition": ["强烈的欲望；冲动", "敦促；力劝"]
+    },
+    {
+      "word": "appreciate",
+      "en_definition": [
+        "to recognize the good qualities of somebody / something",
+        "to be grateful for something done"
+      ],
+      "zh_definition": ["欣赏", "感激"]
+    },
+    {
+      "word": "poet",
+      "en_definition": ["a person who writes poems"],
+      "zh_definition": ["诗人"]
+    },
+    {
+      "word": "solid",
+      "en_definition": [
+        "that you can rely on; having a strong basis",
+        "hard or firm; not in the form of a liquid or gas"
+      ],
+      "zh_definition": ["可靠的；可信赖的；坚实的", "固体的；坚硬的"]
+    },
+    {
+      "word": "scientific",
+      "en_definition": ["involving science; connected with science"],
+      "zh_definition": ["科学的；关于科学的"]
+    },
+    {
+      "word": "evidence",
+      "en_definition": [
+        "the facts that make you believe that something is true",
+        "to prove or show something"
+      ],
+      "zh_definition": ["根据；证据", "证明；作为......的证据"]
+    },
+    {
+      "word": "decade",
+      "en_definition": ["a period of ten years"],
+      "zh_definition": ["十年，十年期（尤指一个年代）"]
+    },
+    {
+      "word": "overall",
+      "en_definition": ["including all the things or people that are involved in a particular situation; general"],
+      "zh_definition": ["总体的；综合的"]
+    },
+    {
+      "word": "promote",
+      "en_definition": [
+        "to help something happen or develop",
+        "to help sell a product, service, etc. or make it more popular by offering it at a special price"
+      ],
+      "zh_definition": ["促进", "促销；推销"]
+    },
+    {
+      "word": "journalist",
+      "en_definition": ["a person whose job is to collect and write news stories for newspapers, magazines or television"],
+      "zh_definition": ["新闻记者"]
+    },
+    {
+      "word": "afterwards",
+      "en_definition": ["at a later time"],
+      "zh_definition": ["以后；后来"]
+    },
+    {
+      "word": "nutrition",
+      "en_definition": ["the process by which living things receive the food necessary for them to grow healthy"],
+      "zh_definition": ["营养；滋养"]
+    },
+    {
+      "word": "mostly",
+      "en_definition": ["mainly, generally"],
+      "zh_definition": ["通常；主要地；一般地"]
+    },
+    {
+      "word": "recipe",
+      "en_definition": ["the instructions that tell you how to cook something and the items of food you need for it"],
+      "zh_definition": ["烹饪法；食谱"]
+    },
+    {
+      "word": "composition",
+      "en_definition": [
+        "a short text that is written as a school exercise; a short essay",
+        "the different parts which something is made of"
+      ],
+      "zh_definition": ["作文；小论文", "成分；构成"]
+    },
+    {
+      "word": "golf",
+      "en_definition": ["a game played over a large area of ground using specially shaped sticks to hit a small hard ball into a series of 9 or 18 holes"],
+      "zh_definition": ["高尔夫球运动"]
+    },
+    {
+      "word": "wrestle",
+      "en_definition": ["to fight somebody by holding them and trying to force them to the ground"],
+      "zh_definition": ["摔跤"]
+    },
+    {
+      "word": "cycle",
+      "en_definition": ["to ride a bicycle"],
+      "zh_definition": ["骑自行车"]
+    },
+    {
+      "word": "cooperate",
+      "en_definition": ["to work together with somebody else to achieve something"],
+      "zh_definition": ["合作；协作"]
+    },
+    {
+      "word": "sacrifice",
+      "en_definition": [
+        "the fact of giving up something important or valuable to you in order to get or do something that seems more important",
+        "to give up something important to you in order to do something that seems more important for yourself or for another person"
+      ],
+      "zh_definition": ["牺牲；舍弃", "牺牲；献出"]
+    },
+    {
+      "word": "discipline",
+      "en_definition": [
+        "the ability to control your behaviour or the way you live, work, etc.",
+        "the practice of training people to obey rules and punishing them if they don't"
+      ],
+      "zh_definition": ["自制力；遵守纪律", "纪律；训练"]
+    },
+    {
+      "word": "self-reliance",
+      "en_definition": ["the ability to do or decide things by yourself"],
+      "zh_definition": ["自力更生；自立"]
+    },
+    {
+      "word": "commitment",
+      "en_definition": [
+        "a promise to do something or support somebody / something",
+        "the willingness to work hard and give your energy to a job or an activity"
+      ],
+      "zh_definition": ["承诺；保证", "奉献；投入"]
+    },
+    {
+      "word": "persuade",
+      "en_definition": ["to make somebody do something by giving them good reasons for doing it"],
+      "zh_definition": ["劝说；说服"]
+    },
+    {
+      "word": "tone",
+      "en_definition": ["the quality of somebody's voice, especially expressing a particular emotion"],
+      "zh_definition": ["语气；口气"]
+    },
+    {
+      "word": "tournament",
+      "en_definition": ["a sports competition involving many teams or players who take part in different games"],
+      "zh_definition": ["锦标赛"]
+    },
+    {
+      "word": "disappointed",
+      "en_definition": ["upset as something you hoped for hasn't happened or been as good, successful, etc. as you expected"],
+      "zh_definition": ["失望的"]
+    },
+    {
+      "word": "committed",
+      "en_definition": ["willing to work hard and give your time and energy to something"],
+      "zh_definition": ["尽心尽力的"]
+    },
+    {
+      "word": "consume",
+      "en_definition": ["to use something, especially fuel, energy or time"],
+      "zh_definition": ["消耗；耗费（尤指燃料、能量或时间）"]
+    },
+    {
+      "word": "calorie",
+      "en_definition": ["a unit for measuring how much energy food will produce"],
+      "zh_definition": ["大卡；千卡；卡路里"]
+    },
+    {
+      "word": "million",
+      "en_definition": ["1,000,000"],
+      "zh_definition": ["一百万"]
+    },
+    {
+      "word": "suburb",
+      "en_definition": ["an area where people live that is outside the centre of a city"],
+      "zh_definition": ["郊区"]
+    },
+    {
+      "word": "greedy",
+      "en_definition": ["wanting more money, power, food, etc. than you really need"],
+      "zh_definition": ["贪婪的"]
+    },
+    {
+      "word": "portion",
+      "en_definition": [
+        "an amount of food that is large enough for one person",
+        "one part of something larger"
+      ],
+      "zh_definition": ["（食物的）一份，一客", "部分"]
+    },
+    {
+      "word": "adopt",
+      "en_definition": [
+        "to start to use a particular method or show a particular attitude towards somebody / something",
+        "to take somebody else's child as one's own and be its legal parent(s)"
+      ],
+      "zh_definition": ["采用（某方法）；采取（某态度）", "收养；领养"]
+    },
+    {
+      "word": "fry",
+      "en_definition": [
+        "a long thin piece of potato cooked in hot oil",
+        "to cook something in hot oil"
+      ],
+      "zh_definition": ["炸薯条", "油炸"]
+    },
+    {
+      "word": "consumption",
+      "en_definition": [
+        "the act of using energy, food or materials",
+        "the act of buying and using products"
+      ],
+      "zh_definition": ["消耗", "消费"]
+    },
+    {
+      "word": "cancer",
+      "en_definition": ["a serious disease in which growths of cells form in the body and kill normal body cells"],
+      "zh_definition": ["癌症"]
+    },
+    {
+      "word": "phenomenon",
+      "en_definition": ["a fact or event in nature or society"],
+      "zh_definition": ["现象"]
+    }
+  ],
+  "phrases": [
+    {
+      "phrase": "pots of money",
+      "en_definition": ["a very large amount of money"],
+      "zh_definition": ["大笔的金钱"]
+    },
+    {
+      "phrase": "get a kick out of",
+      "en_definition": ["get thrilled"],
+      "zh_definition": ["获得极大的乐趣"]
+    },
+    {
+      "phrase": "games console",
+      "en_definition": ["a small electronic device for playing video games"],
+      "zh_definition": ["游戏机操作手柄"]
+    }
+  ]
+}

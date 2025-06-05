@@ -377,21 +377,19 @@
       "word": "phenomenon",
       "en_definition": ["a fact or event in nature or society"],
       "zh_definition": ["现象"]
-    }
-  ],
-  "phrases": [
+    },
     {
-      "phrase": "pots of money",
+      "word": "pots of money",
       "en_definition": ["a very large amount of money"],
       "zh_definition": ["大笔的金钱"]
     },
     {
-      "phrase": "get a kick out of",
+      "word": "get a kick out of",
       "en_definition": ["get thrilled"],
       "zh_definition": ["获得极大的乐趣"]
     },
     {
-      "phrase": "games console",
+      "word": "games console",
       "en_definition": ["a small electronic device for playing video games"],
       "zh_definition": ["游戏机操作手柄"]
     }

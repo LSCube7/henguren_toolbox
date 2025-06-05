@@ -367,36 +367,34 @@
       "word": "involve",
       "en_definition": ["to make somebody take part in or experience something"],
       "zh_definition": ["加入；牵涉到"]
-    }
-  ],
-  "phrases": [
+    },
     {
-      "phrase": "palm tree",
+      "word": "palm tree",
       "en_definition": ["a straight tree with a mass of long leaves at the top, growing in tropical countries"],
       "zh_definition": ["棕榈树"]
     },
     {
-      "phrase": "crystal clear",
+      "word": "crystal clear",
       "en_definition": ["completely clear and bright"],
       "zh_definition": ["清澈透明的；晶莹的"]
     },
     {
-      "phrase": "coconut milk",
+      "word": "coconut milk",
       "en_definition": ["the white juice of coconut"],
       "zh_definition": ["椰奶"]
     },
     {
-      "phrase": "the human face",
+      "word": "the human face",
       "en_definition": ["a person who is involved in a subject, issue, etc. and makes it easier for ordinary people to understand and have sympathy with it"],
       "zh_definition": ["（某主题、话题等的）标志性人物"]
     },
     {
-      "phrase": "weather forecast",
+      "word": "weather forecast",
       "en_definition": ["a description of what the weather will be like tomorrow or for the next few days"],
       "zh_definition": ["天气预报"]
     },
     {
-      "phrase": "relay race",
+      "word": "relay race",
       "en_definition": ["a race between teams in which each member of the team runs or swims one section of the race"],
       "zh_definition": ["接力赛"]
     }

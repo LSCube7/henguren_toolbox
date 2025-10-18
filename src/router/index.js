@@ -3,6 +3,7 @@ import HomePage from "@/HomePage.vue"; // 导入首页组件
 import ShiciFinder from "@/ShiciFinder.vue"; // 导入寻词组件
 import WenchangTable from "@/WenchangTable.vue";
 import VocabTester from "@/VocabTester.vue";
+import TextTester from "@/TextTester.vue";
 import License from "@/LicensePage.vue";
 
 const routes = [
@@ -25,6 +26,11 @@ const routes = [
     path: "/vocab",
     component: VocabTester,
     // meta:{title:"恨古人工具箱|词汇测试"}
+  },
+  {
+    path: "/text",
+    component: TextTester,
+    // meta:{title:"恨古人工具箱|课文测试 (Alpha)"}
   },
   {
     path: "/license",

@@ -21,6 +21,12 @@
       </router-link>
     </li>
     <li>
+      <router-link to="/text" class="router-link">
+        <h2>课文测试 (Alpha)</h2>
+        <p>测试英语课文，助你通过Ⅱ卷</p>
+      </router-link>
+    </li>
+    <li>
       <router-link to="#" class="router-link">
         <h2>开发中……</h2>
         <p>更多工具绝赞添加中</p>

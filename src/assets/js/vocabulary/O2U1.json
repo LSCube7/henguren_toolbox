@@ -1,0 +1,359 @@
+{
+  "vocabulary": [
+    {
+      "word": "vocation",
+      "en_definition": ["a type of work that one thinks is suitable for oneself"],
+      "zh_definition": ["（适合自己的）工作，职业"]
+    },
+    {
+      "word": "gain",
+      "en_definition": ["to obtain something, especially something that you need", "increase"],
+      "zh_definition": ["获得；取得", "增加"]
+    },
+    {
+      "word": "impress",
+      "en_definition": ["to make somebody feel admiration"],
+      "zh_definition": ["使钦佩；使敬仰；给......留下深刻的好印象"]
+    },
+    {
+      "word": "clerk",
+      "en_definition": ["a person who keeps the records or accounts in an office or store, etc."],
+      "zh_definition": ["职员；文员"]
+    },
+    {
+      "word": "descend",
+      "en_definition": ["to come down from a higher to a lower level"],
+      "zh_definition": ["下来；下降"]
+    },
+    {
+      "word": "shaft",
+      "en_definition": ["a long, narrow passage that goes straight up and down in a building or underground"],
+      "zh_definition": ["（电梯或矿井中的）升降机井；通风井"]
+    },
+    {
+      "word": "loosen",
+      "en_definition": ["to make something less tight or fixed"],
+      "zh_definition": ["（使）放松；变松"]
+    },
+    {
+      "word": "toss",
+      "en_definition": ["to throw something lightly or carelessly"],
+      "zh_definition": ["扔，抛"]
+    },
+    {
+      "word": "edge",
+      "en_definition": ["the outside limit of an object, a surface or an area"],
+      "zh_definition": ["边；边沿"]
+    },
+    {
+      "word": "amused",
+      "en_definition": ["thinking something or somebody is funny"],
+      "zh_definition": ["被逗笑的；觉得好笑的"]
+    },
+    {
+      "word": "territory",
+      "en_definition": ["land that belongs to a particular country"],
+      "zh_definition": ["领土；版图"]
+    },
+    {
+      "word": "mailbox",
+      "en_definition": ["a small box near a building or by the road, which mail is delivered to"],
+      "zh_definition": ["信箱"]
+    },
+    {
+      "word": "worthwhile",
+      "en_definition": ["worth spending time, money or effort on"],
+      "zh_definition": ["值得花时间（或花钱, 努力等）的"]
+    },
+    {
+      "word": "wander",
+      "en_definition": ["to walk slowly around a place, often without any particular purpose", "a short walk in or around a place, usually with no special purpose"],
+      "zh_definition": ["漫游；闲逛；游荡", "游荡；溜达"]
+    },
+    {
+      "word": "bare",
+      "en_definition": ["empty"],
+      "zh_definition": ["空的"]
+    },
+    {
+      "word": "sensational",
+      "en_definition": ["causing great surprise, excitement, or interest"],
+      "zh_definition": ["轰动的"]
+    },
+    {
+      "word": "rough",
+      "en_definition": ["not feeling well", "not smooth"],
+      "zh_definition": ["不舒服的", "不平滑的"]
+    },
+    {
+      "word": "column",
+      "en_definition": ["a part of a newspaper or magazine which appears regularly"],
+      "zh_definition": ["（报刊的）专栏"]
+    },
+    {
+      "word": "occupation",
+      "en_definition": ["a job or profession"],
+      "zh_definition": ["工作；职业"]
+    },
+    {
+      "word": "suitable",
+      "en_definition": ["right or appropriate for a particular purpose or occasion"],
+      "zh_definition": ["合适的；适当的"]
+    },
+    {
+      "word": "deserve",
+      "en_definition": ["if somebody or something deserves something, it is right that they should have it, because of the way they have behaved or because of what they are"],
+      "zh_definition": ["值得；应受"]
+    },
+    {
+      "word": "cease",
+      "en_definition": ["to stop doing something or stop happening"],
+      "zh_definition": ["停止"]
+    },
+    {
+      "word": "goat",
+      "en_definition": ["an animal with horns and a coat of hair, that lives wild in mountain areas or is kept on farms for its milk or meat"],
+      "zh_definition": ["山羊"]
+    },
+    {
+      "word": "scholarship",
+      "en_definition": ["an amount of money given to somebody by an organization to help pay for their education"],
+      "zh_definition": ["奖学金"]
+    },
+    {
+      "word": "circumstance",
+      "en_definition": ["the conditions and facts that are connected with and affect a situation"],
+      "zh_definition": ["条件；环境"]
+    },
+    {
+      "word": "exaggeration",
+      "en_definition": ["a statement or description that makes something seem larger, better, worse or more important than it really is"],
+      "zh_definition": ["夸张；言过其实"]
+    },
+    {
+      "word": "proof",
+      "en_definition": ["information, documents, etc. that show that something is true"],
+      "zh_definition": ["证据；证明"]
+    },
+    {
+      "word": "passionate",
+      "en_definition": ["showing enthusiasm for something or belief in something"],
+      "zh_definition": ["热诚的"]
+    },
+    {
+      "word": "mission",
+      "en_definition": ["particular work that you feel it is your duty to do"],
+      "zh_definition": ["使命"]
+    },
+    {
+      "word": "rocket",
+      "en_definition": ["a spacecraft in the shape of a tube that is driven by a stream of gas when fuel is burned inside"],
+      "zh_definition": ["火箭"]
+    },
+    {
+      "word": "recite",
+      "en_definition": ["to say a poem, piece of literature, etc. that you have learned"],
+      "zh_definition": ["背诵；吟诵"]
+    },
+    {
+      "word": "patent",
+      "en_definition": ["an official right to be the only person to make, use or sell a product or an invention"],
+      "zh_definition": ["专利"]
+    },
+    {
+      "word": "insight",
+      "en_definition": ["an understanding of what something is like"],
+      "zh_definition": ["洞悉；了解"]
+    },
+    {
+      "word": "counsellor",
+      "en_definition": ["a person who is in charge of young people at a summer camp", "a person trained to advise people with problems"],
+      "zh_definition": ["夏令营负责人", "顾问"]
+    },
+    {
+      "word": "enthusiastic",
+      "en_definition": ["feeling or showing a lot of excitement and interest about somebody or something"],
+      "zh_definition": ["热情的；热心的"]
+    },
+    {
+      "word": "entertainment",
+      "en_definition": ["things that are intended to amuse people"],
+      "zh_definition": ["娱乐节目；娱乐活动"]
+    },
+    {
+      "word": "assistant",
+      "en_definition": ["a person who helps somebody in their job", "having a rank below that of a senior person and helping them in their work"],
+      "zh_definition": ["助理；助手", "助理的；副的"]
+    },
+    {
+      "word": "inquiry",
+      "en_definition": ["a request for information about somebody or something"],
+      "zh_definition": ["询问；打听"]
+    },
+    {
+      "word": "scan",
+      "en_definition": ["to pass light over a picture or document using a scanner in order to copy it and put it in the memory of a computer"],
+      "zh_definition": ["扫描（图像或文件）"]
+    },
+    {
+      "word": "qualification",
+      "en_definition": ["an exam that you have passed or a course of study that you have successfully completed"],
+      "zh_definition": ["（通过考试或者学习课程取得的）资格，学历"]
+    },
+    {
+      "word": "enclose",
+      "en_definition": ["to put something in the same envelope, package, etc. as something else"],
+      "zh_definition": ["随函（或包裹等）附上"]
+    },
+    {
+      "word": "drama",
+      "en_definition": ["a play for the theatre, television or radio"],
+      "zh_definition": ["戏；剧"]
+    },
+    {
+      "word": "candidate",
+      "en_definition": ["a person who is trying to be elected or is applying for a job"],
+      "zh_definition": ["候选人；申请人"]
+    },
+    {
+      "word": "certificate",
+      "en_definition": ["an official document proving that you have completed a course of study or passed an exam"],
+      "zh_definition": ["文凭；合格证书"]
+    },
+    {
+      "word": "catalogue",
+      "en_definition": ["a complete list of items"],
+      "zh_definition": ["目录"]
+    },
+    {
+      "word": "sincerely",
+      "en_definition": ["in a way that shows what you really feel or think about somebody or something"],
+      "zh_definition": ["真诚地；诚实地"]
+    },
+    {
+      "word": "minimum",
+      "en_definition": ["the smallest that is possible or allowed; very small", "the lowest or smallest amount"],
+      "zh_definition": ["最低的；最小的；最低限度的", "最小值；最低额度"]
+    },
+    {
+      "word": "approve",
+      "en_definition": ["to think that somebody or something is good, acceptable or suitable"],
+      "zh_definition": ["赞成；同意"]
+    },
+    {
+      "word": "freedom",
+      "en_definition": ["the right to do or say what you want without anyone stopping you"],
+      "zh_definition": ["自由"]
+    },
+    {
+      "word": "citizen",
+      "en_definition": ["a person who has the legal right to belong to a particular country"],
+      "zh_definition": ["公民"]
+    },
+    {
+      "word": "constitution",
+      "en_definition": ["the system of laws and basic principles that a state, a country or an organization is governed by"],
+      "zh_definition": ["宪法；章程"]
+    },
+    {
+      "word": "arrest",
+      "en_definition": ["(of a person) to be suspected of a crime and taken to the police station", "the act of arresting somebody"],
+      "zh_definition": ["逮捕；拘留", "逮捕；拘捕"]
+    },
+    {
+      "word": "humiliate",
+      "en_definition": ["to make somebody feel ashamed or stupid"],
+      "zh_definition": ["羞辱"]
+    },
+    {
+      "word": "prison",
+      "en_definition": ["a building where people are kept as a punishment for a crime they have committed"],
+      "zh_definition": ["监狱"]
+    },
+    {
+      "word": "sow",
+      "en_definition": ["to plant or spread seeds in or on the ground"],
+      "zh_definition": ["播种；种"]
+    },
+    {
+      "word": "seed",
+      "en_definition": ["the small hard part produced by a plant, from which a new plant can grow"],
+      "zh_definition": ["种子；籽"]
+    },
+    {
+      "word": "discrimination",
+      "en_definition": ["the practice of treating somebody or a particular group in society less fairly than others"],
+      "zh_definition": ["歧视"]
+    },
+    {
+      "word": "damage",
+      "en_definition": ["to harm or spoil something or somebody"],
+      "zh_definition": ["损害；伤害"]
+    },
+    {
+      "word": "church",
+      "en_definition": ["a building where Christians go to worship"],
+      "zh_definition": ["（基督教的）教堂"]
+    },
+    {
+      "word": "threat",
+      "en_definition": ["a statement in which you tell somebody that you will harm them if they do not do what you want"],
+      "zh_definition": ["威胁；恐吓"]
+    },
+    {
+      "word": "reform",
+      "en_definition": ["change that is made to a social system, an organization, etc. in order to improve or correct it", "to improve a system, an organization, a law, etc. by making changes to it"],
+      "zh_definition": ["改革；变革", "改革；改进"]
+    },
+    {
+      "word": "illegal",
+      "en_definition": ["not allowed by the law"],
+      "zh_definition": ["不合法的；非法的"]
+    },
+    {
+      "word": "decline",
+      "en_definition": ["to refuse politely to accept or to do something", "decrease in the number, value, quality, etc. of something"],
+      "zh_definition": ["谢绝；婉言拒绝", "（数量、价值、质量等的）减少，下降，衰落，衰退"]
+    },
+    {
+      "word": "racial",
+      "en_definition": ["happening or existing between people of different races"],
+      "zh_definition": ["人种的"]
+    },
+    {
+      "word": "fend for oneself",
+      "en_definition": ["to take care of oneself without help from anyone else"],
+      "zh_definition": ["自谋生计"]
+    },
+    {
+      "word": "in a nutshell",
+      "en_definition": ["using fewest possible words"],
+      "zh_definition": ["简而言之"]
+    },
+    {
+      "word": "hay wagon",
+      "en_definition": ["a four-wheeled vehicle for carrying dried grass"],
+      "zh_definition": ["运干草的四轮车"]
+    },
+    {
+      "word": "autobiographical novel",
+      "en_definition": ["a novel that contains many of the writer’s own experiences"],
+      "zh_definition": ["自传体小说"]
+    },
+    {
+      "word": "traffic jam",
+      "en_definition": ["too many vehicles in one place so that it is impossible to move"],
+      "zh_definition": ["交通阻塞"]
+    },
+    {
+      "word": "arts and crafts",
+      "en_definition": ["some handmade pieces with decorative and practical purposes"],
+      "zh_definition": ["手工艺品"]
+    },
+    {
+      "word": "department store",
+      "en_definition": ["a large store selling different types of goods or services"],
+      "zh_definition": ["百货公司"]
+    }
+  ]
+}

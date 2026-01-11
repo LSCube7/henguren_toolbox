@@ -8,5 +8,9 @@
   { "name": "O1U2", "title": "选择性必修一 Unit 2" },
   { "name": "O1U3", "title": "选择性必修一 Unit 3" },
   { "name": "O1U4", "title": "选择性必修一 Unit 4" },
-  { "name": "O2U1", "title": "选择性必修二 Unit 1" }
+  { "name": "O2U1", "title": "选择性必修二 Unit 1" },
+  { "name": "O2U2", "title": "选择性必修二 Unit 2" },
+  { "name": "O2U3", "title": "选择性必修二 Unit 3" },
+  { "name": "O2U4", "title": "选择性必修二 Unit 4" }
+
 ]

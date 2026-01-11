@@ -1,0 +1,73 @@
+{
+    "id": "O2U4",
+    "stats": {
+        "sections": 1,
+        "paragraphs": 6,
+        "sentences": 28
+    },
+    "sections": [
+        {
+            "id": "sec-cf",
+            "title":"From Robben Island: the dark years",
+            "paragraphs":[
+                                {
+                    "id": "p-1",
+                    "sentences": [
+                        {"id":"s-1","text":"Time may seem to stand still for those of us in prison, but it did not stop for those outside."},
+                        {"id":"s-2","text":"I was reminded of this when I was visited by my mother in the spring of 1968."},
+                        {"id":"s-3","text":"She had journeyed all the way from the Transkei, accompanied by my son Makgatho, my daughter Makaziwe, and my sister Mabel."},
+                        {"id":"s-4","text":" I had not seen her since the end of the Rivonia Trial."},
+                        {"id":"s-5","text":"Change is gradual, and when one lives in the midst of one’s family, one rarely notices differences in them."},
+                        {"id":"s-6","text":"But when one doesn’t see one’s family for many years at a time, the transformation can be striking."}
+                    ]
+                },
+                {
+                    "id": "p-2",
+                    "sentences": [
+                        {"id":"s-1","text":"My mother suddenly seemed very old."},
+                        {"id":"s-2","text":"She had lost a great deal of weight, which concerned me."},
+                        {"id":"s-3","text":"Her face appeared tired."},
+                        {"id":"s-4","text":"Only my sister Mabel seemed unchanged."},
+                        {"id":"s-5","text":"While it was a great pleasure to see all of them and to discuss family issues, I was uneasy about my mother’s health."}
+                    ]
+                },
+                {
+                    "id": "p-3",
+                    "sentences": [
+                        {"id":"s-1","text":"Several weeks later, after returning from the work site, I was told to go to the Head Office to collect a message."},
+                        {"id":"s-2","text":"It was from Makgatho, informing me that my mother had died of a heart attack."},
+                        {"id":"s-3","text":"I immediately made a request to the officer to be permitted to go home for her funeral, which he turned down."},
+                        {"id":"s-4","text":"“Mandela,” he said, “while I know you are a man of your word and would not try to escape, I cannot trust your own people, and we fear that they would try to keep you.”"},
+                        {"id":"s-5","text":"It added to my sorrow that I was not able to bury my mother, which was my responsibility as her eldest child and only son."}
+                    ]
+                },
+                {
+                    "id": "p-4",
+                    "sentences": [
+                        {"id":"s-1","text":"In the subsequent months I thought about her a great deal."},
+                        {"id":"s-2","text":"Her life had been far from easy."},
+                        {"id":"s-3","text":"I had been able to support her when I was practising as a lawyer, but once I went to prison, I was unable to help her."},
+                        {"id":"s-4","text":"I had never felt so painful."}
+                    ]
+                },{
+                    "id": "p-5",
+                    "sentences": [
+                        {"id":"s-1","text":"A mother’s death causes a man to look back on and evaluate his own life."},
+                        {"id":"s-2","text":"Her difficulties, her poverty, made me question once again whether I had taken the right path."},
+                        {"id":"s-3","text":"That was always the problem: Had I made the right choice in putting the people’s welfare even before that of my own family?"},
+                        {"id":"s-4","text":"For a long time, my mother had not understood my commitment to the struggle."},
+                        {"id":"s-5","text":"My family had not asked for or even wanted to be involved in the struggle, but my involvement brought them suffering."}
+                    ]
+                },
+                {
+                    "id": "p-6",
+                    "sentences": [
+                        {"id":"s-1","text":"But I came back to the same answer."},
+                        {"id":"s-2","text":"In South Africa, it is hard for a man to ignore the needs of the people, even at the expense of his own family."},
+                        {"id":"s-3","text":"I had made my choice, and in the end, she had supported it."}
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,304 @@
+{
+	"vocabulary": [
+		{
+			"word": "genius",
+			"en_definition": ["a person who is intelligent or artistic or has a high level of skill, especially in one area"],
+			"zh_definition": ["天才；（某领域的）天才"]
+		},
+		{
+			"word": "scream",
+			"en_definition": ["to give a loud, high cry because you are hurt, frightened, excited, etc."],
+			"zh_definition": ["尖叫"]
+		},
+		{
+			"word": "professor",
+			"en_definition": ["a university teacher of the highest rank"],
+			"zh_definition": ["教授"]
+		},
+		{
+			"word": "maturity",
+			"en_definition": ["the quality of thinking and behaving in a sensible, adult manner"],
+			"zh_definition": ["成熟"]
+		},
+		{
+			"word": "sculptor",
+			"en_definition": ["a person who makes sculptures"],
+			"zh_definition": ["雕刻家；雕塑家"]
+		},
+		{
+			"word": "cubism",
+			"en_definition": ["a style and movement in early 20th century art in which objects and people are represented as geometric shapes"],
+			"zh_definition": ["立体主义；立体派"]
+		},
+		{
+			"word": "found",
+			"en_definition": ["to start an organization or an institution, especially by providing money"],
+			"zh_definition": ["创建；创办"]
+		},
+		{
+			"word": "triangle",
+			"en_definition": ["a flat shape with three straight sides and three angles"],
+			"zh_definition": ["三角形；三角形物体"]
+		},
+		{
+			"word": "controversial",
+			"en_definition": ["causing a lot of angry public discussion and disagreement"],
+			"zh_definition": ["引起争论的；有争议的"]
+		},
+		{
+			"word": "applaud",
+			"en_definition": ["to express praise for somebody or something because you approve of them or it", "to show your approval of somebody / something by clapping your hands"],
+			"zh_definition": ["称赞；赞许；赞赏", "鼓掌"]
+		},
+		{
+			"word": "compose",
+			"en_definition": ["to write music"],
+			"zh_definition": ["作曲；创作"]
+		},
+		{
+			"word": "symphony",
+			"en_definition": ["a long, complicated piece of music for a large orchestra"],
+			"zh_definition": ["交响乐；交响曲"]
+		},
+		{
+			"word": "brilliant",
+			"en_definition": ["very successful", "very intelligent or skillful"],
+			"zh_definition": ["很成功的","聪颖的；技艺高的"]
+		},
+		{
+			"word": "superb",
+			"en_definition": ["excellent; of very good quality"],
+			"zh_definition": ["极佳的；卓越的"]
+		},
+		{
+			"word": "noble",
+			"en_definition": ["belonging to a family of high social rank"],
+			"zh_definition": ["贵族的；高贵的"]
+		},
+		{
+			"word": "royal",
+			"en_definition": ["connected with or belonging to the king or queen of a country"],
+			"zh_definition": ["皇家的；王室的"]
+		},
+		{
+			"word": "beauty",
+			"en_definition": ["the quality of being pleasing to the senses or to the mind"],
+			"zh_definition": ["美；美丽"]
+		},
+		{
+			"word": "output",
+			"en_definition": ["the amount of something that a person, a machine or an organization produces"],
+			"zh_definition": ["产量；输出量"]
+		},
+		{
+			"word": "opera",
+			"en_definition": ["a dramatic work in which most of the words are sung to music"],
+			"zh_definition": ["歌剧；歌剧艺术"]
+		},
+		{
+			"word": "devotion",
+			"en_definition": ["the action of spending a lot of time or energy on something"],
+			"zh_definition": ["奉献；忠诚；专心；热心"]
+		},
+		{
+			"word": "tailor",
+			"en_definition": ["a person whose job is to make men's clothes"],
+			"zh_definition": ["裁缝"]
+		},
+		{
+			"word": "servant",
+			"en_definition": ["a person who works in another person’s house and cooks or cleans for them"],
+			"zh_definition": ["仆人；佣人"]
+		},
+		{
+			"word": "finance",
+			"en_definition": ["money available to a person, an organization or a country; the way this money is managed"],
+			"zh_definition": ["财力；财源；财务管理"]
+		},
+		{
+			"word": "vision",
+			"en_definition": ["an idea or a picture in your imagination", "a dream or similar experience"],
+			"zh_definition": ["想象；幻想", "梦幻"]
+		},
+		{
+			"word": "funeral",
+			"en_definition": ["a ceremony for burying a dead person"],
+			"zh_definition": ["葬礼；丧礼；出殡"]
+		},
+		{
+			"word": "grave",
+			"en_definition": ["a place in the ground where a dead person is buried"],
+			"zh_definition": ["坟墓；墓穴"]
+		},
+		{
+			"word": "financial",
+			"en_definition": ["connected with money and finance"],
+			"zh_definition": ["财政的；财务的；金融的"]
+		},
+		{
+			"word": "criticism",
+			"en_definition": ["the act of expressing disapproval of somebody or something"],
+			"zh_definition": ["批评；批判；责备"]
+		},
+		{
+			"word": "gradually",
+			"en_definition": ["slowly, over a long period of time"],
+			"zh_definition": ["逐渐地；逐步地；渐进地"]
+		},
+		{
+			"word": "splendid",
+			"en_definition": ["very impressive; very beautiful"],
+			"zh_definition": ["壮丽的；华丽的"]
+		},
+		{
+			"word": "substantial",
+			"en_definition": ["large in amount, value or importance"],
+			"zh_definition": ["大量的；重大的"]
+		},
+		{
+			"word": "property",
+			"en_definition": ["a quality that something has"],
+			"zh_definition": ["性质；特性"]
+		},
+		{
+			"word": "ruin",
+			"en_definition": ["the parts of a building that remain after it has been destroyed or severely damaged", "to damage something so badly that it loses its value, pleasure, etc.; to spoil something"],
+			"zh_definition": ["残垣断壁；废墟", "毁坏；破坏"]
+		},
+		{
+			"word": "jungle",
+			"en_definition": ["an area of tropical forest where trees and plants grow very thickly"],
+			"zh_definition": ["（热带）丛林；密林"]
+		},
+		{
+			"word": "fantasy",
+			"en_definition": ["a product of your imagination", "a pleasant situation that you imagine but is unlikely to happen"],
+			"zh_definition": ["幻想作品", "幻想；想象"]
+		},
+		{
+			"word": "leather",
+			"en_definition": ["material made by preserving animal skins"],
+			"zh_definition": ["皮革"]
+		},
+		{
+			"word": "practical",
+			"en_definition": ["sensible and realistic"],
+			"zh_definition": ["实用的；明智的"]
+		},
+		{
+			"word": "security",
+			"en_definition": ["the state of feeling safe from danger or worry"],
+			"zh_definition": ["安全；平安"]
+		},
+		{
+			"word": "straightforward",
+			"en_definition": ["easy to do or to understand; not complicated"],
+			"zh_definition": ["简单的；易懂的"]
+		},
+		{
+			"word": "emotion",
+			"en_definition": ["a strong feeling such as love, fear or anger"],
+			"zh_definition": ["情感；情绪"]
+		},
+		{
+			"word": "division",
+			"en_definition": ["a large and important unit or section of an organization"],
+			"zh_definition": ["部门"]
+		},
+		{
+			"word": "compete",
+			"en_definition": ["to try to be more successful or better than somebody else"],
+			"zh_definition": ["竞争；对抗"]
+		},
+		{
+			"word": "category",
+			"en_definition": ["a group of people or things with particular features in common"],
+			"zh_definition": ["类别；种类"]
+		},
+		{
+			"word": "absence",
+			"en_definition": ["the fact of somebody / something not existing or not being available; a lack of something", "the fact of somebody being away from a place where they are usually expected to be"],
+			"zh_definition": ["不存在；缺乏", "缺席；不在"]
+		},
+		{
+			"word": "remarkable",
+			"en_definition": ["unusual or surprising in a way that causes people to take notice"],
+			"zh_definition": ["非凡的；显著的；引人注目的"]
+		},
+		{
+			"word": "robber",
+			"en_definition": ["a person who steals from a person or place, often using violence or threats"],
+			"zh_definition": ["强盗；盗贼；抢劫犯"]
+		},
+		{
+			"word": "interpretation",
+			"en_definition": ["the particular way in which somebody chooses to perform a piece of music or role"],
+			"zh_definition": ["演绎；表演方式"]
+		},
+		{
+			"word": "adaptation",
+			"en_definition": ["a film, book or play that is based on a particular piece of work but has been changed"],
+			"zh_definition": ["改编本；改写本"]
+		},
+		{
+			"word": "evaluative",
+			"en_definition": ["based on an assessment of the values, qualities, and significance of a person or thing"],
+			"zh_definition": ["评估的；评价的"]
+		},
+		{
+			"word": "deny",
+			"en_definition": ["to say that something is not true"],
+			"zh_definition": ["否认；否定"]
+		},
+		{
+			"word": "favoured",
+			"en_definition": ["preferred by most people"],
+			"zh_definition": ["大众喜爱的"]
+		},
+		{
+			"word": "distinctive",
+			"en_definition": ["having a quality that makes something different and easily noticed"],
+			"zh_definition": ["独特的；有特色的"]
+		},
+		{
+			"word": "inner",
+			"en_definition": ["private and secret; not shown to other people"],
+			"zh_definition": ["内心的；隐藏的"]
+		},
+		{
+			"word": "emphasis",
+			"en_definition": ["special importance that is given to something"],
+			"zh_definition": ["强调；重视"]
+		},
+		{
+			"word": "complicated",
+			"en_definition": ["made of many different things or parts that are connected; difficult to understand"],
+			"zh_definition": ["复杂的；难懂的"]
+		},
+		{
+			"word": "characteristic",
+			"en_definition": ["very typical of something or somebody's character"],
+			"zh_definition": ["典型的；特有的"]
+		},
+		{
+			"word": "anniversary",
+			"en_definition": ["a date that is an exact number of years after the date of an important event"],
+			"zh_definition": ["周年纪念日"]
+		},
+		{
+			"word": "striking",
+			"en_definition": ["interesting and unusual enough to attract attention"],
+			"zh_definition": ["引人注目的；显著的"]
+		},
+		{
+			"word": "sketch pad",
+			"en_definition": ["a number of pieces of paper for writing or drawing on that are fastened together at one edge"],
+			"zh_definition": ["速写簿；画板"]
+		},
+		{
+			"word": "trial and error",
+			"en_definition": ["the process of solving a problem by trying various methods until you find one that is successful"],
+			"zh_definition": ["反复试验；不断摸索"]
+		}
+	]
+}

@@ -1,0 +1,170 @@
+{
+    "id": "O2U1",
+    "stats": {
+        "sections": 2,
+        "paragraphs": 15,
+        "sentences": 76
+    },
+    "sections": [
+        {
+            "id": "sec-main",
+            "title": "The stories behind the names",
+            "paragraphs": [
+                {
+                    "id": "p-1",
+                    "sentences":[
+                        {"id": "s-1", "text": "You might see a Picasso painting printed on a T-shirt or hear the beginning of Mozart’s Piano Sonata played as a ringtone on a phone, but how much do you know about these artists?"},
+                        {"id": "s-2", "text": "Picasso and Mozart were both child geniuses, but with very different stories..."}
+                    ]
+                },
+                                {
+                    "id": "p-2",
+                    "sentences":[
+                        {"id": "s-1", "text": "Pablo Picasso (1881–1973)"},
+                        {"id": "s-2", "text": "When Picasso was born in Málaga, Spain, in 1881, the midwife thought he was born dead."},
+                        {"id": "s-3", "text": "Luckily the doctor, who was smoking, blew some smoke into the baby’s face and Pablo started screaming."},
+                        {"id": "s-4", "text": "Picasso was alive and well, to everyone’s relief!"}
+                    ]
+                },
+                                {
+                    "id": "p-3",
+                    "sentences":[
+                        {"id": "s-1", "text": "Pablo Picasso was a born artist and to prove it, his first word was piz, short for lápiz (pencil in Spanish)."},
+                        {"id": "s-2", "text": "His father Ruiz, who was an art professor, recognized his son’s talent and taught him from the age of seven."},
+                        {"id": "s-3", "text": "Picasso completed his first painting when he was nine (Le Picador)."}
+                    ]
+                },
+                                {
+                    "id": "p-4",
+                    "sentences":[
+                        {"id": "s-1", "text": "Between 1892 and 1897, Picasso studied art in Madrid and Barcelona."},
+                        {"id": "s-2", "text": "His work showed a brilliance and maturity that was years ahead of his classmates, but Picasso was not a good student."},
+                        {"id": "s-3", "text": "He was sick and tired of school, so he didn’t listen to his teachers."},
+                        {"id": "s-4", "text": "As punishment he was put in a room on his own."},
+                        {"id": "s-5", "text": "“I took along a sketch pad and drew...,” said Picasso later."},
+                        {"id": "s-6", "text": "“I could have stayed there forever, drawing without stopping.”"}
+                    ]
+                },
+                                {
+                    "id": "p-5",
+                    "sentences":[
+                        {"id": "s-1", "text": "Eventually Picasso left art school and went to Paris, where he met a painter and sculptor called Georges Braque."},
+                        {"id": "s-2", "text": "Picasso began to experiment and through trial and error produced many different styles."},
+                        {"id": "s-3", "text": "One of these styles was cubism, which grew into an art movement founded by Picasso and Braque."},
+                        {"id": "s-4", "text": "They used squares and triangles in their paintings and showed the front and side view of people at the same time."},
+                        {"id": "s-5", "text": "Picasso used this technique in his most famous works, such as Les Demoiselles d’Avignon (1907) and Guernica (1937)."},
+                        {"id": "s-6", "text": "Many people found the style shocking and controversial, but others applauded his genius."}
+                    ]
+                },
+                                {
+                    "id": "p-6",
+                    "sentences":[
+                        {"id": "s-1", "text": "Picasso enjoyed much success in his life and could pick and choose what he painted, but he never stopped experimenting."},
+                        {"id": "s-2", "text": "That’s why he is known as the master of modern art."}
+                    ]
+                },
+                                {
+                    "id": "p-7",
+                    "sentences":[
+                        {"id": "s-1", "text": "Wolfgang Amadeus Mozart (1756–1791)"},
+                        {"id": "s-2", "text": "Like Picasso, Mozart was a child genius — he wrote musical notes before he could write words and began composing music when he was only four years old."},
+                        {"id": "s-3", "text": "One day, his father came home and found Wolfgang at his desk."},
+                        {"id": "s-4", "text": "There were bits and pieces of paper everywhere and at first his father was angry."},
+                        {"id": "s-5", "text": "Then he realized that the child had written a sonata for the piano."},
+                        {"id": "s-6", "text": "When he commented that it was difficult to play, little Wolfgang replied, “not with some practice,” and began to play the piece himself."},
+                        {"id": "s-7", "text": "Mozart went on to write his first symphony at the age of nine."}
+                    ]
+                },
+                                {
+                    "id": "p-8",
+                    "sentences":[
+                        {"id": "s-1", "text": "The Mozart family were very talented and his sister, Maria Anna, was also a brilliant musician."},
+                        {"id": "s-2", "text": "The family lived in Austria, but the two children and their father toured Europe several times, travelling far and wide, giving superb performances for noble families and royal courts."},
+                        {"id": "s-3", "text": "Unfortunately, the children often fell ill."},
+                        {"id": "s-4", "text": "But thanks to his travels, Mozart learnt 15 different languages."}
+                    ]
+                },
+                                {
+                    "id": "p-9",
+                    "sentences":[
+                        {"id": "s-1", "text": "During Mozart’s life, many people admired the beauty and originality of his music."},
+                        {"id": "s-2", "text": "Young Mozart could compose anything, anywhere — during meals, while talking to friends, or while travelling on a coach."},
+                        {"id": "s-3", "text": "He composed very quickly and wrote huge amounts of music — his artistic output included more than 600 pieces in all, including symphonies, piano concertos and even operas, like The Magic Flute."},
+                        {"id": "s-4", "text": "He also gave music lessons and played at concerts."},
+                        {"id": "s-5", "text": "But despite this hard work and devotion, his life had many ups and downs."},
+                        {"id": "s-6", "text": "Mozart spent money faster than he made it."},
+                        {"id": "s-7", "text": "He loved the high life: he bought fancy clothes from the finest tailors and had servants, and all this meant that he was often anxious about his finances."}
+                    ]
+                },
+                                {
+                    "id": "p-10",
+                    "sentences":[
+                        {"id": "s-1", "text": "In July 1791, a stranger wearing dark clothes came to Mozart’s house, asking him to compose a piece of music for remembering the dead."},
+                        {"id": "s-2", "text": "Mozart was ill, but needed the money, so he agreed to do the work."},
+                        {"id": "s-3", "text": "As Mozart composed the piece, he had a vision that he was writing music for his own funeral."},
+                        {"id": "s-4", "text": "In fact, he died before it was finished."},
+                        {"id": "s-5", "text": "Mozart was 35 years old and had so little money that he was buried in an unmarked grave."}
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "sec-cf",
+            "title": "The return of Kun opera",
+            "paragraphs": [
+                {
+                    "id": "p-1",
+                    "sentences":[
+                        {"id": "s-1", "text": "One of the best-known works of Kun opera is The Peony Pavilion."},
+                        {"id": "s-2", "text": "This magical story of dreams, death and love was written in 1598."},
+                        {"id": "s-3", "text": "In 2010, Tan Dun created new music and a new setting for the story, breathing fresh life into the opera."}
+                    ]               
+                },
+                {
+                    "id": "p-2",
+                    "sentences":[
+                        {"id": "s-1", "text": "The composer hit on the idea of bringing back The Peony Pavilion while sitting in a garden outside of Shanghai one evening:"},
+                        {"id": "s-2", "text": "he realized that it would be a perfect setting for the story."},
+                        {"id": "s-3", "text": "Tan Dun adapted music from the original Kun opera and added his own work to these traditional pieces."},
+                        {"id": "s-4", "text": "Of course, the actors still sang in the centuries-old Kun opera style in a high voice."},
+                        {"id": "s-5", "text": "Although the garden where the performances were given was small, no one could deny that Tan Dun’s opera was a success."},
+                        {"id": "s-7", "text": "It played to sold-out crowds every weekend for two years."}
+                    ]               
+                },
+                {
+                    "id": "p-3",
+                    "sentences":[
+                        {"id": "s-1", "text": "The origin of Kun opera goes back to the 16th century in Kunshan, when a musician and actor named Wei Liangfu developed a new form of music for theatres."},
+                        {"id": "s-2", "text": "The new opera style soon spread across China for about two centuries."},
+                        {"id": "s-3", "text": "It was the most popular form of opera among well-educated Chinese audiences."},
+                        {"id": "s-4", "text": "Then in the 1800s, Beijing opera slowly replaced Kun opera as the favoured form of opera."}
+                    ]               
+                },
+                {
+                    "id": "p-4",
+                    "sentences":[
+                        {"id": "s-1", "text": "The distinctive features of Kun opera are spoken story-telling, singing and dancing, and each character has their own particular style of movement on stage."},
+                        {"id": "s-2", "text": "This includes the way the character stands while speaking, and the way they dance to show their inner spirit or essence."},
+                        {"id": "s-3", "text": "Actors may also be required to perform kung fu during their performance."},
+                        {"id": "s-4", "text": "Given the emphasis on how actors move, Kun operas do not normally have complicated stage sets."},
+                        {"id": "s-5", "text": "Audiences will usually see only a few objects on stage to suggest where a scene is taking place: "},
+                        {"id": "s-7", "text": "in a house, in a garden or in a dream."},
+                        {"id": "s-8", "text": "With its characteristic style, UNESCO listed Kun opera among the Masterpieces of the Oral and Intangible Heritage of Humanity in 2001."}
+                    ]               
+                },
+                {
+                    "id": "p-5",
+                    "sentences":[
+                        {"id": "s-1", "text": "Many Kun opera actors and musicians have a great desire to share this art form with a wider audience."},
+                        {"id": "s-2", "text": "In 2016, they finally found the perfect opportunity: that year marked the 400th anniversary of the death of Tang Xianzu, the writer of The Peony Pavilion among many other works."},
+                        {"id": "s-3", "text": "In addition, 2016 marked the 400th anniversary of the death of William Shakespeare."},
+                        {"id": "s-4", "text": "And who could miss the striking similarities in the love stories of The Peony Pavilion and Romeo and Juliet?"},
+                        {"id": "s-5", "text": "To celebrate the anniversary, The Peony Pavilion — The Young Lovers’ Edition was staged as part of the China–United Kingdom Year of Cultural Exchange."},
+                        {"id": "s-7", "text": "Then the year after that, three Kun operas were performed at the Greek National Opera in Athens."},
+                        {"id": "s-8", "text": "Perhaps Kun opera, “the mother of traditional Chinese opera”, may soon come to a theatre near you as well."}
+                    ]               
+                }
+            ]
+        }
+    ]
+}

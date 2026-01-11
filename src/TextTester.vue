@@ -130,7 +130,7 @@ import listData from "./assets/js/text/list.json";
 
 // 简单词性判定：助词/代词列表（英文简化）
 const FUNCTION_WORDS = new Set([
-  "a","an","the","and","or","but","if","is","are","was","were","be","am","do","does","did","have","has","had","I","you","he","she","it","we","they","me","him","her","them","this","that","these","those","my","your","his","her","its","our","their","to","of","in","on","for","with","at","by","from","as","about","into","over","after","before","between","so","too","very","not","no","yes"
+  "a","an","the","and","or","but","if","is","are","was","were","be","am","do","does","did","have","has","had","I","you","he","she","it","we","they","me","him","her","them","this","that","these","those","my","your","his","her","its","our","their","to","of","in","on","for","with","at","by","from","as","about","into","over","after","before","between","so","too","very","not","no","yes","Picasso","Georges","Braque","Mozart","The Magic Flute","can","could","would","Les Demoiselles d’Avignon","Kun","kung","fu","Makgatho","Mandela"
 ]);
 
 export default {

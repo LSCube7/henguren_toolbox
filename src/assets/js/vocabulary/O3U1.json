@@ -1,0 +1,334 @@
+{
+  "vocabulary": [
+    {
+      "word": "biology",
+      "en_definition": ["the scientific study of the life and structure of plants and animals"],
+      "zh_definition": ["生物学"]
+    },
+    {
+      "word": "angle",
+      "en_definition": ["the direction that something is leaning or pointing in"],
+      "zh_definition": ["角度；斜角"]
+    },
+    {
+      "word": "minority",
+      "en_definition": ["the smaller part of a group; less than half of the people or things in a large group"],
+      "zh_definition": ["少数；少数人；少数派"]
+    },
+    {
+      "word": "remote",
+      "en_definition": ["far away from places where other people live"],
+      "zh_definition": ["偏远的；偏僻的"]
+    },
+    {
+      "word": "hunt",
+      "en_definition": ["to chase wild animals or birds in order to catch or kill them for food, sport or to make money", "to look for somebody / something that is difficult to find"],
+      "zh_definition": ["打猎；猎取；猎杀", "搜寻"]
+    },
+    {
+      "word": "airline",
+      "en_definition": ["a company that provides regular flights to take passengers and goods to different places"],
+      "zh_definition": ["航空公司"]
+    },
+    {
+      "word": "demand",
+      "en_definition": ["something that somebody needs; a very firm request for something", "to ask for something very firmly"],
+      "zh_definition": ["所需之物；（坚决的）要求", "强烈要求"]
+    },
+    {
+      "word": "rigid",
+      "en_definition": ["(of rules, methods, etc.) very strict and difficult to change"],
+      "zh_definition": ["（规则、方法等）死板的，僵硬的"]
+    },
+    {
+      "word": "restricted",
+      "en_definition": ["limited in what you are able to do"],
+      "zh_definition": ["（指能做的事）有限的，受限制的"]
+    },
+    {
+      "word": "curriculum",
+      "en_definition": ["the subjects that are included in a course of study or taught in a school, college, etc."],
+      "zh_definition": ["（学校等的）全部课程"]
+    },
+    {
+      "word": "enormous",
+      "en_definition": ["extremely large"],
+      "zh_definition": ["巨大的；庞大的"]
+    },
+    {
+      "word": "fluency",
+      "en_definition": ["the quality of doing something in a smooth and skilful way"],
+      "zh_definition": ["熟练自如；流畅"]
+    },
+    {
+      "word": "grasp",
+      "en_definition": ["a person's understanding of a subject or of difficult facts", "to take a firm hold of somebody / something"],
+      "zh_definition": ["理解（力）；领会", "抓紧；抓牢"]
+    },
+    {
+      "word": "sew",
+      "en_definition": ["to use a needle and thread to make stitches in cloth"],
+      "zh_definition": ["缝；做针线活"]
+    },
+    {
+      "word": "harsh",
+      "en_definition": ["(of weather or living conditions) very difficult and unpleasant to live in"],
+      "zh_definition": ["恶劣的；艰苦的"]
+    },
+    {
+      "word": "frozen",
+      "en_definition": ["with a layer of ice on the surface"],
+      "zh_definition": ["冰封的；封冻的；结冰的"]
+    },
+    {
+      "word": "shoreline",
+      "en_definition": ["the edge of the sea, the ocean or a lake"],
+      "zh_definition": ["海（或湖）滨线；海（或湖）岸线"]
+    },
+    {
+      "word": "isolated",
+      "en_definition": ["(of buildings and places) far away from any others", "without much contact with other people or other countries"],
+      "zh_definition": ["偏远的", "孤立的；孤独的"]
+    },
+    {
+      "word": "inevitably",
+      "en_definition": ["as is certain to happen"],
+      "zh_definition": ["不可避免地；必然地"]
+    },
+    {
+      "word": "resident",
+      "en_definition": ["a person who lives in a particular place or who has their home there"],
+      "zh_definition": ["居民；住户"]
+    },
+    {
+      "word": "relevant",
+      "en_definition": ["closely connected with the subject you are discussing or the situation you are thinking about"],
+      "zh_definition": ["紧密相关的；切题的"]
+    },
+    {
+      "word": "overcome",
+      "en_definition": ["to succeed in dealing with or controlling a problem that has been preventing you from achieving something"],
+      "zh_definition": ["克服；解决"]
+    },
+    {
+      "word": "atmosphere",
+      "en_definition": ["the feeling or mood that you have in a particular place or situation; a feeling between two people or in a group of people", "the mixture of gases that surrounds the earth"],
+      "zh_definition": ["气氛；氛围", "（围绕地球的）大气，大气层，大气圈"]
+    },
+    {
+      "word": "vocabulary",
+      "en_definition": ["all the words that a person knows or uses"],
+      "zh_definition": ["（某人掌握或使用的）词汇；词汇量"]
+    },
+    {
+      "word": "wilderness",
+      "en_definition": ["a large area of land that has never been developed or used for growing crops because it is difficult to live there"],
+      "zh_definition": ["荒无人烟的地区；荒野"]
+    },
+    {
+      "word": "horizon",
+      "en_definition": ["the furthest that you can see, where the sky seems to meet the land or the sea"],
+      "zh_definition": ["地平线"]
+    },
+    {
+      "word": "mail",
+      "en_definition": ["letters, packages, etc. that are sent and delivered", "to send something to somebody using the postal system"],
+      "zh_definition": ["邮件；信件；邮包", "邮寄"]
+    },
+    {
+      "word": "awesome",
+      "en_definition": ["(informal) very good, enjoyable, etc.", "very impressive or very difficult and perhaps rather frightening"],
+      "zh_definition": ["很好的（或极好玩的等）", "令人惊叹的；使人惊惧的"]
+    },
+    {
+      "word": "eagle",
+      "en_definition": ["a large bird that kills other creatures for food with a sharp curved beak and very good sight"],
+      "zh_definition": ["雕"]
+    },
+    {
+      "word": "hop",
+      "en_definition": ["to go or move somewhere quickly and suddenly"],
+      "zh_definition": ["突然快速去某处"]
+    },
+    {
+      "word": "photographer",
+      "en_definition": ["a person who takes photographs, especially as a job"],
+      "zh_definition": ["摄影师；拍照者"]
+    },
+    {
+      "word": "nephew",
+      "en_definition": ["the son of your brother or sister; the son of your husband's or wife's brother or sister"],
+      "zh_definition": ["侄子；外甥"]
+    },
+    {
+      "word": "niece",
+      "en_definition": ["the daughter of your brother or sister; the daughter of your husband's or wife's brother or sister"],
+      "zh_definition": ["侄女；外甥女"]
+    },
+    {
+      "word": "circus",
+      "en_definition": ["a show performed by circus entertainers, usually in a large tent called Big Top"],
+      "zh_definition": ["马戏表演"]
+    },
+    {
+      "word": "bowling",
+      "en_definition": ["a game in which players roll heavy balls (called bowls) along a special track towards a group of pins (bottle-shaped objects) and try to knock over as many of them as possible"],
+      "zh_definition": ["保龄球运动"]
+    },
+    {
+      "word": "geometry",
+      "en_definition": ["the branch of mathematics that deals with the measurements and relationships of lines, angles, surfaces and solids"],
+      "zh_definition": ["几何（学）"]
+    },
+    {
+      "word": "budget",
+      "en_definition": ["the money that is available to a person or an organization and a plan of how it will be spent over a period of time"],
+      "zh_definition": ["预算"]
+    },
+    {
+      "word": "venue",
+      "en_definition": ["a place where people meet for an organized event, for example a concert, sporting event or conference"],
+      "zh_definition": ["活动场地"]
+    },
+    {
+      "word": "deadline",
+      "en_definition": ["a point in time by which something must be done"],
+      "zh_definition": ["最后期限；截止日期"]
+    },
+    {
+      "word": "subscribe",
+      "en_definition": ["to pay an amount of money regularly in order to receive or use something", "to apply to take part in an activity, use a service, etc."],
+      "zh_definition": ["订阅；订购", "申请；预订；报名"]
+    },
+    {
+      "word": "impressive",
+      "en_definition": ["(of things or people) making you feel admiration, because they are very large, good, skilful, etc."],
+      "zh_definition": ["（事物或人）令人赞叹的；令人敬佩的"]
+    },
+    {
+      "word": "greet",
+      "en_definition": ["to say hello to somebody or to welcome them"],
+      "zh_definition": ["和（某人）打招呼（或问好）；欢迎；迎接"]
+    },
+    {
+      "word": "roof",
+      "en_definition": ["the structure that covers or forms the top of a building or vehicle"],
+      "zh_definition": ["屋顶；顶部"]
+    },
+    {
+      "word": "trunk",
+      "en_definition": ["the thick main stem of a tree, that the branches grow from"],
+      "zh_definition": ["树干"]
+    },
+    {
+      "word": "coffin",
+      "en_definition": ["a box in which a dead body is buried"],
+      "zh_definition": ["棺材；棺椁；棺木"]
+    },
+    {
+      "word": "grab",
+      "en_definition": ["to get somebody's attention", "to take or hold somebody / something with your hand suddenly or roughly"],
+      "zh_definition": ["引人注意；吸引", "抓住；攫取"]
+    },
+    {
+      "word": "lyrics",
+      "en_definition": ["(pl.) the words of a song"],
+      "zh_definition": ["歌词"]
+    },
+    {
+      "word": "scale",
+      "en_definition": ["a series of musical notes moving upwards or downwards, with fixed intervals between each note, especially a series of eight starting on a particular note"],
+      "zh_definition": ["音阶"]
+    },
+    {
+      "word": "conflict",
+      "en_definition": ["a situation in which people, groups or countries are involved in a serious disagreement or argument"],
+      "zh_definition": ["冲突；争执；争论"]
+    },
+    {
+      "word": "accent",
+      "en_definition": ["a way of pronouncing the words of a language that shows which country, area or social class a person comes from"],
+      "zh_definition": ["口音；腔调；土音"]
+    },
+    {
+      "word": "tribe",
+      "en_definition": ["a group of people of the same race, and with the same customs, language, religion, etc., living in a particular area and often led by a chief"],
+      "zh_definition": ["部落"]
+    },
+    {
+      "word": "rely",
+      "en_definition": ["to need or depend on somebody / something"],
+      "zh_definition": ["依赖；依靠"]
+    },
+    {
+      "word": "navigable",
+      "en_definition": ["(of rivers, etc.) wide and deep enough for ships and boats to sail on"],
+      "zh_definition": ["可航行的；适于通航的"]
+    },
+    {
+      "word": "giant",
+      "en_definition": ["very large; much larger or more important than similar things usually are"],
+      "zh_definition": ["巨大的；特大的；伟大的"]
+    },
+    {
+      "word": "sacred",
+      "en_definition": ["connected with a god; considered to be good in a moral and religious way"],
+      "zh_definition": ["神的；神圣的"]
+    },
+    {
+      "word": "invasion",
+      "en_definition": ["the act of an army entering another country by force in order to take control of it"],
+      "zh_definition": ["武装入侵；侵略；侵犯"]
+    },
+    {
+      "word": "arise",
+      "en_definition": ["(especially of a problem or a difficult situation) to happen; to start to exist"],
+      "zh_definition": ["发生；产生；出现"]
+    },
+    {
+      "word": "restore",
+      "en_definition": ["to bring back a situation or feeling that existed before"],
+      "zh_definition": ["恢复（某种情况或感受）"]
+    },
+    {
+      "word": "cave",
+      "en_definition": ["a large hole in the side of a hill or under the ground"],
+      "zh_definition": ["山洞；洞穴"]
+    },
+    {
+      "word": "visible",
+      "en_definition": ["able to be seen"],
+      "zh_definition": ["看得见的；可见的"]
+    },
+    {
+      "word": "thunder",
+      "en_definition": ["the loud noise you hear after a flash of lightning"],
+      "zh_definition": ["雷；雷声"]
+    },
+    {
+      "word": "resolve",
+      "en_definition": ["to find an acceptable solution to a problem or difficulty"],
+      "zh_definition": ["解决（问题或困难）"]
+    },
+    {
+      "word": "a handful of",
+      "en_definition": ["as much or as many as can be held in one hand"],
+      "zh_definition": ["一把"]
+    },
+    {
+      "word": "walrus-ivory carving",
+      "en_definition": ["the carving of walrus-ivory, by using sharp cutting tools, either with a machine or by hand"],
+      "zh_definition": ["海象牙雕"]
+    },
+    {
+      "word": "macaroni and cheese",
+      "en_definition": ["macaroni prepared in a cheese sauce"],
+      "zh_definition": ["奶酪通心粉"]
+    },
+    {
+      "word": "impose ... on",
+      "en_definition": ["to try to make somebody accept the same opinions, wishes, etc. as your own"],
+      "zh_definition": ["使某人接受自己的意见等"]
+    }
+  ]
+}

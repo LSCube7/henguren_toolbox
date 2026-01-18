@@ -181,7 +181,8 @@ export default {
         { name: "R2", title: "必修二" },
         { name: "R3", title: "必修三" },
         { name: "O1", title: "选择性必修一" },
-        { name: "O2", title: "选择性必修二" }
+        { name: "O2", title: "选择性必修二" },
+        { name: "O3", title: "选择性必修三" }
       ],
       selectedUnits: [],
       wordLists: listData,

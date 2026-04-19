@@ -1,0 +1,309 @@
+{
+	"vocabulary": [
+		{
+			"word": "digital",
+			"en_definition": ["using a system of electronic signals to send or receive information"],
+			"zh_definition": ["数字信息系统的；数码的；数字式的"]
+		},
+		{
+			"word": "typical",
+			"en_definition": ["having the usual qualities or features of a particular type of person or group", "(of somebody / something) behaving in the way that you expect"],
+			"zh_definition": ["典型的；有代表性的", "不出所料的；特有的"]
+		},
+		{
+			"word": "event",
+			"en_definition": ["a thing that happens, especially something important"],
+			"zh_definition": ["发生的事情；（尤指）重要的事情，大事"]
+		},
+		{
+			"word": "onto",
+			"en_definition": ["used with a verb to express movement on or to a particular place"],
+			"zh_definition": ["（与动词连用，表示朝某处或某位置运动）向，朝"]
+		},
+		{
+			"word": "midnight",
+			"en_definition": ["12 o'clock at night"],
+			"zh_definition": ["子夜；午夜"]
+		},
+		{
+			"word": "routine",
+			"en_definition": ["the normal order in which you regularly do things"],
+			"zh_definition": ["常规；正常顺序"]
+		},
+		{
+			"word": "scene",
+			"en_definition": ["a part of a film, play or book in which the action happens in one place or is of one particular type", "the place where something happens, especially something unpleasant"],
+			"zh_definition": ["场面；片段；镜头", "（尤指不愉快事情发生的）地点，现场"]
+		},
+		{
+			"word": "earn",
+			"en_definition": ["to get money in return for labour or services"],
+			"zh_definition": ["挣得；赚得；挣钱"]
+		},
+		{
+			"word": "death",
+			"en_definition": ["the end of life"],
+			"zh_definition": ["死亡；死"]
+		},
+		{
+			"word": "button",
+			"en_definition": ["a small round piece of metal, plastic, etc. sewn onto a piece of clothing"],
+			"zh_definition": ["扣子；纽扣"]
+		},
+		{
+			"word": "type",
+			"en_definition": ["a kind of thing or person"],
+			"zh_definition": ["类型；种类"]
+		},
+		{
+			"word": "unique",
+			"en_definition": ["being the only one of its kind"],
+			"zh_definition": ["独特的；唯一的"]
+		},
+		{
+			"word": "respond",
+			"en_definition": ["to say or do something in reply"],
+			"zh_definition": ["反应"]
+		},
+		{
+			"word": "select",
+			"en_definition": ["to choose from a group"],
+			"zh_definition": ["选择；挑选"]
+		},
+		{
+			"word": "organization",
+			"en_definition": ["an organized group of people with a particular purpose"],
+			"zh_definition": ["机构；团体；组织"]
+		},
+		{
+			"word": "goal",
+			"en_definition": ["an aim"],
+			"zh_definition": ["目标；目的"]
+		},
+		{
+			"word": "partner",
+			"en_definition": ["a person that one is doing an activity with", "a person that one is married to", "to work with"],
+			"zh_definition": ["搭档；同伴", "配偶", "结成伙伴"]
+		},
+		{
+			"word": "improve",
+			"en_definition": ["to (make something / somebody) become better than before"],
+			"zh_definition": ["（使）改进；（使）改善"]
+		},
+		{
+			"word": "currently",
+			"en_definition": ["at the present time"],
+			"zh_definition": ["当前；现在"]
+		},
+		{
+			"word": "schedule",
+			"en_definition": ["a plan that lists all the work you have to do"],
+			"zh_definition": ["工作计划；日程安排"]
+		},
+		{
+			"word": "conference",
+			"en_definition": ["a formal meeting"],
+			"zh_definition": ["会议"]
+		},
+		{
+			"word": "quality",
+			"en_definition": ["the standard of something as measured against other things of a similar kind"],
+			"zh_definition": ["质量；品质"]
+		},
+		{
+			"word": "deliver",
+			"en_definition": ["to bring or hand over something to somebody"],
+			"zh_definition": ["给予；递送"]
+		},
+		{
+			"word": "inspire",
+			"en_definition": ["to give somebody the desire, confidence or enthusiasm to do something well"],
+			"zh_definition": ["激励；鼓舞"]
+		},
+		{
+			"word": "tip",
+			"en_definition": ["a small piece of advice about something practical"],
+			"zh_definition": ["指点；实用的提示"]
+		},
+		{
+			"word": "acquire",
+			"en_definition": ["to gain something by your own efforts"],
+			"zh_definition": ["获得；习得"]
+		},
+		{
+			"word": "challenge",
+			"en_definition": ["difficulty in a way that tests your ability"],
+			"zh_definition": ["挑战"]
+		},
+		{
+			"word": "volunteer",
+			"en_definition": ["a person who does a job without being paid for it", "to offer to do something without being forced or being paid for it"],
+			"zh_definition": ["义务工作者；志愿者", "自愿做；义务做"]
+		},
+		{
+			"word": "location",
+			"en_definition": ["a place where something happens or exists"],
+			"zh_definition": ["地方；地点；位置"]
+		},
+		{
+			"word": "length",
+			"en_definition": ["the amount of time that something lasts"],
+			"zh_definition": ["（持续）时间的长短"]
+		},
+		{
+			"word": "electricity",
+			"en_definition": ["a form of energy for heating, lighting or powering a machine"],
+			"zh_definition": ["电"]
+		},
+		{
+			"word": "material",
+			"en_definition": ["things that are needed for an activity such as learning and teaching"],
+			"zh_definition": ["（某一活动所需的）材料"]
+		},
+		{
+			"word": "senior",
+			"en_definition": ["having a higher level in a school", "older person"],
+			"zh_definition": ["高级的", "较年长的人"]
+		},
+		{
+			"word": "junior",
+			"en_definition": ["having a lower level in a school"],
+			"zh_definition": ["初级的"]
+		},
+		{
+			"word": "freedom",
+			"en_definition": ["the power or right to act, speak, or think as one wants"],
+			"zh_definition": ["（权利或状态）自由"]
+		},
+		{
+			"word": "dorm",
+			"en_definition": ["(also dormitory) a room for several people to sleep in, especially in a school or institution"],
+			"zh_definition": ["集体宿舍；学生宿舍"]
+		},
+		{
+			"word": "aspect",
+			"en_definition": ["a particular part of a situation, a thing, an idea, or a problem"],
+			"zh_definition": ["方面；层面"]
+		},
+		{
+			"word": "exploration",
+			"en_definition": ["an examination of something in order to find out about it"],
+			"zh_definition": ["探究；研究；探测"]
+		},
+		{
+			"word": "edit",
+			"en_definition": ["to prepare a piece of writing, a book, etc. to be published by correcting the mistakes"],
+			"zh_definition": ["编辑，校订（文章、书籍等）"]
+		},
+		{
+			"word": "particular",
+			"en_definition": ["specific (member of a group or class)"],
+			"zh_definition": ["专指的；特指的"]
+		},
+		{
+			"word": "element",
+			"en_definition": ["essential part of something"],
+			"zh_definition": ["元素；要素"]
+		},
+		{
+			"word": "behaviour",
+			"en_definition": ["the way that somebody behaves"],
+			"zh_definition": ["行为；举止"]
+		},
+		{
+			"word": "related",
+			"en_definition": ["connected with something / somebody in some way"],
+			"zh_definition": ["相关的；有联系的"]
+		},
+		{
+			"word": "lantern",
+			"en_definition": ["a lamp which may be carried or hung, often used in Chinese culture"],
+			"zh_definition": ["灯笼"]
+		},
+		{
+			"word": "tradition",
+			"en_definition": ["a belief, custom or way of doing something that has existed for a long time among a particular group of people"],
+			"zh_definition": ["传统"]
+		},
+		{
+			"word": "reflect",
+			"en_definition": ["to show one's attitude or feeling"],
+			"zh_definition": ["显示，表明，表达"]
+		},
+		{
+			"word": "attitude",
+			"en_definition": ["the way that you think and feel about somebody / something"],
+			"zh_definition": ["态度；看法"]
+		},
+		{
+			"word": "respect",
+			"en_definition": ["a feeling of deep admiration for somebody / something"],
+			"zh_definition": ["尊重"]
+		},
+		{
+			"word": "description",
+			"en_definition": ["a spoken or written explanation of a person, object or event"],
+			"zh_definition": ["描述"]
+		},
+		{
+			"word": "video clip",
+			"en_definition": ["a short film or recording of an event, made using digital technology and viewed on a screen"],
+			"zh_definition": ["视频片段；视频剪辑"]
+		},
+		{
+			"word": "time capsule",
+			"en_definition": ["a container storing a selection of objects chosen as being typical of the present time, buried for discovery in the future"],
+			"zh_definition": ["时代文物贮藏器（收藏具有时代特征的物品）；时间胶囊"]
+		},
+		{
+			"word": "in all",
+			"en_definition": ["as a total"],
+			"zh_definition": ["总共"]
+		},
+		{
+			"word": "hula hoop",
+			"en_definition": ["a large plastic ring that you spin around your waist by moving your hips"],
+			"zh_definition": ["呼啦圈"]
+		},
+		{
+			"word": "well off",
+			"en_definition": ["having a lot of money"],
+			"zh_definition": ["富有的；富裕的"]
+		},
+		{
+			"word": "be keen on",
+			"en_definition": ["to like somebody / something very much; be very interested in"],
+			"zh_definition": ["喜爱；对......着迷；有兴趣"]
+		},
+		{
+			"word": "paper towel",
+			"en_definition": ["a thick sheet of paper"],
+			"zh_definition": ["厚纸巾"]
+		},
+		{
+			"word": "be ashamed of",
+			"en_definition": ["to feel shame or embarrassment about"],
+			"zh_definition": ["为......感到羞愧"]
+		},
+		{
+			"word": "on behalf of",
+			"en_definition": ["as the representative of"],
+			"zh_definition": ["代表......"]
+		},
+		{
+			"word": "refer to",
+			"en_definition": ["to describe or be connected to somebody / something"],
+			"zh_definition": ["描述；涉及；与......相关"]
+		},
+		{
+			"word": "Chinese knot",
+			"en_definition": ["a decorative handicraft that began as a form of Chinese folk art in the Tang and Song Dynasties"],
+			"zh_definition": ["中国结"]
+		},
+		{
+			"word": "dragon boat",
+			"en_definition": ["a long narrow boat of traditional Chinese design that is decorated to look like a dragon and used for racing"],
+			"zh_definition": ["龙舟；龙船"]
+		}
+	]
+}

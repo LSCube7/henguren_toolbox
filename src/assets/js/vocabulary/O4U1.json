@@ -1,0 +1,254 @@
+{
+	"vocabulary": [
+		{
+			"word": "minor",
+			"en_definition": ["not very large, important or serious"],
+			"zh_definition": ["较小的；次要的；轻微的"]
+		},
+		{
+			"word": "testimony",
+			"en_definition": ["a thing that shows something else exists or is true"],
+			"zh_definition": ["证明；证据"]
+		},
+		{
+			"word": "sweep",
+			"en_definition": ["(swept, swept) to move suddenly and / or with force over an area"],
+			"zh_definition": ["猛烈吹过；席卷"]
+		},
+		{
+			"word": "footage",
+			"en_definition": ["part of a film showing a particular event"],
+			"zh_definition": ["（影片中的）连续镜头，片段"]
+		},
+		{
+			"word": "compelling",
+			"en_definition": ["that makes you pay attention to it because it is so interesting and exciting"],
+			"zh_definition": ["扣人心弦的"]
+		},
+		{
+			"word": "zone",
+			"en_definition": ["an area or a region with a particular feature or use"],
+			"zh_definition": ["（有某特色或作用的）地区，地带"]
+		},
+		{
+			"word": "agenda",
+			"en_definition": ["a list of items to be discussed at a meeting"],
+			"zh_definition": ["（会议的）议程表，议事日程"]
+		},
+		{
+			"word": "cite",
+			"en_definition": ["to mention something as a reason or an example, or in order to support what you are saying"],
+			"zh_definition": ["提及（原因）；举出（示例）；列举"]
+		},
+		{
+			"word": "reliable",
+			"en_definition": ["that is likely to be correct or true"],
+			"zh_definition": ["真实可信的"]
+		},
+		{
+			"word": "examine",
+			"en_definition": ["to consider or study an idea, a subject, etc. very carefully"],
+			"zh_definition": ["审查；调查；考查；考察"]
+		},
+		{
+			"word": "coverage",
+			"en_definition": ["the reporting of news and sport in newspapers and on the radio and television"],
+			"zh_definition": ["新闻报道"]
+		},
+		{
+			"word": "unregulated",
+			"en_definition": ["not controlled by laws or regulations"],
+			"zh_definition": ["不受法规约束的；不受管制的"]
+		},
+		{
+			"word": "trace",
+			"en_definition": ["to find or discover somebody / something by looking carefully for them / it"],
+			"zh_definition": ["查出；找到；发现；追踪"]
+		},
+		{
+			"word": "network",
+			"en_definition": ["a closely connected group of people, companies, etc. that exchange information, etc.", "a complicated system of roads, lines, etc. that are connected to each other and operate together"],
+			"zh_definition": ["人际网", "网络；网状系统"]
+		},
+		{
+			"word": "kidnap",
+			"en_definition": ["to take away somebody illegally, especially in order to get money"],
+			"zh_definition": ["劫持；绑架"]
+		},
+		{
+			"word": "alongside",
+			"en_definition": ["next to or at the side of something"],
+			"zh_definition": ["在......旁边；沿着......的边"]
+		},
+		{
+			"word": "highway",
+			"en_definition": ["a main road for travelling long distances"],
+			"zh_definition": ["（城镇间的）公路"]
+		},
+		{
+			"word": "prosecute",
+			"en_definition": ["to officially charge somebody with a crime in court"],
+			"zh_definition": ["起诉；控告；检举"]
+		},
+		{
+			"word": "blame",
+			"en_definition": ["to think or say that somebody / something is responsible for something bad"],
+			"zh_definition": ["把......归咎于；责怪；指责"]
+		},
+		{
+			"word": "bruise",
+			"en_definition": ["a blue, brown or purple mark that appears on the skin after somebody has fallen or been hit"],
+			"zh_definition": ["青肿；瘀伤"]
+		},
+		{
+			"word": "clinic",
+			"en_definition": ["a building or part of a hospital where people can go for special medical treatment or advice"],
+			"zh_definition": ["诊所；（医院的）门诊部"]
+		},
+		{
+			"word": "witness",
+			"en_definition": ["to see something happen", "a person who sees something happen"],
+			"zh_definition": ["当场看到，目击（尤指罪行或事故）", "目击者；见证人"]
+		},
+		{
+			"word": "cheat",
+			"en_definition": ["to trick somebody or make them believe something which is not true"],
+			"zh_definition": ["欺骗"]
+		},
+		{
+			"word": "aboard",
+			"en_definition": ["on or onto a ship, plane, bus or train"],
+			"zh_definition": ["在（船、飞机、公共汽车、火车等）上；上（船、飞机、公共汽车、火车等）"]
+		},
+		{
+			"word": "shave",
+			"en_definition": ["to cut hair from the skin, especially the face"],
+			"zh_definition": ["剃（须发）"]
+		},
+		{
+			"word": "lower",
+			"en_definition": ["to let or make somebody / something go down"],
+			"zh_definition": ["使......降下；把......放低"]
+		},
+		{
+			"word": "arch",
+			"en_definition": ["a curved structure that supports the weight of something above it, such as a bridge or the upper part of a building"],
+			"zh_definition": ["拱（支撑如桥梁或房屋上部的弧形结构）"]
+		},
+		{
+			"word": "drag",
+			"en_definition": ["to pull somebody / something along with effort and difficulty"],
+			"zh_definition": ["（使劲而吃力地）拖，拉，拽，扯"]
+		},
+		{
+			"word": "prejudice",
+			"en_definition": ["an unreasonable dislike of or preference for a person, group, custom, etc."],
+			"zh_definition": ["偏见；成见"]
+		},
+		{
+			"word": "expectation",
+			"en_definition": ["a belief that something will happen because it is likely"],
+			"zh_definition": ["预料；预期；期待"]
+		},
+		{
+			"word": "typhoon",
+			"en_definition": ["a violent tropical storm with very strong winds"],
+			"zh_definition": ["台风"]
+		},
+		{
+			"word": "lamb",
+			"en_definition": ["a young sheep"],
+			"zh_definition": ["羔羊；小羊"]
+		},
+		{
+			"word": "suspect",
+			"en_definition": ["to have an idea that somebody is guilty of something, without having definite proof"],
+			"zh_definition": ["怀疑（某人有罪）"]
+		},
+		{
+			"word": "instinct",
+			"en_definition": ["a natural tendency for people and animals to behave in a particular way using the knowledge and abilities that they were born with rather than thought or training"],
+			"zh_definition": ["本能；天性"]
+		},
+		{
+			"word": "reality",
+			"en_definition": ["a thing that is actually experienced or seen, in contrast to what people might imagine", "the true situation and the problems that actually exist in life, in contrast to how you would like life to be"],
+			"zh_definition": ["事实", "现实；实际情况"]
+		},
+		{
+			"word": "envy",
+			"en_definition": ["to wish you had the same qualities, possessions, opportunities, etc. as somebody else"],
+			"zh_definition": ["羡慕；忌妒"]
+		},
+		{
+			"word": "outlook",
+			"en_definition": ["the attitude to life and the world"],
+			"zh_definition": ["人生观；见解"]
+		},
+		{
+			"word": "comprehension",
+			"en_definition": ["the ability to understand"],
+			"zh_definition": ["理解力；领悟能力"]
+		},
+		{
+			"word": "transition",
+			"en_definition": ["the process or a period of changing from one state or condition to another"],
+			"zh_definition": ["过渡；转变；变革；变迁"]
+		},
+		{
+			"word": "dock",
+			"en_definition": ["if a ship docks or you dock a ship, it sails into a harbour and stays there"],
+			"zh_definition": ["（使船）进港，停靠码头，进入船坞"]
+		},
+		{
+			"word": "dramatic",
+			"en_definition": ["exciting and impressive", "sudden, very great and often surprising"],
+			"zh_definition": ["引人注目的；给人印象深刻的", "突然的；巨大的；令人吃惊的"]
+		},
+		{
+			"word": "spontaneous",
+			"en_definition": ["done naturally, without being forced or practised", "not planned but done because you suddenly want to do it"],
+			"zh_definition": ["自然的；无雕饰的", "自发的；非筹划安排的"]
+		},
+		{
+			"word": "socialist",
+			"en_definition": ["a person who believes in or supports socialism; a member of a political party that believes in socialism"],
+			"zh_definition": ["社会主义者；社会党党员"]
+		},
+		{
+			"word": "unscripted",
+			"en_definition": ["not written or prepared in detail in advance"],
+			"zh_definition": ["（演讲、广播等）无底稿的；未详细准备的"]
+		},
+		{
+			"word": "contemporary",
+			"en_definition": ["belonging to the present time", "belonging to the same time"],
+			"zh_definition": ["当代的；现代的", "属同时期的；同一时代的"]
+		},
+		{
+			"word": "rhythm",
+			"en_definition": ["a strong regular repeated pattern of sounds or movements"],
+			"zh_definition": ["节奏；韵律；律动"]
+		},
+		{
+			"word": "emerge",
+			"en_definition": ["to start to exist"],
+			"zh_definition": ["显现；显露；露头"]
+		},
+		{
+			"word": "capture",
+			"en_definition": ["to succeed in accurately expressing a feeling, an atmosphere, etc. in a picture, piece of writing, film, etc.", "to catch a person or an animal and keep them as a prisoner or in a confined space"],
+			"zh_definition": ["（用图画、文章、电影等准确地）表达，刻画，描述", "俘虏；俘获；捕获"]
+		},
+		{
+			"word": "fall for the scam",
+			"en_definition": ["to be cheated"],
+			"zh_definition": ["上当，受骗"]
+		},
+		{
+			"word": "be bound to",
+			"en_definition": ["to be certain or likely to happen, or to do something"],
+			"zh_definition": ["一定会；很可能会"]
+		}
+	]
+}

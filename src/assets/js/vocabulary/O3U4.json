@@ -1,0 +1,289 @@
+{
+	"vocabulary": [
+		{
+			"word": "estimate",
+			"en_definition": ["to form an idea of the cost, size, value, etc. of something, but without calculating it exactly"],
+			"zh_definition": ["估计；估价；估算"]
+		},
+		{
+			"word": "evolve",
+			"en_definition": ["to develop gradually, especially from a simple to a more complicated form"],
+			"zh_definition": ["逐步发展；逐渐演变"]
+		},
+		{
+			"word": "alternative",
+			"en_definition": ["a thing that you can choose to do or have out of two or more possibilities"],
+			"zh_definition": ["可供选择的事物"]
+		},
+		{
+			"word": "superior",
+			"en_definition": ["better than average or better than other people or things of the same type"],
+			"zh_definition": ["上等的；较好的"]
+		},
+		{
+			"word": "elegant",
+			"en_definition": ["attractive and showing a good sense of style", "clever but simple"],
+			"zh_definition": ["优美的；文雅的", "简练的；简洁的；简明的"]
+		},
+		{
+			"word": "hack",
+			"en_definition": ["to access someone else's computer illegally", "to cut somebody / something with rough, heavy blows"],
+			"zh_definition": ["非法侵入（他人的计算机系统）", "砍；劈"]
+		},
+		{
+			"word": "extend",
+			"en_definition": ["to make a business, an idea, an influence, etc. cover more areas or operate in more places", "to make something longer or larger"],
+			"zh_definition": ["扩大......的范围（或影响）", "使伸长；扩大"]
+		},
+		{
+			"word": "universally",
+			"en_definition": ["by everyone"],
+			"zh_definition": ["全体地；一致地；普遍地"]
+		},
+		{
+			"word": "cybercrime",
+			"en_definition": ["crime or an illegal activity that is done using the Internet"],
+			"zh_definition": ["网络犯罪"]
+		},
+		{
+			"word": "comic",
+			"en_definition": ["connected with comedy"],
+			"zh_definition": ["喜剧的"]
+		},
+		{
+			"word": "combine",
+			"en_definition": ["to come together to form a single thing or group"],
+			"zh_definition": ["结合；组合"]
+		},
+		{
+			"word": "formation",
+			"en_definition": ["the action of forming something; the process of being formed"],
+			"zh_definition": ["组成；形成"]
+		},
+		{
+			"word": "horn",
+			"en_definition": ["a simple musical instrument that consists of a curved metal tube that you blow into"],
+			"zh_definition": ["（乐器）号"]
+		},
+		{
+			"word": "interval",
+			"en_definition": ["a period between two events or times"],
+			"zh_definition": ["间隔；间隙"]
+		},
+		{
+			"word": "burst",
+			"en_definition": ["a short period of a particular activity or strong emotion that often starts suddenly"],
+			"zh_definition": ["突发；迸发"]
+		},
+		{
+			"word": "idiot",
+			"en_definition": ["a stupid person or someone who is behaving in a stupid way"],
+			"zh_definition": ["傻瓜；笨蛋"]
+		},
+		{
+			"word": "Confucianism",
+			"en_definition": ["the teachings of Confucius emphasizing love for humanity"],
+			"zh_definition": ["儒家学说"]
+		},
+		{
+			"word": "kindergarten",
+			"en_definition": ["a nursery school"],
+			"zh_definition": ["幼儿园"]
+		},
+		{
+			"word": "murder",
+			"en_definition": ["to kill somebody deliberately and illegally"],
+			"zh_definition": ["谋杀；凶杀"]
+		},
+		{
+			"word": "innocent",
+			"en_definition": ["not guilty of a crime, etc.; not having done something wrong"],
+			"zh_definition": ["无辜的；清白的"]
+		},
+		{
+			"word": "civilian",
+			"en_definition": ["a person who is not a member of the armed forces or the police"],
+			"zh_definition": ["平民；老百姓"]
+		},
+		{
+			"word": "fibre",
+			"en_definition": ["one of the many thin threads that form body tissue, such as muscle, and natural materials, such as wood and cotton"],
+			"zh_definition": ["（人或动物身体组织及天然物质的）纤维"]
+		},
+		{
+			"word": "microscope",
+			"en_definition": ["an instrument used in scientific study for making very small things look larger so that you can examine them carefully"],
+			"zh_definition": ["显微镜"]
+		},
+		{
+			"word": "parcel",
+			"en_definition": ["something that is wrapped in paper or put into a thick envelope so that it can be sent by mail, carried easily, or given as a present"],
+			"zh_definition": ["包裹；小包"]
+		},
+		{
+			"word": "inspection",
+			"en_definition": ["the act of looking closely at something / somebody, especially to check that everything is as it should be"],
+			"zh_definition": ["检查；查看"]
+		},
+		{
+			"word": "subjective",
+			"en_definition": ["based on your own ideas or opinions rather than facts and therefore sometimes unfair"],
+			"zh_definition": ["主观的（非客观的）"]
+		},
+		{
+			"word": "fox",
+			"en_definition": ["a wild animal of the dog family, with reddish-brown fur, a pointed face and a thick heavy tail"],
+			"zh_definition": ["狐狸"]
+		},
+		{
+			"word": "cage",
+			"en_definition": ["a structure made of metal bars or wire in which animals or birds are kept"],
+			"zh_definition": ["笼子"]
+		},
+		{
+			"word": "knit",
+			"en_definition": ["to make clothes, etc. by using two long needles to connect wool or another type of thread into joined rows"],
+			"zh_definition": ["编织"]
+		},
+		{
+			"word": "artificial",
+			"en_definition": ["made or produced to copy something natural; not real"],
+			"zh_definition": ["人工的；人造的"]
+		},
+		{
+			"word": "buffet",
+			"en_definition": ["a meal at which people serve themselves from a table and then stand or sit somewhere else to eat"],
+			"zh_definition": ["自助餐"]
+		},
+		{
+			"word": "classic",
+			"en_definition": ["accepted or deserving to be accepted as one of the best or most important of its kind"],
+			"zh_definition": ["最优秀的；第一流的"]
+		},
+		{
+			"word": "rent",
+			"en_definition": ["to pay or receive a fixed amount of money for the use of a room, house, car, etc."],
+			"zh_definition": ["租借；出租"]
+		},
+		{
+			"word": "grand",
+			"en_definition": ["impressive and large or important"],
+			"zh_definition": ["壮丽的；堂皇的"]
+		},
+		{
+			"word": "mysterious",
+			"en_definition": ["difficult to understand or explain"],
+			"zh_definition": ["神秘的；奇怪的"]
+		},
+		{
+			"word": "spectacular",
+			"en_definition": ["very impressive"],
+			"zh_definition": ["壮观的；壮丽的；令人惊叹的"]
+		},
+		{
+			"word": "tempt",
+			"en_definition": ["to try to persuade someone to do something by making it seem attractive"],
+			"zh_definition": ["劝诱；鼓动"]
+		},
+		{
+			"word": "tragic",
+			"en_definition": ["very sad, often involving death and suffering"],
+			"zh_definition": ["悲惨的；悲剧的"]
+		},
+		{
+			"word": "expose",
+			"en_definition": ["to show something that is usually hidden"],
+			"zh_definition": ["暴露；显露"]
+		},
+		{
+			"word": "soul",
+			"en_definition": ["the special quality or part that gives something its true character", "the spiritual part of a person, believed to exist after death"],
+			"zh_definition": ["精神；精髓", "灵魂"]
+		},
+		{
+			"word": "plot",
+			"en_definition": ["the story of a book, film, play, etc."],
+			"zh_definition": ["故事情节"]
+		},
+		{
+			"word": "complex",
+			"en_definition": ["made of many different things or parts that are connected; difficult to understand"],
+			"zh_definition": ["复杂的；难懂的；费解的"]
+		},
+		{
+			"word": "vulnerability",
+			"en_definition": ["the quality of being able to be easily hurt, influenced, or attacked"],
+			"zh_definition": ["脆弱性"]
+		},
+		{
+			"word": "charm",
+			"en_definition": ["the power of pleasing or attracting people"],
+			"zh_definition": ["魅力；吸引力"]
+		},
+		{
+			"word": "integrity",
+			"en_definition": ["the quality of being honest and having strong moral principles"],
+			"zh_definition": ["诚实；正直"]
+		},
+		{
+			"word": "delight",
+			"en_definition": ["something that gives you great pleasure"],
+			"zh_definition": ["令人高兴的事；乐事；乐趣"]
+		},
+		{
+			"word": "perceptive",
+			"en_definition": ["having or showing the ability to see or understand things quickly, especially things that are not obvious"],
+			"zh_definition": ["理解力强的；有洞察力的；思维敏捷的"]
+		},
+		{
+			"word": "portrayal",
+			"en_definition": ["the act of showing or describing somebody / something in a picture, play, book, etc."],
+			"zh_definition": ["描绘；描述"]
+		},
+		{
+			"word": "gripping",
+			"en_definition": ["exciting or interesting in a way that keeps your attention"],
+			"zh_definition": ["扣人心弦的"]
+		},
+		{
+			"word": "setting",
+			"en_definition": ["the place and time at which the action of a play, novel, etc. takes place"],
+			"zh_definition": ["情节背景"]
+		},
+		{
+			"word": "era",
+			"en_definition": ["a period of time of which particular events or stages of development are typical"],
+			"zh_definition": ["时代；年代"]
+		},
+		{
+			"word": "comedy",
+			"en_definition": ["a play or film / movie that is intended to be funny, usually with a happy ending"],
+			"zh_definition": ["喜剧"]
+		},
+		{
+			"word": "rebellion",
+			"en_definition": ["opposition to authority; being unwilling to obey rules or accept normal standards of behaviour, dress, etc."],
+			"zh_definition": ["反抗；叛逆"]
+		},
+		{
+			"word": "sleeve",
+			"en_definition": ["a part of a piece of clothing that covers all or part of your arm"],
+			"zh_definition": ["袖子"]
+		},
+		{
+			"word": "peak",
+			"en_definition": ["the point when somebody / something is best, most successful, strongest, etc."],
+			"zh_definition": ["顶峰；高峰"]
+		},
+		{
+			"word": "chill out",
+			"en_definition": ["to relax and stop feeling angry or nervous about something"],
+			"zh_definition": ["放松；冷静"]
+		},
+		{
+			"word": "fairy tale",
+			"en_definition": ["a traditional story written for children that usually involves imaginary creatures and magic"],
+			"zh_definition": ["童话"]
+		}
+	]
+}

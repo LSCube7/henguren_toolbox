@@ -1,4 +1,11 @@
 [
+  { "name": "R1U1", "title": "必修一 Unit 1" },
+  { "name": "R1U2", "title": "必修一 Unit 2" },
+  { "name": "R1U3", "title": "必修一 Unit 3" },
+  { "name": "R1U4", "title": "必修一 Unit 4" },
+  { "name": "R2U1", "title": "必修二 Unit 1" },
+  { "name": "R2U2", "title": "必修二 Unit 2" },
+  { "name": "R2U3", "title": "必修二 Unit 3" },
   { "name": "R2U4", "title": "必修二 Unit 4" },
   { "name": "R3U1", "title": "必修三 Unit 1" },
   { "name": "R3U2", "title": "必修三 Unit 2" },
@@ -12,6 +19,13 @@
   { "name": "O2U2", "title": "选择性必修二 Unit 2" },
   { "name": "O2U3", "title": "选择性必修二 Unit 3" },
   { "name": "O2U4", "title": "选择性必修二 Unit 4" },
-  { "name": "O3U1", "title": "选择性必修三 Unit 1" }
+  { "name": "O3U1", "title": "选择性必修三 Unit 1" },
+  { "name": "O3U2", "title": "选择性必修三 Unit 2" },
+  { "name": "O3U3", "title": "选择性必修三 Unit 3" },
+  { "name": "O3U4", "title": "选择性必修三 Unit 4" },
+  { "name": "O4U1", "title": "选择性必修四 Unit 1" },
+  { "name": "O4U2", "title": "选择性必修四 Unit 2" },
+  { "name": "O4U3", "title": "选择性必修四 Unit 3" },
+  { "name": "O4U4", "title": "选择性必修四 Unit 4" }
 
 ]

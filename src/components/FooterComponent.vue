@@ -1,6 +1,6 @@
 <template>
   <footer>
-    &copy; 2024-2025
+    &copy; 2024-2026
     <a href="https://lsc7.top"
       style="color: var(--primary-color); text-decoration: none" target="_blank">小方盒LSCube</a>
     <p id="LICENSE">

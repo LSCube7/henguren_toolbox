@@ -1,0 +1,349 @@
+{
+  "vocabulary": [
+    {
+      "word": "sentimental",
+      "en_definition": ["connected with your emotions, rather than reason"],
+      "zh_definition": ["情感的（非理性的）"]
+    },
+    {
+      "word": "mirror",
+      "en_definition": ["a piece of special flat glass that reflects images, so that you can see yourself when you look in it"],
+      "zh_definition": ["镜子"]
+    },
+    {
+      "word": "jazz",
+      "en_definition": ["a type of music with strong rhythms, in which the players often make up the music as they are playing"],
+      "zh_definition": ["爵士乐"]
+    },
+    {
+      "word": "tank",
+      "en_definition": ["a large container for holding liquid or gas"],
+      "zh_definition": ["（贮放液体或气体的）箱，槽，罐"]
+    },
+    {
+      "word": "reluctant",
+      "en_definition": ["hesitating before doing something because you do not want to do it or because you are not sure that it is the right thing to do"],
+      "zh_definition": ["不情愿的；勉强的"]
+    },
+    {
+      "word": "primitive",
+      "en_definition": ["belonging to a very simple society with no industry, etc."],
+      "zh_definition": ["原始的；远古的"]
+    },
+    {
+      "word": "permanent",
+      "en_definition": ["lasting for a long time or for all time in the future"],
+      "zh_definition": ["永久的；永恒的；长久的"]
+    },
+    {
+      "word": "possession",
+      "en_definition": ["something that you own or have with you", "the state of having or owning something"],
+      "zh_definition": ["个人财产；私人物品", "具有；拥有"]
+    },
+    {
+      "word": "annoyed",
+      "en_definition": ["slightly angry"],
+      "zh_definition": ["恼怒的；生气的；烦恼的"]
+    },
+    {
+      "word": "friction",
+      "en_definition": ["disagreement or a lack of friendship among people who have different opinions about something"],
+      "zh_definition": ["争执；分歧；不合"]
+    },
+    {
+      "word": "temporary",
+      "en_definition": ["lasting only for a short time, not permanent"],
+      "zh_definition": ["短暂的；暂时的；临时的"]
+    },
+    {
+      "word": "resist",
+      "en_definition": ["to refuse to accept something and try to stop it from happening"],
+      "zh_definition": ["抵制；阻挡"]
+    },
+    {
+      "word": "load",
+      "en_definition": ["a large number or amount of somebody / something", "a feeling of responsibility or worry that is difficult to deal with", "something that is being carried (usually in large amounts) by a person, vehicle, etc."],
+      "zh_definition": ["大量；许多", "（责任或忧虑的）沉重感", "负载；负荷"]
+    },
+    {
+      "word": "currency",
+      "en_definition": ["the fact that something is used or accepted by a lot of people", "the system of money that a country uses"],
+      "zh_definition": ["通用；流行；流传", "通货；货币"]
+    },
+    {
+      "word": "tendency",
+      "en_definition": ["if somebody / something has a particular tendency, they are likely to behave or act in a particular way"],
+      "zh_definition": ["倾向；偏好"]
+    },
+    {
+      "word": "abnormal",
+      "en_definition": ["different from what is usual or expected, especially in a way that is worrying, harmful or not wanted"],
+      "zh_definition": ["不正常的；反常的；变态的；畸形的"]
+    },
+    {
+      "word": "hazardous",
+      "en_definition": ["involving risk or danger, especially to somebody's health or safety"],
+      "zh_definition": ["危险的；有害的"]
+    },
+    {
+      "word": "purse",
+      "en_definition": ["a small bag made of leather, plastic, etc. for carrying coins and often also paper money, cards, etc., used especially by women"],
+      "zh_definition": ["钱包，皮夹子（尤指女用的）"]
+    },
+    {
+      "word": "licence",
+      "en_definition": ["an official document that shows that permission has been given to do, own or use something"],
+      "zh_definition": ["许可证；执照"]
+    },
+    {
+      "word": "diamond",
+      "en_definition": ["a clear precious stone of pure carbon, the hardest substance known"],
+      "zh_definition": ["金刚石；钻石"]
+    },
+    {
+      "word": "receptionist",
+      "en_definition": ["a person whose job is to deal with people arriving at or telephoning a hotel, an office building, a doctor's surgery, etc."],
+      "zh_definition": ["接待员"]
+    },
+    {
+      "word": "fright",
+      "en_definition": ["a feeling of fear"],
+      "zh_definition": ["惊吓；恐怖"]
+    },
+    {
+      "word": "shark",
+      "en_definition": ["a large sea fish with sharp teeth and a pointed fin on its back"],
+      "zh_definition": ["鲨鱼"]
+    },
+    {
+      "word": "flu",
+      "en_definition": ["an infectious disease like a very bad cold, that causes fever, pains and weakness"],
+      "zh_definition": ["流行性感冒；流感"]
+    },
+    {
+      "word": "virus",
+      "en_definition": ["a living thing, too small to be seen without a microscope, that causes infectious disease in people, animals and plants"],
+      "zh_definition": ["病毒；滤过性病毒"]
+    },
+    {
+      "word": "tobacco",
+      "en_definition": ["the dried leaves of the tobacco plant that are used for making cigarettes, smoking in a pipe or chewing"],
+      "zh_definition": ["烟叶；烟草"]
+    },
+    {
+      "word": "astonish",
+      "en_definition": ["to surprise somebody very much"],
+      "zh_definition": ["使十分惊讶；使大为惊奇"]
+    },
+    {
+      "word": "criterion",
+      "en_definition": ["a standard or principle by which something is judged, or with the help of which a decision is made"],
+      "zh_definition": ["评判或作决定的标准，准则，原则"]
+    },
+    {
+      "word": "mask",
+      "en_definition": ["a covering for part or all of the face, worn to hide or protect it"],
+      "zh_definition": ["面具；面罩"]
+    },
+    {
+      "word": "submit",
+      "en_definition": ["to give a document, proposal, etc. to somebody in authority so that they can study or consider it"],
+      "zh_definition": ["提交；呈递（文件、建议等）"]
+    },
+    {
+      "word": "platform",
+      "en_definition": ["the raised flat area beside the track at a train station where passengers get on or off the train"],
+      "zh_definition": ["站台；月台"]
+    },
+    {
+      "word": "slip",
+      "en_definition": ["to put something somewhere quickly, quietly and easily"],
+      "zh_definition": ["迅速放置；悄悄塞；偷偷放"]
+    },
+    {
+      "word": "folder",
+      "en_definition": ["a cardboard or plastic cover for holding loose papers, etc."],
+      "zh_definition": ["文件夹；纸夹"]
+    },
+    {
+      "word": "initial",
+      "en_definition": ["the first letter of a person's name", "happening at the beginning; first"],
+      "zh_definition": ["（名字的）首字母", "最初的；开始的；第一的"]
+    },
+    {
+      "word": "guilty",
+      "en_definition": ["feeling ashamed because you have done something that you know is wrong or have not done something that you should have done"],
+      "zh_definition": ["感到内疚的；感到惭愧的"]
+    },
+    {
+      "word": "tube",
+      "en_definition": ["the underground railway system in London"],
+      "zh_definition": ["伦敦地下铁道"]
+    },
+    {
+      "word": "exhibition",
+      "en_definition": ["the act of showing something, for example works of art, to the public"],
+      "zh_definition": ["展览；展出"]
+    },
+    {
+      "word": "gallery",
+      "en_definition": ["a room or building for showing works of art, especially to the public"],
+      "zh_definition": ["（艺术作品）陈列室，展览馆；画廊"]
+    },
+    {
+      "word": "delay",
+      "en_definition": ["a period of time when somebody / something has to wait because of a problem that makes something slow or late"],
+      "zh_definition": ["延迟（或耽搁、拖延）的时间"]
+    },
+    {
+      "word": "applicant",
+      "en_definition": ["a person who makes a formal request for something (= applies for it), especially for a job, a place at a college or a university, etc."],
+      "zh_definition": ["申请人（尤指求职、进高等院校等）"]
+    },
+    {
+      "word": "pour",
+      "en_definition": ["(of rain) fall heavily"],
+      "zh_definition": ["（雨）倾盆而下"]
+    },
+    {
+      "word": "laptop",
+      "en_definition": ["a small computer that can work with a battery and be easily carried"],
+      "zh_definition": ["便携式电脑；笔记本电脑"]
+    },
+    {
+      "word": "loan",
+      "en_definition": ["the act of lending something; the state of being lent"],
+      "zh_definition": ["借出；贷给；被借出"]
+    },
+    {
+      "word": "reputation",
+      "en_definition": ["the opinion that people have about what somebody / something is like, based on what has happened in the past"],
+      "zh_definition": ["名誉；名声"]
+    },
+    {
+      "word": "precious",
+      "en_definition": ["rare and worth a lot of money"],
+      "zh_definition": ["珍奇的；珍稀的"]
+    },
+    {
+      "word": "vase",
+      "en_definition": ["a container made of glass, etc., used for holding cut flowers or as a decorative object"],
+      "zh_definition": ["花瓶；装饰瓶"]
+    },
+    {
+      "word": "comparison",
+      "en_definition": ["the process of comparing two or more people or things"],
+      "zh_definition": ["比较"]
+    },
+    {
+      "word": "political",
+      "en_definition": ["connected with the state, government or public affairs"],
+      "zh_definition": ["政治的；政府的"]
+    },
+    {
+      "word": "dimension",
+      "en_definition": ["an aspect, or way of looking at or thinking about something", "a measurement in space, for example the height, width or length of something"],
+      "zh_definition": ["方面；侧面", "维（构成空间的因素）"]
+    },
+    {
+      "word": "colonial",
+      "en_definition": ["connected with or belonging to a country that controls another country"],
+      "zh_definition": ["殖民的；殖民国家的"]
+    },
+    {
+      "word": "monument",
+      "en_definition": ["a building that has special historical importance"],
+      "zh_definition": ["历史遗迹；有历史价值的建筑"]
+    },
+    {
+      "word": "debate",
+      "en_definition": ["to discuss something, especially formally, before making a decision or finding a solution"],
+      "zh_definition": ["（尤指正式）讨论；辩论"]
+    },
+    {
+      "word": "soldier",
+      "en_definition": ["a member of an army, especially one who is not an officer"],
+      "zh_definition": ["军人；（尤指）士兵"]
+    },
+    {
+      "word": "defeat",
+      "en_definition": ["failure to win or to be successful"],
+      "zh_definition": ["失败；战败；挫败"]
+    },
+    {
+      "word": "secure",
+      "en_definition": ["likely not to be affected or harmed by something"],
+      "zh_definition": ["安全的；稳妥的"]
+    },
+    {
+      "word": "critical",
+      "en_definition": ["extremely important because a future situation will be affected by it"],
+      "zh_definition": ["极重要的；关键的；至关紧要的"]
+    },
+    {
+      "word": "ongoing",
+      "en_definition": ["continuing to exist or develop"],
+      "zh_definition": ["仍在进行的；持续存在的"]
+    },
+    {
+      "word": "joint",
+      "en_definition": ["involving two or more people together"],
+      "zh_definition": ["联合的；共同的"]
+    },
+    {
+      "word": "ultimately",
+      "en_definition": ["in the end; finally"],
+      "zh_definition": ["最终；最后；终归"]
+    },
+    {
+      "word": "frosty",
+      "en_definition": ["unfriendly, in a way that suggests that somebody does not approve of something", "covered with frost"],
+      "zh_definition": ["冷淡的；冷若冰霜的", "结霜的"]
+    },
+    {
+      "word": "justify",
+      "en_definition": ["to show somebody / something is right or reasonable"],
+      "zh_definition": ["证明......正确（或正当、有理）"]
+    },
+    {
+      "word": "theft",
+      "en_definition": ["the crime of stealing something from a person or place"],
+      "zh_definition": ["偷；偷窃；盗窃罪"]
+    },
+    {
+      "word": "take ... for granted",
+      "en_definition": ["to be used to something that you do not recognize their value anymore"],
+      "zh_definition": ["（因习以为常）对......不予重视"]
+    },
+    {
+      "word": "stacks of",
+      "en_definition": ["a large number of; a large quantity of"],
+      "zh_definition": ["大量；一大堆"]
+    },
+    {
+      "word": "at random",
+      "en_definition": ["without deciding in advance what is going to happen, or without any regular pattern"],
+      "zh_definition": ["随意地"]
+    },
+    {
+      "word": "opt out",
+      "en_definition": ["to choose not to do something"],
+      "zh_definition": ["决定退出"]
+    },
+    {
+      "word": "get rid of",
+      "en_definition": ["to throw away; to remove; to be free of"],
+      "zh_definition": ["扔掉；除去；摆脱"]
+    },
+    {
+      "word": "dispose of",
+      "en_definition": ["to get rid of something that you do not want or cannot keep"],
+      "zh_definition": ["去掉；清除；销毁"]
+    },
+    {
+      "word": "a bunch of",
+      "en_definition": ["a large amount of something; a large number of things or people"],
+      "zh_definition": ["大量；大批"]
+    }
+  ]
+}

@@ -1,0 +1,309 @@
+{
+	"vocabulary": [
+		{
+			"word": "session",
+			"en_definition": ["a period of time that is spent doing a particular activity"],
+			"zh_definition": ["一场；一节；一段时间"]
+		},
+		{
+			"word": "routine",
+			"en_definition": ["the normal order and way in which you regularly do things"],
+			"zh_definition": ["常规；正常顺序"]
+		},
+		{
+			"word": "shift",
+			"en_definition": ["to move, or move something, from one position or place to another", "a change in position or direction"],
+			"zh_definition": ["转移；挪动", "改变；转移；转换；变换"]
+		},
+		{
+			"word": "unceasing",
+			"en_definition": ["continuing all the time"],
+			"zh_definition": ["持续不断的；连绵不绝的"]
+		},
+		{
+			"word": "root",
+			"en_definition": ["to have developed from something and be strongly influenced by it", "the part of a plant that grows under the ground and absorbs water and minerals"],
+			"zh_definition": ["起源于某事物", "根；根茎"]
+		},
+		{
+			"word": "philosophy",
+			"en_definition": ["a particular set or system of beliefs resulting from the search for knowledge about life and the universe", "a set of beliefs or an attitude to life that guides somebody's behaviour"],
+			"zh_definition": ["哲学体系；思想体系", "人生哲学；生活的信条（或态度）"]
+		},
+		{
+			"word": "symbol",
+			"en_definition": ["a sign, number, letter, etc. that has a fixed meaning, especially in science, mathematics and music", "a person, an object, an event, etc. that represents a more general quality or situation"],
+			"zh_definition": ["符号；代号；记号", "象征"]
+		},
+		{
+			"word": "crisis",
+			"en_definition": ["(pl. crises) a time when a problem, a bad situation or an illness is at its worst point"],
+			"zh_definition": ["危难时刻；病危期"]
+		},
+		{
+			"word": "embarrassed",
+			"en_definition": ["shy, awkward or ashamed, especially in a social situation"],
+			"zh_definition": ["窘迫的；尴尬的；害羞的"]
+		},
+		{
+			"word": "refresh",
+			"en_definition": ["to make somebody feel less tired or less hot"],
+			"zh_definition": ["使恢复精力；使凉爽"]
+		},
+		{
+			"word": "motivation",
+			"en_definition": ["the eagerness and willingness to do something without needing to be told or forced to do it"],
+			"zh_definition": ["动机；动力"]
+		},
+		{
+			"word": "attain",
+			"en_definition": ["to succeed in getting something, usually after a lot of effort"],
+			"zh_definition": ["获得；得到"]
+		},
+		{
+			"word": "channel",
+			"en_definition": ["to direct money, feelings, ideas, etc. towards a particular thing or purpose", "a television station"],
+			"zh_definition": ["倾注于；贯注", "电视台"]
+		},
+		{
+			"word": "tackle",
+			"en_definition": ["to make a determined effort to deal with a difficult problem or situation"],
+			"zh_definition": ["应付，处理，解决（难题或局面）"]
+		},
+		{
+			"word": "flame",
+			"en_definition": ["a hot bright stream of burning gas that comes from something that is on fire"],
+			"zh_definition": ["火焰；火舌"]
+		},
+		{
+			"word": "mighty",
+			"en_definition": ["very strong and powerful"],
+			"zh_definition": ["强而有力的"]
+		},
+		{
+			"word": "significance",
+			"en_definition": ["the importance of something, especially when this has an effect on what happens in the future"],
+			"zh_definition": ["意义；重要性"]
+		},
+		{
+			"word": "unrealistic",
+			"en_definition": ["not showing or accepting things as they are"],
+			"zh_definition": ["不切实际的；不现实的"]
+		},
+		{
+			"word": "episode",
+			"en_definition": ["one part of a story that is broadcast on television or radio in several parts"],
+			"zh_definition": ["（电视连续剧或广播剧的）一集"]
+		},
+		{
+			"word": "consequence",
+			"en_definition": ["a result of something that has happened"],
+			"zh_definition": ["结果；后果"]
+		},
+		{
+			"word": "swing",
+			"en_definition": ["a change from one opinion or situation to another; the amount by which something changes", "if a party, etc. is swinging, there are a lot of people there having a good time"],
+			"zh_definition": ["改变；改变的程度", "热闹；令人开心"]
+		},
+		{
+			"word": "comfort",
+			"en_definition": ["a feeling of not suffering or worrying so much; a feeling of being less unhappy"],
+			"zh_definition": ["安慰；慰藉；宽慰"]
+		},
+		{
+			"word": "confuse",
+			"en_definition": ["to make a subject more difficult to understand", "to make somebody unable to think clearly or understand something"],
+			"zh_definition": ["使更难以理解", "使糊涂；使迷惑"]
+		},
+		{
+			"word": "novelist",
+			"en_definition": ["a person who writes novels"],
+			"zh_definition": ["小说家"]
+		},
+		{
+			"word": "upset",
+			"en_definition": ["emotionally disturbed (unhappy, disappointed or annoyed)"],
+			"zh_definition": ["不快的；心烦的；不适的（用来形容对某人 / 某事感到难过、失望、生气等情绪）"]
+		},
+		{
+			"word": "shadow",
+			"en_definition": ["the dark shape that somebody / something's form makes on a surface"],
+			"zh_definition": ["阴影；影子"]
+		},
+		{
+			"word": "profession",
+			"en_definition": ["a type of job that needs special training or skill, especially one that needs a high level of education"],
+			"zh_definition": ["行业；职业"]
+		},
+		{
+			"word": "undergo",
+			"en_definition": ["(underwent, undergone) to experience something, especially a change or something unpleasant"],
+			"zh_definition": ["经历；经受"]
+		},
+		{
+			"word": "surgical",
+			"en_definition": ["used in or connected with surgery"],
+			"zh_definition": ["外科的；外科手术的"]
+		},
+		{
+			"word": "boost",
+			"en_definition": ["to improve or increase something"],
+			"zh_definition": ["提高；增强"]
+		},
+		{
+			"word": "ease",
+			"en_definition": ["to become or make something less unpleasant, painful or severe, etc.", "lack of difficulty"],
+			"zh_definition": ["减轻；缓解", "容易；轻易"]
+		},
+		{
+			"word": "behave",
+			"en_definition": ["to do things in a particular way"],
+			"zh_definition": ["表现"]
+		},
+		{
+			"word": "engage",
+			"en_definition": ["to take part in something", "to succeed in attracting and keeping somebody's attention and interest"],
+			"zh_definition": ["从事；参加", "吸引住（注意力、兴趣）"]
+		},
+		{
+			"word": "moral",
+			"en_definition": ["based on your own sense of what is right and fair, not on legal rights or duties"],
+			"zh_definition": ["道义上的；道德上的"]
+		},
+		{
+			"word": "alcohol",
+			"en_definition": ["drinks such as beer, wine, etc. that can make people drunk"],
+			"zh_definition": ["含酒精饮料；酒"]
+		},
+		{
+			"word": "abuse",
+			"en_definition": ["the use of something in a way that is wrong or harmful"],
+			"zh_definition": ["滥用；妄用"]
+		},
+		{
+			"word": "insurance",
+			"en_definition": ["an agreement in which you pay a company money and they pay your costs if you have an accident, injury, etc."],
+			"zh_definition": ["保险"]
+		},
+		{
+			"word": "tax",
+			"en_definition": ["(an amount of) money paid to the government that is based on your income or the cost of goods or services you have bought"],
+			"zh_definition": ["税；税款"]
+		},
+		{
+			"word": "cigarette",
+			"en_definition": ["a small paper tube that people smoke"],
+			"zh_definition": ["香烟"]
+		},
+		{
+			"word": "decrease",
+			"en_definition": ["to become less, or to make something become smaller in size, number, etc."],
+			"zh_definition": ["减少；减小"]
+		},
+		{
+			"word": "massive",
+			"en_definition": ["very large in size, amount, or number"],
+			"zh_definition": ["大量的；大规模的"]
+		},
+		{
+			"word": "patience",
+			"en_definition": ["the ability to spend a lot of time doing something difficult that needs a lot of attention and effort"],
+			"zh_definition": ["毅力；恒心"]
+		},
+		{
+			"word": "ambition",
+			"en_definition": ["the desire or determination to be successful, rich, powerful, etc."],
+			"zh_definition": ["野心；雄心；志向；抱负"]
+		},
+		{
+			"word": "vivid",
+			"en_definition": ["(of memories, a description, etc.) producing very clear pictures in your mind"],
+			"zh_definition": ["生动的；清晰的"]
+		},
+		{
+			"word": "nightmare",
+			"en_definition": ["a dream that is very frightening or unpleasant"],
+			"zh_definition": ["噩梦；梦魇"]
+		},
+		{
+			"word": "tale",
+			"en_definition": ["a story, especially one that might be invented or difficult to believe"],
+			"zh_definition": ["传说；故事"]
+		},
+		{
+			"word": "reject",
+			"en_definition": ["to refuse to accept or consider something"],
+			"zh_definition": ["拒绝接受；不予考虑"]
+		},
+		{
+			"word": "volume",
+			"en_definition": ["a book, that is part of a series of books"],
+			"zh_definition": ["一卷；一册"]
+		},
+		{
+			"word": "proportion",
+			"en_definition": ["the correct relationship in size, degree, importance, etc. between one thing and another or between the parts of a whole"],
+			"zh_definition": ["正确的比例；均衡"]
+		},
+		{
+			"word": "muscle",
+			"en_definition": ["one of many tissues in the body that can tighten and relax to produce movement"],
+			"zh_definition": ["肌肉"]
+		},
+		{
+			"word": "pearly",
+			"en_definition": ["of or like a pearl"],
+			"zh_definition": ["珍珠的；似珍珠的"]
+		},
+		{
+			"word": "wrinkle",
+			"en_definition": ["to make the skin on your face form into lines or folds", "lines on your face and skin that you get when you are old"],
+			"zh_definition": ["（使）起皱纹；皱起", "皱纹"]
+		},
+		{
+			"word": "pace",
+			"en_definition": ["to walk up and down in a small area many times, especially because you are feeling nervous or angry", "the speed at which somebody / something walks, runs or moves"],
+			"zh_definition": ["来回踱步", "（移动的）速度；步速"]
+		},
+		{
+			"word": "forehead",
+			"en_definition": ["the flat part of the face, above the eyes and below the hair"],
+			"zh_definition": ["前额"]
+		},
+		{
+			"word": "curtain",
+			"en_definition": ["a piece of material, especially cloth, that is hung across a window or opening to make a room or part of a room dark or private"],
+			"zh_definition": ["窗帘；帐幕"]
+		},
+		{
+			"word": "jaw",
+			"en_definition": ["either of the two bones at the bottom of the face that contain the teeth and move when you talk or eat", "(pl.) the mouth and teeth of a person or an animal"],
+			"zh_definition": ["下巴；颌", "口部；嘴"]
+		},
+		{
+			"word": "cheek",
+			"en_definition": ["the soft part of your face that is below your eyes and between your mouth and ears"],
+			"zh_definition": ["脸颊；脸蛋"]
+		},
+		{
+			"word": "pure",
+			"en_definition": ["very clear; perfect"],
+			"zh_definition": ["清晰的；纯正的"]
+		},
+		{
+			"word": "cope with",
+			"en_definition": ["to deal successfully with something difficult"],
+			"zh_definition": ["（成功地）对付，处理"]
+		},
+		{
+			"word": "deprive ... of",
+			"en_definition": ["to take something, especially something necessary or pleasant away from someone"],
+			"zh_definition": ["剥夺；使丧失"]
+		},
+		{
+			"word": "in vain",
+			"en_definition": ["unsuccessful; of no value"],
+			"zh_definition": ["无效果的；白费的"]
+		}
+	]
+}

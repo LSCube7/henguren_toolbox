@@ -1,0 +1,314 @@
+{
+	"vocabulary": [
+		{
+			"word": "episode",
+			"en_definition": ["one part of a story that is broadcast on television or radio in several parts"],
+			"zh_definition": ["（电视连续剧或广播剧的）一集"]
+		},
+		{
+			"word": "series",
+			"en_definition": ["a set of radio or television programmes that deal with the same subject or that have the same characters"],
+			"zh_definition": ["（广播或电视上题材或角色相同的）系列节目"]
+		},
+		{
+			"word": "previous",
+			"en_definition": ["happening or existing before the event or object that you are talking about"],
+			"zh_definition": ["先前的；以往的"]
+		},
+		{
+			"word": "brief",
+			"en_definition": ["using few words", "lasting only a short time; short"],
+			"zh_definition": ["简洁的；简单的", "短时间的；短暂的"]
+		},
+		{
+			"word": "quote",
+			"en_definition": ["a group of words or a short piece of writing taken from a book, play, speech, etc.", "to repeat the exact words that another person has said or written"],
+			"zh_definition": ["引语；引文", "引用；引述"]
+		},
+		{
+			"word": "clap",
+			"en_definition": ["to hit your open hands together", "to hit your open hands together several times to show that you approve of or have enjoyed something"],
+			"zh_definition": ["拍手；击掌", "鼓掌，拍手（表示赞许或欣赏）"]
+		},
+		{
+			"word": "indeed",
+			"en_definition": ["used to emphasize a positive statement or answer", "used to add information to a statement"],
+			"zh_definition": ["（强调肯定的陈述或答复）", "其实；实际上"]
+		},
+		{
+			"word": "positive",
+			"en_definition": ["directed at dealing with something or producing a successful result"],
+			"zh_definition": ["积极的；建设性的；朝着成功的"]
+		},
+		{
+			"word": "effect",
+			"en_definition": ["a change that somebody / something causes in somebody / something else"],
+			"zh_definition": ["效应；影响；结果"]
+		},
+		{
+			"word": "performance",
+			"en_definition": ["how well or badly you do something", "the act of performing a play, concert or some other form of entertainment"],
+			"zh_definition": ["表现", "表演；演出"]
+		},
+		{
+			"word": "propose",
+			"en_definition": ["to suggest a plan, an idea, etc. for people to think about and decide on"],
+			"zh_definition": ["提议；建议"]
+		},
+		{
+			"word": "lecture",
+			"en_definition": ["a talk or a lesson in schools"],
+			"zh_definition": ["（通常指大学里的）讲座，讲课，演讲"]
+		},
+		{
+			"word": "document",
+			"en_definition": ["an official paper or book that gives information about something, or that can be used as evidence or proof of something"],
+			"zh_definition": ["文件；公文；文献；证件"]
+		},
+		{
+			"word": "resource",
+			"en_definition": ["something, especially a book, equipment, etc. that provides information"],
+			"zh_definition": ["资料"]
+		},
+		{
+			"word": "eager",
+			"en_definition": ["very interested and excited by something that is going to happen or about something that you want to do"],
+			"zh_definition": ["热切的；渴望的；渴求的"]
+		},
+		{
+			"word": "frequently",
+			"en_definition": ["often"],
+			"zh_definition": ["频繁地；经常"]
+		},
+		{
+			"word": "update",
+			"en_definition": ["to make something more modern by adding new parts, etc."],
+			"zh_definition": ["更新"]
+		},
+		{
+			"word": "otherwise",
+			"en_definition": ["used to state what the result would be if something did not happen or if the situation were different"],
+			"zh_definition": ["否则；不然"]
+		},
+		{
+			"word": "motivate",
+			"en_definition": ["to make somebody want to do something, especially something that involves hard work and effort"],
+			"zh_definition": ["激励；激发"]
+		},
+		{
+			"word": "mood",
+			"en_definition": ["the way a group of people feel about something; the atmosphere in a place or among a group of people"],
+			"zh_definition": ["气氛；氛围"]
+		},
+		{
+			"word": "audience",
+			"en_definition": ["the group of people who have gathered to watch or listen to something (a play, a concert, somebody speaking, etc.)"],
+			"zh_definition": ["（戏剧、音乐会或演讲等的）观众，听众"]
+		},
+		{
+			"word": "hurricane",
+			"en_definition": ["a violent storm with very strong winds, especially in the western Atlantic Ocean"],
+			"zh_definition": ["（尤指西大西洋的）飓风"]
+		},
+		{
+			"word": "path",
+			"en_definition": ["a way or track"],
+			"zh_definition": ["小路；小径"]
+		},
+		{
+			"word": "county",
+			"en_definition": ["an area of Britain, Ireland or the US that has its own government"],
+			"zh_definition": ["（英国、爱尔兰的）郡；（美国的）县"]
+		},
+		{
+			"word": "valley",
+			"en_definition": ["an area of low land between hills or mountains, often with a river flowing through it; the land that a river flows through"],
+			"zh_definition": ["谷；山谷；溪谷"]
+		},
+		{
+			"word": "accident",
+			"en_definition": ["an unpleasant event, especially in a vehicle, that happens unexpectedly and causes injury or damage"],
+			"zh_definition": ["（交通）事故；意外遭遇；不测事件"]
+		},
+		{
+			"word": "recognize",
+			"en_definition": ["to admit or to be aware that something exists or is true", "to know who somebody is or what something is when you see or hear them or it, because you have seen or heard them or it before"],
+			"zh_definition": ["承认；意识到", "认识；认出；辨别出"]
+		},
+		{
+			"word": "aid",
+			"en_definition": ["help that is given to a person"],
+			"zh_definition": ["帮助；援助"]
+		},
+		{
+			"word": "function",
+			"en_definition": ["to work in the correct way"],
+			"zh_definition": ["起作用"]
+		},
+		{
+			"word": "donate",
+			"en_definition": ["to give money, food, clothes, etc. to somebody / something, especially a charity"],
+			"zh_definition": ["（尤指向慈善机构）捐赠，赠送"]
+		},
+		{
+			"word": "supply",
+			"en_definition": ["an amount of something that is provided or available to be used"],
+			"zh_definition": ["供应量；供给量；储备"]
+		},
+		{
+			"word": "devoted",
+			"en_definition": ["having great love for somebody / something and being loyal to them"],
+			"zh_definition": ["挚爱的；忠诚的；全心全意的"]
+		},
+		{
+			"word": "creative",
+			"en_definition": ["involving the use of skill and the imagination to produce something new or a work of art"],
+			"zh_definition": ["创造（性）的；创作的"]
+		},
+		{
+			"word": "satisfaction",
+			"en_definition": ["the good feeling that you have when you have achieved something"],
+			"zh_definition": ["满足；满意；欣慰"]
+		},
+		{
+			"word": "benefit",
+			"en_definition": ["an advantage or profit gained from something"],
+			"zh_definition": ["优势；益处"]
+		},
+		{
+			"word": "concentration",
+			"en_definition": ["the ability to direct all your effort and attention on one thing, without thinking of other things"],
+			"zh_definition": ["专心；专注"]
+		},
+		{
+			"word": "obviously",
+			"en_definition": ["used to say that a particular situation or fact is easy to see or understand"],
+			"zh_definition": ["（用于说明某种情况或事实）明显，显而易见，不言而喻"]
+		},
+		{
+			"word": "promote",
+			"en_definition": ["to help something to happen or develop"],
+			"zh_definition": ["促进；推动"]
+		},
+		{
+			"word": "cooperation",
+			"en_definition": ["the act of doing something together or working together towards a shared aim"],
+			"zh_definition": ["合作；协作"]
+		},
+		{
+			"word": "mental",
+			"en_definition": ["connected with or happening in mind; involving the process of thinking"],
+			"zh_definition": ["思想的；精神的；思考的；智力的"]
+		},
+		{
+			"word": "academic",
+			"en_definition": ["connected with education, especially studying in schools and universities"],
+			"zh_definition": ["学业的"]
+		},
+		{
+			"word": "procedure",
+			"en_definition": ["a way of doing something, especially the usual or correct way"],
+			"zh_definition": ["步骤"]
+		},
+		{
+			"word": "aware",
+			"en_definition": ["knowing or realizing something"],
+			"zh_definition": ["知道；意识到；明白"]
+		},
+		{
+			"word": "addicted",
+			"en_definition": ["spending all your free time doing something because you are so interested in it"],
+			"zh_definition": ["入迷"]
+		},
+		{
+			"word": "debate",
+			"en_definition": ["to discuss something, especially formally, before making a decision or finding a solution", "an argument or discussion expressing different opinions"],
+			"zh_definition": ["（尤指正式）讨论，辩论", "（各自发表不同意见的）争论，辩论"]
+		},
+		{
+			"word": "uniform",
+			"en_definition": ["the special set of clothes worn by all members of an organization or a group at work, or by children at school"],
+			"zh_definition": ["制服；校服"]
+		},
+		{
+			"word": "identity",
+			"en_definition": ["the characteristics, feelings or beliefs that distinguish people from others", "who or what somebody / something is"],
+			"zh_definition": ["特征", "身份"]
+		},
+		{
+			"word": "signal",
+			"en_definition": ["to be a sign that something exists or is likely to happen"],
+			"zh_definition": ["标志；表明；预示"]
+		},
+		{
+			"word": "summarize",
+			"en_definition": ["to give a summary of something (= a statement of the main points)"],
+			"zh_definition": ["总结；概括"]
+		},
+		{
+			"word": "master",
+			"en_definition": ["to learn or understand something completely"],
+			"zh_definition": ["精通；掌握"]
+		},
+		{
+			"word": "prevent",
+			"en_definition": ["to stop somebody from doing something; to stop something from happening"],
+			"zh_definition": ["阻止；阻碍"]
+		},
+		{
+			"word": "cure",
+			"en_definition": ["a medicine or medical treatment that cures an illness"],
+			"zh_definition": ["药；药物；疗法"]
+		},
+		{
+			"word": "cancer",
+			"en_definition": ["a serious disease in which growths of cells, also called cancers, form in the body and kill normal body cells"],
+			"zh_definition": ["癌；癌症"]
+		},
+		{
+			"word": "Wi-Fi",
+			"en_definition": ["a system for sending data over computer networks using radio waves instead of wires"],
+			"zh_definition": ["无线保真"]
+		},
+		{
+			"word": "sail",
+			"en_definition": ["(of a boat or ship or the people on it) to travel on water using sails or an engine"],
+			"zh_definition": ["（船）航行；（人）乘船航行"]
+		},
+		{
+			"word": "tight",
+			"en_definition": ["very strict and firm", "held or fixed in position firmly; difficult to move or undo"],
+			"zh_definition": ["严密的；严格的", "牢固的；紧的"]
+		},
+		{
+			"word": "ocean",
+			"en_definition": ["sea"],
+			"zh_definition": ["大海；海洋"]
+		},
+		{
+			"word": "pursue",
+			"en_definition": ["to do something or try to achieve something over a period of time"],
+			"zh_definition": ["追求；致力于"]
+		},
+		{
+			"word": "rock band",
+			"en_definition": ["a small group of musicians who play rock music together, often with a singer or singers"],
+			"zh_definition": ["摇滚乐队"]
+		},
+		{
+			"word": "in charge of",
+			"en_definition": ["having control over somebody / something; being responsible for somebody / something"],
+			"zh_definition": ["主管；照管；管理"]
+		},
+		{
+			"word": "sum up",
+			"en_definition": ["to summarize"],
+			"zh_definition": ["总结；概括"]
+		},
+		{
+			"word": "fade away",
+			"en_definition": ["(of a person) to become very weak or ill and die"],
+			"zh_definition": ["（人）衰弱；病重死亡"]
+		}
+	]
+}

@@ -1,0 +1,344 @@
+{
+	"vocabulary": [
+		{
+			"word": "frog",
+			"en_definition": ["a small animal with smooth skin, that lives both on land and in water"],
+			"zh_definition": ["蛙；青蛙"]
+		},
+		{
+			"word": "strait",
+			"en_definition": ["a narrow passage of water that connects two seas or large areas of water"],
+			"zh_definition": ["海峡"]
+		},
+		{
+			"word": "meanwhile",
+			"en_definition": ["while something else is happening"],
+			"zh_definition": ["同时；与此同时"]
+		},
+		{
+			"word": "float",
+			"en_definition": ["to move slowly on water or in the air"],
+			"zh_definition": ["浮动；漂流；飘动；飘移"]
+		},
+		{
+			"word": "butcher",
+			"en_definition": ["to kill animals and cut them up for use as meat"],
+			"zh_definition": ["屠宰；宰杀"]
+		},
+		{
+			"word": "distressing",
+			"en_definition": ["making you feel extremely upset, especially because of somebody's suffering"],
+			"zh_definition": ["使人痛苦的；令人苦恼的"]
+		},
+		{
+			"word": "statistic",
+			"en_definition": ["(pl. statistics) a collection of information shown in numbers"],
+			"zh_definition": ["统计数字；统计资料"]
+		},
+		{
+			"word": "predator",
+			"en_definition": ["an animal that kills and eats other animals"],
+			"zh_definition": ["捕食者；捕食性动物"]
+		},
+		{
+			"word": "collapse",
+			"en_definition": ["a sudden failure of something, such as an institution, a business or a course of action", "to fall down or fall in suddenly, often after breaking apart"],
+			"zh_definition": ["（机构、生意、行动等的）突然失败，倒闭，崩溃", "（突然）倒塌，坍塌"]
+		},
+		{
+			"word": "recreation",
+			"en_definition": ["the fact of people doing things for enjoyment"],
+			"zh_definition": ["娱乐；消遣；娱乐活动；游戏"]
+		},
+		{
+			"word": "association",
+			"en_definition": ["an idea or a memory that is suggested by somebody / something; a mental connection between ideas", "a connection or relationship between people or organizations"],
+			"zh_definition": ["联想；联系", "联合；合伙；关联；交往"]
+		},
+		{
+			"word": "species",
+			"en_definition": ["(pl. species) a group into which animals, plants, etc. that are able to breed with each other and produce healthy young are divided"],
+			"zh_definition": ["种；物种"]
+		},
+		{
+			"word": "prohibit",
+			"en_definition": ["to stop something from being done or used especially by law"],
+			"zh_definition": ["（尤指以法令）禁止"]
+		},
+		{
+			"word": "monstrous",
+			"en_definition": ["considered to be shocking and unacceptable because it is morally wrong or unfair"],
+			"zh_definition": ["丑恶的；道德败坏的；骇人的"]
+		},
+		{
+			"word": "monitor",
+			"en_definition": ["to watch and check something over a period of time in order to see how it develops, so that you can make any necessary changes", "a student in a school who performs special duties, such as helping the teacher"],
+			"zh_definition": ["监视；检查；跟踪调查", "班长"]
+		},
+		{
+			"word": "sympathy",
+			"en_definition": ["the feeling of being sorry for somebody"],
+			"zh_definition": ["同情"]
+		},
+		{
+			"word": "numerous",
+			"en_definition": ["existing in large numbers"],
+			"zh_definition": ["众多的；许多的"]
+		},
+		{
+			"word": "cruel",
+			"en_definition": ["causing pain or suffering", "having a desire to cause pain and suffering"],
+			"zh_definition": ["引起痛苦的", "残酷的；冷酷的；残忍的"]
+		},
+		{
+			"word": "nest",
+			"en_definition": ["a hollow place or structure that a bird makes or chooses for laying its eggs in and sheltering its young"],
+			"zh_definition": ["鸟巢；鸟窝"]
+		},
+		{
+			"word": "urban",
+			"en_definition": ["connected with a town or city"],
+			"zh_definition": ["城镇的；城市的"]
+		},
+		{
+			"word": "destruction",
+			"en_definition": ["the act of destroying something; the process of being destroyed"],
+			"zh_definition": ["摧毁；毁灭；破坏"]
+		},
+		{
+			"word": "arouse",
+			"en_definition": ["to make somebody have a particular feeling or attitude"],
+			"zh_definition": ["激起，引起（感情、态度）"]
+		},
+		{
+			"word": "mineral",
+			"en_definition": ["a substance that is naturally present in the earth and is not formed from animal or vegetable matter, for example gold and salt"],
+			"zh_definition": ["矿物；矿物质"]
+		},
+		{
+			"word": "shortage",
+			"en_definition": ["a situation when there is not enough of the people or things that are needed"],
+			"zh_definition": ["不足；缺少；短缺"]
+		},
+		{
+			"word": "extract",
+			"en_definition": ["to remove or obtain a substance from something"],
+			"zh_definition": ["提取；提炼"]
+		},
+		{
+			"word": "fetch",
+			"en_definition": ["to be sold for a particular price", "to go to where somebody / something is and bring them / it back"],
+			"zh_definition": ["售得，卖得（某价）", "（去）拿来；（去）请来"]
+		},
+		{
+			"word": "expansion",
+			"en_definition": ["an act of increasing or making something increase in size, amount or importance"],
+			"zh_definition": ["扩张；扩展；扩大"]
+		},
+		{
+			"word": "garlic",
+			"en_definition": ["a vegetable of the onion family with a very strong taste and smell, used in cooking to give flavour to food"],
+			"zh_definition": ["蒜；大蒜"]
+		},
+		{
+			"word": "legal",
+			"en_definition": ["allowed or required by law"],
+			"zh_definition": ["法律允许的；合法的；法律要求的"]
+		},
+		{
+			"word": "boundary",
+			"en_definition": ["a real or imagined line that marks the limits or edges of something and separates it from other things or places; a dividing line"],
+			"zh_definition": ["边界；界限；分界线"]
+		},
+		{
+			"word": "label",
+			"en_definition": ["a piece of paper, etc. that is attached to something and that gives information about it"],
+			"zh_definition": ["标签；签条；标记"]
+		},
+		{
+			"word": "administration",
+			"en_definition": ["the activities that are done in order to plan, organize and run a business, school or other institution"],
+			"zh_definition": ["( 企业、学校等 ) 管理，行政"]
+		},
+		{
+			"word": "handle",
+			"en_definition": ["to deal with a situation, a person, an area of work or a strong emotion"],
+			"zh_definition": ["处理，应付（局势、人、工作或情感）"]
+		},
+		{
+			"word": "input",
+			"en_definition": ["time, knowledge, ideas, etc. that you put into work, a project, etc. in order to make it succeed; the act of putting something in", "a place or means for electricity, data, etc. to enter a machine or system"],
+			"zh_definition": ["投入资源（指时间、知识、思想等）；投入；输入", "（电、数据等的）输入端"]
+		},
+		{
+			"word": "distract",
+			"en_definition": ["to take somebody's attention away from what they are trying to do"],
+			"zh_definition": ["转移（注意力）；分散（思想）；使分心"]
+		},
+		{
+			"word": "bat",
+			"en_definition": ["an animal like a mouse with wings, that flies and feeds at night"],
+			"zh_definition": ["蝙蝠"]
+		},
+		{
+			"word": "install",
+			"en_definition": ["to fix equipment or furniture into position so that it can be used"],
+			"zh_definition": ["安装；设置"]
+		},
+		{
+			"word": "circuit",
+			"en_definition": ["the complete path of wires and equipment along which an electric current flows", "a line, route, or journey around a place"],
+			"zh_definition": ["电路；线路", "环行；环行路线"]
+		},
+		{
+			"word": "automatically",
+			"en_definition": ["working without needing a person to operate"],
+			"zh_definition": ["自动地"]
+		},
+		{
+			"word": "mud",
+			"en_definition": ["wet earth that is soft and sticky"],
+			"zh_definition": ["泥；淤泥；泥浆"]
+		},
+		{
+			"word": "pretend",
+			"en_definition": ["to imagine that something is true as part of a game", "to behave in a particular way, in order to make other people believe something that is not true"],
+			"zh_definition": ["（在游戏中）装扮，扮作，模拟", "假装；佯装"]
+		},
+		{
+			"word": "teapot",
+			"en_definition": ["a container with a spout, a handle and a lid, used for making and serving tea"],
+			"zh_definition": ["茶壶"]
+		},
+		{
+			"word": "chart",
+			"en_definition": ["a page or sheet of information in the form of diagrams, lists of figures, etc."],
+			"zh_definition": ["图表"]
+		},
+		{
+			"word": "breeder",
+			"en_definition": ["a person who keeps animals or plants in order to produce young ones in a controlled way"],
+			"zh_definition": ["培育者；饲养者"]
+		},
+		{
+			"word": "protein",
+			"en_definition": ["a natural substance found in meat, eggs, fish, some vegetables, etc."],
+			"zh_definition": ["蛋白质"]
+		},
+		{
+			"word": "hostile",
+			"en_definition": ["making it difficult for something to happen or to be achieved", "very unfriendly and ready to argue or fight"],
+			"zh_definition": ["有阻碍的；不利的", "敌意的；敌对的"]
+		},
+		{
+			"word": "fertilizer",
+			"en_definition": ["a substance added to soil to make plants grow more successfully"],
+			"zh_definition": ["肥料"]
+		},
+		{
+			"word": "basin",
+			"en_definition": ["a place where the Earth's surface is lower than in other areas of the world"],
+			"zh_definition": ["盆地；凹地；海盆"]
+		},
+		{
+			"word": "domestically",
+			"en_definition": ["happening or existing within one particular country"],
+			"zh_definition": ["本国地；国内地"]
+		},
+		{
+			"word": "stock",
+			"en_definition": ["to keep a supply of a particular type of goods to sell"],
+			"zh_definition": ["存货"]
+		},
+		{
+			"word": "tolerance",
+			"en_definition": ["the willingness to accept or tolerate somebody / something, especially opinions or behaviour that you may not agree with"],
+			"zh_definition": ["忍受；容忍"]
+		},
+		{
+			"word": "diversity",
+			"en_definition": ["a range of many people or things that are very different from each other"],
+			"zh_definition": ["差异（性）；不同（点）"]
+		},
+		{
+			"word": "dominance",
+			"en_definition": ["the fact that a particular person or thing is more powerful, successful, or important than other people or things"],
+			"zh_definition": ["占优势；占支配地位"]
+		},
+		{
+			"word": "cuisine",
+			"en_definition": ["a style of cooking", "the food served in a restaurant"],
+			"zh_definition": ["烹饪；风味", "饭菜；菜肴"]
+		},
+		{
+			"word": "bakery",
+			"en_definition": ["a place where bread and cakes are made and / or sold"],
+			"zh_definition": ["面包（糕饼）店；面包（糕饼）烘房"]
+		},
+		{
+			"word": "damp",
+			"en_definition": ["slightly wet, often in a way that is unpleasant"],
+			"zh_definition": ["潮湿的；湿气重的"]
+		},
+		{
+			"word": "stream",
+			"en_definition": ["(of people or things) to move somewhere in large numbers, one after another", "a small narrow river"],
+			"zh_definition": ["( 人或东西 ) 鱼贯而行；一个接一个地移动", "小河；溪"]
+		},
+		{
+			"word": "fare",
+			"en_definition": ["food that is offered as a meal"],
+			"zh_definition": ["饭菜"]
+		},
+		{
+			"word": "ancestral",
+			"en_definition": ["of or belonging to or inherited from an ancestor"],
+			"zh_definition": ["祖先的"]
+		},
+		{
+			"word": "ritual",
+			"en_definition": ["a series of actions that are always performed in the same way"],
+			"zh_definition": ["程序；仪规；礼节"]
+		},
+		{
+			"word": "marvel",
+			"en_definition": ["a wonderful and surprising person or thing"],
+			"zh_definition": ["令人惊异的人（或事）；奇迹"]
+		},
+		{
+			"word": "apparently",
+			"en_definition": ["according to what you have heard or read; according to the way something appears"],
+			"zh_definition": ["可见；看来；显然"]
+		},
+		{
+			"word": "pork",
+			"en_definition": ["meat from a pig"],
+			"zh_definition": ["猪肉"]
+		},
+		{
+			"word": "outlet",
+			"en_definition": ["a shop or an organization that sells goods made by a particular company or of a particular type"],
+			"zh_definition": ["专营店；经销店"]
+		},
+		{
+			"word": "bacon",
+			"en_definition": ["meat from the back or sides of a pig that has been preserved using salt or smoke, usually served in thin slice"],
+			"zh_definition": ["咸猪肉；熏猪肉"]
+		},
+		{
+			"word": "wipe out",
+			"en_definition": ["to destroy or remove somebody / something completely"],
+			"zh_definition": ["彻底消灭；全部摧毁"]
+		},
+		{
+			"word": "marine ecosystem",
+			"en_definition": ["system of living organisms in the ocean environment"],
+			"zh_definition": ["海洋生态系统"]
+		},
+		{
+			"word": "for the sake of",
+			"en_definition": ["in order to get or keep something"],
+			"zh_definition": ["为获得（或保持）某物"]
+		}
+	]
+}

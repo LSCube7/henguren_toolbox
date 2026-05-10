@@ -12,9 +12,18 @@
           >
             开始错题测试
           </button>
+          <button class="download-button" @click="exportWrongBook">导出错题本</button>
+          <button class="download-button" @click="triggerImportWrongBook">导入错题本</button>
           <button class="download-button" @click="refreshWrongBookPage">刷新</button>
           <button class="reset-button" @click="closeWrongBookPage">返回主页</button>
         </div>
+        <input
+          ref="wrongBookImportInput"
+          type="file"
+          accept=".json"
+          style="display: none;"
+          @change="importWrongBook"
+        />
       </div>
 
       <div class="wrongbook-stats">
@@ -50,6 +59,22 @@
               {{ item.label }}
             </button>
           </div>
+          <div class="wrongbook-view-toggle" role="group" aria-label="错题本视图切换">
+            <button
+              class="wrongbook-view-button"
+              :class="{ active: wrongBookView === 'words' }"
+              @click="wrongBookView = 'words'"
+            >
+              单词列表
+            </button>
+            <button
+              class="wrongbook-view-button"
+              :class="{ active: wrongBookView === 'batches' }"
+              @click="wrongBookView = 'batches'"
+            >
+              测试批次
+            </button>
+          </div>
           <select v-model="wrongBookFilterSource" class="wrongbook-select">
             <option value="all">全部来源</option>
             <option v-for="source in wrongBookSourceOptions" :key="source" :value="source">{{ source }}</option>
@@ -57,22 +82,27 @@
         </div>
       </div>
 
-      <div class="wrongbook-delete-tools">
-        <label>
-          按测试批次删除
-          <select v-model.number="selectedDeleteTestNo" class="wrongbook-select">
-            <option :value="null" disabled>请选择测试批次</option>
-            <option v-for="batch in wrongBookBatches" :key="batch.testNo" :value="batch.testNo">
-              第{{ batch.testNo }}次（{{ formatBatchTime(batch.createdAt) }}，{{ batch.syncedCount }}词）
-            </option>
-          </select>
-        </label>
-        <button class="reset-button" @click="deleteWrongRecordsByBatch">删除该次增加的次数</button>
-      </div>
+      <ul v-if="wrongBookView === 'batches' && wrongBookBatches.length > 0" class="wrongbook-batch-list">
+        <li v-for="batch in wrongBookBatches" :key="batch.testNo" class="wrongbook-batch-item">
+          <div class="wrongbook-batch-info">
+            <div class="wrongbook-batch-title">{{ formatBatchLabel(batch) }}</div>
+            <div class="wrongbook-batch-meta">{{ formatBatchTime(batch.createdAt) }} · {{ batch.syncedCount }}词</div>
+          </div>
+          <button
+            class="delete-icon-button"
+            type="button"
+            aria-label="删除该批次"
+            @click="deleteWrongRecordsByBatch(batch.testNo)"
+          >
+            <Icon icon="mdi:trash-can-outline" class="delete-icon" />
+          </button>
+        </li>
+      </ul>
+      <p v-else-if="wrongBookView === 'batches'" class="wrongbook-empty">暂无测试批次。</p>
 
       <p v-if="wrongBookSyncMessage" class="wrongbook-message">{{ wrongBookSyncMessage }}</p>
 
-      <ul v-if="filteredWrongBookRecords.length > 0" class="wrongbook-list">
+      <ul v-if="wrongBookView === 'words' && filteredWrongBookRecords.length > 0" class="wrongbook-list">
         <li v-for="record in filteredWrongBookRecords" :key="record.id" class="wrongbook-item">
           <div class="wrongbook-item-main">
             <span class="wrongbook-word">{{ record.word }}</span>
@@ -82,11 +112,18 @@
               <span class="wrongbook-tag">来源 {{ record.sourceName }}</span>
               <span :class="['wrongbook-tag', getWrongCountTagClass(record.wrongCount)]">错 {{ record.wrongCount }} 次</span>
             </div>
-            <button class="reset-button wrongbook-delete-inline" @click="deleteOneWrongRecord(record.id)">删除</button>
+            <button
+              class="delete-icon-button"
+              type="button"
+              aria-label="删除该单词"
+              @click="deleteOneWrongRecord(record.id)"
+            >
+              <Icon icon="mdi:trash-can-outline" class="delete-icon" />
+            </button>
           </div>
         </li>
       </ul>
-      <p v-else class="wrongbook-empty">当前筛选条件下没有记录。</p>
+      <p v-else-if="wrongBookView === 'words'" class="wrongbook-empty">当前筛选条件下没有记录。</p>
     </div>
 
     <div v-else-if="!isTesting" key="select-page">
@@ -284,6 +321,15 @@
         </div>
 
         <div class="wrongbook-controls">
+          <div class="wrongbook-batch-input">
+            <input
+              v-model="batchNameInput"
+              type="text"
+              placeholder="批次名称（可选）"
+              class="wrongbook-batch-input-field"
+              :disabled="currentResultSyncedToWrongBook"
+            />
+          </div>
           <button
             class="download-button result-action-button"
             :disabled="currentResultSyncedToWrongBook || incorrectWords.length === 0"
@@ -314,26 +360,72 @@
           <div class="wrongbook-delete-tools">
             <label>
               按测试批次删除
-              <select v-model.number="selectedDeleteTestNo" class="wrongbook-select">
+              <select v-model="selectedDeleteTestNo" class="wrongbook-select">
                 <option :value="null" disabled>请选择测试批次</option>
                 <option v-for="batch in wrongBookBatches" :key="batch.testNo" :value="batch.testNo">
-                  第{{ batch.testNo }}次（{{ formatBatchTime(batch.createdAt) }}，{{ batch.syncedCount }}词）
+                  {{ formatBatchLabel(batch) }}（{{ formatBatchTime(batch.createdAt) }}，{{ batch.syncedCount }}词）
                 </option>
               </select>
             </label>
-            <button class="reset-button" @click="deleteWrongRecordsByBatch">删除该次增加的次数</button>
+            <button
+              class="delete-icon-button"
+              type="button"
+              aria-label="删除该批次"
+              @click="deleteWrongRecordsByBatch"
+            >
+              <Icon icon="mdi:trash-can-outline" class="delete-icon" />
+            </button>
           </div>
         </details>
       </div>
     </div>
     </transition>
+    <div v-if="importBatchModalVisible" class="modal-overlay" @click.self="cancelImportBatchSelection">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-label="选择导入批次">
+        <div class="modal-header">
+          <h3>选择导入批次</h3>
+          <button class="modal-close" type="button" @click="cancelImportBatchSelection">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-select-all-row">
+            <button class="modal-select-all" type="button" @click="toggleImportBatchSelectAll">
+              {{ importSelectedBatchIds.length === importBatchOptions.length ? "取消全选" : "全选" }}
+            </button>
+          </div>
+          <div v-if="importBatchOptions.length > 0" class="modal-batch-list">
+            <button
+              v-for="batch in importBatchOptions"
+              :key="batch.testNo"
+              type="button"
+              class="modal-batch-item"
+              :class="{ 'active-card': importSelectedBatchIds.includes(batch.testNo) }"
+              @click="toggleImportBatchSelection(batch.testNo)"
+            >
+              <span class="modal-batch-text">
+                <span class="modal-batch-title">{{ formatBatchLabel(batch) }}</span>
+                <span class="modal-batch-meta">{{ formatBatchTime(batch.createdAt) }} · {{ batch.syncedCount || 0 }}词</span>
+              </span>
+            </button>
+          </div>
+          <p v-else class="wrongbook-empty">没有可选的批次。</p>
+        </div>
+        <div class="modal-actions">
+          <button class="reset-button" type="button" @click="cancelImportBatchSelection">取消</button>
+          <button class="download-button" type="button" @click="confirmImportBatchSelection">确定导入</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { Icon } from "@iconify/vue";
 import listData from "./assets/js/vocabulary/list.json";
 
 export default {
+  components: {
+    Icon,
+  },
   data() {
     return {
       books: [
@@ -377,6 +469,12 @@ export default {
       wrongBookFilterLevel: "all",
       wrongBookFilterSource: "all",
       wrongBookSearchKeyword: "",
+      batchNameInput: "",
+      wrongBookView: "words",
+      importBatchModalVisible: false,
+      importBatchOptions: [],
+      importSelectedBatchIds: [],
+      importBatchResolve: null,
     };
   },
   computed: {
@@ -601,6 +699,13 @@ export default {
       this.currentResultSyncedToWrongBook = false;
       this.wrongBookSyncMessage = "";
       this.showWrongBookPage = false;
+      
+      // 确保 shuffledWords 不为空后再启动测试
+      if (this.shuffledWords.length === 0) {
+        this.wrongBookSyncMessage = "错题本无有效内容，无法启动测试。";
+        return;
+      }
+      
       this.isTesting = true;
       this.focusAnswerInput();
     },
@@ -628,6 +733,12 @@ export default {
         }))
       );
       this.shuffledWords = this.shuffleArray([...this.words]);
+      
+      if (this.shuffledWords.length === 0) {
+        alert("无法加载单词列表，请重试。");
+        return;
+      }
+      
       this.isTesting = true;
       this.currentWordIndex = 0;
       this.correctCount = 0;
@@ -661,6 +772,11 @@ export default {
         }
       }
 
+      if (allWords.length === 0) {
+        alert("无法加载任何单词，请检查选择的单位。");
+        return;
+      }
+
       // 根据用户选择的测试数量生成测试内容
       if (this.testCount >= allWords.length) {
         this.words = allWords;
@@ -669,6 +785,12 @@ export default {
       }
 
       this.shuffledWords = this.shuffleArray([...this.words]);
+      
+      if (this.shuffledWords.length === 0) {
+        alert("无法生成测试内容，请重试。");
+        return;
+      }
+      
       this.isTesting = true;
       this.currentWordIndex = 0;
       this.correctCount = 0;
@@ -688,7 +810,16 @@ export default {
       return array;
     },
     async checkAnswer() {
+      // 安全检查：确保当前单词存在
+      if (this.currentWordIndex >= this.shuffledWords.length) {
+        return;
+      }
+
       const currentWord = this.shuffledWords[this.currentWordIndex];
+      if (!currentWord) {
+        return;
+      }
+
       const correctAnswer = currentWord.word.toLowerCase();
       const userAnswer = this.userInput.trim().toLowerCase();
 
@@ -773,7 +904,17 @@ export default {
       return distance >= 1 && distance <= 2;
     },
     async markSlipAsIncorrect() {
-      const slipWord = this.feedback?.checkedWord || this.shuffledWords[this.currentWordIndex - 1];
+      // 安全检查：确保 slipWord 存在
+      const slipWordIndex = this.currentWordIndex - 1;
+      if (slipWordIndex < 0 || slipWordIndex >= this.shuffledWords.length) {
+        return;
+      }
+
+      const slipWord = this.feedback?.checkedWord || this.shuffledWords[slipWordIndex];
+      
+      if (!slipWord) {
+        return;
+      }
 
       if (this.feedback?.countedAsCorrect) {
         this.correctCount = Math.max(0, this.correctCount - 1);
@@ -882,6 +1023,12 @@ export default {
             : [];
         });
         this.shuffledWords = this.shuffleArray([...this.words]);
+        
+        if (this.shuffledWords.length === 0) {
+          alert("上传的文件中无有效的单词数据，请检查文件内容。");
+          return;
+        }
+        
         this.isTesting = true;
         this.currentWordIndex = 0;
         this.correctCount = 0;
@@ -1411,7 +1558,7 @@ export default {
       try {
         const allBatches = await this.getAllSyncBatches();
         const safeBatches = Array.isArray(allBatches) ? allBatches : [];
-        safeBatches.sort((a, b) => (b.testNo || 0) - (a.testNo || 0));
+        safeBatches.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
         this.wrongBookBatches = safeBatches;
         if (safeBatches.length > 0 && this.selectedDeleteTestNo === null) {
           this.selectedDeleteTestNo = safeBatches[0].testNo;
@@ -1420,13 +1567,38 @@ export default {
         console.error("读取测试批次失败:", error);
       }
     },
-    async getNextTestNo() {
-      const batches = await this.getAllSyncBatches();
-      const safeBatches = Array.isArray(batches) ? batches : [];
-      if (safeBatches.length === 0) {
-        return 1;
+    generateBatchId() {
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
       }
-      return Math.max(...safeBatches.map((item) => item.testNo || 0)) + 1;
+
+      const timestamp = Date.now().toString(36);
+      const randomPart = Math.random().toString(36).slice(2, 10);
+      return `batch-${timestamp}-${randomPart}`;
+    },
+    formatBatchIdLabel(testNo) {
+      if (testNo === null || testNo === undefined || testNo === "") {
+        return "未命名批次";
+      }
+
+      const testNoText = String(testNo);
+      if (/^\d+$/.test(testNoText)) {
+        return `第${testNoText}次`;
+      }
+
+      return `批次 ${testNoText.slice(0, 8)}`;
+    },
+    formatBatchLabel(batch) {
+      if (!batch) {
+        return "未命名批次";
+      }
+
+      const batchName = String(batch.batchName || "").trim();
+      if (batchName) {
+        return batchName;
+      }
+
+      return this.formatBatchIdLabel(batch.testNo);
     },
     async getAllWrongRecords() {
       return this.runStoreAction("wrongRecords", "readonly", (store) => store.getAll());
@@ -1457,8 +1629,9 @@ export default {
         return;
       }
 
-      const testNo = await this.getNextTestNo();
+      const testNo = this.generateBatchId();
       const now = new Date().toISOString();
+      const batchName = String(this.batchNameInput || "").trim();
 
       for (const wordItem of this.incorrectWords) {
         await this.recordWrongWord(wordItem, testNo);
@@ -1468,10 +1641,12 @@ export default {
         testNo,
         createdAt: now,
         syncedCount: this.incorrectWords.length,
+        batchName: batchName || "",
       });
 
       this.currentResultSyncedToWrongBook = true;
-      this.wrongBookSyncMessage = `已写入第${testNo}次测试，共 ${this.incorrectWords.length} 条。`;
+      this.wrongBookSyncMessage = `已写入${batchName || this.formatBatchIdLabel(testNo)}，共 ${this.incorrectWords.length} 条。`;
+      this.batchNameInput = "";
       await this.loadWrongBookRecords();
       await this.loadWrongBookBatches();
     },
@@ -1483,9 +1658,9 @@ export default {
       this.wrongBookSyncMessage = "已删除 1 条错题记录。";
       await this.loadWrongBookRecords();
     },
-    async deleteWrongRecordsByBatch() {
-      const testNo = Number(this.selectedDeleteTestNo);
-      if (!Number.isInteger(testNo) || testNo <= 0) {
+    async deleteWrongRecordsByBatch(testNoParam = null) {
+      const testNo = testNoParam || this.selectedDeleteTestNo;
+      if (!testNo) {
         this.wrongBookSyncMessage = "请先选择要删除的测试批次。";
         return;
       }
@@ -1522,7 +1697,7 @@ export default {
 
       await this.deleteSyncBatch(testNo);
 
-      this.wrongBookSyncMessage = `已回滚第${testNo}次测试对错题本的增加次数。`;
+      this.wrongBookSyncMessage = `已回滚${this.formatBatchIdLabel(testNo)}对错题本的增加次数。`;
       await this.loadWrongBookRecords();
       await this.loadWrongBookBatches();
     },
@@ -1541,7 +1716,7 @@ export default {
         if (existingRecord) {
           const wrongCount = (existingRecord.wrongCount || 0) + 1;
           const contributions = { ...(existingRecord.testContributions || {}) };
-          if (Number.isInteger(testNo) && testNo > 0) {
+          if (testNo) {
             contributions[testNo] = (contributions[testNo] || 0) + 1;
           }
           const updatedRecord = {
@@ -1558,7 +1733,7 @@ export default {
 
         const initialWrongCount = 1;
         const initialContributions = {};
-        if (Number.isInteger(testNo) && testNo > 0) {
+        if (testNo) {
           initialContributions[testNo] = 1;
         }
         const newRecord = {
@@ -1606,15 +1781,17 @@ export default {
     formatContributionSummary(record) {
       const contributions = record.testContributions || {};
       const entries = Object.entries(contributions)
-        .map(([testNo, count]) => ({ testNo: Number(testNo), count: Number(count) }))
-        .filter((item) => Number.isInteger(item.testNo) && item.testNo > 0 && item.count > 0)
-        .sort((a, b) => a.testNo - b.testNo);
+        .map(([testNo, count]) => ({ testNo, count: Number(count) }))
+        .filter((item) => item.testNo && item.count > 0)
+        .sort((a, b) => String(a.testNo).localeCompare(String(b.testNo)));
 
       if (entries.length === 0) {
         return "无";
       }
 
-      return entries.map((item) => `第${item.testNo}次 +${item.count}`).join("，");
+      return entries
+        .map((item) => `${this.formatBatchIdLabel(item.testNo)} +${item.count}`)
+        .join("，");
     },
     getWrongCountTagClass(wrongCount) {
       const count = Number(wrongCount || 0);
@@ -1628,6 +1805,398 @@ export default {
         return "wrongbook-tag-wrong-3";
       }
       return "wrongbook-tag-wrong-3plus";
+    },
+    getSyncClientId() {
+      const key = "wrongbook-client-id";
+      const existing = localStorage.getItem(key);
+      if (existing) {
+        return existing;
+      }
+
+      const newId = this.generateBatchId();
+      localStorage.setItem(key, newId);
+      return newId;
+    },
+    resolveUpdatedAt(record) {
+      if (!record) {
+        return "";
+      }
+
+      return String(record.updatedAt || record.lastWrongAt || record.createdAt || "");
+    },
+    shouldReplaceByUpdatedAt(existingRecord, incomingRecord) {
+      if (!existingRecord) {
+        return true;
+      }
+
+      const existingTime = this.resolveUpdatedAt(existingRecord);
+      const incomingTime = this.resolveUpdatedAt(incomingRecord);
+      if (!existingTime) {
+        return true;
+      }
+      if (!incomingTime) {
+        return false;
+      }
+
+      return incomingTime > existingTime;
+    },
+    buildRecordMap(records, keyField) {
+      const map = new Map();
+      (records || []).forEach((item) => {
+        if (item && item[keyField]) {
+          map.set(item[keyField], item);
+        }
+      });
+      return map;
+    },
+    sanitizeForIdb(payload) {
+      try {
+        return JSON.parse(JSON.stringify(payload));
+      } catch (error) {
+        return null;
+      }
+    },
+    pickLatestIso(a, b) {
+      if (!a) {
+        return b || "";
+      }
+      if (!b) {
+        return a;
+      }
+      return a > b ? a : b;
+    },
+    mergeTestContributions(existingContributions, incomingContributions) {
+      const merged = { ...(existingContributions || {}) };
+      const incoming = incomingContributions || {};
+      Object.entries(incoming).forEach(([testNo, count]) => {
+        const safeCount = Number(count) || 0;
+        merged[testNo] = (Number(merged[testNo]) || 0) + safeCount;
+      });
+      return merged;
+    },
+    recomputeWrongCount(mergedContributions, fallbackCount = 0) {
+      const sum = Object.values(mergedContributions || {})
+        .map((value) => Number(value) || 0)
+        .reduce((acc, value) => acc + value, 0);
+      return sum > 0 ? sum : fallbackCount;
+    },
+    mergeWrongRecord(existingRecord, incomingRecord) {
+      if (!existingRecord) {
+        return incomingRecord;
+      }
+
+      const mergedContributions = this.mergeTestContributions(
+        existingRecord.testContributions,
+        incomingRecord.testContributions
+      );
+
+      const latestRecord = this.shouldReplaceByUpdatedAt(existingRecord, incomingRecord)
+        ? incomingRecord
+        : existingRecord;
+
+      const mergedWrongCount = this.recomputeWrongCount(
+        mergedContributions,
+        Math.max(existingRecord.wrongCount || 0, incomingRecord.wrongCount || 0)
+      );
+
+      return {
+        ...latestRecord,
+        wrongCount: mergedWrongCount,
+        level: this.getWrongLevel(mergedWrongCount),
+        rightCount: Math.max(existingRecord.rightCount || 0, incomingRecord.rightCount || 0),
+        testContributions: mergedContributions,
+        lastWrongAt: this.pickLatestIso(existingRecord.lastWrongAt, incomingRecord.lastWrongAt),
+        lastRightAt: this.pickLatestIso(existingRecord.lastRightAt, incomingRecord.lastRightAt),
+        updatedAt: this.pickLatestIso(this.resolveUpdatedAt(existingRecord), this.resolveUpdatedAt(incomingRecord)),
+      };
+    },
+    remapBatchIdsInContributions(contributions, batchIdMap) {
+      if (!batchIdMap || !contributions) {
+        return { ...(contributions || {}) };
+      }
+
+      const next = {};
+      Object.entries(contributions).forEach(([testNo, count]) => {
+        const mappedId = batchIdMap.get(String(testNo)) || String(testNo);
+        next[mappedId] = (Number(next[mappedId]) || 0) + (Number(count) || 0);
+      });
+      return next;
+    },
+    remapRecordBatchIds(record, batchIdMap) {
+      if (!record) {
+        return record;
+      }
+
+      const remappedContributions = this.remapBatchIdsInContributions(
+        record.testContributions,
+        batchIdMap
+      );
+      return {
+        ...record,
+        testContributions: remappedContributions,
+      };
+    },
+    filterRecordByBatchSelection(record, batchSet) {
+      if (!batchSet || batchSet.size === 0) {
+        return record;
+      }
+
+      const contributions = record?.testContributions || {};
+      if (Object.keys(contributions).length === 0) {
+        return record;
+      }
+      const filteredContributions = {};
+      Object.entries(contributions).forEach(([testNo, count]) => {
+        const normalizedTestNo = String(testNo);
+        if (batchSet.has(normalizedTestNo)) {
+          filteredContributions[normalizedTestNo] = count;
+        }
+      });
+
+      if (Object.keys(filteredContributions).length === 0) {
+        return null;
+      }
+
+      const nextRecord = {
+        ...record,
+        testContributions: filteredContributions,
+      };
+      nextRecord.wrongCount = this.recomputeWrongCount(filteredContributions, record.wrongCount || 0);
+      nextRecord.level = this.getWrongLevel(nextRecord.wrongCount || 0);
+      return nextRecord;
+    },
+    async selectImportBatches(syncBatches) {
+      if (!Array.isArray(syncBatches) || syncBatches.length === 0) {
+        return { selectedBatches: [], selectedBatchSet: null };
+      }
+
+      this.importBatchOptions = [...syncBatches];
+      this.importSelectedBatchIds = syncBatches.map((batch) => batch.testNo);
+      this.importBatchModalVisible = true;
+
+      return new Promise((resolve) => {
+        this.importBatchResolve = resolve;
+      });
+    },
+    toggleImportBatchSelectAll() {
+      if (this.importSelectedBatchIds.length === this.importBatchOptions.length) {
+        this.importSelectedBatchIds = [];
+      } else {
+        this.importSelectedBatchIds = this.importBatchOptions.map((batch) => batch.testNo);
+      }
+    },
+    toggleImportBatchSelection(batchId) {
+      if (this.importSelectedBatchIds.includes(batchId)) {
+        this.importSelectedBatchIds = this.importSelectedBatchIds.filter((id) => id !== batchId);
+      } else {
+        this.importSelectedBatchIds = [...this.importSelectedBatchIds, batchId];
+      }
+    },
+    cancelImportBatchSelection() {
+      this.importBatchModalVisible = false;
+      this.importBatchOptions = [];
+      this.importSelectedBatchIds = [];
+      if (this.importBatchResolve) {
+        this.importBatchResolve(null);
+        this.importBatchResolve = null;
+      }
+    },
+    confirmImportBatchSelection() {
+      if (this.importSelectedBatchIds.length === 0) {
+        alert("请至少选择一个批次。");
+        return;
+      }
+
+      const selectedBatches = this.importBatchOptions.filter((batch) =>
+        this.importSelectedBatchIds.includes(batch.testNo)
+      );
+      const selectedBatchSet = new Set(this.importSelectedBatchIds.map((id) => String(id)));
+
+      this.importBatchModalVisible = false;
+      this.importBatchOptions = [];
+      this.importSelectedBatchIds = [];
+
+      if (this.importBatchResolve) {
+        this.importBatchResolve({ selectedBatches, selectedBatchSet });
+        this.importBatchResolve = null;
+      }
+    },
+    triggerImportWrongBook() {
+      this.$refs.wrongBookImportInput.click();
+    },
+    async importWrongBook(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const content = e.target?.result;
+            const importedData = JSON.parse(content);
+
+            const payload = importedData && importedData.data ? importedData.data : importedData;
+            const importSource = String(importedData?.source || "local").toLowerCase();
+            const wrongRecords = Array.isArray(payload?.wrongRecords) ? payload.wrongRecords : null;
+            const syncBatches = Array.isArray(payload?.syncBatches) ? payload.syncBatches : [];
+            const customLibraries = Array.isArray(payload?.customLibraries) ? payload.customLibraries : [];
+
+            // 验证导入数据格式
+            if (!wrongRecords) {
+              alert("导入文件格式不正确！必须包含 'wrongRecords' 数组。");
+              return;
+            }
+
+            const batchSelection = await this.selectImportBatches(syncBatches);
+            if (batchSelection === null) {
+              return;
+            }
+
+            const { selectedBatches, selectedBatchSet } = batchSelection;
+            const filteredRecords = (wrongRecords || [])
+              .map((record) => this.filterRecordByBatchSelection(record, selectedBatchSet))
+              .filter(Boolean);
+
+            {
+              const existingRecords = await this.getAllWrongRecords();
+              const existingBatches = await this.getAllSyncBatches();
+              const existingLibraries = await this.runStoreAction("customLibraries", "readonly", (store) => store.getAll());
+
+              const recordMap = this.buildRecordMap(existingRecords || [], "id");
+              const batchMap = this.buildRecordMap(existingBatches || [], "testNo");
+              const libraryMap = this.buildRecordMap(existingLibraries || [], "id");
+
+              const batchIdMap = new Map();
+              if (importSource !== "cloud") {
+                selectedBatches.forEach((batch) => {
+                  const testNo = String(batch.testNo);
+                  if (batchMap.has(testNo)) {
+                    const newId = this.generateBatchId();
+                    batchIdMap.set(testNo, newId);
+                  } else {
+                    batchIdMap.set(testNo, testNo);
+                  }
+                });
+              }
+
+              for (const record of filteredRecords) {
+                const remappedRecord = importSource === "cloud"
+                  ? record
+                  : this.remapRecordBatchIds(record, batchIdMap);
+                const existing = recordMap.get(remappedRecord.id);
+                if (importSource === "cloud") {
+                  const existingStamp = this.resolveUpdatedAt(existing);
+                  const incomingStamp = this.resolveUpdatedAt(remappedRecord);
+                  if (existing && existingStamp && incomingStamp && existingStamp === incomingStamp) {
+                    continue;
+                  }
+                  const merged = this.mergeWrongRecord(existing, remappedRecord);
+                  const safeMerged = this.sanitizeForIdb(merged);
+                  if (safeMerged) {
+                    await this.saveWrongRecord(safeMerged);
+                  }
+                } else {
+                  const merged = this.mergeWrongRecord(existing, remappedRecord);
+                  const safeMerged = this.sanitizeForIdb(merged);
+                  if (safeMerged) {
+                    await this.saveWrongRecord(safeMerged);
+                  }
+                }
+              }
+
+              for (const batch of selectedBatches) {
+                if (importSource === "cloud") {
+                  const existing = batchMap.get(batch.testNo);
+                  const existingStamp = this.resolveUpdatedAt(existing);
+                  const incomingStamp = this.resolveUpdatedAt(batch);
+                  if (existing && existingStamp && incomingStamp && existingStamp === incomingStamp) {
+                    continue;
+                  }
+                  if (this.shouldReplaceByUpdatedAt(existing, batch)) {
+                    const safeBatch = this.sanitizeForIdb(batch);
+                    if (safeBatch) {
+                      await this.saveSyncBatch(safeBatch);
+                    }
+                  }
+                } else {
+                  const mappedId = batchIdMap.get(String(batch.testNo)) || String(batch.testNo);
+                  const nextBatch = { ...batch, testNo: mappedId };
+                  const safeBatch = this.sanitizeForIdb(nextBatch);
+                  if (safeBatch) {
+                    await this.saveSyncBatch(safeBatch);
+                  }
+                }
+              }
+
+              for (const library of customLibraries) {
+                const existing = libraryMap.get(library.id);
+                if (importSource === "cloud") {
+                  const existingStamp = this.resolveUpdatedAt(existing);
+                  const incomingStamp = this.resolveUpdatedAt(library);
+                  if (existing && existingStamp && incomingStamp && existingStamp === incomingStamp) {
+                    continue;
+                  }
+                  if (this.shouldReplaceByUpdatedAt(existing, library)) {
+                    const safeLibrary = this.sanitizeForIdb(library);
+                    if (safeLibrary) {
+                      await this.saveCustomLibrary(safeLibrary);
+                    }
+                  }
+                } else {
+                  if (!existing) {
+                    const safeLibrary = this.sanitizeForIdb(library);
+                    if (safeLibrary) {
+                      await this.saveCustomLibrary(safeLibrary);
+                    }
+                  }
+                }
+              }
+            }
+
+            this.wrongBookSyncMessage = `成功追加导入 ${filteredRecords.length} 条错题记录。`;
+            await this.loadWrongBookRecords();
+            await this.loadWrongBookBatches();
+            await this.loadCustomLibraries();
+          } catch (error) {
+            alert("导入文件解析失败：" + error.message);
+          }
+        };
+        reader.readAsText(file);
+      } catch (error) {
+        alert("读取文件失败：" + error.message);
+      }
+      
+      // 重置 input 元素
+      this.$refs.wrongBookImportInput.value = "";
+    },
+    exportWrongBook() {
+      if (this.wrongBookRecords.length === 0) {
+        alert("没有可导出的错题记录！");
+        return;
+      }
+
+      const exportData = {
+        schemaVersion: 2,
+        exportedAt: new Date().toISOString(),
+        source: "local",
+        clientId: this.getSyncClientId(),
+        data: {
+          wrongRecords: this.wrongBookRecords,
+          syncBatches: this.wrongBookBatches,
+          customLibraries: this.uploadedFiles,
+        },
+      };
+
+      const timestamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `wrongbook_${timestamp}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      this.wrongBookSyncMessage = `已导出 ${this.wrongBookRecords.length} 条错题记录。`;
     },
   },
 };
@@ -1655,6 +2224,7 @@ export default {
 
 .container.wrongbook-layout {
   max-width: 1180px;
+  transition: opacity 0.2s ease;
 }
 
 .progress-bar-container {
@@ -2052,6 +2622,33 @@ h2 {
   box-sizing: border-box;
 }
 
+.wrongbook-view-toggle {
+  display: inline-flex;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  border: 0.0625rem solid var(--border-color);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.wrongbook-view-button {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #334155;
+}
+
+.wrongbook-view-button + .wrongbook-view-button {
+  border-left: 0.0625rem solid var(--border-color);
+}
+
+.wrongbook-view-button.active {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
 .wrongbook-entry-button {
   margin-left: 0.5rem;
 }
@@ -2062,11 +2659,47 @@ h2 {
   border-radius: 0.625rem;
   padding: 0.75rem;
   background-color: rgba(255, 255, 255, 0.45);
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
+}
+
+.wrongbook-controls .result-action-button {
+  width: 100%;
+}
+
+.wrongbook-batch-input {
+  min-width: 0;
+}
+
+.wrongbook-batch-input-field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.5rem;
+  background-color: #fff;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.wrongbook-batch-input-field:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .wrongbook-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .wrongbook-batch-input {
+    max-width: none;
+  }
+
+  .wrongbook-controls .result-action-button {
+    width: 100%;
+  }
 }
 
 .wrongbook-message {
@@ -2088,6 +2721,118 @@ h2 {
 .wrongbook-panel summary {
   cursor: pointer;
   font-weight: 700;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 2000;
+}
+
+.modal-card {
+  width: min(520px, 92vw);
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-bottom: 0.0625rem solid rgba(148, 163, 184, 0.35);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.modal-body {
+  padding: 0.9rem 1rem;
+  overflow: auto;
+}
+
+.modal-select-all-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.modal-select-all {
+  border: 0.0625rem solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-batch-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.modal-batch-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.5rem;
+  background: var(--secondary-background-color);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.modal-batch-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.modal-batch-item.active-card {
+  border: 2px solid var(--primary-color);
+}
+
+.modal-batch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.modal-batch-title {
+  font-weight: 700;
+}
+
+.modal-batch-meta {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem 1rem;
+  border-top: 0.0625rem solid rgba(148, 163, 184, 0.35);
 }
 
 .wrongbook-stats {
@@ -2117,12 +2862,71 @@ h2 {
   font-weight: 700;
 }
 
-.wrongbook-delete-tools {
+.wrongbook-batch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
   margin-top: 0.75rem;
+}
+
+.wrongbook-batch-item {
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.wrongbook-batch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.wrongbook-batch-title {
+  font-weight: 700;
+}
+
+.wrongbook-batch-meta {
+  font-size: 0.85rem;
+  opacity: 0.78;
+}
+
+
+.delete-icon-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #ef4444;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.delete-icon-button:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.delete-icon-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.delete-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
 }
 
 .wrongbook-select,
@@ -2468,7 +3272,7 @@ h2 {
 }
 
 .preset-card:hover {
-  background-color: var(--hover-color);
+  border: 1px solid var(--primary-color);
 }
 
 .active-card {
@@ -2493,9 +3297,7 @@ h2 {
   transition: background-color 0.3s, transform 0.2s;
 }
 
-.unit-card:hover {
-  background-color: var(--hover-color);
-}
+
 
 .unit-card.active-card {
   border: 2px solid var(--primary-color);

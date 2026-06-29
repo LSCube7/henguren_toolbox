@@ -1,5 +1,2 @@
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@vercel/speed-insights'
-  - core-js
-  - yorkie
+packages:
+  - "."

@@ -92,7 +92,6 @@ export function ShiciClient() {
                     type="button"
                     aria-expanded={active}
                     onClick={() => setActiveWordKey(active ? null : key)}
-                    onFocus={() => setActiveWordKey(key)}
                   >
                     {segment}
                   </button>

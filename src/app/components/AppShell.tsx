@@ -2,26 +2,71 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Route } from "next";
 import type { UserSession } from "@/lib/types";
 import { useEffect, useState } from "react";
+import { MaterialIcon } from "./MaterialIcon";
+import { useEdition } from "@/lib/edition";
+import { readWrongBookSyncSummary, type SyncStatus, type WrongBookSyncSummary } from "@/lib/client-sync";
 
 const toolItems = [
-  { href: "/", label: "工具总览", icon: "⌂" },
-  { href: "/shici", label: "寻找实词", icon: "言" },
-  { href: "/wenchang", label: "文学常识", icon: "典" },
-  { href: "/vocab", label: "单词测试", icon: "Aa" },
-  { href: "/text", label: "课文测试", icon: "段" },
-  { href: "/license", label: "项目许可", icon: "MIT" }
+  { edition: "junior", href: "/shici", label: "寻找实词", icon: "search" },
+  { edition: "junior", href: "/wenchang", label: "文学常识", icon: "menu_book" },
+  { edition: "senior", href: "/vocab", label: "单词测试", icon: "spellcheck" },
+  { edition: "senior", href: "/text", label: "课文测试", icon: "article" }
 ] as const;
 
+const overviewItem = { href: "/", label: "工具总览", icon: "home" } as const;
+
 const personalItems = [
-  { href: "/settings", label: "个人设置", icon: "⚙" },
-  { href: "/user", label: "用户与同步", icon: "人" }
+  { href: "/changelog", label: "更新记录", icon: "history" },
+  { href: "/settings", label: "个人设置", icon: "settings" }
+] as const;
+
+const syncStatusLabel: Record<SyncStatus, string> = {
+  "signed-out": "未登录，错题本仅保存在本地",
+  offline: "当前离线，云端错题本不可用",
+  ready: "云同步可用",
+  syncing: "正在同步",
+  synced: "已同步",
+  error: "同步状态异常"
+};
+
+const syncStatusIcon: Record<SyncStatus, string> = {
+  "signed-out": "cloud_off",
+  offline: "cloud_off",
+  ready: "cloud_sync",
+  syncing: "sync",
+  synced: "cloud_done",
+  error: "cloud_alert"
+};
+
+const footerColumns = [
+  {
+    title: "项目",
+    links: [
+      { href: "https://github.com/LSCube7/henguren_toolbox", label: "GitHub", external: true },
+      { href: "/license", label: "项目许可" }
+    ]
+  },
+  {
+    title: "开发者",
+    links: [{ href: "https://www.lsc7.top", label: "LSCube", external: true }]
+  },
+  {
+    title: "反馈",
+    links: [
+      { href: "https://github.com/LSCube7/henguren_toolbox/issues", label: "提交 Issue", external: true },
+      { href: "https://github.com/LSCube7/henguren_toolbox/discussions", label: "参与讨论", external: true }
+    ]
+  }
 ] as const;
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const [user, setUser] = useState<UserSession | null>(null);
+  const edition = useEdition();
+  const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -40,34 +85,65 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    async function loadSyncSummary() {
+      try {
+        const summary = await readWrongBookSyncSummary();
+        if (!active) return;
+        setSyncSummary(summary);
+        setUser(summary.user);
+      } catch {
+        if (active) setSyncSummary({ status: "error", user: null, localCount: 0, message: "同步状态读取失败。" });
+      }
+    }
+
+    function reloadSyncSummary() {
+      void loadSyncSummary();
+    }
+
+    void loadSyncSummary();
+    window.addEventListener("online", reloadSyncSummary);
+    window.addEventListener("offline", reloadSyncSummary);
+    return () => {
+      active = false;
+      window.removeEventListener("online", reloadSyncSummary);
+      window.removeEventListener("offline", reloadSyncSummary);
+    };
+  }, []);
+
+  const selectedTools = toolItems.filter((item) => item.edition === edition);
+  const syncStatus = syncSummary?.status ?? (user ? "ready" : "signed-out");
+  const syncTitle = syncSummary?.message ?? syncStatusLabel[syncStatus];
+
   return (
     <div className="app-drawer__panel">
-      <Link href="/" className="app-brand" onClick={onNavigate}>
-        <span className="app-brand__mark" aria-hidden="true">
-          恨
-        </span>
-        <span>
-          <span className="app-brand__title">恨古人工具箱</span>
-          <br />
-          <span className="app-brand__subtitle">学习工具箱 v3</span>
-        </span>
-      </Link>
-      <md-divider />
       <nav className="app-nav" aria-label="工具导航">
+        <Link
+          href={overviewItem.href as Route}
+          className="app-nav__item"
+          aria-current={pathname === overviewItem.href ? "page" : undefined}
+          onClick={onNavigate}
+        >
+          <span className="app-nav__icon" aria-hidden="true">
+            <MaterialIcon name={overviewItem.icon} />
+          </span>
+          <span className="app-nav__label">{overviewItem.label}</span>
+        </Link>
         <div className="app-nav__group">
           <div className="app-nav__group-title">学习工具</div>
-          {toolItems.map((item) => {
-            const selected = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          {selectedTools.map((item) => {
+            const selected = pathname.startsWith(item.href);
             return (
               <Link
-                href={item.href}
+                href={item.href as Route}
                 className="app-nav__item"
                 aria-current={selected ? "page" : undefined}
                 key={item.href}
                 onClick={onNavigate}
               >
                 <span className="app-nav__icon" aria-hidden="true">
-                  {item.icon}
+                  <MaterialIcon name={item.icon} />
                 </span>
                 <span className="app-nav__label">{item.label}</span>
               </Link>
@@ -76,7 +152,30 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </nav>
       <div className="app-drawer__footer" aria-label="个人快捷入口">
-        <Link href="/user" className="user-nav-card" aria-current={pathname.startsWith("/user") ? "page" : undefined} onClick={onNavigate}>
+        <Link href="/user#wrongbook-sync" className="rail-action" data-status={syncStatus} aria-label={syncStatusLabel[syncStatus]} title={syncTitle} onClick={onNavigate}>
+          <MaterialIcon name={syncStatusIcon[syncStatus]} />
+        </Link>
+        {personalItems.map((item) => (
+          <Link
+            href={item.href as Route}
+            className="rail-action"
+            aria-current={pathname.startsWith(item.href) ? "page" : undefined}
+            aria-label={item.label}
+            title={item.label}
+            key={item.href}
+            onClick={onNavigate}
+          >
+            <MaterialIcon name={item.icon} />
+          </Link>
+        ))}
+        <Link
+          href="/user"
+          className="user-nav-card"
+          aria-current={pathname.startsWith("/user") ? "page" : undefined}
+          aria-label={user ? `用户与同步：${user.name}` : "未登录"}
+          title={user ? `${user.name}${user.email ? ` · ${user.email}` : ""}` : "未登录"}
+          onClick={onNavigate}
+        >
           {user?.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
@@ -85,25 +184,63 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
               {user?.name?.[0] ?? "未"}
             </span>
           )}
-          <span>
-            <span className="app-nav__label">{user ? user.name : "未登录"}</span>
-            <br />
-            <span className="app-brand__subtitle">{user ? user.email || "已登录" : "点击登录同步"}</span>
-          </span>
-        </Link>
-        <Link
-          href="/settings"
-          className="app-nav__item app-nav__item--footer"
-          aria-current={pathname.startsWith("/settings") ? "page" : undefined}
-          onClick={onNavigate}
-        >
-          <span className="app-nav__icon" aria-hidden="true">
-            {personalItems[0].icon}
-          </span>
-          <span className="app-nav__label">{personalItems[0].label}</span>
         </Link>
       </div>
     </div>
+  );
+}
+
+function FooterLink({ href, label, external = false }: { href: string; label: string; external?: boolean }) {
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer">
+        {label}
+      </a>
+    );
+  }
+
+  return <Link href={href as Route}>{label}</Link>;
+}
+
+function AppFooter() {
+  return (
+    <footer className="app-footer" aria-label="站点信息">
+      <div className="app-footer__wave" aria-hidden="true" />
+      <div className="app-footer__body">
+        <section className="app-footer__brand" aria-label="项目信息">
+          <span className="app-footer__mark" aria-hidden="true">
+            恨
+          </span>
+          <div className="stack">
+            <div>
+              <p className="app-footer__eyebrow">Henguren Toolbox v3 alpha</p>
+              <h2 className="app-footer__title">恨古人工具箱</h2>
+            </div>
+            <p className="app-footer__description">面向语文与英语学习的轻量工具箱。</p>
+          </div>
+        </section>
+        <nav className="app-footer__links" aria-label="页脚导航">
+          {footerColumns.map((column) => (
+            <div className="app-footer__column" key={column.title}>
+              <h3>{column.title}</h3>
+              {column.links.map((link) => (
+                <FooterLink href={link.href} label={link.label} external={"external" in link ? link.external : false} key={link.href} />
+              ))}
+            </div>
+          ))}
+        </nav>
+      </div>
+      <div className="app-footer__bottom">
+        <a className="app-footer__developer" href="https://www.lsc7.top" target="_blank" rel="noreferrer" aria-label="开发者 LSCube 个人主页">
+          <strong>LSCube</strong>
+        </a>
+        <nav className="app-footer__legal" aria-label="法律信息">
+          <FooterLink href="/privacy" label="隐私政策" />
+          <FooterLink href="/terms" label="用户协议" />
+        </nav>
+        <span className="app-footer__copyright">Copyright © LSCube. All rights reserved.</span>
+      </div>
+    </footer>
   );
 }
 
@@ -119,7 +256,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="app-drawer" data-open={mobileOpen} aria-label="侧边导航">
         <NavList onNavigate={() => setMobileOpen(false)} />
       </aside>
-      <main className="app-main">{children}</main>
+      <main className="app-main">
+        <div className="app-content">{children}</div>
+        <AppFooter />
+      </main>
     </div>
   );
 }

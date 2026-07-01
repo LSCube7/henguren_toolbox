@@ -4,7 +4,7 @@ export function SettingsSection({
   control
 }: {
   title: string;
-  description: string;
+  description?: string;
   control: React.ReactNode;
 }) {
   return (
@@ -13,7 +13,7 @@ export function SettingsSection({
         <h2 className="section-title" id={`${title}-setting`}>
           {title}
         </h2>
-        <p className="helper-text">{description}</p>
+        {description ? <p className="helper-text">{description}</p> : null}
       </div>
       <div>{control}</div>
     </section>

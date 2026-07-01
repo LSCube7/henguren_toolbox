@@ -4,6 +4,8 @@ import type { UserSession } from "@/lib/types";
 import { StatusAlert } from "../components/StatusAlert";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
+import { isOnline } from "@/lib/offline-cache";
 
 const authMessages: Record<string, string> = {
   ok: "已完成登录。",
@@ -21,29 +23,57 @@ const authMessages: Record<string, string> = {
 export function UserClient() {
   const searchParams = useSearchParams();
   const [user, setUser] = useState<UserSession | null>(null);
+  const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
+  const [syncing, setSyncing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(() => authMessages[searchParams.get("auth") ?? ""] ?? "");
 
   const refresh = useCallback(async (markLoading = false) => {
     if (markLoading) setLoading(true);
-    const response = await fetch("/api/me");
-    const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
-    setUser(data.user);
+    const summary = await readWrongBookSyncSummary();
+    if (isOnline()) {
+      try {
+        const meResponse = await fetch("/api/me");
+        const data = (await meResponse.json()) as { authenticated: boolean; user: UserSession | null };
+        setUser(data.user);
+      } catch {
+        setUser(summary.user);
+      }
+    }
+    setSyncSummary(summary);
     setLoading(false);
   }, []);
 
   useEffect(() => {
     let active = true;
     async function load() {
-      const response = await fetch("/api/me");
-      const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
+      const summary = await readWrongBookSyncSummary();
+      let nextUser = summary.user;
+      if (isOnline()) {
+        try {
+          const response = await fetch("/api/me");
+          const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
+          nextUser = data.user;
+        } catch {
+          nextUser = summary.user;
+        }
+      }
       if (!active) return;
-      setUser(data.user);
+      setUser(nextUser);
+      setSyncSummary(summary);
       setLoading(false);
     }
+    function reload() {
+      void load();
+    }
+
     void load();
+    window.addEventListener("online", reload);
+    window.addEventListener("offline", reload);
     return () => {
       active = false;
+      window.removeEventListener("online", reload);
+      window.removeEventListener("offline", reload);
     };
   }, []);
 
@@ -52,6 +82,34 @@ export function UserClient() {
     setMessage("已退出登录。");
     await refresh(true);
   }
+
+  async function runSync(action: "pull" | "overwrite" | "merge") {
+    if (syncSummary?.status === "offline" || !isOnline()) {
+      setMessage("当前离线，云端错题本不可用；本地错题本仍可使用。");
+      return;
+    }
+    setSyncing(true);
+    setMessage("");
+    try {
+      if (action === "pull") {
+        await pullAndMergeWrongBook();
+        setMessage("已拉取云端错题本并合并到本地。");
+      } else if (action === "overwrite") {
+        await overwriteCloudWrongBook();
+        setMessage("已用本地错题本上传覆盖云端。");
+      } else {
+        await mergeUploadWrongBook();
+        setMessage("已完成本地与云端合并上传。");
+      }
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "错题本同步失败。");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  const syncDisabled = !user || syncing || syncSummary?.status === "offline";
 
   return (
     <div className="stack">
@@ -77,6 +135,23 @@ export function UserClient() {
           ) : (
             <md-filled-button href="/api/auth/login">登录 LSCube OAuth</md-filled-button>
           )}
+        </div>
+      </section>
+      <section className="md-card spread" id="wrongbook-sync" aria-label="错题本云同步">
+        <div>
+          <h2 className="section-title">错题本云同步</h2>
+          <p className="helper-text">{syncSummary?.message ?? "正在读取错题本同步状态。"}</p>
+        </div>
+        <div className="cluster">
+          <md-outlined-button disabled={syncDisabled} onClick={() => void runSync("pull")}>
+            拉取云端并合并本地
+          </md-outlined-button>
+          <md-outlined-button disabled={syncDisabled} onClick={() => void runSync("overwrite")}>
+            上传覆盖云端
+          </md-outlined-button>
+          <md-filled-button disabled={syncDisabled} onClick={() => void runSync("merge")}>
+            合并上传
+          </md-filled-button>
         </div>
       </section>
       <StatusAlert message={message} />

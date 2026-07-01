@@ -15,6 +15,7 @@ function valueFrom(event: React.FormEvent<HTMLElement>) {
 export function TextClient() {
   const [selected, setSelected] = useState(textLists[0]?.name ?? "");
   const [book, setBook] = useState<TextBook | null>(null);
+  const [message, setMessage] = useState("");
   const [sectionIndex, setSectionIndex] = useState(0);
   const [paragraphIndex, setParagraphIndex] = useState(0);
   const section = book?.sections[sectionIndex];
@@ -22,10 +23,17 @@ export function TextClient() {
 
   useEffect(() => {
     async function load() {
-      const response = await fetch(`/api/data/text/${selected}`);
-      setBook((await response.json()) as TextBook);
-      setSectionIndex(0);
-      setParagraphIndex(0);
+      try {
+        setMessage("");
+        const response = await fetch(`/api/data/text/${selected}`);
+        if (!response.ok) throw new Error("text_cache_miss");
+        setBook((await response.json()) as TextBook);
+        setSectionIndex(0);
+        setParagraphIndex(0);
+      } catch {
+        setBook(null);
+        setMessage("该课文尚未离线缓存，请联网打开一次后再离线使用。");
+      }
     }
     if (selected) void load();
   }, [selected]);
@@ -72,7 +80,7 @@ export function TextClient() {
             </div>
           </>
         ) : (
-          <p className="helper-text">正在加载课文。</p>
+          <p className="helper-text">{message || "正在加载课文。"}</p>
         )}
       </section>
       <section className="md-card stack" aria-label="课文预览">

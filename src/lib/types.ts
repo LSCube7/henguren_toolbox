@@ -30,6 +30,7 @@ export type WrongBookSnapshot = {
 export type ToolboxSettings = {
   schemaVersion: 1;
   theme: "classic" | "ink" | "garden" | "ocean";
+  themePreset?: string;
   themeSeedColor?: string;
   colorMode?: "light" | "dark" | "system";
   showHint: boolean;
@@ -58,6 +59,7 @@ export type WrongBookBatch = {
 export const defaultSettings: ToolboxSettings = {
   schemaVersion: 1,
   theme: "classic",
+  themePreset: "default-blue",
   showHint: true,
   enableSlipDetection: false,
   defaultTestCount: 20,

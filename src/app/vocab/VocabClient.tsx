@@ -12,8 +12,12 @@ import {
   readLocalWrongBook
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
+import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
+import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
 import type { WrongBookSnapshot, VocabWord } from "@/lib/types";
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
 import { StatusAlert } from "../components/StatusAlert";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
@@ -21,9 +25,16 @@ type UploadedList = VocabListMeta & { words: VocabWord[] };
 type TestMode = "all" | "custom";
 type Screen = "select" | "testing" | "result" | "wrongbook";
 type WrongBookView = "words" | "batches";
+type WrongBookLevel = "all" | "1" | "2" | "3plus";
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
+const wrongBookLevelOptions: Array<{ value: WrongBookLevel; label: string }> = [
+  { value: "all", label: "全部" },
+  { value: "1", label: "错 1 次" },
+  { value: "2", label: "错 2 次" },
+  { value: "3plus", label: "错 3+ 次" }
+];
 
 function nowStamp() {
   return new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
@@ -55,54 +66,9 @@ function toggleValue(current: string[], value: string) {
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
-function escapeHtml(value: string) {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
-
-function buildPrintableWrongBookHtml(snapshot: WrongBookSnapshot) {
-  const rows = snapshot.records
-    .map((record, index) => {
-      const definitions = [...(record.definitions ?? []), ...(record.zhDefinitions ?? [])].join("；");
-      return `<tr>
-        <td>${index + 1}</td>
-        <td><strong>${escapeHtml(record.word)}</strong></td>
-        <td>${escapeHtml(definitions || "-")}</td>
-        <td>${escapeHtml(record.sourceTitle ?? record.sourceName)}</td>
-        <td>${record.wrongCount}</td>
-        <td>${escapeHtml([...(record.batchNames ?? []), ...(record.testNos ?? [])].join(" / ") || "-")}</td>
-      </tr>`;
-    })
-    .join("");
-
-  return `<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8" />
-  <title>恨古人工具箱错题本打印版</title>
-  <style>
-    body { font-family: "Microsoft YaHei UI", "Noto Sans SC", sans-serif; margin: 28px; color: #1a1b20; }
-    h1 { margin: 0 0 8px; }
-    .meta { color: #666; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #c6c6d0; padding: 8px 10px; text-align: left; vertical-align: top; }
-    th { background: #eef3ff; }
-    tr:nth-child(even) td { background: #fafbff; }
-    @media print { body { margin: 16mm; } }
-  </style>
-</head>
-<body>
-  <h1>错题本打印版</h1>
-  <div class="meta">生成时间：${escapeHtml(new Date().toLocaleString("zh-CN"))} · 共 ${snapshot.records.length} 词</div>
-  <table>
-    <thead><tr><th>#</th><th>单词</th><th>释义</th><th>来源</th><th>错误次数</th><th>批次</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <script>window.addEventListener("load", () => window.print());</script>
-</body>
-</html>`;
-}
-
 export function VocabClient() {
+  const router = useRouter();
+  const online = useOnlineStatus();
   const [screen, setScreen] = useState<Screen>("select");
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
   const [uploadedLists, setUploadedLists] = useState<UploadedList[]>([]);
@@ -123,11 +89,14 @@ export function VocabClient() {
   const [wrongBook, setWrongBook] = useState<WrongBookSnapshot | null>(null);
   const [wrongBookSearch, setWrongBookSearch] = useState("");
   const [wrongBookSource, setWrongBookSource] = useState("all");
-  const [wrongBookLevel, setWrongBookLevel] = useState("all");
+  const [wrongBookLevel, setWrongBookLevel] = useState<WrongBookLevel>("all");
   const [wrongBookView, setWrongBookView] = useState<WrongBookView>("words");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cacheBusy, setCacheBusy] = useState(false);
+  const [vocabCacheStates, setVocabCacheStates] = useState<Record<string, VocabCacheState>>({});
   const [customListDialogOpen, setCustomListDialogOpen] = useState(false);
+  const [customListDialogKey, setCustomListDialogKey] = useState(0);
   const customListRef = useRef<HTMLInputElement>(null);
   const importWrongBookRef = useRef<HTMLInputElement>(null);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
@@ -173,6 +142,9 @@ export function VocabClient() {
       (wrongBookLevel === "3plus" && record.wrongCount >= 3);
     return keywordMatch && sourceMatch && levelMatch;
   });
+  const selectedCacheStates = selectedMetas.map((meta) => vocabCacheStates[meta.name] ?? "missing");
+  const cachedUnitCount = selectedCacheStates.filter((state) => state === "cached").length;
+  const missingUnitCount = selectedMetas.length - cachedUnitCount;
 
   function toggleBook(bookCode: string) {
     const units = list.filter((item) => getBookCode(item.name) === bookCode).map((item) => item.name);
@@ -197,10 +169,67 @@ export function VocabClient() {
     event.target.value = "";
   }
 
+  async function refreshVocabCacheStates(metas = selectedMetas) {
+    if (metas.length === 0) {
+      setVocabCacheStates({});
+      return;
+    }
+    setVocabCacheStates(await readVocabCacheStates(metas));
+  }
+
+  async function cacheSelectedUnits(manual = true) {
+    if (selectedMetas.length === 0) {
+      if (manual) setMessage("请先选择至少一个 Unit。");
+      return;
+    }
+    if (!online) {
+      if (manual) setMessage("当前离线，无法缓存新的 Unit；已缓存的 Unit 仍可使用。");
+      return;
+    }
+
+    setCacheBusy(true);
+    try {
+      const result = await cacheVocabLists(selectedMetas);
+      await refreshVocabCacheStates();
+      if (manual) {
+        setMessage(result.failed > 0 ? `已缓存 ${result.cached} 个 Unit，${result.failed} 个缓存失败。` : `已缓存 ${result.cached} 个 Unit。`);
+      } else if (result.failed > 0) {
+        setMessage(`部分 Unit 自动缓存失败（${result.failed} 个），测试会继续尝试加载。`);
+      }
+    } finally {
+      setCacheBusy(false);
+    }
+  }
+
+  function openCustomListDialog() {
+    setCustomListDialogKey((current) => current + 1);
+    setCustomListDialogOpen(false);
+    window.setTimeout(() => setCustomListDialogOpen(true), 0);
+  }
+
+  function closeCustomListDialog() {
+    setCustomListDialogOpen(false);
+  }
+
+  useEffect(() => {
+    let active = true;
+    async function loadCacheStates() {
+      const states = await readVocabCacheStates(selectedMetas);
+      if (active) setVocabCacheStates(states);
+    }
+    if (screen === "select") void loadCacheStates();
+    return () => {
+      active = false;
+    };
+  }, [screen, selectedMetas]);
+
   async function startTest(source: "selection" | "wrongbook" = "selection") {
     setLoading(true);
     setMessage("");
     try {
+      if (source === "selection" && selectedMetas.length > 0 && online) {
+        await cacheSelectedUnits(false);
+      }
       const testSource =
         source === "wrongbook"
           ? wrongRecords.map((record) => ({
@@ -226,6 +255,8 @@ export function VocabClient() {
       setPendingSlip(false);
       setTestNo(`test-${nowStamp()}`);
       setScreen("testing");
+    } catch (error) {
+      setMessage(!online ? "该 Unit 尚未离线缓存，请联网打开或手动缓存一次后再离线使用。" : error instanceof Error ? error.message : "词表加载失败。");
     } finally {
       setLoading(false);
     }
@@ -287,54 +318,68 @@ export function VocabClient() {
   }
 
   async function pullCloud() {
-    const response = await fetch("/api/wrongbook");
-    if (!response.ok) {
-      setMessage("需要登录后才能拉取云端错题本。");
-      return;
+    try {
+      await pullAndMergeWrongBook();
+      await refreshWrongBook();
+      setMessage("已拉取云端错题本并合并到本地。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "需要登录后才能拉取云端错题本。");
     }
-    await importWrongBookSnapshot((await response.json()) as WrongBookSnapshot);
-    await refreshWrongBook();
-    setMessage("已拉取并合并云端错题本。");
   }
 
   async function overwriteCloud() {
-    const response = await fetch("/api/wrongbook", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(await readLocalWrongBook(clientId))
-    });
-    setMessage(response.ok ? "已上传覆盖云端错题本。" : "需要登录后才能上传错题本。");
+    try {
+      await overwriteCloudWrongBook();
+      setMessage("已用本地错题本上传覆盖云端。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "需要登录后才能上传错题本。");
+    }
   }
 
   async function mergeCloud() {
-    const response = await fetch("/api/wrongbook/merge", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(await readLocalWrongBook(clientId))
-    });
-    if (!response.ok) {
-      setMessage("需要登录后才能合并上传错题本。");
-      return;
+    try {
+      await mergeUploadWrongBook();
+      await refreshWrongBook();
+      setMessage("已完成本地与云端合并上传。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "需要登录后才能合并上传错题本。");
     }
-    await importWrongBookSnapshot((await response.json()) as WrongBookSnapshot);
-    await refreshWrongBook();
-    setMessage("已完成云端合并同步。");
   }
 
-  async function createPrintableWrongBook() {
-    const snapshot = await readLocalWrongBook(clientId);
-    if (snapshot.records.length === 0) {
-      setMessage("错题本为空，暂时无法创建打印版。");
-      return;
+  async function preparePrintableVocabulary() {
+    setLoading(true);
+    setMessage("");
+    try {
+      if (selectedMetas.length > 0 && online) {
+        await cacheSelectedUnits(false);
+      }
+      const selectedSources = [
+        ...(await Promise.all(
+          selectedMetas.map(async (meta) => ({
+            title: meta.title,
+            words: await loadVocabList(meta)
+          }))
+        )),
+        ...selectedCustomLists.map((item) => ({ title: item.title, words: item.words }))
+      ].filter((source) => source.words.length > 0);
+
+      if (selectedSources.length === 0) {
+        setMessage("请先选择至少一个 Unit 或上传并选择自定义词表。");
+        return;
+      }
+      sessionStorage.setItem(
+        "henguren-v3-printable-vocab",
+        JSON.stringify({
+          createdAt: new Date().toISOString(),
+          sources: selectedSources
+        })
+      );
+      router.push("/vocab/print" as Route);
+    } catch (error) {
+      setMessage(!online ? "该 Unit 尚未离线缓存，请联网打开或手动缓存一次后再创建打印版。" : error instanceof Error ? error.message : "打印版准备失败。");
+    } finally {
+      setLoading(false);
     }
-    const printWindow = window.open("", "_blank", "noopener,noreferrer");
-    if (!printWindow) {
-      setMessage("浏览器阻止了弹出窗口，请允许后重试。");
-      return;
-    }
-    printWindow.document.open();
-    printWindow.document.write(buildPrintableWrongBookHtml(snapshot));
-    printWindow.document.close();
   }
 
   if (screen === "testing") {
@@ -442,39 +487,48 @@ export function VocabClient() {
               <input ref={importWrongBookRef} className="hidden-input" type="file" accept=".json" onChange={(event) => void importWrongBook(event)} />
             </div>
           </div>
-          <div className="field-grid">
+          <div className="wrongbook-filters">
             <md-outlined-text-field label="搜索单词" value={wrongBookSearch} onInput={(event) => setWrongBookSearch(valueFrom(event))} />
-            <md-filled-select label="来源" value={wrongBookSource} onInput={(event) => setWrongBookSource(valueFrom(event))}>
-              <md-select-option value="all">
-                <div slot="headline">全部来源</div>
-              </md-select-option>
-              {wrongBookSources.map((source) => (
-                <md-select-option key={source} value={source}>
-                  <div slot="headline">{source}</div>
+            <div className="wrongbook-filter-row">
+              <md-filled-select className="wrongbook-source-select" label="来源" value={wrongBookSource} onInput={(event) => setWrongBookSource(valueFrom(event))}>
+                <md-select-option value="all">
+                  <div slot="headline">全部来源</div>
                 </md-select-option>
-              ))}
-            </md-filled-select>
-            <md-filled-select label="错误次数" value={wrongBookLevel} onInput={(event) => setWrongBookLevel(valueFrom(event))}>
-              <md-select-option value="all">
-                <div slot="headline">全部错误次数</div>
-              </md-select-option>
-              <md-select-option value="1">
-                <div slot="headline">错 1 次</div>
-              </md-select-option>
-              <md-select-option value="2">
-                <div slot="headline">错 2 次</div>
-              </md-select-option>
-              <md-select-option value="3plus">
-                <div slot="headline">错 3 次及以上</div>
-              </md-select-option>
-            </md-filled-select>
-            <div className="cluster">
-              <md-filter-chip selected={wrongBookView === "words"} onClick={() => setWrongBookView("words")}>
-                单词
-              </md-filter-chip>
-              <md-filter-chip selected={wrongBookView === "batches"} onClick={() => setWrongBookView("batches")}>
-                批次
-              </md-filter-chip>
+                {wrongBookSources.map((source) => (
+                  <md-select-option key={source} value={source}>
+                    <div slot="headline">{source}</div>
+                  </md-select-option>
+                ))}
+              </md-filled-select>
+              <div className="filter-section" aria-label="错误次数筛选">
+                <span className="filter-label">错误次数</span>
+                <div className="button-group" role="radiogroup" aria-label="错误次数">
+                  {wrongBookLevelOptions.map((option) => (
+                    <button
+                      className="button-group__item"
+                      type="button"
+                      role="radio"
+                      aria-checked={wrongBookLevel === option.value}
+                      data-selected={wrongBookLevel === option.value}
+                      key={option.value}
+                      onClick={() => setWrongBookLevel(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="filter-section" aria-label="视图筛选">
+                <span className="filter-label">视图</span>
+                <div className="chip-scroll">
+                  <md-filter-chip selected={wrongBookView === "words"} onClick={() => setWrongBookView("words")}>
+                    单词
+                  </md-filter-chip>
+                  <md-filter-chip selected={wrongBookView === "batches"} onClick={() => setWrongBookView("batches")}>
+                    批次
+                  </md-filter-chip>
+                </div>
+              </div>
             </div>
           </div>
           <div className="stack">
@@ -483,9 +537,10 @@ export function VocabClient() {
                   <article className="md-card md-card--flat spread" key={record.id}>
                     <div>
                       <h3 className="card-title">{record.word}</h3>
-                      <p className="helper-text">
-                        来源 {record.sourceTitle ?? record.sourceName} · 错 {record.wrongCount} 次
-                      </p>
+                      <div className="record-chip-row" aria-label={`${record.word} 错题信息`}>
+                        <span className="info-chip">来源：{record.sourceTitle ?? record.sourceName}</span>
+                        <span className="info-chip info-chip--strong">错 {record.wrongCount} 次</span>
+                      </div>
                     </div>
                     <md-outlined-button onClick={() => void deleteWrongRecord(record.id).then(refreshWrongBook)} aria-label={`删除 ${record.word}`}>
                       删除
@@ -513,9 +568,15 @@ export function VocabClient() {
             <p className="helper-text">提供拉取云端、上传覆盖、合并上传三种显式操作，默认不自动覆盖本地数据。</p>
           </div>
           <div className="cluster">
-            <md-outlined-button onClick={() => void pullCloud()}>拉取云端</md-outlined-button>
-            <md-outlined-button onClick={() => void overwriteCloud()}>上传覆盖</md-outlined-button>
-            <md-filled-button onClick={() => void mergeCloud()}>合并上传</md-filled-button>
+            <md-outlined-button disabled={!online} onClick={() => void pullCloud()}>
+              拉取云端
+            </md-outlined-button>
+            <md-outlined-button disabled={!online} onClick={() => void overwriteCloud()}>
+              上传覆盖
+            </md-outlined-button>
+            <md-filled-button disabled={!online} onClick={() => void mergeCloud()}>
+              合并上传
+            </md-filled-button>
           </div>
         </section>
         <StatusAlert message={message} />
@@ -528,10 +589,17 @@ export function VocabClient() {
       <section className="md-card spread" aria-label="选择单词列表">
         <div>
           <h2 className="section-title">选择单词列表</h2>
-          <p className="helper-text">选择一个或多个单元，也可以上传自定义 JSON 词表。</p>
+          <p className="helper-text">
+            选择一个或多个单元，也可以上传自定义 JSON 词表。
+            {selectedMetas.length === 0 ? " 选择 Unit 后可以缓存离线词表。" : ` 已选 ${selectedMetas.length} 个 Unit · 已缓存 ${cachedUnitCount} · 未缓存 ${missingUnitCount}`}
+          </p>
         </div>
         <div className="cluster">
-          <md-outlined-button disabled={wrongRecords.length === 0} onClick={() => void createPrintableWrongBook()}>
+          <span className={online ? "badge badge--neutral" : "badge badge--error"}>{online ? "在线" : "离线"}</span>
+          <md-outlined-button disabled={!online || cacheBusy || selectedMetas.length === 0} onClick={() => void cacheSelectedUnits()}>
+            {cacheBusy ? "正在缓存" : "缓存已选 Unit"}
+          </md-outlined-button>
+          <md-outlined-button disabled={selectedMetas.length === 0 && selectedCustomLists.length === 0} onClick={() => void preparePrintableVocabulary()}>
             创建打印版
           </md-outlined-button>
           <md-outlined-button onClick={() => setScreen("wrongbook")}>打开错题本</md-outlined-button>
@@ -590,7 +658,7 @@ export function VocabClient() {
                         key={item.name}
                         type="button"
                         aria-label={`${hiddenCustomSelectionText}，打开更多自定义词表`}
-                        onClick={() => setCustomListDialogOpen(true)}
+                        onClick={openCustomListDialog}
                       >
                         <span className="more-chip__icon" aria-hidden="true">
                           {hiddenCustomSelectionIcon}
@@ -658,7 +726,7 @@ export function VocabClient() {
         <div slot="headline">正在准备测试</div>
         <div slot="content">正在加载词表，请稍候。</div>
       </md-dialog>
-      <md-dialog open={customListDialogOpen} onClosed={() => setCustomListDialogOpen(false)}>
+      <md-dialog key={customListDialogKey} open={customListDialogOpen} onClosed={closeCustomListDialog} onClose={closeCustomListDialog} onCancel={closeCustomListDialog}>
         <div slot="headline">自定义词表</div>
         <div slot="content" className="custom-list-dialog">
           {uploadedLists.map((item) => (
@@ -672,7 +740,7 @@ export function VocabClient() {
           ))}
         </div>
         <div slot="actions">
-          <md-text-button onClick={() => setCustomListDialogOpen(false)}>完成</md-text-button>
+          <md-text-button onClick={closeCustomListDialog}>完成</md-text-button>
         </div>
       </md-dialog>
     </div>

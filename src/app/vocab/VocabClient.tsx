@@ -13,6 +13,7 @@ import {
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
+import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
 import type { WrongBookSnapshot, VocabWord } from "@/lib/types";
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
@@ -26,6 +27,7 @@ type TestMode = "all" | "custom";
 type Screen = "select" | "testing" | "result" | "wrongbook";
 type WrongBookView = "words" | "batches";
 type WrongBookLevel = "all" | "1" | "2" | "3plus";
+type CloudAction = "pull" | "overwrite" | "merge";
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
@@ -35,6 +37,18 @@ const wrongBookLevelOptions: Array<{ value: WrongBookLevel; label: string }> = [
   { value: "2", label: "错 2 次" },
   { value: "3plus", label: "错 3+ 次" }
 ];
+
+const cloudActionIcon: Record<CloudAction, string> = {
+  pull: "cloud_download",
+  overwrite: "cloud_upload",
+  merge: "cloud_sync"
+};
+
+const cloudActionLabel: Record<CloudAction, string> = {
+  pull: "正在拉取云端错题本",
+  overwrite: "正在上传覆盖云端",
+  merge: "正在合并上传"
+};
 
 function nowStamp() {
   return new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
@@ -93,6 +107,7 @@ export function VocabClient() {
   const [wrongBookView, setWrongBookView] = useState<WrongBookView>("words");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cloudAction, setCloudAction] = useState<CloudAction | null>(null);
   const [cacheBusy, setCacheBusy] = useState(false);
   const [vocabCacheStates, setVocabCacheStates] = useState<Record<string, VocabCacheState>>({});
   const [customListDialogOpen, setCustomListDialogOpen] = useState(false);
@@ -318,31 +333,40 @@ export function VocabClient() {
   }
 
   async function pullCloud() {
+    setCloudAction("pull");
     try {
       await pullAndMergeWrongBook();
       await refreshWrongBook();
       setMessage("已拉取云端错题本并合并到本地。");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "需要登录后才能拉取云端错题本。");
+    } finally {
+      setCloudAction(null);
     }
   }
 
   async function overwriteCloud() {
+    setCloudAction("overwrite");
     try {
       await overwriteCloudWrongBook();
       setMessage("已用本地错题本上传覆盖云端。");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "需要登录后才能上传错题本。");
+    } finally {
+      setCloudAction(null);
     }
   }
 
   async function mergeCloud() {
+    setCloudAction("merge");
     try {
       await mergeUploadWrongBook();
       await refreshWrongBook();
       setMessage("已完成本地与云端合并上传。");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "需要登录后才能合并上传错题本。");
+    } finally {
+      setCloudAction(null);
     }
   }
 
@@ -469,7 +493,7 @@ export function VocabClient() {
         <section className="md-card spread" aria-label="错题本说明">
           <div>
             <h2 className="section-title">错题本</h2>
-            <p className="helper-text">本地 IndexedDB 保存，登录后可以与 R2 中的云端错题本同步。</p>
+            <p className="helper-text">错题本优先保存在本机。登录或配置自定义同步源后，可以手动拉取、上传或合并云端数据。</p>
           </div>
           <div className="cluster">
             <md-outlined-button onClick={() => setScreen("select")}>返回测试</md-outlined-button>
@@ -566,17 +590,15 @@ export function VocabClient() {
           <div>
             <h2 className="section-title">云端同步</h2>
             <p className="helper-text">提供拉取云端、上传覆盖、合并上传三种显式操作，默认不自动覆盖本地数据。</p>
+            <span className="sync-status-chip" data-status={!online ? "offline" : cloudAction ? "syncing" : "ready"}>
+              <MaterialIcon name={!online ? "cloud_off" : cloudAction ? cloudActionIcon[cloudAction] : "cloud_sync"} />
+              <span>{!online ? "当前离线，云端同步不可用" : cloudAction ? cloudActionLabel[cloudAction] : "云端同步可用"}</span>
+            </span>
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={!online} onClick={() => void pullCloud()}>
-              拉取云端
-            </md-outlined-button>
-            <md-outlined-button disabled={!online} onClick={() => void overwriteCloud()}>
-              上传覆盖
-            </md-outlined-button>
-            <md-filled-button disabled={!online} onClick={() => void mergeCloud()}>
-              合并上传
-            </md-filled-button>
+            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void pullCloud()}>拉取云端</md-outlined-button>
+            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void overwriteCloud()}>上传覆盖</md-outlined-button>
+            <md-filled-button disabled={!online || Boolean(cloudAction)} onClick={() => void mergeCloud()}>合并上传</md-filled-button>
           </div>
         </section>
         <StatusAlert message={message} />

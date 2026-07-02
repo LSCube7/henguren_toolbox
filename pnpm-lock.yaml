@@ -11,7 +11,7 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.705.0
         version: 3.1075.0
-      '@fontsource/material-symbols-rounded':
+      '@fontsource-variable/material-symbols-rounded':
         specifier: ^5.2.45
         version: 5.2.45
       '@material/material-color-utilities':
@@ -277,8 +277,8 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@fontsource/material-symbols-rounded@5.2.45':
-    resolution: {integrity: sha512-CXFb9F55qZQMypJYUmHYVdd1BtnLiMDGGWFz5iVaYB5VcDBJTaRJWxvmVWMvdH2LMgm+dUcAEy6Qqb/L0SbXYg==}
+  '@fontsource-variable/material-symbols-rounded@5.2.45':
+    resolution: {integrity: sha512-CBHbmWtViOI0Qo2+rloF1lTfNEfpW/3JCykh1i3XIJ1xQUY/JCMdf72N9Za4LVuEDJDl7FL3XbSWuMJSyPXRkQ==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2373,7 +2373,7 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@fontsource/material-symbols-rounded@5.2.45': {}
+  '@fontsource-variable/material-symbols-rounded@5.2.45': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

@@ -1,11 +1,15 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { PageHeader } from "../components/PageHeader";
 
-export default function LicensePage() {
+export default async function LicensePage() {
+  const license = await readFile(join(process.cwd(), "LICENSE"), "utf8");
+
   return (
     <div className="stack">
-      <PageHeader current="项目许可" title="MIT License" description="Henguren Toolbox continues to be released under the MIT License." />
+      <PageHeader current="项目许可" title="MIT License" description="恨古人工具箱按 MIT License 开源发布，完整许可文本如下。" />
       <section className="md-card">
-        <p className="helper-text">Full license text remains available in the repository root.</p>
+        <pre className="license-text">{license}</pre>
       </section>
     </div>
   );

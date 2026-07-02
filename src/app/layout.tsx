@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { AppShell } from "./components/AppShell";
 import { ServiceWorkerRegister } from "./components/ServiceWorkerRegister";
 import { AppThemeProvider } from "./theme/AppThemeProvider";
-import "@fontsource/material-symbols-rounded";
+import "@fontsource-variable/material-symbols-rounded/full.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "恨古人工具箱 v3",
-  description: "面向语文与英语学习的 Henguren Toolbox v3。",
+  title: "恨古人工具箱",
+  description: "面向语文与英语学习的轻量工具箱。",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

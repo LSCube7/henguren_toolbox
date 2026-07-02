@@ -6,6 +6,7 @@ import type { Route } from "next";
 import type { UserSession } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { MaterialIcon } from "./MaterialIcon";
+import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
 import { readWrongBookSyncSummary, type SyncStatus, type WrongBookSyncSummary } from "@/lib/client-sync";
 
@@ -36,7 +37,7 @@ const syncStatusIcon: Record<SyncStatus, string> = {
   "signed-out": "cloud_off",
   offline: "cloud_off",
   ready: "cloud_sync",
-  syncing: "sync",
+  syncing: "cloud_upload",
   synced: "cloud_done",
   error: "cloud_alert"
 };
@@ -115,6 +116,17 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const selectedTools = toolItems.filter((item) => item.edition === edition);
   const syncStatus = syncSummary?.status ?? (user ? "ready" : "signed-out");
   const syncTitle = syncSummary?.message ?? syncStatusLabel[syncStatus];
+  const userTitle = user ? `${user.name}${user.email ? ` · ${user.email}` : ""}` : "未登录";
+
+  function renderNavIcon(icon: string) {
+    return (
+      <span className="app-nav__icon-state" aria-hidden="true">
+        <span className="app-nav__icon">
+          <MaterialIcon name={icon} />
+        </span>
+      </span>
+    );
+  }
 
   return (
     <div className="app-drawer__panel">
@@ -125,9 +137,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           aria-current={pathname === overviewItem.href ? "page" : undefined}
           onClick={onNavigate}
         >
-          <span className="app-nav__icon" aria-hidden="true">
-            <MaterialIcon name={overviewItem.icon} />
-          </span>
+          {renderNavIcon(overviewItem.icon)}
           <span className="app-nav__label">{overviewItem.label}</span>
         </Link>
         <div className="app-nav__group">
@@ -142,9 +152,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                 key={item.href}
                 onClick={onNavigate}
               >
-                <span className="app-nav__icon" aria-hidden="true">
-                  <MaterialIcon name={item.icon} />
-                </span>
+                {renderNavIcon(item.icon)}
                 <span className="app-nav__label">{item.label}</span>
               </Link>
             );
@@ -173,15 +181,15 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           className="user-nav-card"
           aria-current={pathname.startsWith("/user") ? "page" : undefined}
           aria-label={user ? `用户与同步：${user.name}` : "未登录"}
-          title={user ? `${user.name}${user.email ? ` · ${user.email}` : ""}` : "未登录"}
+          title={userTitle}
           onClick={onNavigate}
         >
           {user?.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
           ) : (
-            <span className="user-nav-avatar user-nav-avatar--fallback" aria-hidden="true">
-              {user?.name?.[0] ?? "未"}
+            <span className="user-nav-icon" aria-hidden="true">
+              <MaterialIcon name={user ? "account_circle" : "person"} />
             </span>
           )}
         </Link>
@@ -213,7 +221,7 @@ function AppFooter() {
           </span>
           <div className="stack">
             <div>
-              <p className="app-footer__eyebrow">Henguren Toolbox v3 alpha</p>
+              <p className="app-footer__eyebrow">Henguren Toolbox v3.0.0</p>
               <h2 className="app-footer__title">恨古人工具箱</h2>
             </div>
             <p className="app-footer__description">面向语文与英语学习的轻量工具箱。</p>
@@ -246,6 +254,16 @@ function AppFooter() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname === "/onboarding") {
+    return (
+      <main className="onboarding-route-main">
+        {children}
+        <OnboardingGate />
+      </main>
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -260,6 +278,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="app-content">{children}</div>
         <AppFooter />
       </main>
+      <OnboardingGate />
     </div>
   );
 }

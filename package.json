@@ -1,6 +1,6 @@
 {
   "name": "henguren-toolbox-v3",
-  "version": "3.0.0-alpha.0",
+  "version": "3.0.0",
   "private": true,
   "packageManager": "pnpm@10.8.0",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
-    "@fontsource/material-symbols-rounded": "^5.2.45",
+    "@fontsource-variable/material-symbols-rounded": "^5.2.45",
     "@material/material-color-utilities": "^0.3.0",
     "@material/web": "^2.4.0",
     "client-only": "^0.0.1",

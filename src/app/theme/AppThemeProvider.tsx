@@ -57,10 +57,10 @@ function getStoredTheme(): StoredTheme {
 
 function resolveMode(mode: StoredTheme["colorMode"]) {
   if (typeof window === "undefined") return "light";
-  if (mode === "system") {
+  if (!mode || mode === "system") {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
-  return mode ?? "light";
+  return mode;
 }
 
 function roleToCssName(role: string) {

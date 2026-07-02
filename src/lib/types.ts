@@ -33,6 +33,7 @@ export type ToolboxSettings = {
   themePreset?: string;
   themeSeedColor?: string;
   colorMode?: "light" | "dark" | "system";
+  developerMode?: boolean;
   showHint: boolean;
   enableSlipDetection: boolean;
   defaultTestCount: number;
@@ -60,6 +61,8 @@ export const defaultSettings: ToolboxSettings = {
   schemaVersion: 1,
   theme: "classic",
   themePreset: "default-blue",
+  colorMode: "system",
+  developerMode: false,
   showHint: true,
   enableSlipDetection: false,
   defaultTestCount: 20,

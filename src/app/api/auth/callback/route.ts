@@ -39,11 +39,23 @@ function redirectWithClearedOAuthCookies(url: URL, reason?: string) {
   const response = NextResponse.redirect(url);
   response.cookies.delete("henguren_oauth_state");
   response.cookies.delete("henguren_oauth_code_verifier");
+  response.cookies.delete("henguren_oauth_return_to");
   return response;
 }
 
+function safeReturnTo(value: string | undefined) {
+  if (!value) return "/user";
+  try {
+    const decoded = decodeURIComponent(value);
+    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/api/")) return "/user";
+    return decoded;
+  } catch {
+    return "/user";
+  }
+}
+
 function getClientAuthMethod(clientSecret?: string): ClientAuthMethod {
-  const method = process.env.LSCUBE_OAUTH_CLIENT_AUTH_METHOD;
+  const method = process.env.OAUTH_CLIENT_AUTH_METHOD;
   if (method === "none" || method === "basic" || method === "post") return method;
   return clientSecret ? "post" : "none";
 }
@@ -72,25 +84,27 @@ export async function GET(request: Request) {
   const state = url.searchParams.get("state");
   const cookieState = readCookie(request, "henguren_oauth_state");
   const codeVerifier = readCookie(request, "henguren_oauth_code_verifier");
+  const returnTo = safeReturnTo(readCookie(request, "henguren_oauth_return_to"));
+  const redirectTarget = () => new URL(returnTo, request.url);
 
   if (!code || !state) {
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), "missing_code_state");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "missing_code_state");
   }
   if (!cookieState || !codeVerifier) {
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), "missing_oauth_cookie");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "missing_oauth_cookie");
   }
   if (state !== cookieState) {
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), "state_mismatch");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "state_mismatch");
   }
 
-  const tokenUrl = process.env.LSCUBE_OAUTH_TOKEN_URL;
-  const userInfoUrl = process.env.LSCUBE_OAUTH_USERINFO_URL;
-  const clientId = process.env.LSCUBE_OAUTH_CLIENT_ID;
-  const clientSecret = process.env.LSCUBE_OAUTH_CLIENT_SECRET;
-  const redirectUri = process.env.LSCUBE_OAUTH_REDIRECT_URI || new URL("/api/auth/callback", request.url).toString();
+  const tokenUrl = process.env.OAUTH_TOKEN_URL;
+  const userInfoUrl = process.env.OAUTH_USERINFO_URL;
+  const clientId = process.env.OAUTH_CLIENT_ID;
+  const clientSecret = process.env.OAUTH_CLIENT_SECRET;
+  const redirectUri = process.env.OAUTH_REDIRECT_URI || new URL("/api/auth/callback", request.url).toString();
 
   if (!tokenUrl || !userInfoUrl || !clientId) {
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), "unconfigured");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "unconfigured");
   }
 
   const clientAuthMethod = getClientAuthMethod(clientSecret);
@@ -123,13 +137,13 @@ export async function GET(request: Request) {
       body,
       clientAuthMethod
     });
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), classifyTokenError(body));
+    return redirectWithClearedOAuthCookies(redirectTarget(), classifyTokenError(body));
   }
 
   const token = (await tokenResponse.json()) as TokenResponse;
   if (!token.access_token) {
     console.error("OAuth token response did not include access_token");
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), "token_no_access_token");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "token_no_access_token");
   }
 
   const userResponse = await fetch(userInfoUrl, {
@@ -142,17 +156,17 @@ export async function GET(request: Request) {
       statusText: userResponse.statusText,
       body: await readSafeErrorBody(userResponse)
     });
-    return redirectWithClearedOAuthCookies(new URL("/user", request.url), "userinfo_http");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "userinfo_http");
   }
 
   const profile = (await userResponse.json()) as UserInfoResponse;
   const user: UserSession = {
     id: profile.sub || profile.id || "unknown",
-    name: profile.name || profile.nickname || "LSCube User",
+    name: profile.name || profile.nickname || "LSCube OAuth 用户",
     email: profile.email,
     avatarUrl: profile.picture || profile.avatar_url || profile.avatarUrl || profile.avatar
   };
 
   await setSessionCookie(user);
-  return redirectWithClearedOAuthCookies(new URL("/user", request.url), "ok");
+  return redirectWithClearedOAuthCookies(redirectTarget(), "ok");
 }

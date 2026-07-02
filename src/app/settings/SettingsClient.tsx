@@ -1,12 +1,24 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { SettingsSection } from "../components/SettingsSection";
 import { StatusAlert } from "../components/StatusAlert";
-import { customThemePresetId, defaultThemeSeed, inferThemePreset, isValidHexColor, normalizeHexColor, prideThemeFlags, themePresets } from "@/lib/theme-presets";
+import { ThemePicker } from "../components/ThemePicker";
 import { defaultSettings, type ToolboxSettings } from "@/lib/types";
-import { CorePalette, Hct, argbFromHex, hexFromArgb } from "@material/material-color-utilities";
-import { useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { useEdition, writeEdition } from "@/lib/edition";
+import { restartOnboarding } from "@/lib/onboarding";
+import {
+  clearDeveloperSyncSource,
+  isDeveloperSyncSourceReady,
+  readDeveloperSyncSource,
+  readDeveloperSyncSourceDraft,
+  testDeveloperSyncSource,
+  writeDeveloperSettings,
+  writeDeveloperSyncSource,
+  type DeveloperSyncSource
+} from "@/lib/developer-sync-source";
 
 const key = "henguren-v3-settings";
 
@@ -24,81 +36,12 @@ function checkedFrom(event: React.FormEvent<HTMLElement>) {
   return Boolean((event.currentTarget as HTMLElement & { checked?: boolean }).checked);
 }
 
-function readInitialPrideFlag() {
-  const savedPreset = inferThemePreset(readSettings().themeSeedColor);
-  return themePresets.find((preset) => preset.id === savedPreset && preset.group === "pride")?.prideFlag ?? prideThemeFlags[0].id;
-}
-
-function hctFromHex(hex: string) {
-  return Hct.fromInt(argbFromHex(hex));
-}
-
-function hctToHex(hue: number, chroma: number, tone: number) {
-  return hexFromArgb(Hct.from(hue, chroma, tone).toInt());
-}
-
-function rgbFromHex(hex: string) {
-  const normalized = normalizeHexColor(hex);
-  if (!isValidHexColor(normalized)) return { r: 0, g: 0, b: 0 };
-  return {
-    r: Number.parseInt(normalized.slice(1, 3), 16),
-    g: Number.parseInt(normalized.slice(3, 5), 16),
-    b: Number.parseInt(normalized.slice(5, 7), 16)
-  };
-}
-
-function rgbToHex(rgb: { r: number; g: number; b: number }) {
-  return `#${[rgb.r, rgb.g, rgb.b].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, "0")).join("")}`;
-}
-
-function hctStateFromHex(hex: string) {
-  const hct = hctFromHex(hex);
-  return {
-    hex,
-    hue: Math.round(hct.hue),
-    chroma: Math.round(hct.chroma),
-    tone: Math.round(hct.tone)
-  };
-}
-
-function hctSliderGradients(hex: string) {
-  const safeHex = isValidHexColor(hex) ? hex : defaultThemeSeed;
-  const palette = CorePalette.of(argbFromHex(safeHex));
-  const tones = Array.from({ length: 101 }, (_, tone) => {
-    const { r, g, b } = rgbFromHex(hexFromArgb(palette.a1.tone(tone)));
-    return `rgb(${r}, ${g}, ${b}) ${tone}%`;
-  });
-  const chromaRgb = rgbFromHex(hexFromArgb(palette.a1.tone(50)));
-  return {
-    hue:
-      "linear-gradient(to right, rgb(231, 0, 125) 0%, rgb(216, 66, 0) 10%, rgb(165, 106, 0) 20%, rgb(127, 122, 0) 30%, rgb(0, 139, 24) 40%, rgb(0, 134, 115) 50%, rgb(0, 131, 152) 60%, rgb(0, 123, 200) 70%, rgb(105, 95, 255) 80%, rgb(196, 0, 246) 90%, rgb(230, 0, 128) 99.7222%)",
-    chroma: `linear-gradient(to right, rgb(119, 119, 119) 0%, rgb(${chromaRgb.r}, ${chromaRgb.g}, ${chromaRgb.b}) 70%)`,
-    tone: `linear-gradient(to right, ${tones.join(",")})`
-  };
-}
-
 export function SettingsClient() {
+  const router = useRouter();
   const [settings, setSettings] = useState<ToolboxSettings>(() => readSettings());
+  const [developerSource, setDeveloperSource] = useState<DeveloperSyncSource>(() => readDeveloperSyncSourceDraft());
   const edition = useEdition();
   const [message, setMessage] = useState("");
-  const [prideOpen, setPrideOpen] = useState(false);
-  const [selectedPrideFlag, setSelectedPrideFlag] = useState(readInitialPrideFlag);
-  const [customDialogOpen, setCustomDialogOpen] = useState(false);
-  const [customDialogKey, setCustomDialogKey] = useState(0);
-  const customDialogAppliedRef = useRef(false);
-  const prideSegmentsRef = useRef<HTMLDivElement>(null);
-  const [customDraftColor, setCustomDraftColor] = useState(() => {
-    const seed = readSettings().themeSeedColor ?? defaultThemeSeed;
-    return hctStateFromHex(isValidHexColor(seed) ? seed : defaultThemeSeed);
-  });
-  const currentSeed = settings.themeSeedColor ?? defaultThemeSeed;
-  const activePreset = settings.themePreset ?? inferThemePreset(settings.themeSeedColor);
-  const standardPresets = themePresets.filter((preset) => preset.group === "standard");
-  const pridePresets = themePresets.filter((preset) => preset.group === "pride" && preset.prideFlag === selectedPrideFlag);
-  const customColorValue = isValidHexColor(currentSeed) ? currentSeed : defaultThemeSeed;
-  const customDraftRgb = rgbFromHex(customDraftColor.hex);
-  const customDraftHexIsInvalid = Boolean(customDraftColor.hex && !isValidHexColor(normalizeHexColor(customDraftColor.hex)));
-  const hctGradients = useMemo(() => hctSliderGradients(customDraftColor.hex), [customDraftColor.hex]);
 
   function update(next: Partial<ToolboxSettings>) {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };
@@ -108,6 +51,16 @@ export function SettingsClient() {
   }
 
   async function syncSettings() {
+    const developerSourceValue = readDeveloperSyncSource();
+    if (developerSourceValue) {
+      await writeDeveloperSettings(developerSourceValue, {
+        ...settings,
+        schemaVersion: 1,
+        updatedAt: new Date().toISOString()
+      });
+      setMessage("设置已同步到自定义同步源。");
+      return;
+    }
     const response = await fetch("/api/settings", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -116,93 +69,30 @@ export function SettingsClient() {
     setMessage(response.ok ? "设置已同步到云端。" : "需要登录后才能同步设置。");
   }
 
-  function selectPreset(presetId: string, seedColor: string) {
-    update({ themePreset: presetId, themeSeedColor: seedColor });
+  function updateDeveloperSource(next: Partial<DeveloperSyncSource>) {
+    const value = { ...developerSource, ...next, type: "r2" as const, updatedAt: new Date().toISOString() };
+    setDeveloperSource(value);
+    writeDeveloperSyncSource(value);
   }
 
-  function updateCustomColor(value: string) {
-    const normalized = normalizeHexColor(value);
-    update({
-      themePreset: customThemePresetId,
-      themeSeedColor: isValidHexColor(normalized) ? normalized : value
-    });
-  }
-
-  function resetDefaultTheme() {
-    update({ themePreset: themePresets[0].id, themeSeedColor: defaultThemeSeed });
-  }
-
-  function openCustomDialog() {
-    customDialogAppliedRef.current = false;
-    setPrideOpen(false);
-    setCustomDraftColor(hctStateFromHex(customColorValue));
-    setCustomDialogKey((current) => current + 1);
-    setCustomDialogOpen(false);
-    window.setTimeout(() => setCustomDialogOpen(true), 0);
-  }
-
-  function closeCustomDialog(applied = false) {
-    customDialogAppliedRef.current = applied;
-    setCustomDialogOpen(false);
-  }
-
-  function applyCustomColor() {
-    updateCustomColor(customDraftColor.hex);
-    closeCustomDialog(true);
-  }
-
-  function handleCustomDialogClosed() {
-    setCustomDialogOpen(false);
-    restoreSavedThemePreview();
-  }
-
-  function restoreSavedThemePreview() {
-    if (customDialogAppliedRef.current) return;
-    window.dispatchEvent(new Event("henguren-theme-change"));
-  }
-
-  function previewDraftColor(hex: string) {
-    const normalized = normalizeHexColor(hex);
-    if (!isValidHexColor(normalized)) return;
-    window.dispatchEvent(
-      new CustomEvent("henguren-theme-preview", {
-        detail: { themePreset: customThemePresetId, themeSeedColor: normalized, colorMode: settings.colorMode }
-      })
-    );
-  }
-
-  function updateDraftHex(value: string) {
-    const normalized = normalizeHexColor(value.startsWith("#") ? value : `#${value}`);
-    if (isValidHexColor(normalized)) {
-      setCustomDraftColor(hctStateFromHex(normalized));
-      previewDraftColor(normalized);
-      return;
+  async function testDeveloperSource() {
+    try {
+      await testDeveloperSyncSource(developerSource);
+      setMessage("自定义同步源连接成功。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "自定义同步源连接失败，请检查 R2 配置和 CORS。");
     }
-    setCustomDraftColor((current) => ({ ...current, hex: value }));
   }
 
-  function updateDraftRgb(channel: "r" | "g" | "b", value: string) {
-    const parsed = Number(value);
-    const nextRgb = { ...customDraftRgb, [channel]: Number.isFinite(parsed) ? Math.max(0, Math.min(255, parsed)) : 0 };
-    const hex = rgbToHex(nextRgb);
-    setCustomDraftColor(hctStateFromHex(hex));
-    previewDraftColor(hex);
+  function clearDeveloperSource() {
+    clearDeveloperSyncSource();
+    setDeveloperSource(readDeveloperSyncSourceDraft());
+    setMessage("已清除本机保存的自定义同步源配置。");
   }
 
-  function updateDraftHct(next: Partial<Pick<typeof customDraftColor, "hue" | "chroma" | "tone">>) {
-    const hue = next.hue ?? customDraftColor.hue;
-    const chroma = next.chroma ?? customDraftColor.chroma;
-    const tone = next.tone ?? customDraftColor.tone;
-    const hex = hctToHex(hue, chroma, tone);
-    setCustomDraftColor({ hex, hue, chroma, tone });
-    previewDraftColor(hex);
-  }
-
-  function scrollPrideFlags(direction: "left" | "right") {
-    prideSegmentsRef.current?.scrollBy({
-      left: direction === "left" ? -220 : 220,
-      behavior: "smooth"
-    });
+  function restartInitialGuide() {
+    restartOnboarding();
+    router.push("/onboarding?returnTo=/settings&restart=1" as Route);
   }
 
   return (
@@ -224,202 +114,25 @@ export function SettingsClient() {
           </md-filled-select>
         }
       />
+      <SettingsSection title="主题外观" description="选择预设主题、Pride Color 或自定义 HCT 颜色；改动会即时应用到当前页面。" control={<ThemePicker settings={settings} onChange={update} />} />
       <SettingsSection
-        title="主题外观"
-        control={
-          <div className="theme-settings">
-            <div className="theme-preset-section">
-              <div className="theme-preset-row">
-                <div className="theme-preset-grid" role="radiogroup" aria-label="主题预设颜色">
-                  {standardPresets.map((preset) => (
-                    <button
-                      className="theme-preset-circle"
-                      style={
-                        {
-                          "--theme-preset-color": preset.seedColor,
-                          "--theme-preset-background": preset.seedColor
-                        } as React.CSSProperties
-                      }
-                      data-selected={activePreset === preset.id}
-                      key={preset.id}
-                      type="button"
-                      role="radio"
-                      aria-label={preset.name}
-                      title={preset.name}
-                      aria-checked={activePreset === preset.id}
-                      onClick={() => selectPreset(preset.id, preset.seedColor)}
-                    />
-                  ))}
-                </div>
-                <div className="theme-preset-actions" aria-label="更多主题选项">
-                  <button className="theme-action-circle" type="button" aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
-                    <span className="material-symbols-rounded" aria-hidden="true">question_mark</span>
-                  </button>
-                  <button className="theme-action-circle" type="button" aria-label="自定义主题色" title="自定义主题色" data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
-                    <span className="material-symbols-rounded" aria-hidden="true">palette</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <section className="theme-preset-popover" id="pride-color-panel" aria-label="Pride Color" data-open={prideOpen} inert={!prideOpen ? true : undefined}>
-                <div className="theme-preset-panel-title">
-                  <span>Pride Color</span>
-                  <button className="theme-panel-close" type="button" aria-label="收起 Pride Color" onClick={() => setPrideOpen(false)}>
-                    <span className="material-symbols-rounded" aria-hidden="true">close</span>
-                  </button>
-                </div>
-                <div className="pride-picker">
-                  <div className="pride-scroll-hint">
-                    <span className="material-symbols-rounded" aria-hidden="true">swipe</span>
-                    <span>横向滚动查看更多旗帜</span>
-                  </div>
-                  <div className="pride-flag-scroll">
-                    <button className="pride-scroll-button" type="button" aria-label="向左查看更多 Pride 旗帜" onClick={() => scrollPrideFlags("left")}>
-                      <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
-                    </button>
-                    <div ref={prideSegmentsRef} className="pride-flag-segments" role="tablist" aria-label="选择 Pride 旗帜">
-                      {prideThemeFlags.map((flag) => (
-                        <button
-                          key={flag.id}
-                          type="button"
-                          role="tab"
-                          aria-selected={selectedPrideFlag === flag.id}
-                          data-selected={selectedPrideFlag === flag.id}
-                          onClick={() => setSelectedPrideFlag(flag.id)}
-                        >
-                          {flag.name}
-                        </button>
-                      ))}
-                    </div>
-                    <button className="pride-scroll-button" type="button" aria-label="向右查看更多 Pride 旗帜" onClick={() => scrollPrideFlags("right")}>
-                      <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
-                    </button>
-                  </div>
-                  <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`}>
-                    {pridePresets.map((preset) => (
-                      <button
-                        className="theme-preset-circle"
-                        style={
-                          {
-                            "--theme-preset-color": preset.seedColor,
-                            "--theme-preset-background": preset.seedColor
-                          } as React.CSSProperties
-                        }
-                        data-selected={activePreset === preset.id}
-                        key={preset.id}
-                        type="button"
-                        role="radio"
-                        aria-label={preset.name}
-                        title={preset.name}
-                        aria-checked={activePreset === preset.id}
-                        onClick={() => selectPreset(preset.id, preset.seedColor)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </section>
-            <div className="custom-theme-row">
-              <span className="custom-color-readout" style={{ "--theme-preset-color": customColorValue } as React.CSSProperties}>
-                {customColorValue.toUpperCase()}
-              </span>
-              <md-outlined-button onClick={resetDefaultTheme}>恢复默认主题</md-outlined-button>
-            </div>
-            <md-dialog key={customDialogKey} class="hct-dialog" open={customDialogOpen} onClosed={handleCustomDialogClosed} onClose={handleCustomDialogClosed} onCancel={handleCustomDialogClosed}>
-              <div slot="headline">HCT 颜色选择</div>
-              <div slot="content" className="hct-color-dialog">
-                <div className="hct-color-preview" style={{ background: customDraftColor.hex }} aria-hidden="true" />
-                <div className="hct-field-grid">
-                  <label className="hex-field" data-error={customDraftHexIsInvalid}>
-                    <span>HEX</span>
-                    <div className="hex-input-shell">
-                      <span aria-hidden="true">#</span>
-                      <input
-                        aria-invalid={customDraftHexIsInvalid}
-                        aria-label="HEX"
-                        value={customDraftColor.hex.replace(/^#/, "")}
-                        maxLength={6}
-                        onInput={(event) => updateDraftHex((event.currentTarget as HTMLInputElement).value)}
-                      />
-                    </div>
-                    {customDraftHexIsInvalid ? <small>请输入 #RRGGBB 格式</small> : null}
-                  </label>
-                  <div className="rgb-field" aria-label="RGB">
-                    <span>RGB</span>
-                    <div className="rgb-inputs">
-                      <input aria-label="Red" inputMode="numeric" maxLength={3} value={customDraftRgb.r} onInput={(event) => updateDraftRgb("r", (event.currentTarget as HTMLInputElement).value)} />
-                      <input aria-label="Green" inputMode="numeric" maxLength={3} value={customDraftRgb.g} onInput={(event) => updateDraftRgb("g", (event.currentTarget as HTMLInputElement).value)} />
-                      <input aria-label="Blue" inputMode="numeric" maxLength={3} value={customDraftRgb.b} onInput={(event) => updateDraftRgb("b", (event.currentTarget as HTMLInputElement).value)} />
-                    </div>
-                  </div>
-                </div>
-                <label className="hct-slider hct-slider--hue" style={{ "--hct-slider-track": hctGradients.hue } as React.CSSProperties}>
-                  <span>Hue</span>
-                  <input className="hct-slider__value" type="number" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
-                  <input className="hct-slider__range" type="range" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
-                </label>
-                <label className="hct-slider hct-slider--chroma" style={{ "--hct-slider-track": hctGradients.chroma } as React.CSSProperties}>
-                  <span>Chroma</span>
-                  <input className="hct-slider__value" type="number" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
-                  <input className="hct-slider__range" type="range" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
-                </label>
-                <label className="hct-slider hct-slider--tone" style={{ "--hct-slider-track": hctGradients.tone } as React.CSSProperties}>
-                  <span>Tone</span>
-                  <input className="hct-slider__value" type="number" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
-                  <input className="hct-slider__range" type="range" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
-                </label>
-              </div>
-              <div slot="actions">
-                <md-text-button onClick={() => closeCustomDialog(false)}>取消</md-text-button>
-                <md-filled-button onClick={applyCustomColor}>应用</md-filled-button>
-              </div>
-            </md-dialog>
-          </div>
-        }
-      />
-      <SettingsSection
-        title="颜色模式"
-        description="选择浅色、深色或跟随系统。"
-        control={
-          <md-filled-select value={settings.colorMode ?? "light"} onInput={(event) => update({ colorMode: valueFrom(event) as ToolboxSettings["colorMode"] })}>
-            <md-select-option value="light">
-              <div slot="headline">浅色</div>
-            </md-select-option>
-            <md-select-option value="dark">
-              <div slot="headline">深色</div>
-            </md-select-option>
-            <md-select-option value="system">
-              <div slot="headline">跟随系统</div>
-            </md-select-option>
-          </md-filled-select>
-        }
-      />
-      <SettingsSection
-        title="Show First-letter Hint"
+        title="首字母提示"
         description="单词测试时显示首字母提示。"
         control={<md-switch selected={settings.showHint} checked={settings.showHint} onInput={(event) => update({ showHint: checkedFrom(event) })} />}
       />
       <SettingsSection
-        title="Slip Detection"
-        description="允许测试器识别轻微手滑并提示复核。"
+        title="手滑复核"
+        description="当答案接近正确拼写时，先提示你复核，而不是直接计入错误。"
         control={<md-switch selected={settings.enableSlipDetection} checked={settings.enableSlipDetection} onInput={(event) => update({ enableSlipDetection: checkedFrom(event) })} />}
       />
       <SettingsSection
-        title="Default Test Count"
+        title="默认测试数量"
         description="新建单词测试时默认抽取的题目数量。"
-        control={
-          <md-outlined-text-field
-            label="题目数量"
-            type="number"
-            min={1}
-            max={200}
-            value={settings.defaultTestCount}
-            onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })}
-          />
-        }
+        control={<md-outlined-text-field label="题目数量" type="number" min={1} max={200} value={settings.defaultTestCount} onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })} />}
       />
       <SettingsSection
-        title="Sync Strategy"
-        description="设置同步策略。自动同步会在登录后优先使用云端状态。"
+        title="同步方式"
+        description="设置后续默认同步偏好。未登录时只保存在本机，登录或配置自定义同步源后再手动同步。"
         control={
           <md-filled-select value={settings.syncStrategy} onInput={(event) => update({ syncStrategy: valueFrom(event) as ToolboxSettings["syncStrategy"] })}>
             <md-select-option value="manual">
@@ -432,10 +145,59 @@ export function SettingsClient() {
         }
       />
       <SettingsSection
-        title="Cloud Settings Sync"
-        description="将当前本地设置上传到 LSCube OAuth 账户绑定的 R2 存储。"
+        title="设置同步"
+        description="将当前本机设置保存到登录账户的云端空间；若启用开发者模式且配置完整，则保存到自定义同步源。"
         control={<md-filled-button onClick={() => void syncSettings()}>同步设置</md-filled-button>}
       />
+      <SettingsSection
+        title="初始向导"
+        description="重新开始首次使用向导，集中设置学习阶段、主题、登录选择和同步策略。"
+        control={<md-outlined-button onClick={restartInitialGuide}>重新开始初始向导</md-outlined-button>}
+      />
+      <section className="settings-group" aria-labelledby="advanced-settings-title">
+        <div className="settings-group__header">
+          <p className="breadcrumb">Settings</p>
+          <h2 className="section-title" id="advanced-settings-title">
+            高级设置
+          </h2>
+          <p className="helper-text">这些选项面向高级用户。普通学习使用不需要开启开发者模式。</p>
+        </div>
+        <SettingsSection
+          title="开发者模式"
+          description="开启后可以配置自定义同步源。配置仍只保存在本机浏览器，不会随设置同步上传。"
+          control={<md-switch selected={Boolean(settings.developerMode)} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
+        />
+        <section className="md-card stack developer-panel" aria-label="自定义同步源">
+          <div>
+            <p className="breadcrumb">Settings / 开发者模式</p>
+            <h2 className="section-title">自定义 R2 同步源</h2>
+            <p className="helper-text">
+              这里会把 R2 访问密钥长期保存在本机浏览器。请只填写你自己的开发或个人同步桶，不要使用公共密钥或共享生产密钥；R2 桶需要允许当前站点的
+              CORS 访问。开发者模式关闭时可以先保存配置，但不会启用这个同步源。
+            </p>
+          </div>
+          <div className="field-grid">
+            <md-outlined-text-field label="Account ID" value={developerSource.accountId} onInput={(event) => updateDeveloperSource({ accountId: valueFrom(event) })} />
+            <md-outlined-text-field label="Bucket Name" value={developerSource.bucketName} onInput={(event) => updateDeveloperSource({ bucketName: valueFrom(event) })} />
+            <md-outlined-text-field label="Access Key ID" value={developerSource.accessKeyId} onInput={(event) => updateDeveloperSource({ accessKeyId: valueFrom(event) })} />
+            <md-outlined-text-field
+              label="Secret Access Key"
+              type="password"
+              value={developerSource.secretAccessKey}
+              onInput={(event) => updateDeveloperSource({ secretAccessKey: valueFrom(event) })}
+            />
+            <md-outlined-text-field label="Key Prefix" value={developerSource.keyPrefix} onInput={(event) => updateDeveloperSource({ keyPrefix: valueFrom(event) })} />
+            <md-outlined-text-field label="Profile ID" value={developerSource.profileId} onInput={(event) => updateDeveloperSource({ profileId: valueFrom(event) })} />
+          </div>
+          <div className="cluster">
+            <span className={settings.developerMode && isDeveloperSyncSourceReady(developerSource) ? "badge" : "badge badge--neutral"}>
+              {!settings.developerMode ? "未启用" : isDeveloperSyncSourceReady(developerSource) ? "配置完整" : "等待完整配置"}
+            </span>
+            <md-outlined-button onClick={() => void testDeveloperSource()}>测试连接</md-outlined-button>
+            <md-outlined-button onClick={clearDeveloperSource}>清除本机配置</md-outlined-button>
+          </div>
+        </section>
+      </section>
       <StatusAlert message={message} />
     </div>
   );

@@ -8,6 +8,7 @@ import { ThemePicker } from "../components/ThemePicker";
 import { defaultSettings, type ToolboxSettings } from "@/lib/types";
 import { useState } from "react";
 import { useEdition, writeEdition } from "@/lib/edition";
+import { clearOfflineCaches } from "@/lib/offline-cache";
 import { restartOnboarding } from "@/lib/onboarding";
 import {
   clearDeveloperSyncSource,
@@ -42,6 +43,7 @@ export function SettingsClient() {
   const [developerSource, setDeveloperSource] = useState<DeveloperSyncSource>(() => readDeveloperSyncSourceDraft());
   const edition = useEdition();
   const [message, setMessage] = useState("");
+  const [clearingOfflineCache, setClearingOfflineCache] = useState(false);
 
   function update(next: Partial<ToolboxSettings>) {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };
@@ -93,6 +95,18 @@ export function SettingsClient() {
   function restartInitialGuide() {
     restartOnboarding();
     router.push("/onboarding?returnTo=/settings&restart=1" as Route);
+  }
+
+  async function clearOfflineData() {
+    setClearingOfflineCache(true);
+    try {
+      const result = await clearOfflineCaches();
+      setMessage(result.deleted > 0 ? `已清除 ${result.deleted} 组离线缓存。下次打开会重新获取最新内容。` : "当前没有可清除的离线缓存。");
+    } catch {
+      setMessage("离线缓存清除失败，请稍后重试，或在浏览器设置中清除本站点数据。");
+    } finally {
+      setClearingOfflineCache(false);
+    }
   }
 
   return (
@@ -153,6 +167,15 @@ export function SettingsClient() {
         title="初始向导"
         description="重新开始首次使用向导，集中设置学习阶段、主题、登录选择和同步策略。"
         control={<md-outlined-button onClick={restartInitialGuide}>重新开始初始向导</md-outlined-button>}
+      />
+      <SettingsSection
+        title="离线缓存"
+        description="清除本机保存的离线页面和词表缓存。清除后不会删除错题本或设置，联网时会重新获取最新版本。"
+        control={
+          <md-outlined-button disabled={clearingOfflineCache} onClick={() => void clearOfflineData()}>
+            {clearingOfflineCache ? "正在清除…" : "清除离线缓存"}
+          </md-outlined-button>
+        }
       />
       <section className="settings-group" aria-labelledby="advanced-settings-title">
         <div className="settings-group__header">

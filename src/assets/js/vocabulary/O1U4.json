@@ -1,0 +1,354 @@
+{
+  "vocabulary": [
+    {
+      "word": "flavour",
+      "en_definition": ["taste"],
+      "zh_definition": ["味道；口味"]
+    },
+    {
+      "word": "scent",
+      "en_definition": ["the pleasant smell that something has"],
+      "zh_definition": ["香味"]
+    },
+    {
+      "word": "raw",
+      "en_definition": ["not cooked"],
+      "zh_definition": ["生的"]
+    },
+    {
+      "word": "insist",
+      "en_definition": ["to say firmly that something is true"],
+      "zh_definition": ["坚持说"]
+    },
+    {
+      "word": "tongue",
+      "en_definition": ["the soft part in the mouth that moves around, used for tasting, speaking, etc."],
+      "zh_definition": ["舌；舌头"]
+    },
+    {
+      "word": "detect",
+      "en_definition": ["to discover or notice something"],
+      "zh_definition": ["发现；查明"]
+    },
+    {
+      "word": "bitter",
+      "en_definition": ["(of food etc.) having a strong unpleasant taste; not sweet"],
+      "zh_definition": ["（食物等）苦的"]
+    },
+    {
+      "word": "cabbage",
+      "en_definition": ["a kind of vegetable"],
+      "zh_definition": ["卷心菜；洋白菜"]
+    },
+    {
+      "word": "onion",
+      "en_definition": ["a round vegetable with many layers inside each other and a brown, red or white skin"],
+      "zh_definition": ["洋葱"]
+    },
+    {
+      "word": "ripe",
+      "en_definition": ["fully grown and ready to be eaten"],
+      "zh_definition": ["成熟的"]
+    },
+    {
+      "word": "exceptionally",
+      "en_definition": ["used to emphasize how strong or unusual a quality is"],
+      "zh_definition": ["特别；非常"]
+    },
+    {
+      "word": "distinguish",
+      "en_definition": ["to recognize or understand the difference between two or more things or people"],
+      "zh_definition": ["辨别；分清"]
+    },
+    {
+      "word": "salty",
+      "en_definition": ["tasting of or containing salt"],
+      "zh_definition": ["咸的；含盐的"]
+    },
+    {
+      "word": "sour",
+      "en_definition": ["having a taste like that of a lemon"],
+      "zh_definition": ["酸的"]
+    },
+    {
+      "word": "sensitive",
+      "en_definition": ["able to measure very small changes", "able to understand other people and their feelings"],
+      "zh_definition": ["灵敏的", "善解人意的"]
+    },
+    {
+      "word": "bath",
+      "en_definition": ["a large, long container that you put water in and then get into to wash your whole body"],
+      "zh_definition": ["浴缸；浴盆"]
+    },
+    {
+      "word": "pinch",
+      "en_definition": ["to press something tightly between the fingers"],
+      "zh_definition": ["捏"]
+    },
+    {
+      "word": "somewhat",
+      "en_definition": ["to some degree"],
+      "zh_definition": ["有点；有几分"]
+    },
+    {
+      "word": "texture",
+      "en_definition": ["the way food or drink tastes or feels in your mouth"],
+      "zh_definition": ["口感"]
+    },
+    {
+      "word": "creamy",
+      "en_definition": ["thick and smooth like cream, containing cream"],
+      "zh_definition": ["像奶油的；含乳脂的"]
+    },
+    {
+      "word": "unpleasant",
+      "en_definition": ["not pleasant or comfortable"],
+      "zh_definition": ["令人不快的；不舒服的"]
+    },
+    {
+      "word": "perceive",
+      "en_definition": ["to become aware of something"],
+      "zh_definition": ["察觉到；洞察"]
+    },
+    {
+      "word": "appetite",
+      "en_definition": ["physical desire for food"],
+      "zh_definition": ["食欲；胃口"]
+    },
+    {
+      "word": "claim",
+      "en_definition": ["to state that something is true", "a statement that something is true although it has not been proved"],
+      "zh_definition": ["声称；断言；主张", "声明；宣称"]
+    },
+    {
+      "word": "riddle",
+      "en_definition": ["a mysterious situation that you cannot explain"],
+      "zh_definition": ["无法解释的情况"]
+    },
+    {
+      "word": "differ",
+      "en_definition": ["to be different from somebody / something"],
+      "zh_definition": ["有区别；不同于"]
+    },
+    {
+      "word": "dessert",
+      "en_definition": ["sweet food eaten at the end of a meal"],
+      "zh_definition": ["甜点；甜食"]
+    },
+    {
+      "word": "combination",
+      "en_definition": ["two or more things joined or mixed together to form a single unit"],
+      "zh_definition": ["结合体；混合体"]
+    },
+    {
+      "word": "rescue",
+      "en_definition": ["the act of saving somebody / something from a dangerous or difficult situation", "to save someone or something from a dangerous situation"],
+      "zh_definition": ["救援；营救", "营救；解救"]
+    },
+    {
+      "word": "bury",
+      "en_definition": ["to cover something with soil, rocks, etc.", "to place a dead body in a grave"],
+      "zh_definition": ["覆盖", "埋葬；安葬"]
+    },
+    {
+      "word": "injury",
+      "en_definition": ["harm done to a person’s or an animal’s body"],
+      "zh_definition": ["（对身体的）伤害，损伤"]
+    },
+    {
+      "word": "ankle",
+      "en_definition": ["the joint connecting the foot to the leg"],
+      "zh_definition": ["踝；踝关节"]
+    },
+    {
+      "word": "warning",
+      "en_definition": ["a statement or thing that tells somebody that something bad may happen"],
+      "zh_definition": ["警告；警示"]
+    },
+    {
+      "word": "react",
+      "en_definition": ["to behave in a certain way in response to something"],
+      "zh_definition": ["作出反应；回应"]
+    },
+    {
+      "word": "panic",
+      "en_definition": ["to suddenly feel frightened so that you cannot think clearly", "a sudden strong feeling of fear that makes you unable to think clearly or behave sensibly"],
+      "zh_definition": ["惊慌失措", "恐慌"]
+    },
+    {
+      "word": "bark",
+      "en_definition": ["(of dogs and other animals) to cry"],
+      "zh_definition": ["（狗）吠叫"]
+    },
+    {
+      "word": "grateful",
+      "en_definition": ["feeling thankful to somebody"],
+      "zh_definition": ["感激的"]
+    },
+    {
+      "word": "frequency",
+      "en_definition": ["the rate at which something happens or is repeated"],
+      "zh_definition": ["发生率"]
+    },
+    {
+      "word": "radiation",
+      "en_definition": ["powerful and very dangerous rays"],
+      "zh_definition": ["辐射"]
+    },
+    {
+      "word": "elective",
+      "en_definition": ["(of a course or subject) that a student can choose"],
+      "zh_definition": ["选修的"]
+    },
+    {
+      "word": "expand",
+      "en_definition": ["to make something greater in number"],
+      "zh_definition": ["增加"]
+    },
+    {
+      "word": "encounter",
+      "en_definition": ["to experience something, especially something unpleasant or difficult"],
+      "zh_definition": ["遭遇；遇到"]
+    },
+    {
+      "word": "impairment",
+      "en_definition": ["the state that part of your body or brain does not work correctly"],
+      "zh_definition": ["缺陷；障碍"]
+    },
+    {
+      "word": "construct",
+      "en_definition": ["to build or make something such as a road, building or machine"],
+      "zh_definition": ["修建；建造"]
+    },
+    {
+      "word": "facility",
+      "en_definition": ["buildings, services, equipment, etc. that are provided for a particular purpose"],
+      "zh_definition": ["设施；设备"]
+    },
+    {
+      "word": "barrier",
+      "en_definition": ["an object that prevents people from moving forward from one place to another"],
+      "zh_definition": ["障碍物"]
+    },
+    {
+      "word": "challenge",
+      "en_definition": ["a new or difficult task that tests somebody’s ability and skill"],
+      "zh_definition": ["挑战；艰巨任务"]
+    },
+    {
+      "word": "investigate",
+      "en_definition": ["to carefully examine the facts of a situation in order to find out the truth"],
+      "zh_definition": ["调查；侦查"]
+    },
+    {
+      "word": "preference",
+      "en_definition": ["a greater interest in or desire for somebody / something than somebody / something else"],
+      "zh_definition": ["偏爱；喜爱"]
+    },
+    {
+      "word": "principle",
+      "en_definition": ["a law, a rule or a theory that something is based on"],
+      "zh_definition": ["法则；原则"]
+    },
+    {
+      "word": "complaint",
+      "en_definition": ["a statement that somebody makes saying that they are not satisfied"],
+      "zh_definition": ["抱怨"]
+    },
+    {
+      "word": "ringtone",
+      "en_definition": ["the sound made by a telephone, especially a mobile phone, when somebody is calling you"],
+      "zh_definition": ["（尤指移动电话的）铃声"]
+    },
+    {
+      "word": "disturb",
+      "en_definition": ["to interrupt somebody when they are trying to work, sleep, etc."],
+      "zh_definition": ["打扰；干扰"]
+    },
+    {
+      "word": "bother",
+      "en_definition": ["to annoy, worry or upset somebody; to cause somebody trouble or pain"],
+      "zh_definition": ["使（某人）烦恼（或担忧）"]
+    },
+    {
+      "word": "flow",
+      "en_definition": ["the way that words and ideas are linked together in speech or writing"],
+      "zh_definition": ["连贯；流畅"]
+    },
+    {
+      "word": "quantity",
+      "en_definition": ["an amount or a number of something"],
+      "zh_definition": ["数量"]
+    },
+    {
+      "word": "spicy",
+      "en_definition": ["having a strong taste because spices have been used to flavour it"],
+      "zh_definition": ["用香料调味的"]
+    },
+    {
+      "word": "tent",
+      "en_definition": ["a shelter made of cloth and supported by poles"],
+      "zh_definition": ["帐篷"]
+    },
+    {
+      "word": "lamp",
+      "en_definition": ["a device that produces light"],
+      "zh_definition": ["灯"]
+    },
+    {
+      "word": "hike",
+      "en_definition": ["to go for a long walk in the country, especially for pleasure", "a long walk in the country"],
+      "zh_definition": ["去......远足；徒步旅行", "远足；徒步旅行"]
+    },
+    {
+      "word": "incident",
+      "en_definition": ["something that happens, especially something unusual"],
+      "zh_definition": ["发生的事情（尤指不寻常的）"]
+    },
+    {
+      "word": "thunderstorm",
+      "en_definition": ["a storm with thunder and lightning"],
+      "zh_definition": ["雷雨；雷暴"]
+    },
+    {
+      "word": "whisper",
+      "en_definition": ["to speak or say something in a very low voice"],
+      "zh_definition": ["耳语；低语；悄声说"]
+    },
+    {
+      "word": "stare",
+      "en_definition": ["to look at something or somebody for a long time"],
+      "zh_definition": ["盯着看；凝视"]
+    },
+    {
+      "word": "creature",
+      "en_definition": ["anything that is living, such as an animal, a fish, or an insect"],
+      "zh_definition": ["生物；动物"]
+    },
+    {
+      "word": "merciless",
+      "en_definition": ["having or showing no kindness or pity"],
+      "zh_definition": ["残忍的"]
+    },
+    {
+      "word": "switch",
+      "en_definition": ["to turn a light, machine, etc. off / on by pressing a button", "a small device to turn the light on or off"],
+      "zh_definition": ["关 / 开（电灯、机器等）", "开关"]
+    },
+    {
+      "word": "taste bud",
+      "en_definition": ["part of the tongue that enables you to recognize the taste of food and drink"],
+      "zh_definition": ["味蕾"]
+    },
+    {
+      "word": "in conclusion",
+      "en_definition": ["finally"],
+      "zh_definition": ["最后"]
+    },
+    {
+      "word": "nail clippers",
+      "en_definition": ["a small tool to cut the nails on your fingers and toes"],
+      "zh_definition": ["指甲刀；指甲钳"]
+    }
+  ]
+}

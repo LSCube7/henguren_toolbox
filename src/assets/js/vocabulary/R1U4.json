@@ -1,0 +1,289 @@
+{
+	"vocabulary": [
+		{
+			"word": "experiment",
+			"en_definition": ["a scientific test that is done in order to study what happens and to gain new knowledge"],
+			"zh_definition": ["实验；试验"]
+		},
+		{
+			"word": "capable",
+			"en_definition": ["having the ability or qualities necessary for doing something"],
+			"zh_definition": ["有能力的"]
+		},
+		{
+			"word": "survive",
+			"en_definition": ["to continue to live or exist", "to continue to live or exist despite a dangerous event or time"],
+			"zh_definition": ["生存；存活；继续存在", "幸存；幸免于难；艰难度过"]
+		},
+		{
+			"word": "unfortunately",
+			"en_definition": ["sadly"],
+			"zh_definition": ["不幸地；遗憾地；可惜地；可悲地"]
+		},
+		{
+			"word": "labour-saving",
+			"en_definition": ["using less work or effort"],
+			"zh_definition": ["省力的；节省劳力的；降低劳动强度的"]
+		},
+		{
+			"word": "device",
+			"en_definition": ["an object or a piece of equipment"],
+			"zh_definition": ["装置；仪器；器具；设备"]
+		},
+		{
+			"word": "immediately",
+			"en_definition": ["without delay"],
+			"zh_definition": ["立即；马上；即刻"]
+		},
+		{
+			"word": "disappear",
+			"en_definition": ["to become impossible to see"],
+			"zh_definition": ["消失；不见"]
+		},
+		{
+			"word": "regularly",
+			"en_definition": ["at regular intervals or times", "often"],
+			"zh_definition": ["有规律地", "经常"]
+		},
+		{
+			"word": "bomb",
+			"en_definition": ["a weapon designed to explode at a particular time or when it is dropped or thrown"],
+			"zh_definition": ["炸弹"]
+		},
+		{
+			"word": "goods",
+			"en_definition": ["things that are produced to be sold"],
+			"zh_definition": ["商品；货品"]
+		},
+		{
+			"word": "petrol",
+			"en_definition": ["gas for running vehicles like cars"],
+			"zh_definition": ["汽油"]
+		},
+		{
+			"word": "boil",
+			"en_definition": ["to heat something to the point where it forms bubbles and turns to steam or vapour"],
+			"zh_definition": ["（使）沸腾；煮沸；烧开"]
+		},
+		{
+			"word": "aim",
+			"en_definition": ["the purpose of doing something; what somebody is trying to achieve"],
+			"zh_definition": ["目的；目标"]
+		},
+		{
+			"word": "narrow",
+			"en_definition": ["measuring a short distance from one side to the other"],
+			"zh_definition": ["狭窄的；窄小的"]
+		},
+		{
+			"word": "suffer",
+			"en_definition": ["to be badly affected by a disease, pain, sadness, a lack of something, etc."],
+			"zh_definition": ["（因疾病、痛苦、悲伤等）受苦，受难，受折磨"]
+		},
+		{
+			"word": "argue",
+			"en_definition": ["to give reasons why you think that something is right / wrong, true / not true, etc., especially to persuade people that you are right"],
+			"zh_definition": ["论证；说理；争辩"]
+		},
+		{
+			"word": "decrease",
+			"en_definition": ["to become or make something become smaller in size, number, etc."],
+			"zh_definition": ["（使大小、数量等）减少，减小，降低"]
+		},
+		{
+			"word": "apartment",
+			"en_definition": ["(American English) a set of rooms for living in, usually on one floor of a building; flat"],
+			"zh_definition": ["（通常指在同一楼层的）公寓套房"]
+		},
+		{
+			"word": "definitely",
+			"en_definition": ["certainly"],
+			"zh_definition": ["肯定；当然；确实"]
+		},
+		{
+			"word": "stuff",
+			"en_definition": ["a group of things"],
+			"zh_definition": ["东西，物品"]
+		},
+		{
+			"word": "downstairs",
+			"en_definition": ["on a floor of a house or building lower than the one you are on"],
+			"zh_definition": ["楼下的"]
+		},
+		{
+			"word": "piano",
+			"en_definition": ["a large musical instrument played by pressing the black and white keys on the keyboard"],
+			"zh_definition": ["钢琴"]
+		},
+		{
+			"word": "talent",
+			"en_definition": ["a natural ability to do something well"],
+			"zh_definition": ["天才；天资；天赋"]
+		},
+		{
+			"word": "curtain",
+			"en_definition": ["a piece of cloth that is hung to cover a window"],
+			"zh_definition": ["窗帘"]
+		},
+		{
+			"word": "gather",
+			"en_definition": ["to collect information from different sources", "to come together, or bring people together, in one place to form a group"],
+			"zh_definition": ["搜集，收集（情报）", "聚集；集合；召集"]
+		},
+		{
+			"word": "data",
+			"en_definition": ["facts or information"],
+			"zh_definition": ["数据；资料；材料"]
+		},
+		{
+			"word": "download",
+			"en_definition": ["to get data from another computer, usually using the Internet"],
+			"zh_definition": ["下载"]
+		},
+		{
+			"word": "software",
+			"en_definition": ["the programs, etc. used to operate a computer"],
+			"zh_definition": ["软件"]
+		},
+		{
+			"word": "company",
+			"en_definition": ["a business organization that makes money by producing or selling goods or services"],
+			"zh_definition": ["公司；商号；商行"]
+		},
+		{
+			"word": "load",
+			"en_definition": ["to put a large quantity of things or people onto or into something"],
+			"zh_definition": ["（把大量......）装上，装入"]
+		},
+		{
+			"word": "file",
+			"en_definition": ["a collection of information stored together under a particular name"],
+			"zh_definition": ["文件"]
+		},
+		{
+			"word": "percentage",
+			"en_definition": ["the number, amount, rate of something, expressed as if it is part of a total which is 100"],
+			"zh_definition": ["百分率；百分比"]
+		},
+		{
+			"word": "recommend",
+			"en_definition": ["to tell somebody that something is good or useful"],
+			"zh_definition": ["推荐"]
+		},
+		{
+			"word": "prefer",
+			"en_definition": ["to like one thing or person better than another; to choose one thing rather than something else because you like it better"],
+			"zh_definition": ["较喜欢；喜欢......多于......"]
+		},
+		{
+			"word": "responsibility",
+			"en_definition": ["a duty to help or take care of somebody because of your job, position, etc."],
+			"zh_definition": ["职责；义务；任务"]
+		},
+		{
+			"word": "arrange",
+			"en_definition": ["to put something in a particular order"],
+			"zh_definition": ["整理；排列；布置"]
+		},
+		{
+			"word": "poster",
+			"en_definition": ["a large printed notice, picture or photograph, used to advertise something or as a decoration"],
+			"zh_definition": ["海报"]
+		},
+		{
+			"word": "extremely",
+			"en_definition": ["(usually with adjectives and adverbs) to a very high degree"],
+			"zh_definition": ["极其；极端；非常"]
+		},
+		{
+			"word": "slightly",
+			"en_definition": ["a little"],
+			"zh_definition": ["略微；稍微"]
+		},
+		{
+			"word": "technique",
+			"en_definition": ["the skill with which somebody is able to do something special"],
+			"zh_definition": ["技术；技能"]
+		},
+		{
+			"word": "grab",
+			"en_definition": ["to get somebody's attention", "to take or hold somebody / something with your hand suddenly, firmly or roughly"],
+			"zh_definition": ["引人注意；吸引", "抓住；攫取"]
+		},
+		{
+			"word": "brochure",
+			"en_definition": ["a small magazine, book or information leaflet"],
+			"zh_definition": ["资料（或广告）手册"]
+		},
+		{
+			"word": "intended",
+			"en_definition": ["(only before noun) that you are trying to achieve or reach"],
+			"zh_definition": ["意欲达到的；打算的；计划的"]
+		},
+		{
+			"word": "ceiling",
+			"en_definition": ["the top inside surface of a room"],
+			"zh_definition": ["天花板；顶棚"]
+		},
+		{
+			"word": "occasion",
+			"en_definition": ["a special event, ceremony or celebration", "a particular time when something happens"],
+			"zh_definition": ["特别的事情（或仪式、庆典）", "某次；......的时候"]
+		},
+		{
+			"word": "upper-class",
+			"en_definition": ["having the highest social status"],
+			"zh_definition": ["上流社会的"]
+		},
+		{
+			"word": "adult",
+			"en_definition": ["a fully grown person"],
+			"zh_definition": ["成年人"]
+		},
+		{
+			"word": "soul",
+			"en_definition": ["the spiritual part of a person"],
+			"zh_definition": ["灵魂"]
+		},
+		{
+			"word": "time-honoured",
+			"en_definition": ["respected because it has been used or done for a long time"],
+			"zh_definition": ["古老而受到尊重的；历史悠久的；由来已久的"]
+		},
+		{
+			"word": "style",
+			"en_definition": ["the features of a book, painting, building, etc. that make it typical of a particular author, artist, historical period, etc."],
+			"zh_definition": ["风格；体"]
+		},
+		{
+			"word": "hang on",
+			"en_definition": ["(informal) used when you have just noticed that something is wrong or interesting"],
+			"zh_definition": ["等等（好像有什么不对或新的情况出现）"]
+		},
+		{
+			"word": "take cover",
+			"en_definition": ["to find a cover that provides shelter from bad weather or protection from an attack"],
+			"zh_definition": ["躲避；隐蔽"]
+		},
+		{
+			"word": "domestic chore",
+			"en_definition": ["a regular task connected with the home or family"],
+			"zh_definition": ["家务琐事"]
+		},
+		{
+			"word": "to somebody's credit",
+			"en_definition": ["making somebody deserve praise or respect"],
+			"zh_definition": ["使值得赞扬；使受尊重"]
+		},
+		{
+			"word": "science fiction",
+			"en_definition": ["a type of book, film, etc. that is based on imagined scientific discoveries"],
+			"zh_definition": ["科幻小说（或影片等）"]
+		},
+		{
+			"word": "be attractive to",
+			"en_definition": ["to have features or qualities that make somebody want to accept something"],
+			"zh_definition": ["对......有吸引力的"]
+		}
+	]
+}

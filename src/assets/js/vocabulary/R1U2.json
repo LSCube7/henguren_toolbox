@@ -1,0 +1,274 @@
+{
+	"vocabulary": [
+		{
+			"word": "destination",
+			"en_definition": ["a place to which somebody is going"],
+			"zh_definition": ["目的地"]
+		},
+		{
+			"word": "million",
+			"en_definition": ["1,000,000"],
+			"zh_definition": ["一百万"]
+		},
+		{
+			"word": "amazing",
+			"en_definition": ["very surprising"],
+			"zh_definition": ["令人大为惊奇的"]
+		},
+		{
+			"word": "historic",
+			"en_definition": ["important in history"],
+			"zh_definition": ["历史上重要的"]
+		},
+		{
+			"word": "site",
+			"en_definition": ["a place where a building, town, etc. is located"],
+			"zh_definition": ["地点"]
+		},
+		{
+			"word": "former",
+			"en_definition": ["that used to exist"],
+			"zh_definition": ["以前的"]
+		},
+		{
+			"word": "poetry",
+			"en_definition": ["poems in general"],
+			"zh_definition": ["诗歌；诗作"]
+		},
+		{
+			"word": "basis",
+			"en_definition": ["the important facts that support something"],
+			"zh_definition": ["基础；要素"]
+		},
+		{
+			"word": "court",
+			"en_definition": ["the place where kings and queens live"],
+			"zh_definition": ["宫殿"]
+		},
+		{
+			"word": "originally",
+			"en_definition": ["in the beginning, before other things happened"],
+			"zh_definition": ["原先；起初"]
+		},
+		{
+			"word": "defence",
+			"en_definition": ["protection against attack"],
+			"zh_definition": ["防御"]
+		},
+		{
+			"word": "nowadays",
+			"en_definition": ["at the present time"],
+			"zh_definition": ["当前；目前"]
+		},
+		{
+			"word": "view",
+			"en_definition": ["what you can see from a place"],
+			"zh_definition": ["景色，风景"]
+		},
+		{
+			"word": "memory",
+			"en_definition": ["a thought of something that you remember from the past"],
+			"zh_definition": ["回忆；记忆"]
+		},
+		{
+			"word": "contribute",
+			"en_definition": ["to give something to help somebody", "to increase or improve something"],
+			"zh_definition": ["捐献", "增进"]
+		},
+		{
+			"word": "scientific",
+			"en_definition": ["connected with science"],
+			"zh_definition": ["科学（上）的"]
+		},
+		{
+			"word": "admire",
+			"en_definition": ["to respect somebody / something for some reason"],
+			"zh_definition": ["钦佩"]
+		},
+		{
+			"word": "statue",
+			"en_definition": ["a figure of a person or an animal in stone, metal, etc."],
+			"zh_definition": ["雕塑，雕像"]
+		},
+		{
+			"word": "fancy",
+			"en_definition": ["expensive"],
+			"zh_definition": ["昂贵的；奢华的"]
+		},
+		{
+			"word": "feature",
+			"en_definition": ["something important, interesting or typical of a place or thing"],
+			"zh_definition": ["特色；特征；特点"]
+		},
+		{
+			"word": "position",
+			"en_definition": ["level of importance", "the place where somebody / something is located"],
+			"zh_definition": ["地位", "位置；地方"]
+		},
+		{
+			"word": "opportunity",
+			"en_definition": ["a time when a particular situation makes it possible to do or achieve something"],
+			"zh_definition": ["机会；时机"]
+		},
+		{
+			"word": "transport",
+			"en_definition": ["a system for carrying people or goods from one place to another using vehicles, roads, etc."],
+			"zh_definition": ["交通运输系统"]
+		},
+		{
+			"word": "disappoint",
+			"en_definition": ["to make somebody sad because something that they hope for does not happen"],
+			"zh_definition": ["使失望"]
+		},
+		{
+			"word": "structure",
+			"en_definition": ["the way in which the parts of something are connected together"],
+			"zh_definition": ["结构；构造"]
+		},
+		{
+			"word": "sculpture",
+			"en_definition": ["a work of art that is a solid figure or object made by carving or shaping wood, stone, clay, metal, etc."],
+			"zh_definition": ["雕像；雕塑品"]
+		},
+		{
+			"word": "weapon",
+			"en_definition": ["an object used for fighting or attacking somebody"],
+			"zh_definition": ["武器；兵器"]
+		},
+		{
+			"word": "crowded",
+			"en_definition": ["having a lot of people"],
+			"zh_definition": ["人多的；拥挤的"]
+		},
+		{
+			"word": "indicate",
+			"en_definition": ["to show that something is true or exists"],
+			"zh_definition": ["表明；显示"]
+		},
+		{
+			"word": "afterwards",
+			"en_definition": ["at a later time; after an event that has already been mentioned"],
+			"zh_definition": ["以后；后来"]
+		},
+		{
+			"word": "downtown",
+			"en_definition": ["in or towards the centre of a city, especially its main business area"],
+			"zh_definition": ["在市中心，往市中心"]
+		},
+		{
+			"word": "moment",
+			"en_definition": ["a particular point of time"],
+			"zh_definition": ["某一时刻"]
+		},
+		{
+			"word": "envelope",
+			"en_definition": ["a flat paper container used for sending letters in"],
+			"zh_definition": ["信封"]
+		},
+		{
+			"word": "café",
+			"en_definition": ["a place where you can buy drinks and simple meals"],
+			"zh_definition": ["咖啡馆，小餐馆"]
+		},
+		{
+			"word": "vote",
+			"en_definition": ["to show formally which plan or idea you are for or against"],
+			"zh_definition": ["投票"]
+		},
+		{
+			"word": "chat",
+			"en_definition": ["to talk in a friendly informal way to somebody", "a friendly informal conversation"],
+			"zh_definition": ["闲聊；聊天", "闲聊；聊天"]
+		},
+		{
+			"word": "nowhere",
+			"en_definition": ["not in or to any place"],
+			"zh_definition": ["无处；哪里都不"]
+		},
+		{
+			"word": "embarrassed",
+			"en_definition": ["shy or ashamed, especially in a social situation"],
+			"zh_definition": ["窘迫的，尴尬的"]
+		},
+		{
+			"word": "shocked",
+			"en_definition": ["feeling greatly surprised"],
+			"zh_definition": ["震惊的"]
+		},
+		{
+			"word": "opinion",
+			"en_definition": ["your feelings or thoughts about somebody / something, rather than a fact"],
+			"zh_definition": ["意见；想法；看法"]
+		},
+		{
+			"word": "blog",
+			"en_definition": ["a personal record that somebody puts on their website"],
+			"zh_definition": ["博客"]
+		},
+		{
+			"word": "settle",
+			"en_definition": ["to make a place your home"],
+			"zh_definition": ["定居"]
+		},
+		{
+			"word": "adventure",
+			"en_definition": ["an unusual or dangerous experience"],
+			"zh_definition": ["冒险；冒险的经历"]
+		},
+		{
+			"word": "energetic",
+			"en_definition": ["having a lot of energy"],
+			"zh_definition": ["精力充沛的"]
+		},
+		{
+			"word": "origin",
+			"en_definition": ["the point from which something starts"],
+			"zh_definition": ["起源；源头"]
+		},
+		{
+			"word": "desert",
+			"en_definition": ["a large area of dry land covered by sand"],
+			"zh_definition": ["沙漠"]
+		},
+		{
+			"word": "entrance",
+			"en_definition": ["a door, gate, etc. used for entering a place"],
+			"zh_definition": ["入口"]
+		},
+		{
+			"word": "battle",
+			"en_definition": ["a fight between armies"],
+			"zh_definition": ["战役；战斗"]
+		},
+		{
+			"word": "altogether",
+			"en_definition": ["used to give a total number or amount"],
+			"zh_definition": ["总共，一共"]
+		},
+		{
+			"word": "belong to",
+			"en_definition": ["be owned by somebody"],
+			"zh_definition": ["属于某人；归某人所有"]
+		},
+		{
+			"word": "in case",
+			"en_definition": ["because of the possibility of something happening"],
+			"zh_definition": ["以防；以防万一"]
+		},
+		{
+			"word": "in the distance",
+			"en_definition": ["far away but still able to be seen"],
+			"zh_definition": ["在远方"]
+		},
+		{
+			"word": "a variety of",
+			"en_definition": ["different kinds of"],
+			"zh_definition": ["各种各样的"]
+		},
+		{
+			"word": "prime minister",
+			"en_definition": ["the most important minister and leader of the government in some countries"],
+			"zh_definition": ["首相；总理"]
+		}
+	]
+}

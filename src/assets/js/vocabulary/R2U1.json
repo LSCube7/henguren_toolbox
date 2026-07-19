@@ -1,0 +1,274 @@
+{
+	"vocabulary": [
+		{
+			"word": "blame",
+			"en_definition": ["to think or say that somebody / something is responsible for something bad", "responsibility for doing something badly or wrongly"],
+			"zh_definition": ["把......归咎于；指责", "（坏事或错事的）责任；指责"]
+		},
+		{
+			"word": "theme",
+			"en_definition": ["the subject of a talk or a piece of writing, etc."],
+			"zh_definition": ["主题"]
+		},
+		{
+			"word": "factor",
+			"en_definition": ["one of several things that cause or influence something"],
+			"zh_definition": ["因素；要素"]
+		},
+		{
+			"word": "chemical",
+			"en_definition": ["a substance obtained by or used in a chemical process", "connected with chemistry"],
+			"zh_definition": ["化学制品；化学品", "与化学有关的；化学的"]
+		},
+		{
+			"word": "frightening",
+			"en_definition": ["making you feel afraid"],
+			"zh_definition": ["使惊恐的；骇人的"]
+		},
+		{
+			"word": "pressure",
+			"en_definition": ["feelings of anxiety that are caused by the need to achieve something"],
+			"zh_definition": ["心理压力；紧张"]
+		},
+		{
+			"word": "impress",
+			"en_definition": ["to make somebody feel admiration and respect"],
+			"zh_definition": ["使钦佩；给......留下深刻的好印象"]
+		},
+		{
+			"word": "statistic",
+			"en_definition": ["(pl. statistics) a collection of information shown in numbers"],
+			"zh_definition": ["统计数字；统计资料"]
+		},
+		{
+			"word": "seat belt",
+			"en_definition": ["a belt in a car or a plane that you fasten around yourself for safety"],
+			"zh_definition": ["（汽车或飞机上的）安全带"]
+		},
+		{
+			"word": "solution",
+			"en_definition": ["a way of solving a problem or dealing with a difficult situation", "an answer to a puzzle or to a problem in mathematics"],
+			"zh_definition": ["解决办法；处理手段", "答案；解；谜底"]
+		},
+		{
+			"word": "independent",
+			"en_definition": ["not depending on others for help or support"],
+			"zh_definition": ["独立的；自主的"]
+		},
+		{
+			"word": "surfing",
+			"en_definition": ["the sport of riding on waves while standing on a narrow board"],
+			"zh_definition": ["冲浪运动"]
+		},
+		{
+			"word": "adapt",
+			"en_definition": ["to change a book or play so that it can be made into a play, film, television programme, etc.", "to change something in order to make it suitable for a new use or situation"],
+			"zh_definition": ["改编；改写", "使适应，使适合（新用途、新情况）"]
+		},
+		{
+			"word": "section",
+			"en_definition": ["a separate part of a document, book, etc.", "any of the parts into which something is divided"],
+			"zh_definition": ["节；部分", "部分；部门"]
+		},
+		{
+			"word": "reveal",
+			"en_definition": ["to make something known to somebody"],
+			"zh_definition": ["揭示；显示；透露"]
+		},
+		{
+			"word": "author",
+			"en_definition": ["a person who writes books or the person who wrote a particular book"],
+			"zh_definition": ["著者；作者"]
+		},
+		{
+			"word": "responsible",
+			"en_definition": ["having the job or duty of doing something or taking care of somebody / something, so that you may be blamed if something goes wrong", "being able to be blamed for something"],
+			"zh_definition": ["负责；承担义务", "应受责备；有责任"]
+		},
+		{
+			"word": "limited",
+			"en_definition": ["not very great in amount or extent"],
+			"zh_definition": ["有限的"]
+		},
+		{
+			"word": "reliable",
+			"en_definition": ["that is likely to be correct or true"],
+			"zh_definition": ["真实可信的"]
+		},
+		{
+			"word": "extent",
+			"en_definition": ["how large, important, serious, etc. something is"],
+			"zh_definition": ["程度；限度"]
+		},
+		{
+			"word": "judgement",
+			"en_definition": ["an opinion one gives about something or the act of making this opinion known to others", "the ability to make sensible decisions"],
+			"zh_definition": ["看法；评价", "判断力；识别力"]
+		},
+		{
+			"word": "issue",
+			"en_definition": ["an important topic that people are discussing or arguing about", "a problem or worry that somebody has with something"],
+			"zh_definition": ["重要议题；争论的问题", "问题；担忧"]
+		},
+		{
+			"word": "strategy",
+			"en_definition": ["a plan that is intended to achieve a particular purpose"],
+			"zh_definition": ["策略；计策；行动计划"]
+		},
+		{
+			"word": "conduct",
+			"en_definition": ["to organize and / or do a particular activity"],
+			"zh_definition": ["组织；安排；实施"]
+		},
+		{
+			"word": "confidence",
+			"en_definition": ["a belief in your own ability to do things and be successful"],
+			"zh_definition": ["自信心"]
+		},
+		{
+			"word": "adventurer",
+			"en_definition": ["a person who enjoys exciting new experiences, especially going to unusual places"],
+			"zh_definition": ["冒险者；冒险家"]
+		},
+		{
+			"word": "achievement",
+			"en_definition": ["a thing that somebody has done successfully, especially using their own effort and skill"],
+			"zh_definition": ["成就；成绩；功绩"]
+		},
+		{
+			"word": "ski",
+			"en_definition": ["to move over snow on skis, especially as a sport", "one of a pair of long narrow pieces of wood, metal or plastic for skiing"],
+			"zh_definition": ["滑雪（运动）", "滑雪板"]
+		},
+		{
+			"word": "quit",
+			"en_definition": ["(quit, quit) to stop doing something", "to leave your job, school, etc."],
+			"zh_definition": ["停止；戒掉", "离开（工作职位、学校等）；离任"]
+		},
+		{
+			"word": "charity",
+			"en_definition": ["the aim of giving money, food, help, etc. to those who are in need", "an organization for helping people in need"],
+			"zh_definition": ["慈善；赈济", "慈善机构；慈善事业"]
+		},
+		{
+			"word": "disease",
+			"en_definition": ["an illness affecting humans, animals or plants"],
+			"zh_definition": ["疾病"]
+		},
+		{
+			"word": "reaction",
+			"en_definition": ["what one does, says and thinks as a result of something that has happened", "a response by the body, usually a bad one, to a drug, chemical or other things"],
+			"zh_definition": ["反应；回应", "生理反应；副作用"]
+		},
+		{
+			"word": "dizzy",
+			"en_definition": ["feeling as if everything is spinning around you and you are not able to balance"],
+			"zh_definition": ["头晕目眩的；眩晕的"]
+		},
+		{
+			"word": "incredible",
+			"en_definition": ["extremely good or extremely large", "impossible or very difficult to believe"],
+			"zh_definition": ["极好的；极大的", "难以置信的"]
+		},
+		{
+			"word": "curiosity",
+			"en_definition": ["a strong desire to know about something"],
+			"zh_definition": ["好奇心；求知欲"]
+		},
+		{
+			"word": "eyewitness",
+			"en_definition": ["a person who has seen a crime, accident, etc. and can describe it afterwards"],
+			"zh_definition": ["目击者；见证人"]
+		},
+		{
+			"word": "account",
+			"en_definition": ["a written or spoken description of something that has happened", "an arrangement that somebody has with a bank, etc. to keep money there, take some out, etc."],
+			"zh_definition": ["描述；叙述；报告", "账户"]
+		},
+		{
+			"word": "preserve",
+			"en_definition": ["to keep a particular quality, feature, etc.; to make sure that something is kept", "to prevent something, especially food, from decaying by treating it in a particular way"],
+			"zh_definition": ["保护；维护；保留", "贮存；保鲜"]
+		},
+		{
+			"word": "base",
+			"en_definition": ["the main place where you live or stay or where a business operates from", "the bottom or the lowest part of something"],
+			"zh_definition": ["据点；总部", "根基；基底；底座"]
+		},
+		{
+			"word": "continent",
+			"en_definition": ["one of the large land masses of the Earth such as Europe, Asia or Africa"],
+			"zh_definition": ["大陆；陆地；洲"]
+		},
+		{
+			"word": "native",
+			"en_definition": ["connected with the place where you have always lived or have lived for a long time", "connected with the place where you were born and lived for the first years of your life"],
+			"zh_definition": ["本地的；当地的", "出生地的"]
+		},
+		{
+			"word": "boot",
+			"en_definition": ["a strong shoe that covers the foot and ankle and often the lower part of the leg"],
+			"zh_definition": ["靴子"]
+		},
+		{
+			"word": "ambitious",
+			"en_definition": ["determined to be successful, rich, powerful, etc."],
+			"zh_definition": ["有野心的；有雄心的"]
+		},
+		{
+			"word": "limit",
+			"en_definition": ["a point at which something stops being possible", "to stop something from increasing beyond a particular amount or level"],
+			"zh_definition": ["限度；限制", "限制；限定"]
+		},
+		{
+			"word": "attempt",
+			"en_definition": ["an act of trying to do something (especially something difficult)", "to make an effort or try to do something, especially something difficult"],
+			"zh_definition": ["企图；试图；尝试", "努力；尝试；试图"]
+		},
+		{
+			"word": "contain",
+			"en_definition": ["if something contains something else, it has that thing inside it or as part of it"],
+			"zh_definition": ["包含；含有；容纳"]
+		},
+		{
+			"word": "vehicle",
+			"en_definition": ["a thing that is used for transporting people or goods from one place to another, such as a car or truck"],
+			"zh_definition": ["交通工具；车辆"]
+		},
+		{
+			"word": "check out",
+			"en_definition": ["to look at or examine a person or thing that seems interesting or attractive", "to find out if something is correct, or if somebody is acceptable"],
+			"zh_definition": ["察看，观察（有趣或有吸引力的人或事物）", "调查；核实"]
+		},
+		{
+			"word": "be likely to",
+			"en_definition": ["be probable or expected to"],
+			"zh_definition": ["可能做；可能成为"]
+		},
+		{
+			"word": "due to",
+			"en_definition": ["caused by; because of"],
+			"zh_definition": ["由于；因为"]
+		},
+		{
+			"word": "social media",
+			"en_definition": ["websites and software programmes used for social network"],
+			"zh_definition": ["社交媒体"]
+		},
+		{
+			"word": "ice sheet",
+			"en_definition": ["a layer of ice that covers a large area of land for a long period of time"],
+			"zh_definition": ["冰原；冰盖"]
+		},
+		{
+			"word": "polar bear",
+			"en_definition": ["a white bear that lives near the North Pole"],
+			"zh_definition": ["北极熊"]
+		},
+		{
+			"word": "apart from",
+			"en_definition": ["except for"],
+			"zh_definition": ["除......之外（都）"]
+		}
+	]
+}

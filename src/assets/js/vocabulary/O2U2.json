@@ -1,0 +1,364 @@
+{
+  "vocabulary": [
+    {
+      "word": "log",
+      "en_definition": [
+        "to gain access to social media websites",
+        "a thick piece of wood"
+      ],
+      "zh_definition": [
+        "登录；注册",
+        "原木"
+      ]
+    },
+    {
+      "word": "status",
+      "en_definition": [
+        "the situation at a particular time during a process",
+        "the legal position of a person, group or country"
+      ],
+      "zh_definition": [
+        "（进展的）状况，情形",
+        "法律地位（或身份）"
+      ]
+    },
+    {
+      "word": "analyse",
+      "en_definition": ["to examine the nature or structure of something"],
+      "zh_definition": ["分析"]
+    },
+    {
+      "word": "gossip",
+      "en_definition": ["informal talk or stories about other people’s private lives"],
+      "zh_definition": ["流言蜚语"]
+    },
+    {
+      "word": "dozen",
+      "en_definition": ["a group of twelve of the same thing"],
+      "zh_definition": ["（一）打；十二个"]
+    },
+    {
+      "word": "bet",
+      "en_definition": ["used to say that you are almost certain that something is true or that something will happen"],
+      "zh_definition": ["敢说"]
+    },
+    {
+      "word": "untag",
+      "en_definition": ["to remove a friend’s account in one’s posts"],
+      "zh_definition": ["去除标签"]
+    },
+    {
+      "word": "pray",
+      "en_definition": ["to hope very much that something will happen"],
+      "zh_definition": ["企盼；祈望"]
+    },
+    {
+      "word": "intense",
+      "en_definition": ["very great; very strong"],
+      "zh_definition": ["很大的；十分强烈的"]
+    },
+    {
+      "word": "consistently",
+      "en_definition": ["in a systematic or consistent manner"],
+      "zh_definition": ["一直；持续地"]
+    },
+    {
+      "word": "consequently",
+      "en_definition": ["as a result; therefore"],
+      "zh_definition": ["因此；所以"]
+    },
+    {
+      "word": "compromise",
+      "en_definition": ["to bring someone or something into danger"],
+      "zh_definition": ["使陷入危险"]
+    },
+    {
+      "word": "nasty",
+      "en_definition": ["very bad or unpleasant"],
+      "zh_definition": ["极差的；令人厌恶的"]
+    },
+    {
+      "word": "profile",
+      "en_definition": ["a description of somebody or something that gives useful information"],
+      "zh_definition": ["概述；简介"]
+    },
+    {
+      "word": "delete",
+      "en_definition": ["to remove or make invisible"],
+      "zh_definition": ["删除；移除"]
+    },
+    {
+      "word": "weep",
+      "en_definition": ["to cry, usually because you are sad"],
+      "zh_definition": ["（通常因悲伤）哭泣，流泪"]
+    },
+    {
+      "word": "sympathetic",
+      "en_definition": ["caring or feeling sorry about someone’s problems"],
+      "zh_definition": ["有同情心的"]
+    },
+    {
+      "word": "employer",
+      "en_definition": ["a person or company that pays people to work for them"],
+      "zh_definition": ["雇主；老板"]
+    },
+    {
+      "word": "exposure",
+      "en_definition": ["the act of showing something that is usually hidden"],
+      "zh_definition": ["暴露"]
+    },
+    {
+      "word": "harm",
+      "en_definition": ["damage or injury that is caused by a person or an event"],
+      "zh_definition": ["伤害；损害"]
+    },
+    {
+      "word": "potential",
+      "en_definition": ["that can develop into something or be developed in the future"],
+      "zh_definition": ["潜在的；可能的"]
+    },
+    {
+      "word": "pause",
+      "en_definition": ["a period of time during which somebody stops talking or stops what they are doing"],
+      "zh_definition": ["停顿；暂停的时间"]
+    },
+    {
+      "word": "instant",
+      "en_definition": ["happening immediately"],
+      "zh_definition": ["立刻的；立即的"]
+    },
+    {
+      "word": "dare",
+      "en_definition": ["to be brave enough to do something"],
+      "zh_definition": ["敢于；胆敢"]
+    },
+    {
+      "word": "outgoing",
+      "en_definition": ["liking to meet other people, enjoying their company and being friendly towards them"],
+      "zh_definition": ["爱交际的；外向的"]
+    },
+    {
+      "word": "adorable",
+      "en_definition": ["very attractive and easy to feel love for"],
+      "zh_definition": ["可爱的；讨人喜爱的"]
+    },
+    {
+      "word": "prior",
+      "en_definition": ["happening or existing before something else or before a particular time"],
+      "zh_definition": ["先前的；在前的"]
+    },
+    {
+      "word": "globe",
+      "en_definition": ["the world"],
+      "zh_definition": ["地球；世界"]
+    },
+    {
+      "word": "canal",
+      "en_definition": ["a long straight passage dug in the ground and filled with water for boats and ships to travel along"],
+      "zh_definition": ["运河"]
+    },
+    {
+      "word": "foggy",
+      "en_definition": ["not clear because of fog"],
+      "zh_definition": ["有雾的"]
+    },
+    {
+      "word": "mist",
+      "en_definition": ["a cloud of very small drops of water in the air just above the ground"],
+      "zh_definition": ["薄雾"]
+    },
+    {
+      "word": "estate",
+      "en_definition": ["an area of land with a lot of houses or factories of the same type on it"],
+      "zh_definition": ["住宅区；工业区"]
+    },
+    {
+      "word": "weed",
+      "en_definition": ["a wild plant growing where it is not wanted"],
+      "zh_definition": ["杂草；野草"]
+    },
+    {
+      "word": "wire",
+      "en_definition": ["metal in the form of thin thread"],
+      "zh_definition": ["金属丝；金属线"]
+    },
+    {
+      "word": "kettle",
+      "en_definition": ["a container used for boiling water"],
+      "zh_definition": ["水壶"]
+    },
+    {
+      "word": "lung",
+      "en_definition": ["either of the two organs in the chest that you use for breathing"],
+      "zh_definition": ["肺"]
+    },
+    {
+      "word": "handkerchief",
+      "en_definition": ["a small piece of material that you use for blowing your nose"],
+      "zh_definition": ["手帕"]
+    },
+    {
+      "word": "plug",
+      "en_definition": ["to connect a piece of electrical equipment to the main supply of electricity"],
+      "zh_definition": ["接通（电源）"]
+    },
+    {
+      "word": "wrist",
+      "en_definition": ["the joint between the hand and the arm"],
+      "zh_definition": ["手腕；腕关节"]
+    },
+    {
+      "word": "waist",
+      "en_definition": ["the area around the middle of the body between the ribs and the hips, often narrower than the areas above and below"],
+      "zh_definition": ["腰；腰部"]
+    },
+    {
+      "word": "comprise",
+      "en_definition": ["to have somebody / something as parts or members"],
+      "zh_definition": ["包括；由......组成"]
+    },
+    {
+      "word": "component",
+      "en_definition": ["one of several parts of which something is made"],
+      "zh_definition": ["组成部分"]
+    },
+    {
+      "word": "clue",
+      "en_definition": ["a fact or a piece of evidence that helps you discover the answer to a problem"],
+      "zh_definition": ["线索；提示"]
+    },
+    {
+      "word": "clarify",
+      "en_definition": ["to make something clearer or easier to understand"],
+      "zh_definition": ["使更清晰易懂；阐明"]
+    },
+    {
+      "word": "constant",
+      "en_definition": ["happening repeatedly or all the time"],
+      "zh_definition": ["不断的；连续发生的"]
+    },
+    {
+      "word": "rarely",
+      "en_definition": ["not very often"],
+      "zh_definition": ["罕有；很少"]
+    },
+    {
+      "word": "instantly",
+      "en_definition": ["immediately"],
+      "zh_definition": ["立刻；马上"]
+    },
+    {
+      "word": "emergency",
+      "en_definition": ["an unexpected and dangerous situation that one must deal with"],
+      "zh_definition": ["紧急情况；突发事件"]
+    },
+    {
+      "word": "inaccurate",
+      "en_definition": ["not exact or accurate"],
+      "zh_definition": ["不准确的"]
+    },
+    {
+      "word": "objective",
+      "en_definition": ["not influenced by personal feelings or opinions"],
+      "zh_definition": ["客观的；不带个人感情的"]
+    },
+    {
+      "word": "device",
+      "en_definition": [
+        "an object or a piece of equipment that has been designed to do a particular job",
+        "a method of doing something that produces a particular result or effect"
+      ],
+      "zh_definition": [
+        "装置",
+        "手段；方法；技巧"
+      ]
+    },
+    {
+      "word": "absorb",
+      "en_definition": ["to interest somebody very much so that they pay no attention to anything else"],
+      "zh_definition": ["吸引全部注意力"]
+    },
+    {
+      "word": "withdraw",
+      "en_definition": ["to stop taking part in an activity or being a member of an organization"],
+      "zh_definition": ["（使）退出"]
+    },
+    {
+      "word": "compatible",
+      "en_definition": ["the state of two things possible to be used together"],
+      "zh_definition": ["相容的；兼容的"]
+    },
+    {
+      "word": "fleeting",
+      "en_definition": ["lasting only a short time"],
+      "zh_definition": ["短暂的；瞬间的"]
+    },
+    {
+      "word": "hip",
+      "en_definition": ["one of the two parts on each side of your body between the top of your leg and your waist"],
+      "zh_definition": ["臀部"]
+    },
+    {
+      "word": "desperate",
+      "en_definition": [
+        "needing something very much",
+        "feeling little hope and ready to do anything without worrying about the results"
+      ],
+      "zh_definition": [
+        "极想的；渴望的",
+        "（因绝望而）不顾一切的"
+      ]
+    },
+    {
+      "word": "reverse",
+      "en_definition": ["to change something completely so that it is the opposite of what it was before"],
+      "zh_definition": ["颠倒；使完全相反"]
+    },
+    {
+      "word": "version",
+      "en_definition": ["a film, play, etc. that is based on a particular piece of work but is in a different form, style or language"],
+      "zh_definition": ["版本；改编形式"]
+    },
+    {
+      "word": "rhyme",
+      "en_definition": ["to put words that sound the same together"],
+      "zh_definition": ["使押韵"]
+    },
+    {
+      "word": "mechanical",
+      "en_definition": [
+        "(disapproving) (of people’s behaviour and actions) done without thinking, like a machine",
+        "operated by power from an engine"
+      ],
+      "zh_definition": [
+        "机械般的；呆头呆脑的",
+        "机械的；机械驱动的"
+      ]
+    },
+    {
+      "word": "neutral",
+      "en_definition": ["without strong feeling"],
+      "zh_definition": ["中立的"]
+    },
+    {
+      "word": "log in",
+      "en_definition": ["to perform the actions that allow you to begin using a computer system"],
+      "zh_definition": ["登录；注册"]
+    },
+    {
+      "word": "have a row with",
+      "en_definition": ["to have an argument with somebody"],
+      "zh_definition": ["（与某人）吵架"]
+    },
+    {
+      "word": "human being",
+      "en_definition": ["a person rather than an animal or machine"],
+      "zh_definition": ["人（类）"]
+    },
+    {
+      "word": "detective story",
+      "en_definition": ["a story whose plot involves the investigation and solving of a crime"],
+      "zh_definition": ["侦探小说"]
+    }
+  ]
+}

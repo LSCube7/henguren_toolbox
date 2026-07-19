@@ -1,0 +1,374 @@
+{
+  "vocabulary": [
+    {
+      "word": "flood",
+      "en_definition": [
+        "to become or make something become available in a place in large numbers"
+      ],
+      "zh_definition": ["（使）充斥，充满"]
+    },
+    {
+      "word": "cotton",
+      "en_definition": [
+        "a plant grown in warm countries for the soft white hairs around its seeds that are used to make cloth and thread",
+        "the cloth made from the cotton plant"
+      ],
+      "zh_definition": ["棉；棉花", "棉布"]
+    },
+    {
+      "word": "guy",
+      "en_definition": ["a man"],
+      "zh_definition": ["男人；小伙子；家伙"]
+    },
+    {
+      "word": "insect",
+      "en_definition": [
+        "any small creature with six legs and a body divided into three parts"
+      ],
+      "zh_definition": ["昆虫"]
+    },
+    {
+      "word": "sweat",
+      "en_definition": [
+        "to produce liquid on skin / surface",
+        "drops of liquid that appear on the surface of your skin when you are hot, ill / sick or afraid"
+      ],
+      "zh_definition": ["出汗；流汗", "汗"]
+    },
+    {
+      "word": "port",
+      "en_definition": [
+        "a place where ships load and unload goods or shelter from storms"
+      ],
+      "zh_definition": ["港口；避风港"]
+    },
+    {
+      "word": "discount",
+      "en_definition": [
+        "an amount of money that is taken off the usual cost of something"
+      ],
+      "zh_definition": ["折扣"]
+    },
+    {
+      "word": "iron",
+      "en_definition": [
+        "to make clothes, etc. smooth by using an iron",
+        "a tool with a flat metal base that can be heated and used to make clothes smooth"
+      ],
+      "zh_definition": ["熨，烫平", "熨斗"]
+    },
+    {
+      "word": "export",
+      "en_definition": [
+        "the selling of goods or services to another country",
+        "to sell goods or services to another country"
+      ],
+      "zh_definition": ["出口；输出", "出口；输出"]
+    },
+    {
+      "word": "hesitate",
+      "en_definition": [
+        "to be slow to speak or act because you feel uncertain or nervous"
+      ],
+      "zh_definition": ["（对某事）犹豫，迟疑不决"]
+    },
+    {
+      "word": "cash",
+      "en_definition": ["money in the form of coins or notes / bills"],
+      "zh_definition": ["现金"]
+    },
+    {
+      "word": "profit",
+      "en_definition": [
+        "to get something useful from a situation; to be useful to somebody or give them an advantage",
+        "the money that you make in business or by selling things, especially after paying the costs involved"
+      ],
+      "zh_definition": ["获益；得到好处", "利润；收益；赢利"]
+    },
+    {
+      "word": "living",
+      "en_definition": [
+        "money to buy the things that you need in life",
+        "alive now"
+      ],
+      "zh_definition": ["生计；谋生；收入", "活着的；活的"]
+    },
+    {
+      "word": "wine",
+      "en_definition": ["an alcoholic drink made from the juice of grapes"],
+      "zh_definition": ["葡萄酒"]
+    },
+    {
+      "word": "jeans",
+      "en_definition": [
+        "trousers / pants made of strong cotton, especially denim"
+      ],
+      "zh_definition": ["牛仔裤；粗斜纹棉布裤"]
+    },
+    {
+      "word": "economic",
+      "en_definition": [
+        "connected with the trade, industry, and development of wealth of a country, an area or a society"
+      ],
+      "zh_definition": ["经济的；经济上的；经济学的"]
+    },
+    {
+      "word": "involve",
+      "en_definition": [
+        "to include something as an important or necessary part or result of it"
+      ],
+      "zh_definition": ["包含；需要；使成为必然部分（或结果）"]
+    },
+    {
+      "word": "income",
+      "en_definition": [
+        "the money that a person, a region, a country, etc. earns from work, from investing money, from business, etc."
+      ],
+      "zh_definition": ["收入；收益；所得"]
+    },
+    {
+      "word": "treatment",
+      "en_definition": [
+        "a way of dealing with or discussing a subject, work of art, etc."
+      ],
+      "zh_definition": ["处理；讨论"]
+    },
+    {
+      "word": "quantity",
+      "en_definition": ["an amount or a number of something"],
+      "zh_definition": ["数量"]
+    },
+    {
+      "word": "kit",
+      "en_definition": [
+        "a set of clothes and equipment that you use for a particular activity",
+        "a set of tools or equipment that you use for a particular purpose"
+      ],
+      "zh_definition": ["全套衣服及装备", "成套工具；成套设备"]
+    },
+    {
+      "word": "gym",
+      "en_definition": [
+        "a room or hall with equipment for doing physical exercise, for example in a school"
+      ],
+      "zh_definition": ["健身房；体育馆"]
+    },
+    {
+      "word": "breath",
+      "en_definition": [
+        "the air that you take into your lungs and send out again"
+      ],
+      "zh_definition": ["呼吸的空气"]
+    },
+    {
+      "word": "habitat",
+      "en_definition": [
+        "the place where a particular type of animal or plant is normally found"
+      ],
+      "zh_definition": ["（动植物的）生活环境；栖息地"]
+    },
+    {
+      "word": "import",
+      "en_definition": [
+        "to bring a product, service, an idea, etc. into one country from another"
+      ],
+      "zh_definition": ["进口；输入；引进"]
+    },
+    {
+      "word": "replace",
+      "en_definition": [
+        "to be used instead of something / somebody else; to do something instead of something / somebody else"
+      ],
+      "zh_definition": ["代替；取代"]
+    },
+    {
+      "word": "certify",
+      "en_definition": [
+        "to state officially, especially in writing, that something is true"
+      ],
+      "zh_definition": ["（尤指书面）证明；证实"]
+    },
+    {
+      "word": "protest",
+      "en_definition": [
+        "to say or do something to show that you disagree with or disapprove of something, especially publicly"
+      ],
+      "zh_definition": ["（公开）反对；抗议"]
+    },
+    {
+      "word": "awkward",
+      "en_definition": ["making you feel embarrassed"],
+      "zh_definition": ["令人尴尬的；使人难堪的"]
+    },
+    {
+      "word": "majority",
+      "en_definition": ["the largest part of a group of people or things"],
+      "zh_definition": ["大部分；大多数"]
+    },
+    {
+      "word": "smog",
+      "en_definition": [
+        "a form of air pollution that is or looks like a mixture of smoke and fog, especially in cities"
+      ],
+      "zh_definition": ["烟雾"]
+    },
+    {
+      "word": "slide",
+      "en_definition": [
+        "one page of an electronic presentation, that may contain text and images, that is usually viewed on a computer screen or projected onto a larger screen"
+      ],
+      "zh_definition": ["幻灯片"]
+    },
+    {
+      "word": "harvest",
+      "en_definition": ["to cut and gather a crop"],
+      "zh_definition": ["收割（庄稼）"]
+    },
+    {
+      "word": "honey",
+      "en_definition": [
+        "a sweet sticky yellow substance made by bees that is spread on bread, etc. like jam"
+      ],
+      "zh_definition": ["蜂蜜"]
+    },
+    {
+      "word": "bitter",
+      "en_definition": [
+        "(of food, etc.) having a strong, unpleasant taste; not sweet",
+        "(of arguments, disagreements, etc.) very serious and unpleasant, with a lot of anger and hatred involved"
+      ],
+      "zh_definition": [
+        "（食物等）味苦的",
+        "（争论、分歧等）激烈而不愉快的；充满愤怒与仇恨的"
+      ]
+    },
+    {
+      "word": "flavour",
+      "en_definition": ["how food or drink tastes"],
+      "zh_definition": ["（食物或饮料的）味道"]
+    },
+    {
+      "word": "roast",
+      "en_definition": [
+        "to cook nuts, beans, etc. in order to dry them and turn them brown; to be cooked in this way",
+        "to cook food, especially meat, without liquid in an oven or over a fire; to be cooked in this way"
+      ],
+      "zh_definition": ["烘烤，焙，炒（坚果、豆子等）", "烘，烤，焙（肉等）"]
+    },
+    {
+      "word": "liquid",
+      "en_definition": [
+        "a substance that flows freely and is not a solid or a gas, for example water or oil",
+        "in the form of a liquid"
+      ],
+      "zh_definition": ["液体", "液体的"]
+    },
+    {
+      "word": "bar",
+      "en_definition": [
+        "a piece of something with straight sides",
+        "a place where you can buy and drink alcoholic and other drinks"
+      ],
+      "zh_definition": ["（长方形）条，块", "酒吧"]
+    },
+    {
+      "word": "calculate",
+      "en_definition": [
+        "to use numbers to find out a total number, amount, distance, etc."
+      ],
+      "zh_definition": ["计算；核算"]
+    },
+    {
+      "word": "operation",
+      "en_definition": [
+        "the way that parts of a machine or a system work; the process of making something work"
+      ],
+      "zh_definition": ["运转；运行；操作"]
+    },
+    {
+      "word": "advanced",
+      "en_definition": [
+        "having the most modern and recently developed ideas, methods, etc.",
+        "(of a course of study) at a high or difficult level"
+      ],
+      "zh_definition": ["先进的", "（课程）高级的；高等的"]
+    },
+    {
+      "word": "version",
+      "en_definition": [
+        "a form of something that is slightly different from an earlier form or from other forms of the same thing"
+      ],
+      "zh_definition": ["变体；变种；型式"]
+    },
+    {
+      "word": "dozen",
+      "en_definition": ["a group of twelve of the same thing"],
+      "zh_definition": ["（一）打；十二个"]
+    },
+    {
+      "word": "accurate",
+      "en_definition": ["correct and true in every detail"],
+      "zh_definition": ["正确无误的"]
+    },
+    {
+      "word": "rescue",
+      "en_definition": [
+        "the act of saving something / somebody from a dangerous or difficult situation; the fact of being saved"
+      ],
+      "zh_definition": ["救援；营救；抢救；获救"]
+    },
+    {
+      "word": "application",
+      "en_definition": [
+        "the practical use of something, especially a theory, discovery, etc.",
+        "a formal (often written) request for something, such as a job, permission to do something or a place at a college or university"
+      ],
+      "zh_definition": [
+        "（尤指理论、发现等的）应用，运用",
+        "申请；请求；申请书"
+      ]
+    },
+    {
+      "word": "equipment",
+      "en_definition": [
+        "the things that are needed for a particular purpose or activity"
+      ],
+      "zh_definition": ["设备；器材"]
+    },
+    {
+      "word": "overseas",
+      "en_definition": [
+        "to or in a foreign country, especially those separated from your country by the sea or ocean",
+        "connected with foreign countries, especially those separated from your country by the sea or ocean"
+      ],
+      "zh_definition": ["在国外；向海外", "外国的；海外的"]
+    },
+    {
+      "word": "remarkable",
+      "en_definition": [
+        "unusual or surprising in a way that causes people to take notice"
+      ],
+      "zh_definition": ["非凡的；奇异的；显著的"]
+    },
+    {
+      "word": "mission",
+      "en_definition": [
+        "a flight into space",
+        "an important official job that a person or group of people is given to do, especially when they are sent to another country"
+      ],
+      "zh_definition": ["太空飞行任务", "官方使命"]
+    },
+    {
+      "word": "in spite of",
+      "en_definition": [
+        "if you say that somebody did something in spite of a fact, you mean it is surprising that that fact did not prevent them from doing it"
+      ],
+      "zh_definition": ["不管；尽管"]
+    },
+    {
+      "word": "chewing gum",
+      "en_definition": ["a sweet / candy that you chew but do not swallow"],
+      "zh_definition": ["口香糖"]
+    }
+  ]
+}

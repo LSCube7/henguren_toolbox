@@ -1,0 +1,299 @@
+{
+	"vocabulary": [
+		{
+			"word": "corporation",
+			"en_definition": ["a large business company"],
+			"zh_definition": ["（大）公司"]
+		},
+		{
+			"word": "script",
+			"en_definition": ["a written text of a play, film, broadcast, talk, etc."],
+			"zh_definition": ["剧本；电影剧本；广播（或讲话等）稿"]
+		},
+		{
+			"word": "frontier",
+			"en_definition": ["the limit of something, especially the limit of what is known about a particular subject or activity", "a line that separates two countries, etc.; the land near this line"],
+			"zh_definition": ["（学科或活动的）尖端，边缘", "国界；边界；边境"]
+		},
+		{
+			"word": "entrepreneur",
+			"en_definition": ["a person who makes money by starting or running businesses"],
+			"zh_definition": ["创业者；企业家"]
+		},
+		{
+			"word": "immortality",
+			"en_definition": ["the state of being immortal"],
+			"zh_definition": ["永生；不朽；不灭"]
+		},
+		{
+			"word": "transplant",
+			"en_definition": ["to take an organ, skin, etc. from one person, animal, part of the body, etc., and put it into or onto another"],
+			"zh_definition": ["移植（器官、皮肤等）"]
+		},
+		{
+			"word": "fundamentally",
+			"en_definition": ["in every way that is important; completely"],
+			"zh_definition": ["根本上；完全地"]
+		},
+		{
+			"word": "mere",
+			"en_definition": ["used when you want to say how small or unimportant something / somebody is"],
+			"zh_definition": ["仅仅的；只不过"]
+		},
+		{
+			"word": "purely",
+			"en_definition": ["only; completely"],
+			"zh_definition": ["仅仅；完全"]
+		},
+		{
+			"word": "pose",
+			"en_definition": ["to create a threat or problem"],
+			"zh_definition": ["造成（威胁、问题等）；引起；产生"]
+		},
+		{
+			"word": "criminal",
+			"en_definition": ["a person who commits a crime"],
+			"zh_definition": ["罪犯"]
+		},
+		{
+			"word": "severe",
+			"en_definition": ["extremely bad or serious"],
+			"zh_definition": ["极为恶劣的；十分严重的"]
+		},
+		{
+			"word": "career",
+			"en_definition": ["the series of jobs that a person has in a particular area of work"],
+			"zh_definition": ["职业；生涯"]
+		},
+		{
+			"word": "resistance",
+			"en_definition": ["dislike of or opposition to a plan, an idea, etc."],
+			"zh_definition": ["反对；抵制；抗拒"]
+		},
+		{
+			"word": "dynamic",
+			"en_definition": ["(of a process) always changing and making progress", "(of a person) having a lot of energy and a strong personality"],
+			"zh_definition": ["动态的；发展变化的", "充满活力且个性鲜明的"]
+		},
+		{
+			"word": "gender",
+			"en_definition": ["the fact of being male or female"],
+			"zh_definition": ["性别"]
+		},
+		{
+			"word": "opponent",
+			"en_definition": ["a person who is against something / somebody"],
+			"zh_definition": ["反对者"]
+		},
+		{
+			"word": "mechanics",
+			"en_definition": ["the science of movement and force"],
+			"zh_definition": ["力学"]
+		},
+		{
+			"word": "condemn",
+			"en_definition": ["to say what somebody's punishment will be", "to force somebody to accept a difficult or unpleasant situation"],
+			"zh_definition": ["宣判；判处", "迫使......接受（困境）"]
+		},
+		{
+			"word": "client",
+			"en_definition": ["a person who uses the services or advice of a professional person or organization"],
+			"zh_definition": ["委托人；当事人；客户"]
+		},
+		{
+			"word": "shrug",
+			"en_definition": ["to raise your shoulders and then drop them to show you do not care about something"],
+			"zh_definition": ["耸肩（表示不在乎或不知道）"]
+		},
+		{
+			"word": "sustain",
+			"en_definition": ["to provide enough of what somebody / something needs in order to live or exist"],
+			"zh_definition": ["维持（生命、生存）"]
+		},
+		{
+			"word": "propose",
+			"en_definition": ["to suggest a plan or an idea"],
+			"zh_definition": ["提议；建议"]
+		},
+		{
+			"word": "drill",
+			"en_definition": ["a way of learning something by means of repeated exercises"],
+			"zh_definition": ["练习；训练"]
+		},
+		{
+			"word": "dismiss",
+			"en_definition": ["to decide that something is not important and not worth thinking or talking about"],
+			"zh_definition": ["不予考虑；摒弃；对......不屑一提"]
+		},
+		{
+			"word": "urgent",
+			"en_definition": ["that needs to be dealt with or happen immediately"],
+			"zh_definition": ["紧急的；紧迫的"]
+		},
+		{
+			"word": "resign",
+			"en_definition": ["to officially tell somebody that you are leaving your job, an organization, etc."],
+			"zh_definition": ["辞职；辞去（某职务）"]
+		},
+		{
+			"word": "sneeze",
+			"en_definition": ["to have air come suddenly and noisily out through your nose and mouth in a way that you cannot control, for example because you have a cold"],
+			"zh_definition": ["打喷嚏"]
+		},
+		{
+			"word": "sink",
+			"en_definition": ["(sank, sunk) to go down below the surface or towards the bottom of a liquid or soft substance"],
+			"zh_definition": ["下沉；下陷；沉没"]
+		},
+		{
+			"word": "smash",
+			"en_definition": ["to break something or to be broken into many pieces"],
+			"zh_definition": ["打碎；破碎"]
+		},
+		{
+			"word": "owe",
+			"en_definition": ["to exist or be successful because of the help or influence of somebody / something", "to have to pay somebody for something that you have already received or return money that you have borrowed"],
+			"zh_definition": ["归因于；归功于；起源于", "欠（债）；欠（账）"]
+		},
+		{
+			"word": "drown",
+			"en_definition": ["to die because you have been underwater too long and you cannot breathe"],
+			"zh_definition": ["淹死；溺死"]
+		},
+		{
+			"word": "miraculously",
+			"en_definition": ["like a miracle; completely unexpectedly and very luckily"],
+			"zh_definition": ["奇迹般地；不可思议地"]
+		},
+		{
+			"word": "explode",
+			"en_definition": ["to burst or make something burst loudly and violently, causing damage"],
+			"zh_definition": ["爆炸；爆破；爆裂"]
+		},
+		{
+			"word": "choke",
+			"en_definition": ["to be unable to speak normally especially because of strong emotion; to make somebody feel too emotional to speak normally", "to be unable to breathe because the passage to your lungs is blocked or you cannot get enough air; to make somebody unable to breathe"],
+			"zh_definition": ["（尤指感情激动而）说不出话来；使哽咽", "（使）窒息，哽噎"]
+		},
+		{
+			"word": "debt",
+			"en_definition": ["a sum of money that somebody owes"],
+			"zh_definition": ["借款；欠款；债务"]
+		},
+		{
+			"word": "architect",
+			"en_definition": ["a person whose job is designing buildings, etc."],
+			"zh_definition": ["建筑师"]
+		},
+		{
+			"word": "forgive",
+			"en_definition": ["(forgave, forgiven) to stop feeling angry with somebody who has done something to harm, annoy or upset you; to stop feeling angry with yourself"],
+			"zh_definition": ["原谅；宽恕"]
+		},
+		{
+			"word": "tension",
+			"en_definition": ["a situation in which people do not trust each other, or feel unfriendly towards each other, and which may cause them to attack each other"],
+			"zh_definition": ["紧张局势（或关系、状况）"]
+		},
+		{
+			"word": "deterioration",
+			"en_definition": ["the state of becoming worse"],
+			"zh_definition": ["变坏；恶化；退化"]
+		},
+		{
+			"word": "harmony",
+			"en_definition": ["a state of peaceful existence and agreement"],
+			"zh_definition": ["融洽；和睦"]
+		},
+		{
+			"word": "glow",
+			"en_definition": ["a dull steady light"],
+			"zh_definition": ["暗淡的光"]
+		},
+		{
+			"word": "magnificent",
+			"en_definition": ["extremely attractive and impressive"],
+			"zh_definition": ["壮丽的；宏伟的"]
+		},
+		{
+			"word": "vulnerable",
+			"en_definition": ["weak and easily hurt physically or emotionally"],
+			"zh_definition": ["（身体上或感情上）脆弱的，易受......伤害的"]
+		},
+		{
+			"word": "infection",
+			"en_definition": ["an illness that is caused by bacteria or a virus and that affects one part of the body", "the act or process of causing or getting a disease"],
+			"zh_definition": ["（身体某部位的）感染；传染病", "传染；感染"]
+		},
+		{
+			"word": "alert",
+			"en_definition": ["able to think quickly; quick to notice things"],
+			"zh_definition": ["警觉的；警惕的；戒备的"]
+		},
+		{
+			"word": "bearded",
+			"en_definition": ["having hair on the cheeks and chin"],
+			"zh_definition": ["留胡子的；有胡须的"]
+		},
+		{
+			"word": "bend",
+			"en_definition": ["(bent, bent) to change direction to form a curve or an angle", "to lean, or make something lean, in a particular direction"],
+			"zh_definition": ["拐弯；弯曲", "（使）倾斜，偏向"]
+		},
+		{
+			"word": "sigh",
+			"en_definition": ["an act or the sound of sighing"],
+			"zh_definition": ["叹气；叹息"]
+		},
+		{
+			"word": "hence",
+			"en_definition": ["for this reason"],
+			"zh_definition": ["因此；由此"]
+		},
+		{
+			"word": "occupy",
+			"en_definition": ["to fill or use a space, an area or an amount of time"],
+			"zh_definition": ["使用，占用（空间、面积、时间等）"]
+		},
+		{
+			"word": "legend",
+			"en_definition": ["a very famous person, especially in a particular field, who is admired by other people", "a story from ancient times about people and events, that may or may not be true; this type of story"],
+			"zh_definition": ["（尤指某领域中的）传奇人物", "传说；传奇故事"]
+		},
+		{
+			"word": "frustrate",
+			"en_definition": ["to make somebody feel annoyed or impatient because they cannot do or achieve what they want"],
+			"zh_definition": ["使沮丧；使懊恼"]
+		},
+		{
+			"word": "a new lease of life",
+			"en_definition": ["the chance to live or last longer, or with a better quality of life"],
+			"zh_definition": ["延年益寿；生活质量更好"]
+		},
+		{
+			"word": "shelf life",
+			"en_definition": ["the length of time that food, etc. can be kept before it is too old to be sold"],
+			"zh_definition": ["（食品等的）货架期，保存期"]
+		},
+		{
+			"word": "gender discrimination",
+			"en_definition": ["the practice of treating somebody or a particular group less fairly than others because of their gender"],
+			"zh_definition": ["性别歧视"]
+		},
+		{
+			"word": "bucket list",
+			"en_definition": ["a list of things that you want to do before you die"],
+			"zh_definition": ["人生愿望清单"]
+		},
+		{
+			"word": "give something away",
+			"en_definition": ["to give something as a gift"],
+			"zh_definition": ["赠送；捐赠"]
+		},
+		{
+			"word": "the elderly",
+			"en_definition": ["people who are old"],
+			"zh_definition": ["老人；上了年纪的人"]
+		}
+	]
+}

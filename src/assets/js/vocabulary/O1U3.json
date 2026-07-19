@@ -1,0 +1,339 @@
+{
+  "vocabulary": [
+    {
+      "word": "advertisement",
+      "en_definition": ["a notice, picture or film telling people about a product, job or service"],
+      "zh_definition": ["广告；启事"]
+    },
+    {
+      "word": "celebrity",
+      "en_definition": ["a famous person"],
+      "zh_definition": ["名人；名流"]
+    },
+    {
+      "word": "genuine",
+      "en_definition": ["real; exactly what it appears to be; not artificial"],
+      "zh_definition": ["真的"]
+    },
+    {
+      "word": "advertise",
+      "en_definition": ["to tell the public about a product or a service in order to encourage people to buy or to use it"],
+      "zh_definition": ["做广告；登广告"]
+    },
+    {
+      "word": "unusual",
+      "en_definition": ["different from what is usual or normal"],
+      "zh_definition": ["特别的；不寻常的；罕见的"]
+    },
+    {
+      "word": "identical",
+      "en_definition": ["similar in every detail"],
+      "zh_definition": ["完全同样的；相同的"]
+    },
+    {
+      "word": "contrary",
+      "en_definition": ["different from something; against something"],
+      "zh_definition": ["与之相异的；相对立的；相反的"]
+    },
+    {
+      "word": "spot",
+      "en_definition": ["to see or notice a person or thing", "a small round area that has a different colour or feels different from the surface it is on", "a particular area or place"],
+      "zh_definition": ["看见；看出；注意到；发现", "斑点", "地点；场所"]
+    },
+    {
+      "word": "trick",
+      "en_definition": ["to make somebody believe something which is not true, especially in order to cheat them", "something that you do to make somebody believe something which is not true, or to annoy somebody as a joke"],
+      "zh_definition": ["欺骗；欺诈", "诡计；花招；骗局；把戏"]
+    },
+    {
+      "word": "billion",
+      "en_definition": ["one thousand million"],
+      "zh_definition": ["十亿"]
+    },
+    {
+      "word": "conventional",
+      "en_definition": ["tending to follow what is done or considered acceptable by society in general; normal and ordinary, and perhaps not very interesting"],
+      "zh_definition": ["依照惯例的；遵循习俗的；墨守成规的；普通平凡的"]
+    },
+    {
+      "word": "launch",
+      "en_definition": ["to make a product available to the public for the first time", "to start an activity, especially an organized one"],
+      "zh_definition": ["（首次）上市，发行", "开始从事，发起，发动（尤指有组织的活动）"]
+    },
+    {
+      "word": "trendsetter",
+      "en_definition": ["a person who starts a new fashion or makes it popular"],
+      "zh_definition": ["新潮倡导者"]
+    },
+    {
+      "word": "contract",
+      "en_definition": ["an official written agreement", "to make a legal agreement with somebody for them to work for you or provide you with a service"],
+      "zh_definition": ["合同；合约；契约", "与......订立合同（或契约）"]
+    },
+    {
+      "word": "hire",
+      "en_definition": ["to give somebody a job", "to pay money to borrow something for a short time"],
+      "zh_definition": ["聘用", "租用"]
+    },
+    {
+      "word": "agency",
+      "en_definition": ["a business or an organization that provides a particular service especially on behalf of other businesses or organizations"],
+      "zh_definition": ["服务机构；（尤指）代理机构，经销机构"]
+    },
+    {
+      "word": "luxury",
+      "en_definition": ["a thing that is expensive and enjoyable but not essential", "the enjoyment of special and expensive things"],
+      "zh_definition": ["奢侈品", "奢侈的享受；奢华"]
+    },
+    {
+      "word": "display",
+      "en_definition": ["to show something to people", "an arrangement of things in a public place to inform or entertain people or advertise something for sale"],
+      "zh_definition": ["展出；展示", "陈列；展览"]
+    },
+    {
+      "word": "purchase",
+      "en_definition": ["something that you have bought", "the act or process of buying something", "to buy something"],
+      "zh_definition": ["购买的东西", "购买；采购", "买；购买；采购"]
+    },
+    {
+      "word": "sample",
+      "en_definition": ["a small amount or example of something that can be looked at or tried to see what it is like", "a number of people or things taken from a larger group and used in tests to provide information about the group"],
+      "zh_definition": ["（作为标准或代表的）样品，货样", "（抽查的）样本，样品"]
+    },
+    {
+      "word": "anyhow",
+      "en_definition": ["used when adding something to support an idea or argument"],
+      "zh_definition": ["加之；反正"]
+    },
+    {
+      "word": "psychologist",
+      "en_definition": ["a scientist who studies the mind and how it influences behaviour"],
+      "zh_definition": ["心理学家"]
+    },
+    {
+      "word": "respectively",
+      "en_definition": ["in the same order as the people or things already mentioned"],
+      "zh_definition": ["分别；各自；顺序为；依次为"]
+    },
+    {
+      "word": "borderline",
+      "en_definition": ["the division between two qualities or conditions"],
+      "zh_definition": ["两种品质（或状况）之间的分界线"]
+    },
+    {
+      "word": "stimulate",
+      "en_definition": ["to make something develop or become active; to encourage something"],
+      "zh_definition": ["促进；激发；激励"]
+    },
+    {
+      "word": "abstract",
+      "en_definition": ["based on general ideas and not on any particular real person, thing or situation"],
+      "zh_definition": ["抽象的"]
+    },
+    {
+      "word": "concept",
+      "en_definition": ["an idea or a principle that is connected with something abstract"],
+      "zh_definition": ["概念；观念"]
+    },
+    {
+      "word": "ideal",
+      "en_definition": ["perfect; most suitable"],
+      "zh_definition": ["完美的；理想的；最合适的"]
+    },
+    {
+      "word": "quote",
+      "en_definition": ["to repeat the exact words that another person has said or written", "exact words"],
+      "zh_definition": ["引用；引述", "原话"]
+    },
+    {
+      "word": "finding",
+      "en_definition": ["information that is discovered as the result of research into something"],
+      "zh_definition": ["调查发现；调研结果"]
+    },
+    {
+      "word": "fake",
+      "en_definition": ["not genuine; appearing to be something it is not"],
+      "zh_definition": ["假的"]
+    },
+    {
+      "word": "discount",
+      "en_definition": ["an amount of money that is taken off the usual cost of something"],
+      "zh_definition": ["折扣"]
+    },
+    {
+      "word": "weekly",
+      "en_definition": ["happening, done or published once a week or every week"],
+      "zh_definition": ["每周的"]
+    },
+    {
+      "word": "monthly",
+      "en_definition": ["happening once a month or every month"],
+      "zh_definition": ["每月的；每月一次的"]
+    },
+    {
+      "word": "publication",
+      "en_definition": ["the act of printing a book, a magazine, etc. and making it available to the public; a book, a magazine, etc. that has been published"],
+      "zh_definition": ["（书刊等的）出版，发行；出版物"]
+    },
+    {
+      "word": "academic",
+      "en_definition": ["connected with education, especially studying in schools and universities"],
+      "zh_definition": ["学业的；教学的；学术的"]
+    },
+    {
+      "word": "cottage",
+      "en_definition": ["a small house, especially in the country"],
+      "zh_definition": ["小屋；（尤指）村舍，小别墅"]
+    },
+    {
+      "word": "cotton",
+      "en_definition": ["a plant grown in warm countries for the soft white hairs around its seeds that are used to make cloth and thread"],
+      "zh_definition": ["棉；棉花"]
+    },
+    {
+      "word": "crop",
+      "en_definition": ["a plant that is grown in large quantities, especially as food"],
+      "zh_definition": ["庄稼；作物"]
+    },
+    {
+      "word": "harvest",
+      "en_definition": ["to cut and gather a crop", "the time of year when the crops are gathered in on a farm, etc.; the act of cutting and gathering crops"],
+      "zh_definition": ["收割（庄稼）", "收获季节；收割；收获"]
+    },
+    {
+      "word": "guarantee",
+      "en_definition": ["a firm promise that you will do something or that something will happen", "to promise to do something; to promise something will happen"],
+      "zh_definition": ["保证；担保", "保证；担保；保障"]
+    },
+    {
+      "word": "available",
+      "en_definition": ["(of things) that you can get, buy or find"],
+      "zh_definition": ["可获得的；可购得的；可找到的"]
+    },
+    {
+      "word": "specialist",
+      "en_definition": ["concentrating on a limited field, market, or area of activity", "a person who is an expert in a particular area of work or study"],
+      "zh_definition": ["专门的", "专家"]
+    },
+    {
+      "word": "ethical",
+      "en_definition": ["morally correct or acceptable", "connected with beliefs and principles about what is right and wrong"],
+      "zh_definition": ["合乎道德的", "（有关）道德的，伦理的"]
+    },
+    {
+      "word": "canteen",
+      "en_definition": ["a place in a school or a factory where food is provided"],
+      "zh_definition": ["食堂；餐厅"]
+    },
+    {
+      "word": "identify",
+      "en_definition": ["to recognize somebody / something and be able to say who or what they are"],
+      "zh_definition": ["确认；认出"]
+    },
+    {
+      "word": "priority",
+      "en_definition": ["something that you think is more important than other things and should be dealt with first"],
+      "zh_definition": ["优先事项；最重要的事"]
+    },
+    {
+      "word": "faulty",
+      "en_definition": ["not perfect; not working or made correctly"],
+      "zh_definition": ["不完美的；有错误的；有缺陷的"]
+    },
+    {
+      "word": "complain",
+      "en_definition": ["to say that you are annoyed, unhappy or not satisfied about somebody / something"],
+      "zh_definition": ["抱怨；埋怨；投诉；发牢骚"]
+    },
+    {
+      "word": "false",
+      "en_definition": ["wrong; not correct or true", "made to look real to cheat people"],
+      "zh_definition": ["错误的；不正确的；不真实的", "假的；伪造的"]
+    },
+    {
+      "word": "madam",
+      "en_definition": ["used when speaking or writing to a woman in a formal or business situation"],
+      "zh_definition": ["夫人；女士"]
+    },
+    {
+      "word": "adjust",
+      "en_definition": ["to change something slightly to make it more suitable for a new set of conditions or to make it work better"],
+      "zh_definition": ["调整；调节"]
+    },
+    {
+      "word": "loose",
+      "en_definition": ["not tightly packed together; not solid or hard"],
+      "zh_definition": ["疏松的；不结实的"]
+    },
+    {
+      "word": "faithfully",
+      "en_definition": ["in a loyal way", "accurately; carefully"],
+      "zh_definition": ["忠实地；忠诚地", "准确地；如实地；仔细地"]
+    },
+    {
+      "word": "origin",
+      "en_definition": ["the point from which something starts; the cause of something"],
+      "zh_definition": ["起源；源头；起因"]
+    },
+    {
+      "word": "pack",
+      "en_definition": ["to put clothes, etc. into a bag in preparation for a trip away from home"],
+      "zh_definition": ["收拾（行李）；装（箱）"]
+    },
+    {
+      "word": "suitcase",
+      "en_definition": ["a case with flat sides and a handle, used for carrying clothes, etc. when you are travelling"],
+      "zh_definition": ["（旅行用的）手提箱"]
+    },
+    {
+      "word": "lunar",
+      "en_definition": ["connected with the moon"],
+      "zh_definition": ["月球的；月亮的"]
+    },
+    {
+      "word": "harmonious",
+      "en_definition": ["friendly, peaceful and without any disagreement"],
+      "zh_definition": ["友好和睦的；和谐的"]
+    },
+    {
+      "word": "toast",
+      "en_definition": ["the act of a group of people wishing somebody happiness, success, etc. by drinking a glass of something, especially alcohol, at the same time"],
+      "zh_definition": ["干杯；祝酒；敬酒"]
+    },
+    {
+      "word": "ingredient",
+      "en_definition": ["one of the things from which something is made, especially one of the foods that are used together to make a particular dish"],
+      "zh_definition": ["成分；（尤指烹饪）材料"]
+    },
+    {
+      "word": "grocery",
+      "en_definition": ["a shop that sells food and other things used in the home"],
+      "zh_definition": ["食品杂货店"]
+    },
+    {
+      "word": "jewellery",
+      "en_definition": ["objects such as rings and necklaces that people wear as decoration"],
+      "zh_definition": ["珠宝；首饰"]
+    },
+    {
+      "word": "trend",
+      "en_definition": ["a general direction where a situation is developing"],
+      "zh_definition": ["趋势；趋向"]
+    },
+    {
+      "word": "wrap",
+      "en_definition": ["to cover something completely in paper or other material, for example when you are giving it as a present"],
+      "zh_definition": ["包，裹（礼物等）"]
+    },
+    {
+      "word": "commercialize",
+      "en_definition": ["to use something to try to make a profit, especially in a way that other people do not approve of"],
+      "zh_definition": ["（尤指不择手段地）利用......牟利；商业化"]
+    },
+    {
+      "word": "stealth marketing",
+      "en_definition": ["a method of advertising your products without letting people realize you are trying to make them buy something"],
+      "zh_definition": ["隐形营销"]
+    }
+  ]
+}

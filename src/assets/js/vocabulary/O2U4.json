@@ -1,0 +1,402 @@
+{
+  "vocabulary": [
+    {
+      "word": "accompany",
+      "en_definition": ["to travel or go somewhere with somebody"],
+      "zh_definition": ["陪同；陪伴"]
+    },
+    {
+      "word": "beam",
+      "en_definition": ["a line of light"],
+      "zh_definition": ["光线"]
+    },
+    {
+      "word": "brick",
+      "en_definition": [
+        "something used for building walls, houses and other buildings"
+      ],
+      "zh_definition": ["砖；砖块"]
+    },
+    {
+      "word": "blank",
+      "en_definition": ["empty; with no pictures, marks or decoration"],
+      "zh_definition": ["空的；无图画（或装饰、标记）的"]
+    },
+    {
+      "word": "nonsense",
+      "en_definition": [
+        "ideas, statements or beliefs that you think are ridiculous or not true"
+      ],
+      "zh_definition": ["谬论；胡扯；胡言乱语"]
+    },
+    {
+      "word": "shade",
+      "en_definition": [
+        "a covering for a window, especially one made of a roll of cloth that is fixed at the top of the window and can be pulled up and down",
+        "an area that is dark and cool under or behind something because the sun’s light does not get to it"
+      ],
+      "zh_definition": ["窗帘；卷帘", "阴凉处；背阴；（树）荫"]
+    },
+    {
+      "word": "firm",
+      "en_definition": ["strongly fixed in place"],
+      "zh_definition": ["牢固的；稳固的"]
+    },
+    {
+      "word": "stem",
+      "en_definition": [
+        "the main long thin part of a plant above the ground from which the leaves or flowers grow"
+      ],
+      "zh_definition": ["（花草的）茎；（花或叶的）梗，柄"]
+    },
+    {
+      "word": "sin",
+      "en_definition": ["an offence against a religious or moral law"],
+      "zh_definition": ["罪；罪恶；罪过"]
+    },
+    {
+      "word": "ladder",
+      "en_definition": [
+        "a piece of equipment for climbing up and down a wall or the side of a building, consisting of two lengths joined by steps or rungs"
+      ],
+      "zh_definition": ["梯子"]
+    },
+    {
+      "word": "fate",
+      "en_definition": [
+        "the things, especially bad things, that will happen or have happened to somebody/something"
+      ],
+      "zh_definition": ["命运的安排"]
+    },
+    {
+      "word": "amateur",
+      "en_definition": [
+        "a person who takes part in a sport or other activity for enjoyment, not as a job",
+        "done for enjoyment or interest, not as a job"
+      ],
+      "zh_definition": ["业余爱好者；业余运动员", "业余的"]
+    },
+    {
+      "word": "humble",
+      "en_definition": [
+        "showing that you are not as important as other people"
+      ],
+      "zh_definition": ["谦逊的；虚心的"]
+    },
+    {
+      "word": "amid",
+      "en_definition": [
+        "in the middle of or during something, especially something that causes excitement or fear"
+      ],
+      "zh_definition": ["在......过程中；在......中"]
+    },
+    {
+      "word": "hint",
+      "en_definition": [
+        "to suggest something in an indirect way",
+        "something that you say or do in an indirect way in order to show somebody what you are thinking"
+      ],
+      "zh_definition": ["暗示；透露；示意", "提示；示意"]
+    },
+    {
+      "word": "pessimistic",
+      "en_definition": [
+        "expecting bad things to happen or something not to be successful"
+      ],
+      "zh_definition": ["悲观的；悲观主义的"]
+    },
+    {
+      "word": "ambitious",
+      "en_definition": ["determined to be successful, rich, powerful, etc."],
+      "zh_definition": ["有野心的；有雄心的"]
+    },
+    {
+      "word": "pond",
+      "en_definition": [
+        "a small area of still water, especially one that is artificial"
+      ],
+      "zh_definition": ["池塘；水池（尤指人工的）"]
+    },
+    {
+      "word": "labour",
+      "en_definition": ["work, especially physical work"],
+      "zh_definition": ["劳动；（尤指）体力劳动"]
+    },
+    {
+      "word": "carpet",
+      "en_definition": [
+        "a thick woven material made of wool, etc. for covering floors or stairs"
+      ],
+      "zh_definition": ["地毯"]
+    },
+    {
+      "word": "blanket",
+      "en_definition": [
+        "a large cover, often made of wool, used especially on beds to keep people warm"
+      ],
+      "zh_definition": ["毯子；毛毯"]
+    },
+    {
+      "word": "classify",
+      "en_definition": [
+        "to arrange something in groups according to their common features",
+        "to decide which type or group somebody/something belongs to"
+      ],
+      "zh_definition": ["分类；划分"]
+    },
+    {
+      "word": "corresponding",
+      "en_definition": [
+        "matching or connected with something that you have just mentioned"
+      ],
+      "zh_definition": ["符合的；相应的；相关的"]
+    },
+    {
+      "word": "severely",
+      "en_definition": ["extremely badly or seriously"],
+      "zh_definition": ["非常严重地"]
+    },
+    {
+      "word": "belief",
+      "en_definition": [
+        "a strong feeling that something/somebody exists or is true",
+        "confidence that something/somebody is good or right"
+      ],
+      "zh_definition": ["相信；信心"]
+    },
+    {
+      "word": "bow",
+      "en_definition": [
+        "a weapon used for shooting arrows, consisting of a long curved piece of wood or metal with a tight string joining its ends"
+      ],
+      "zh_definition": ["弓"]
+    },
+    {
+      "word": "arrow",
+      "en_definition": [
+        "a thin stick with a sharp point at one end, which is shot from a bow"
+      ],
+      "zh_definition": ["箭"]
+    },
+    {
+      "word": "acknowledge",
+      "en_definition": ["to accept that something is true"],
+      "zh_definition": ["承认（属实）"]
+    },
+    {
+      "word": "interact",
+      "en_definition": [
+        "to communicate with somebody, especially while you work, play or spend time with them"
+      ],
+      "zh_definition": ["交流；沟通；合作"]
+    },
+    {
+      "word": "liberation",
+      "en_definition": [
+        "the act of freeing a country or a person from the control of somebody else"
+      ],
+      "zh_definition": ["解放"]
+    },
+    {
+      "word": "navy",
+      "en_definition": [
+        "the part of a country’s armed forces that fights at sea, and the ships that it uses"
+      ],
+      "zh_definition": ["海军；海军部队"]
+    },
+    {
+      "word": "crew",
+      "en_definition": ["all the people working on a ship, plane, etc."],
+      "zh_definition": ["全体工作人员"]
+    },
+    {
+      "word": "assign",
+      "en_definition": [
+        "to give somebody something that they can use, or some work or responsibility"
+      ],
+      "zh_definition": ["分配（某物）；分派，布置（工作、任务等）"]
+    },
+    {
+      "word": "confront",
+      "en_definition": [
+        "to make somebody face or deal with an unpleasant or difficult person or situation"
+      ],
+      "zh_definition": ["使面临；使面对；使对付（令人不快或难处的人、场合）"]
+    },
+    {
+      "word": "seize",
+      "en_definition": [
+        "to take somebody/something in your hand suddenly and using force"
+      ],
+      "zh_definition": ["抓住；捉住；夺"]
+    },
+    {
+      "word": "communist",
+      "en_definition": ["a person who believes in or supports communism"],
+      "zh_definition": ["共产主义者；共产主义的支持者"]
+    },
+    {
+      "word": "outstanding",
+      "en_definition": ["extremely good; excellent"],
+      "zh_definition": ["优秀的；杰出的；出色的"]
+    },
+    {
+      "word": "fascinating",
+      "en_definition": ["extremely interesting and attractive"],
+      "zh_definition": ["极有吸引力的；迷人的"]
+    },
+    {
+      "word": "herb",
+      "en_definition": [
+        "a plant whose leaves, flowers or seeds are used to flavour food, in medicines or for their pleasant smell"
+      ],
+      "zh_definition": ["药草；香草"]
+    },
+    {
+      "word": "extraordinary",
+      "en_definition": ["not normal or ordinary; greater or better than usual"],
+      "zh_definition": ["不平常的；非凡的；卓越的"]
+    },
+    {
+      "word": "pursue",
+      "en_definition": [
+        "to do something or try to achieve something over a period of time"
+      ],
+      "zh_definition": ["追求；致力于；执行；贯彻"]
+    },
+    {
+      "word": "dedicate",
+      "en_definition": [
+        "to give a lot of your time and effort to a particular activity or purpose because you think it is important"
+      ],
+      "zh_definition": ["把......奉献给"]
+    },
+    {
+      "word": "liberty",
+      "en_definition": [
+        "freedom to live as you choose without too many restrictions from government or authority"
+      ],
+      "zh_definition": ["自由"]
+    },
+    {
+      "word": "initially",
+      "en_definition": ["at the beginning"],
+      "zh_definition": ["开始；最初；起初"]
+    },
+    {
+      "word": "transformation",
+      "en_definition": ["a complete change in somebody/something"],
+      "zh_definition": ["（彻底的）变化；改观；转变"]
+    },
+    {
+      "word": "sorrow",
+      "en_definition": [
+        "a feeling of great sadness because something very bad has happened"
+      ],
+      "zh_definition": ["悲伤；悲痛；悲哀"]
+    },
+    {
+      "word": "subsequent",
+      "en_definition": ["happening or coming after something else"],
+      "zh_definition": ["随后的；后来的；之后的"]
+    },
+    {
+      "word": "lawyer",
+      "en_definition": [
+        "a person who is trained and qualified to advise people about the law and to represent them in court, and to write legal documents"
+      ],
+      "zh_definition": ["律师"]
+    },
+    {
+      "word": "welfare",
+      "en_definition": [
+        "the general health, happiness and safety of a person, an animal or a group"
+      ],
+      "zh_definition": ["（个人、动物或群体的）幸福；福祉；安康"]
+    },
+    {
+      "word": "involvement",
+      "en_definition": ["the act of taking part in something"],
+      "zh_definition": ["参与；加入；插手"]
+    },
+    {
+      "word": "expense",
+      "en_definition": ["the money you spend on something"],
+      "zh_definition": ["费用；价钱"]
+    },
+    {
+      "word": "principled",
+      "en_definition": [
+        "having strong beliefs about what is right and wrong",
+        "based on strong beliefs"
+      ],
+      "zh_definition": ["是非观念强的；原则性强的；基于坚定信念的"]
+    },
+    {
+      "word": "persistence",
+      "en_definition": [
+        "the fact of continuing to do something despite difficulties"
+      ],
+      "zh_definition": ["坚持；锲而不舍"]
+    },
+    {
+      "word": "dignity",
+      "en_definition": ["a sense of your own importance and value"],
+      "zh_definition": ["自豪；自尊；自重"]
+    },
+    {
+      "word": "steel",
+      "en_definition": [
+        "a strong hard metal that is made of a mixture of iron and carbon"
+      ],
+      "zh_definition": ["钢"]
+    },
+    {
+      "word": "stability",
+      "en_definition": [
+        "the quality or state of being steady and not changing or being disturbed in any way"
+      ],
+      "zh_definition": ["稳定（性）；稳固（性）"]
+    },
+    {
+      "word": "negotiate",
+      "en_definition": ["to try to reach an agreement by formal discussion"],
+      "zh_definition": ["谈判；磋商；协商"]
+    },
+    {
+      "word": "manner",
+      "en_definition": [
+        "the way that somebody behaves towards other people",
+        "the way that something is done or happens"
+      ],
+      "zh_definition": ["举止；行为方式", "方式；方法"]
+    },
+    {
+      "word": "capacity",
+      "en_definition": ["the ability to understand or to do something"],
+      "zh_definition": ["领悟（或理解、办事）能力"]
+    },
+    {
+      "word": "cling to",
+      "en_definition": ["to hold on tightly to somebody/something"],
+      "zh_definition": ["抓紧；紧握；紧抱"]
+    },
+    {
+      "word": "fond of",
+      "en_definition": ["having a liking for somebody/something"],
+      "zh_definition": ["喜爱"]
+    },
+    {
+      "word": "in the midst of",
+      "en_definition": ["in the middle of"],
+      "zh_definition": ["在......中间；在......中部"]
+    },
+    {
+      "word": "turn down",
+      "en_definition": [
+        "to reject or refuse to consider an offer, a proposal, etc. or the person who makes it"
+      ],
+      "zh_definition": ["拒绝；顶回（提议、建议或提议人）"]
+    }
+  ]
+}

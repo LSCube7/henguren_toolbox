@@ -1,0 +1,289 @@
+{
+	"vocabulary": [
+		{
+			"word": "convenience",
+			"en_definition": ["the quality of being useful, easy or suitable for somebody"],
+			"zh_definition": ["方便；便利"]
+		},
+		{
+			"word": "label",
+			"en_definition": ["a piece of paper, etc. that is attached to something and that gives information about it"],
+			"zh_definition": ["标签"]
+		},
+		{
+			"word": "global",
+			"en_definition": ["covering the whole world"],
+			"zh_definition": ["全球的；全世界的"]
+		},
+		{
+			"word": "snack",
+			"en_definition": ["a small meal or amount of food, usually eaten in a hurry"],
+			"zh_definition": ["点心；小吃；快餐"]
+		},
+		{
+			"word": "packaging",
+			"en_definition": ["materials used to wrap or protect goods that are sold in shops"],
+			"zh_definition": ["包装材料"]
+		},
+		{
+			"word": "recycle",
+			"en_definition": ["to treat things that have already been used so that they can be used again"],
+			"zh_definition": ["回收利用"]
+		},
+		{
+			"word": "facility",
+			"en_definition": ["a place, usually including buildings, used for a particular purpose or activity", "buildings, services, equipment, etc. that are provided for a particular purpose"],
+			"zh_definition": ["（供特定用途的）场所", "设施；设备"]
+		},
+		{
+			"word": "plastic",
+			"en_definition": ["a light strong material that is produced by chemical processes and can be formed into shapes when heated", "made of plastic"],
+			"zh_definition": ["塑料", "塑料制的；塑料的"]
+		},
+		{
+			"word": "container",
+			"en_definition": ["a box, bottle, etc. in which something can be stored or transported"],
+			"zh_definition": ["容器"]
+		},
+		{
+			"word": "greenhouse",
+			"en_definition": ["a building with glass sides and a glass roof for growing plants"],
+			"zh_definition": ["温室"]
+		},
+		{
+			"word": "energy-efficient",
+			"en_definition": ["that does not use much energy"],
+			"zh_definition": ["节能的"]
+		},
+		{
+			"word": "amount",
+			"en_definition": ["(of sth) (used especially with uncountable nouns) a quantity of something"],
+			"zh_definition": ["数量；数额"]
+		},
+		{
+			"word": "gas",
+			"en_definition": ["any substance like air that is neither a solid nor a liquid"],
+			"zh_definition": ["气体"]
+		},
+		{
+			"word": "impact",
+			"en_definition": ["the powerful effect that something has on somebody / something"],
+			"zh_definition": ["巨大影响；强大作用"]
+		},
+		{
+			"word": "determine",
+			"en_definition": ["to discover the facts about something; to calculate something exactly"],
+			"zh_definition": ["查明；测定；准确算出"]
+		},
+		{
+			"word": "stress",
+			"en_definition": ["pressure put on something that can damage it", "pressure or worry caused by the problems in somebody's life"],
+			"zh_definition": ["压力", "精神压力；心理负担；紧张"]
+		},
+		{
+			"word": "cattle",
+			"en_definition": ["cows and bulls that are kept as farm animals for their milk or meat"],
+			"zh_definition": ["牛"]
+		},
+		{
+			"word": "frozen",
+			"en_definition": ["(of food) kept at a very low temperature in order to preserve it"],
+			"zh_definition": ["冷冻的；冷藏的"]
+		},
+		{
+			"word": "link",
+			"en_definition": ["to make a connection between one and another"],
+			"zh_definition": ["连接"]
+		},
+		{
+			"word": "teenager",
+			"en_definition": ["a person who is between 13 and 19 years old"],
+			"zh_definition": ["（13 至 19 岁之间的）青少年"]
+		},
+		{
+			"word": "diet",
+			"en_definition": ["the food that you eat and drink regularly"],
+			"zh_definition": ["日常饮食；日常食物"]
+		},
+		{
+			"word": "details",
+			"en_definition": ["information about something"],
+			"zh_definition": ["具体情况"]
+		},
+		{
+			"word": "yoghurt",
+			"en_definition": ["a thick white liquid food, made by adding bacteria to milk"],
+			"zh_definition": ["酸奶"]
+		},
+		{
+			"word": "slim",
+			"en_definition": ["(of a person) thin, in an attractive way"],
+			"zh_definition": ["苗条的；纤细的"]
+		},
+		{
+			"word": "image",
+			"en_definition": ["the impression that somebody / something gives to the public"],
+			"zh_definition": ["形象；印象"]
+		},
+		{
+			"word": "source",
+			"en_definition": ["a person or thing that causes something, especially a problem"],
+			"zh_definition": ["起源；根源；原因"]
+		},
+		{
+			"word": "expert",
+			"en_definition": ["a person with special knowledge, skill or training in something"],
+			"zh_definition": ["专家；行家；能手"]
+		},
+		{
+			"word": "loss",
+			"en_definition": ["the state of no longer having something or as much of something"],
+			"zh_definition": ["丧失；损失；丢失"]
+		},
+		{
+			"word": "actually",
+			"en_definition": ["used in speaking to emphasize a fact or a comment, or that something is really true"],
+			"zh_definition": ["（在口语中用于强调事实）的确，真实地，事实上"]
+		},
+		{
+			"word": "tend",
+			"en_definition": ["to be likely to do something or to happen in a particular way because this is what often or usually happens"],
+			"zh_definition": ["往往会；常常就"]
+		},
+		{
+			"word": "moreover",
+			"en_definition": ["used to introduce some new information that adds to or supports what you have said previously"],
+			"zh_definition": ["此外；而且"]
+		},
+		{
+			"word": "equal",
+			"en_definition": ["the same in size, quantity, value, etc. as something else"],
+			"zh_definition": ["（大小、数量、价值等）相同的，同样的；相等的"]
+		},
+		{
+			"word": "comment",
+			"en_definition": ["something that you say or write which gives an opinion on or explains somebody / something"],
+			"zh_definition": ["评论；解释"]
+		},
+		{
+			"word": "host",
+			"en_definition": ["a person who introduces a television or radio show, and talks to guests", "a person who invites guests to a meal, a party, etc. or who has people staying at their house"],
+			"zh_definition": ["（电视或广播的）节目主持人", "主人"]
+		},
+		{
+			"word": "remind",
+			"en_definition": ["to help somebody remember something, especially something important"],
+			"zh_definition": ["提醒；使想起"]
+		},
+		{
+			"word": "apologize",
+			"en_definition": ["to say that you are sorry for doing something wrong or causing a problem"],
+			"zh_definition": ["道歉；谢罪"]
+		},
+		{
+			"word": "pudding",
+			"en_definition": ["a sweet dish eaten at the end of a meal"],
+			"zh_definition": ["（餐末的）甜食，甜点"]
+		},
+		{
+			"word": "decoration",
+			"en_definition": ["a thing that makes something look more attractive on special occasions"],
+			"zh_definition": ["装饰品"]
+		},
+		{
+			"word": "consumer",
+			"en_definition": ["a person who buys goods or uses services"],
+			"zh_definition": ["消费者；顾客；用户"]
+		},
+		{
+			"word": "despite",
+			"en_definition": ["used to show that something happened or is true although something else might have happened to prevent it"],
+			"zh_definition": ["即使；尽管"]
+		},
+		{
+			"word": "prove",
+			"en_definition": ["to use facts, evidence, etc. to show that something is true"],
+			"zh_definition": ["证明；证实"]
+		},
+		{
+			"word": "retired",
+			"en_definition": ["having retired from work"],
+			"zh_definition": ["已退休的；已退职的"]
+		},
+		{
+			"word": "groceries",
+			"en_definition": ["food and other goods sold by a grocer or at a supermarket"],
+			"zh_definition": ["食品杂货"]
+		},
+		{
+			"word": "establish",
+			"en_definition": ["to discover or prove the facts of a situation", "to start or create an organization, a system, etc. that is meant to last for a long time"],
+			"zh_definition": ["查实；确定；证实", "建立；创立；设立"]
+		},
+		{
+			"word": "legally",
+			"en_definition": ["in a legal manner"],
+			"zh_definition": ["合法地"]
+		},
+		{
+			"word": "permit",
+			"en_definition": ["to allow somebody to do something or to allow something to happen"],
+			"zh_definition": ["允许；准许"]
+		},
+		{
+			"word": "assume",
+			"en_definition": ["to think or accept that something is true but without having proof of it"],
+			"zh_definition": ["假定；假设；认为"]
+		},
+		{
+			"word": "carbon footprint",
+			"en_definition": ["a measure of the amount of carbon dioxide that is produced by the daily activities of a person or company"],
+			"zh_definition": ["碳足迹（日常活动所产生的碳排放量的量度方式）"]
+		},
+		{
+			"word": "rubbish dump",
+			"en_definition": ["a place where waste or rubbish / garbage is taken and left"],
+			"zh_definition": ["垃圾场；废物堆"]
+		},
+		{
+			"word": "carbon dioxide",
+			"en_definition": ["a gas breathed out by people and animals from the lungs or produced by burning carbon"],
+			"zh_definition": ["二氧化碳"]
+		},
+		{
+			"word": "put ... aside",
+			"en_definition": ["to ignore or forget something"],
+			"zh_definition": ["忽视；不理睬；忘记"]
+		},
+		{
+			"word": "peanut butter",
+			"en_definition": ["a thick soft substance made from very finely chopped peanuts"],
+			"zh_definition": ["花生酱"]
+		},
+		{
+			"word": "baked potato",
+			"en_definition": ["a potato cooked in its skin in an oven"],
+			"zh_definition": ["（带皮）烤土豆"]
+		},
+		{
+			"word": "junk food",
+			"en_definition": ["food that is quick and easy to prepare and eat but that is thought to be bad for your health"],
+			"zh_definition": ["垃圾食品"]
+		},
+		{
+			"word": "vending machine",
+			"en_definition": ["a machine from which you can buy drinks, etc. by putting money in"],
+			"zh_definition": ["（出售饮料等的）自动售货机"]
+		},
+		{
+			"word": "pay regard to",
+			"en_definition": ["pay attention to or care for somebody / something"],
+			"zh_definition": ["注意；关注；关心"]
+		},
+		{
+			"word": "traffic accident",
+			"en_definition": ["an event in which a car, train, plane, etc. is damaged and often someone is hurt"],
+			"zh_definition": ["交通事故"]
+		}
+	]
+}

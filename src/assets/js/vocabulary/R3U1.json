@@ -1,0 +1,394 @@
+{
+  "vocabulary": [
+    {
+      "word": "nationality",
+      "en_definition": ["one’s legal right to belong to a nation"],
+      "zh_definition": ["国籍"]
+    },
+    {
+      "word": "journal",
+      "en_definition": [
+        "a written record of the things you do, see, etc. every day",
+        "a newspaper or magazine"
+      ],
+      "zh_definition": ["日志；日记", "报纸；刊物；杂志"]
+    },
+    {
+      "word": "authority",
+      "en_definition": [
+        "the power to give orders to people",
+        "the power to influence people because they respect your knowledge or official position"
+      ],
+      "zh_definition": ["权力", "权威；威信；影响力"]
+    },
+    {
+      "word": "journalist",
+      "en_definition": ["a reporter"],
+      "zh_definition": ["新闻记者；新闻工作者"]
+    },
+    {
+      "word": "annual",
+      "en_definition": ["happening or done once every year"],
+      "zh_definition": ["每年的；一年一次的"]
+    },
+    {
+      "word": "spot",
+      "en_definition": [
+        "to see or notice a person or thing, especially suddenly or when it is not easy to do so"
+      ],
+      "zh_definition": ["看见；看出；发现"]
+    },
+    {
+      "word": "entirely",
+      "en_definition": ["in every way possible; completely"],
+      "zh_definition": ["全部地；完整地；完全地"]
+    },
+    {
+      "word": "error",
+      "en_definition": [
+        "a mistake, especially one that causes problems or affects the result of something"
+      ],
+      "zh_definition": ["错误；差误"]
+    },
+    {
+      "word": "emotion",
+      "en_definition": ["a strong feeling such as love, fear or anger"],
+      "zh_definition": ["强烈的感情；情绪"]
+    },
+    {
+      "word": "female",
+      "en_definition": ["being a woman or a girl"],
+      "zh_definition": ["女的；女性的"]
+    },
+    {
+      "word": "illustrate",
+      "en_definition": [
+        "to make the meaning of something clearer by using examples, pictures, etc.",
+        "to use pictures, photographs, diagrams, etc. in a book, etc."
+      ],
+      "zh_definition": [
+        "（用示例、图画等）说明，解释",
+        "加插图于；给（书等）做图表"
+      ]
+    },
+    {
+      "word": "ensure",
+      "en_definition": ["to make sure that something happens or is definite"],
+      "zh_definition": ["保证；担保；确保"]
+    },
+    {
+      "word": "affect",
+      "en_definition": ["to produce a change in somebody / something"],
+      "zh_definition": ["影响"]
+    },
+    {
+      "word": "permission",
+      "en_definition": ["the act of allowing somebody to do something"],
+      "zh_definition": ["准许；许可；批准"]
+    },
+    {
+      "word": "subway",
+      "en_definition": ["an underground railway / railroad system in a city"],
+      "zh_definition": ["地铁；地铁交通"]
+    },
+    {
+      "word": "average",
+      "en_definition": ["ordinary; not special", "typical or normal"],
+      "zh_definition": ["普通的；平常的；一般的", "典型的；正常的"]
+    },
+    {
+      "word": "confirm",
+      "en_definition": [
+        "to state or show that something is definitely true or correct, especially by providing evidence"
+      ],
+      "zh_definition": ["（尤指提供证据来）证实，证明，确认"]
+    },
+    {
+      "word": "click",
+      "en_definition": [
+        "to press a button on the mouse to choose something on the computer screen",
+        "to make or cause something to make a short sharp sound"
+      ],
+      "zh_definition": ["点击", "（使）发出咔哒声"]
+    },
+    {
+      "word": "flexible",
+      "en_definition": ["able to change to suit new conditions or situations"],
+      "zh_definition": ["能适应新情况的；灵活的"]
+    },
+    {
+      "word": "perceive",
+      "en_definition": ["to notice or become aware of something"],
+      "zh_definition": ["注意到；意识到；察觉到"]
+    },
+    {
+      "word": "soccer",
+      "en_definition": ["(American English) football"],
+      "zh_definition": ["足球运动"]
+    },
+    {
+      "word": "horrible",
+      "en_definition": ["very bad or unpleasant"],
+      "zh_definition": ["极坏的；十分讨厌的；可恶的"]
+    },
+    {
+      "word": "joyfully",
+      "en_definition": ["happily"],
+      "zh_definition": ["高兴地；快乐地"]
+    },
+    {
+      "word": "calm",
+      "en_definition": ["quiet and peaceful"],
+      "zh_definition": ["宁静的"]
+    },
+    {
+      "word": "breathe",
+      "en_definition": [
+        "to take air into your lungs and send it out again through your nose or mouth"
+      ],
+      "zh_definition": ["呼吸"]
+    },
+    {
+      "word": "merrily",
+      "en_definition": ["in a happy, cheerful way"],
+      "zh_definition": ["高兴地；愉快地"]
+    },
+    {
+      "word": "release",
+      "en_definition": [
+        "the act of making something available to the public",
+        "to allow (news, etc) to be made known"
+      ],
+      "zh_definition": ["公开；发行", "发布（新闻等）"]
+    },
+    {
+      "word": "innovation",
+      "en_definition": [
+        "the introduction of new things, ideas or ways of doing something"
+      ],
+      "zh_definition": ["（新事物、思想或方法的）创造；创新；改革"]
+    },
+    {
+      "word": "outline",
+      "en_definition": [
+        "to give a description of the main facts or points involved in something"
+      ],
+      "zh_definition": ["概述；略述"]
+    },
+    {
+      "word": "collection",
+      "en_definition": [
+        "a group of objects, often of the same sort, that have been collected"
+      ],
+      "zh_definition": ["（常指同类的）收集物，收藏品"]
+    },
+    {
+      "word": "committee",
+      "en_definition": [
+        "a group of people chosen to do a particular job, make decisions, etc."
+      ],
+      "zh_definition": ["委员会"]
+    },
+    {
+      "word": "announce",
+      "en_definition": ["to make something known publicly"],
+      "zh_definition": ["宣布"]
+    },
+    {
+      "word": "entry",
+      "en_definition": [
+        "something that you do, write or make to take part in a competition"
+      ],
+      "zh_definition": ["参赛作品"]
+    },
+    {
+      "word": "publish",
+      "en_definition": [
+        "to produce a book, magazine, CD-ROM, etc. and sell it to the public"
+      ],
+      "zh_definition": ["出版；发行"]
+    },
+    {
+      "word": "plot",
+      "en_definition": [
+        "the series of events that form the story of a novel, play, film / movie, etc."
+      ],
+      "zh_definition": ["故事情节；布局"]
+    },
+    {
+      "word": "super",
+      "en_definition": ["extremely"],
+      "zh_definition": ["非常；极"]
+    },
+    {
+      "word": "soundtrack",
+      "en_definition": [
+        "all the music, speech and sounds that are recorded for a film / movie"
+      ],
+      "zh_definition": ["（电影的）声迹，声带"]
+    },
+    {
+      "word": "character",
+      "en_definition": [
+        "a person or an animal in a book, play or film / movie"
+      ],
+      "zh_definition": ["（书籍、戏剧或电影中的）人物，角色"]
+    },
+    {
+      "word": "civilization",
+      "en_definition": [
+        "a state of human society that is very developed and organized"
+      ],
+      "zh_definition": ["文明"]
+    },
+    {
+      "word": "novel",
+      "en_definition": [
+        "a story long enough to fill a complete book, in which the characters and events are usually imaginary"
+      ],
+      "zh_definition": ["（长篇）小说"]
+    },
+    {
+      "word": "astronaut",
+      "en_definition": [
+        "a person whose job involves travelling and working in a spacecraft"
+      ],
+      "zh_definition": ["宇航员；航天员"]
+    },
+    {
+      "word": "system",
+      "en_definition": [
+        "a group of things, pieces of equipment, etc. that are connected or work together",
+        "an organized set of ideas or theories or a particular way of doing something"
+      ],
+      "zh_definition": ["系统", "（思想或理论）体系；体制"]
+    },
+    {
+      "word": "crash",
+      "en_definition": [
+        "to hit something hard while moving, causing noise and / or damage"
+      ],
+      "zh_definition": ["（使）猛撞；碰撞"]
+    },
+    {
+      "word": "disaster",
+      "en_definition": [
+        "an unexpected event, such as a very bad accident, a flood or a fire, that kills a lot of people or causes a lot of damage"
+      ],
+      "zh_definition": ["灾难；灾祸"]
+    },
+    {
+      "word": "pack",
+      "en_definition": [
+        "to fill something with a lot of people or things",
+        "to put clothes, etc. into a bag"
+      ],
+      "zh_definition": ["塞进", "装（箱）"]
+    },
+    {
+      "word": "entertaining",
+      "en_definition": ["interesting and amusing"],
+      "zh_definition": ["有趣的；娱乐的；使人愉快的"]
+    },
+    {
+      "word": "throughout",
+      "en_definition": ["during the whole period of time of something"],
+      "zh_definition": ["自始至终；贯穿整个时期"]
+    },
+    {
+      "word": "photographer",
+      "en_definition": ["a person who takes photographs, especially as a job"],
+      "zh_definition": ["拍照者；摄影师"]
+    },
+    {
+      "word": "rare",
+      "en_definition": ["not done, seen, happening, etc. very often"],
+      "zh_definition": ["稀少的；稀罕的"]
+    },
+    {
+      "word": "region",
+      "en_definition": ["a large area of land"],
+      "zh_definition": ["地区；区域；地方"]
+    },
+    {
+      "word": "custom",
+      "en_definition": [
+        "an accepted way of behaving or of doing things in a society or a community"
+      ],
+      "zh_definition": ["风俗；习俗"]
+    },
+    {
+      "word": "overall",
+      "en_definition": [
+        "including everything or everyone; in total",
+        "generally"
+      ],
+      "zh_definition": ["全部；总计", "一般来说；大致上；总体上"]
+    },
+    {
+      "word": "ordinary",
+      "en_definition": ["not unusual or different in any way"],
+      "zh_definition": ["普通的；平常的；平凡的"]
+    },
+    {
+      "word": "province",
+      "en_definition": [
+        "one of the areas that some countries are divided into with its own local government"
+      ],
+      "zh_definition": ["省份；（某些国家的）一级行政区"]
+    },
+    {
+      "word": "flour",
+      "en_definition": [
+        "a fine white or brown powder made from grain, especially wheat, and used in cooking for making bread, cakes, etc."
+      ],
+      "zh_definition": ["（尤指小麦的）面粉；（谷物磨成的）粉"]
+    },
+    {
+      "word": "participate in",
+      "en_definition": ["to take part in or become involved in an activity"],
+      "zh_definition": ["参加；参与"]
+    },
+    {
+      "word": "ought to",
+      "en_definition": ["used to say what is the right thing to do"],
+      "zh_definition": ["应该；应当"]
+    },
+    {
+      "word": "appeal to",
+      "en_definition": ["to attract or interest somebody"],
+      "zh_definition": ["有吸引力；有感染力；引起兴趣"]
+    },
+    {
+      "word": "stewed beef",
+      "en_definition": [
+        "a dish in which beef is slowly cooked in liquid, which results in a thick, soup-like food"
+      ],
+      "zh_definition": ["炖牛肉"]
+    },
+    {
+      "word": "soy sauce",
+      "en_definition": [
+        "a thin dark brown sauce that is made from soya beans and has a salty taste"
+      ],
+      "zh_definition": ["酱油"]
+    },
+    {
+      "word": "steamed bun",
+      "en_definition": ["a flour dish that is cooked by hot steam"],
+      "zh_definition": ["馒头"]
+    },
+    {
+      "word": "staple food",
+      "en_definition": ["a basic type of food"],
+      "zh_definition": ["基本食物；主食"]
+    },
+    {
+      "word": "focus on",
+      "en_definition": [
+        "to give attention, effort, etc. to one particular subject, situation or person"
+      ],
+      "zh_definition": ["集中（注意力、精力等）于"]
+    }
+  ]
+}

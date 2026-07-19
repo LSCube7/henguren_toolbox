@@ -1,0 +1,289 @@
+{
+	"vocabulary": [
+		{
+			"word": "climate",
+			"en_definition": ["the regular pattern of weather conditions of a particular place"],
+			"zh_definition": ["气候"]
+		},
+		{
+			"word": "billion",
+			"en_definition": ["one thousand million"],
+			"zh_definition": ["十亿"]
+		},
+		{
+			"word": "alarming",
+			"en_definition": ["causing worry and fear"],
+			"zh_definition": ["使人惊恐的；令人惊慌的"]
+		},
+		{
+			"word": "rate",
+			"en_definition": ["a measurement of the speed"],
+			"zh_definition": ["速度；进度"]
+		},
+		{
+			"word": "predict",
+			"en_definition": ["to say that something will happen in the future"],
+			"zh_definition": ["预言；预告；预报"]
+		},
+		{
+			"word": "chain",
+			"en_definition": ["a series of connected things or people", "a series of connected metal rings, used for pulling or fastening things"],
+			"zh_definition": ["一系列，一连串（人或事）", "链子；锁链"]
+		},
+		{
+			"word": "hunt",
+			"en_definition": ["to chase wild animals or birds in order to catch or kill them for food, sport or to make money"],
+			"zh_definition": ["打猎；猎杀"]
+		},
+		{
+			"word": "agriculture",
+			"en_definition": ["the science or practice of farming"],
+			"zh_definition": ["农业；农学"]
+		},
+		{
+			"word": "figure",
+			"en_definition": ["a number representing a particular amount, especially one given in official information"],
+			"zh_definition": ["（代表数量，尤指官方资料中的）数字"]
+		},
+		{
+			"word": "significantly",
+			"en_definition": ["being important enough to have an effect on something or to be noticed"],
+			"zh_definition": ["有重大意义地；显著地；明显地"]
+		},
+		{
+			"word": "unfamiliar",
+			"en_definition": ["strange"],
+			"zh_definition": ["陌生的；不熟悉的"]
+		},
+		{
+			"word": "youth",
+			"en_definition": ["young people considered as a group", "the time of life when a person is young, especially the time before a child becomes an adult"],
+			"zh_definition": ["（统称）青年，年轻人", "青年时期（尤指成年以前）"]
+		},
+		{
+			"word": "threaten",
+			"en_definition": ["to be a danger to something"],
+			"zh_definition": ["危及；对......构成威胁"]
+		},
+		{
+			"word": "extinction",
+			"en_definition": ["a situation where a plant, an animal, a way of life, etc. no longer exists"],
+			"zh_definition": ["灭绝，绝种"]
+		},
+		{
+			"word": "admit",
+			"en_definition": ["to agree, often unwillingly, that something is true"],
+			"zh_definition": ["（常指勉强）承认"]
+		},
+		{
+			"word": "somehow",
+			"en_definition": ["for a reason that you don't know or understand", "in a way that is not known or certain"],
+			"zh_definition": ["不知为什么", "以某种方式"]
+		},
+		{
+			"word": "measure",
+			"en_definition": ["an official action that is done in order to achieve a particular aim"],
+			"zh_definition": ["措施；方法"]
+		},
+		{
+			"word": "absolutely",
+			"en_definition": ["used to emphasize that something is completely true"],
+			"zh_definition": ["（强调真实无误）绝对地，完全地"]
+		},
+		{
+			"word": "contrast",
+			"en_definition": ["to compare two things in order to show the differences between them"],
+			"zh_definition": ["对比；对照"]
+		},
+		{
+			"word": "imply",
+			"en_definition": ["to suggest that something is true or that you feel or think something, without saying so directly"],
+			"zh_definition": ["暗示；暗指"]
+		},
+		{
+			"word": "major",
+			"en_definition": ["very large or important"],
+			"zh_definition": ["主要的；重要的"]
+		},
+		{
+			"word": "available",
+			"en_definition": ["that you can get, buy or find easily"],
+			"zh_definition": ["可获得的；可购得的；可找到的"]
+		},
+		{
+			"word": "option",
+			"en_definition": ["choice"],
+			"zh_definition": ["选择；可选择的事物"]
+		},
+		{
+			"word": "desire",
+			"en_definition": ["a strong wish to have or do something"],
+			"zh_definition": ["愿望；欲望；渴望"]
+		},
+		{
+			"word": "reduce",
+			"en_definition": ["to make something less or smaller in size, quantity, price, etc."],
+			"zh_definition": ["减少，缩小（尺寸、数量、价格等）"]
+		},
+		{
+			"word": "design",
+			"en_definition": ["to decide how something will look, work, etc., especially by drawing plans or making models"],
+			"zh_definition": ["设计；制图；构思"]
+		},
+		{
+			"word": "balance",
+			"en_definition": ["to give equal importance to two contrasting things or parts of something"],
+			"zh_definition": ["同等重视（相对的两个事物或方面）"]
+		},
+		{
+			"word": "graduate",
+			"en_definition": ["to get a degree from a university or college", "a person who has a university degree"],
+			"zh_definition": ["大学毕业", "大学毕业生"]
+		},
+		{
+			"word": "plus",
+			"en_definition": ["used to add more information"],
+			"zh_definition": ["而且；此外；况且"]
+		},
+		{
+			"word": "eventually",
+			"en_definition": ["at the end of a period of time"],
+			"zh_definition": ["最后；终于"]
+		},
+		{
+			"word": "concerned",
+			"en_definition": ["interested in something"],
+			"zh_definition": ["感兴趣的；关切的；关注的"]
+		},
+		{
+			"word": "fund",
+			"en_definition": ["to provide money for something, usually something official"],
+			"zh_definition": ["为......提供资金；拨款给"]
+		},
+		{
+			"word": "mirror",
+			"en_definition": ["a piece of special flat glass that reflects images"],
+			"zh_definition": ["镜子"]
+		},
+		{
+			"word": "tear",
+			"en_definition": ["a drop of liquid that comes out of your eye when you cry"],
+			"zh_definition": ["眼泪；泪珠；泪水"]
+		},
+		{
+			"word": "net",
+			"en_definition": ["a type of material that is made of string, thread or wire tied together, with small spaces in between"],
+			"zh_definition": ["网；网状物"]
+		},
+		{
+			"word": "string",
+			"en_definition": ["material made of several threads twisted together, used for tying things together"],
+			"zh_definition": ["细绳；线；带子"]
+		},
+		{
+			"word": "mud",
+			"en_definition": ["wet earth that is soft and sticky"],
+			"zh_definition": ["泥；淤泥"]
+		},
+		{
+			"word": "cloth",
+			"en_definition": ["material made by weaving or knitting cotton, wool, silk, etc."],
+			"zh_definition": ["织物；布料"]
+		},
+		{
+			"word": "process",
+			"en_definition": ["a series of things that are done in order to achieve a particular result"],
+			"zh_definition": ["（为达到某一目标的）过程；进程"]
+		},
+		{
+			"word": "contact",
+			"en_definition": ["to communicate with somebody, for example by telephone or letter"],
+			"zh_definition": ["联系，联络（如用电话或信件）"]
+		},
+		{
+			"word": "madam",
+			"en_definition": ["a formal way of speaking or writing to a woman"],
+			"zh_definition": ["夫人；女士"]
+		},
+		{
+			"word": "advertise",
+			"en_definition": ["to make something known to the public in order to encourage people to buy or to use it"],
+			"zh_definition": ["做广告；登广告"]
+		},
+		{
+			"word": "therefore",
+			"en_definition": ["used to introduce the logical result of something that has just been mentioned"],
+			"zh_definition": ["因此；所以；因而"]
+		},
+		{
+			"word": "advertisement",
+			"en_definition": ["a notice, picture or film telling people about a product, job or service"],
+			"zh_definition": ["广告；启事"]
+		},
+		{
+			"word": "flight",
+			"en_definition": ["a plane making a particular journey", "a journey made by air, especially in a plane"],
+			"zh_definition": ["航班飞机；班机", "空中航行，航程"]
+		},
+		{
+			"word": "grateful",
+			"en_definition": ["feeling or showing thanks because somebody has done something kind for you"],
+			"zh_definition": ["感激的；表示感谢的"]
+		},
+		{
+			"word": "faithfully",
+			"en_definition": ["in a loyal way", "accurately; carefully"],
+			"zh_definition": ["忠实地；忠诚地", "准确地；如实地"]
+		},
+		{
+			"word": "formal",
+			"en_definition": ["(of a style of dress, speech, writing, behaviour, etc.) very correct and suitable for official or important occasions"],
+			"zh_definition": ["（穿着、言语、行为等）适合正式场合的；正规的；庄重的"]
+		},
+		{
+			"word": "official",
+			"en_definition": ["agreed to, said, done, etc. by somebody who is in a position of authority"],
+			"zh_definition": ["正式的；官方的；官方授权的"]
+		},
+		{
+			"word": "fluent",
+			"en_definition": ["able to speak, read or write a language, especially a foreign language, easily and well"],
+			"zh_definition": ["（尤指外语）流利的，流畅的；熟练的"]
+		},
+		{
+			"word": "exchange",
+			"en_definition": ["to give something to somebody and at the same time receive the same type of thing from them"],
+			"zh_definition": ["交换；交流"]
+		},
+		{
+			"word": "range",
+			"en_definition": ["a variety of things of a particular type"],
+			"zh_definition": ["一系列"]
+		},
+		{
+			"word": "spring roll",
+			"en_definition": ["a type of Chinese fried food consisting of a tube of thin pastry, filled with vegetables or meat"],
+			"zh_definition": ["春卷"]
+		},
+		{
+			"word": "silicon chip",
+			"en_definition": ["a very small piece of silicon used to carry a complicated electronic circuit"],
+			"zh_definition": ["硅片"]
+		},
+		{
+			"word": "solar-power battery",
+			"en_definition": ["a kind of battery using the sun's energy"],
+			"zh_definition": ["太阳能电池"]
+		},
+		{
+			"word": "look forward to",
+			"en_definition": ["to be thinking with pleasure about something that is going to happen"],
+			"zh_definition": ["盼望；期待"]
+		},
+		{
+			"word": "mother tongue",
+			"en_definition": ["one's first language"],
+			"zh_definition": ["母语"]
+		}
+	]
+}

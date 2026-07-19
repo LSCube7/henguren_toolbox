@@ -1,0 +1,264 @@
+{
+	"vocabulary": [
+		{
+			"word": "consultant",
+			"en_definition": ["an advisor"],
+			"zh_definition": ["顾问"]
+		},
+		{
+			"word": "faint",
+			"en_definition": ["that cannot be clearly seen, heard or smelt"],
+			"zh_definition": ["（光、声、味）微弱的，不清楚的"]
+		},
+		{
+			"word": "outline",
+			"en_definition": ["the line that goes around the edge of something, showing its main shape but not the details"],
+			"zh_definition": ["轮廓线；略图"]
+		},
+		{
+			"word": "hardware",
+			"en_definition": ["the machinery and electronic parts of a computer system"],
+			"zh_definition": ["（计算机）硬件"]
+		},
+		{
+			"word": "slight",
+			"en_definition": ["very small in degree"],
+			"zh_definition": ["轻微的；略微的"]
+		},
+		{
+			"word": "cord",
+			"en_definition": ["a piece of wire that is covered with plastic, used for carrying electricity to a piece of equipment"],
+			"zh_definition": ["软线；花线；皮线"]
+		},
+		{
+			"word": "inch",
+			"en_definition": ["a unit for measuring length, equal to 2.54 centimetres"],
+			"zh_definition": ["英寸（长度单位，等于 2.54 厘米）"]
+		},
+		{
+			"word": "intervening",
+			"en_definition": ["coming or existing between two events, dates, objects, etc."],
+			"zh_definition": ["发生于其间的；介于中间的"]
+		},
+		{
+			"word": "premature",
+			"en_definition": ["happening before the normal or expected time"],
+			"zh_definition": ["未成熟的；过早的；提前的"]
+		},
+		{
+			"word": "pipe",
+			"en_definition": ["a tube through which liquids and gases can flow"],
+			"zh_definition": ["管子；管道"]
+		},
+		{
+			"word": "adolescent",
+			"en_definition": ["be developing from a child into an adult", "a young person who is developing from a child into an adult"],
+			"zh_definition": ["青春期的", "青少年"]
+		},
+		{
+			"word": "phase",
+			"en_definition": ["a stage; a period"],
+			"zh_definition": ["阶段；时期"]
+		},
+		{
+			"word": "virtual",
+			"en_definition": ["made to appear to exist by the use of computer software, for example on the Internet", "almost or very nearly the thing described, so that any slight difference is not important"],
+			"zh_definition": ["（通过计算机软件，如在互联网上）模拟的，虚拟的", "几乎......的；事实上的"]
+		},
+		{
+			"word": "underlie",
+			"en_definition": ["(underlay, underlain) to be the basis or cause of something"],
+			"zh_definition": ["构成......的基础；作为......的原因"]
+		},
+		{
+			"word": "bubble",
+			"en_definition": ["a ball of air or gas in a liquid, or a ball of air inside a solid substance such as glass"],
+			"zh_definition": ["泡；气泡"]
+		},
+		{
+			"word": "infer",
+			"en_definition": ["to reach an opinion or decide that something is true on the basis of information that is available"],
+			"zh_definition": ["推断；推论；推理"]
+		},
+		{
+			"word": "fuel",
+			"en_definition": ["any material that produces heat or power, usually when it is burnt"],
+			"zh_definition": ["燃料"]
+		},
+		{
+			"word": "domain",
+			"en_definition": ["an area of knowledge or activity, especially ones that somebody is responsible for"],
+			"zh_definition": ["( 知识、活动的 ) 领域，范围，范畴"]
+		},
+		{
+			"word": "hydrogen",
+			"en_definition": ["a gas that is the lightest of all the elements"],
+			"zh_definition": ["氢气"]
+		},
+		{
+			"word": "mode",
+			"en_definition": ["a particular way of doing something"],
+			"zh_definition": ["方式；风格"]
+		},
+		{
+			"word": "broadcast",
+			"en_definition": ["(broadcast, broadcast) to send out programmes on television or radio", "a radio or television programme"],
+			"zh_definition": ["播送（电视或无线电节目）", "广播节目；电视节目"]
+		},
+		{
+			"word": "concrete",
+			"en_definition": ["based on facts, not on ideas or guesses"],
+			"zh_definition": ["确实的；具体的"]
+		},
+		{
+			"word": "hatch",
+			"en_definition": ["to create a plan or an idea", "(of a young bird, fish, insect, etc.) to come out of an egg"],
+			"zh_definition": ["策划", "孵出；出壳"]
+		},
+		{
+			"word": "acid",
+			"en_definition": ["a chemical, usually a liquid, that contains hydrogen and has a pH of less than seven"],
+			"zh_definition": ["酸"]
+		},
+		{
+			"word": "generator",
+			"en_definition": ["a machine for producing electricity"],
+			"zh_definition": ["发电机"]
+		},
+		{
+			"word": "telescope",
+			"en_definition": ["a piece of equipment shaped like a tube, containing lenses, that you look through to make objects that are far away appear larger and nearer"],
+			"zh_definition": ["望远镜"]
+		},
+		{
+			"word": "precede",
+			"en_definition": ["to happen before something or come before something / somebody in order"],
+			"zh_definition": ["在......之前发生（或出现）；先于"]
+		},
+		{
+			"word": "drug",
+			"en_definition": ["a substance used as a medicine or used in a medicine"],
+			"zh_definition": ["药；药物"]
+		},
+		{
+			"word": "breast",
+			"en_definition": ["either of the two round soft parts at the front of a woman's body that produce milk when she has had a baby"],
+			"zh_definition": ["（女子的）乳房"]
+		},
+		{
+			"word": "expertise",
+			"en_definition": ["expert knowledge or skill in a particular subject, activity or job"],
+			"zh_definition": ["专门知识；专门技能"]
+		},
+		{
+			"word": "leisure",
+			"en_definition": ["time that is spent doing what you enjoy when you are not working or studying"],
+			"zh_definition": ["闲暇；休闲"]
+		},
+		{
+			"word": "premier",
+			"en_definition": ["used especially in newspapers, etc. to mean 'prime minister'", "most important, famous or successful"],
+			"zh_definition": ["（尤用于报章等）总理，首相", "首要的；最著名的；最成功的；第一的"]
+		},
+		{
+			"word": "distribute",
+			"en_definition": ["to give things to a large number of people; to share something between a number of people"],
+			"zh_definition": ["分发；分配"]
+		},
+		{
+			"word": "inappropriate",
+			"en_definition": ["not suitable or proper in a particular situation"],
+			"zh_definition": ["不适当的；不合适的"]
+		},
+		{
+			"word": "recognition",
+			"en_definition": ["the act of remembering who somebody is when you see them, or of identifying what something is", "the act of accepting that something exists, is true or is official"],
+			"zh_definition": ["认出；认识；识别", "承认；认可"]
+		},
+		{
+			"word": "clone",
+			"en_definition": ["to produce an exact copy of an animal or a plant from its cells"],
+			"zh_definition": ["克隆"]
+		},
+		{
+			"word": "gravity",
+			"en_definition": ["the force that attracts objects in space towards each other, and that on the Earth pulls them towards the centre of the planet, so that things fall to the ground when they are dropped"],
+			"zh_definition": ["重力；地球引力"]
+		},
+		{
+			"word": "assess",
+			"en_definition": ["to make a judgement about the nature or quality of somebody / something"],
+			"zh_definition": ["评估，评定（性质、质量）"]
+		},
+		{
+			"word": "directory",
+			"en_definition": ["a book containing lists of information, usually in alphabetical order, for example people's telephone numbers or the names and addresses of businesses in a particular area"],
+			"zh_definition": ["名录；电话号码簿；公司名录"]
+		},
+		{
+			"word": "demonstrate",
+			"en_definition": ["to show something clearly by giving proof or evidence", "to show and explain how something works or how to do something"],
+			"zh_definition": ["证明；证实；论证；说明", "示范；演示"]
+		},
+		{
+			"word": "invest",
+			"en_definition": ["to spend money on something in order to make it better or more successful", "to buy property, shares in a company, etc. in the hope of making a profit"],
+			"zh_definition": ["（把资金）投入", "投资"]
+		},
+		{
+			"word": "upgrade",
+			"en_definition": ["the act of making a piece of machinery, computer system, etc. more powerful and efficient"],
+			"zh_definition": ["（机器、计算机系统等）升级；提高；改进"]
+		},
+		{
+			"word": "orbit",
+			"en_definition": ["a curved path followed by a planet or an object as it moves around another planet, star, moon, etc.", "to move in a path around a much larger object, especially a planet, star, etc."],
+			"zh_definition": ["（天体等运行的）轨道", "沿轨道运行；围绕......运动"]
+		},
+		{
+			"word": "universe",
+			"en_definition": ["the whole of space and everything in it, including the Earth, the planets and the stars"],
+			"zh_definition": ["宇宙；天地万物"]
+		},
+		{
+			"word": "vast",
+			"en_definition": ["extremely large in area, size, amount, etc."],
+			"zh_definition": ["辽阔的；巨大的；庞大的；大量的"]
+		},
+		{
+			"word": "proceed",
+			"en_definition": ["to do something next, after having done something else first"],
+			"zh_definition": ["接着做；继而做"]
+		},
+		{
+			"word": "seed",
+			"en_definition": ["the small hard part produced by a plant, from which a new plant can grow"],
+			"zh_definition": ["种子；籽"]
+		},
+		{
+			"word": "groundbreaking",
+			"en_definition": ["making new discoveries; using new methods"],
+			"zh_definition": ["开创性的；创新的；革新的"]
+		},
+		{
+			"word": "astronaut",
+			"en_definition": ["a person whose job involves travelling and working in a spacecraft"],
+			"zh_definition": ["宇航员；航天员"]
+		},
+		{
+			"word": "accomplishment",
+			"en_definition": ["an impressive thing that is done or achieved after a lot of work"],
+			"zh_definition": ["成就；成绩"]
+		},
+		{
+			"word": "tin cup",
+			"en_definition": ["a cup made of tin"],
+			"zh_definition": ["锡杯"]
+		},
+		{
+			"word": "pave the way",
+			"en_definition": ["to create a situation in which it is easier for someone to do something or something to happen"],
+			"zh_definition": ["铺路，铺平道路"]
+		}
+	]
+}

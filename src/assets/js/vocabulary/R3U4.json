@@ -1,0 +1,541 @@
+{
+    "vocabulary": [
+        {
+            "word": "guideline",
+            "en_definition": [
+                "rules or instructions telling you how to do something"
+            ],
+            "zh_definition": [
+                "准则"
+            ]
+        },
+        {
+            "word": "track",
+            "en_definition": [
+                "a rough path or road, usually one that has not been built but that has been made by people walking there"
+            ],
+            "zh_definition": [
+                "小道；小径"
+            ]
+        },
+        {
+            "word": "qualification",
+            "en_definition": [
+                "a skill or type of experience that you need for a particular job or activity"
+            ],
+            "zh_definition": [
+                "（通过经验或具备技能而取得的）资格，资历"
+            ]
+        },
+        {
+            "word": "enthusiasm",
+            "en_definition": [
+                "a strong feeling of excitement; interest in something; a desire to become involved in it"
+            ],
+            "zh_definition": [
+                "热情；热心"
+            ]
+        },
+        {
+            "word": "employ",
+            "en_definition": [
+                "to give somebody a job to do for payment",
+                "to use something such as a skill, method, etc. for a particular purpose"
+            ],
+            "zh_definition": [
+                "雇用",
+                "应用；运用；使用"
+            ]
+        },
+        {
+            "word": "charitable",
+            "en_definition": [
+                "connected with a charity or charities"
+            ],
+            "zh_definition": [
+                "慈善团体的；慈善事业的"
+            ]
+        },
+        {
+            "word": "foundation",
+            "en_definition": [
+                "an organization that is established to provide money for a particular purpose"
+            ],
+            "zh_definition": [
+                "基金会"
+            ]
+        },
+        {
+            "word": "conservation",
+            "en_definition": [
+                "the protection of the natural environment"
+            ],
+            "zh_definition": [
+                "（对自然环境的）保护"
+            ]
+        },
+        {
+            "word": "escape",
+            "en_definition": [
+                "to get away from an unpleasant or dangerous situation"
+            ],
+            "zh_definition": [
+                "逃脱；摆脱"
+            ]
+        },
+        {
+            "word": "nearby",
+            "en_definition": [
+                "near in position, not far away"
+            ],
+            "zh_definition": [
+                "附近的"
+            ]
+        },
+        {
+            "word": "highlight",
+            "en_definition": [
+                "the best, most interesting or most exciting part of something"
+            ],
+            "zh_definition": [
+                "最好（或最精彩、最激动人心）的部分"
+            ]
+        },
+        {
+            "word": "concept",
+            "en_definition": [
+                "an idea or a principle that is connected with something abstract"
+            ],
+            "zh_definition": [
+                "概念；观念"
+            ]
+        },
+        {
+            "word": "recreation",
+            "en_definition": [
+                "the fact of people doing things for enjoyment, when they are not working"
+            ],
+            "zh_definition": [
+                "娱乐；消遣"
+            ]
+        },
+        {
+            "word": "scholarship",
+            "en_definition": [
+                "an amount of money given to somebody by an organization to help pay for their education"
+            ],
+            "zh_definition": [
+                "奖学金"
+            ]
+        },
+        {
+            "word": "mosquito",
+            "en_definition": [
+                "a flying insect that bites humans and animals and suck their blood"
+            ],
+            "zh_definition": [
+                "蚊子"
+            ]
+        },
+        {
+            "word": "construct",
+            "en_definition": [
+                "to build or make something such as a road, building or machine"
+            ],
+            "zh_definition": [
+                "建造；修建"
+            ]
+        },
+        {
+            "word": "specific",
+            "en_definition": [
+                "detailed and exact"
+            ],
+            "zh_definition": [
+                "明确的；具体的"
+            ]
+        },
+        {
+            "word": "dinosaur",
+            "en_definition": [
+                "an animal that lived millions of years ago but is now extinct"
+            ],
+            "zh_definition": [
+                "恐龙"
+            ]
+        },
+        {
+            "word": "deer",
+            "en_definition": [
+                "an animal with long legs, that eats grass, leaves, etc. and can run fast"
+            ],
+            "zh_definition": [
+                "鹿"
+            ]
+        },
+        {
+            "word": "harm",
+            "en_definition": [
+                "to hurt or injure somebody or to damage something"
+            ],
+            "zh_definition": [
+                "伤害；损害"
+            ]
+        },
+        {
+            "word": "declare",
+            "en_definition": [
+                "to say something officially or publicly"
+            ],
+            "zh_definition": [
+                "宣布；宣告"
+            ]
+        },
+        {
+            "word": "tough",
+            "en_definition": [
+                "having or causing problems or difficulties"
+            ],
+            "zh_definition": [
+                "艰难的；棘手的"
+            ]
+        },
+        {
+            "word": "compete",
+            "en_definition": [
+                "to try to be more successful or better than somebody else"
+            ],
+            "zh_definition": [
+                "竞争；对抗"
+            ]
+        },
+        {
+            "word": "seek",
+            "en_definition": [
+                "to look for something / somebody"
+            ],
+            "zh_definition": [
+                "寻找"
+            ]
+        },
+        {
+            "word": "romantic",
+            "en_definition": [
+                "a person who is emotional and has a lot of imagination, and who has ideas and hopes that may not be realistic"
+            ],
+            "zh_definition": [
+                "浪漫的人；耽于幻想的人"
+            ]
+        },
+        {
+            "word": "dolphin",
+            "en_definition": [
+                "a sea animal (a mammal) that looks like a large fish with a pointed mouth"
+            ],
+            "zh_definition": [
+                "海豚"
+            ]
+        },
+        {
+            "word": "whale",
+            "en_definition": [
+                "a very large animal that lives in the sea and looks like a very large fish"
+            ],
+            "zh_definition": [
+                "鲸"
+            ]
+        },
+        {
+            "word": "anxious",
+            "en_definition": [
+                "feeling worried or nervous"
+            ],
+            "zh_definition": [
+                "焦虑；忧虑；担心"
+            ]
+        },
+        {
+            "word": "scared",
+            "en_definition": [
+                "frightened of something or afraid that something bad might happen"
+            ],
+            "zh_definition": [
+                "害怕；恐惧；担心"
+            ]
+        },
+        {
+            "word": "revise",
+            "en_definition": [
+                "to change something, in order to correct or improve it"
+            ],
+            "zh_definition": [
+                "修改；修订"
+            ]
+        },
+        {
+            "word": "extra",
+            "en_definition": [
+                "more than is usual, expected, or than exists already"
+            ],
+            "zh_definition": [
+                "额外的；外加的"
+            ]
+        },
+        {
+            "word": "engage",
+            "en_definition": [
+                "to become involved with and try to understand something / somebody",
+                "to take part"
+            ],
+            "zh_definition": [
+                "与......建立密切关系；尽力理解",
+                "参与"
+            ]
+        },
+        {
+            "word": "jogging",
+            "en_definition": [
+                "the activity of running slowly and steadily as a form of exercise"
+            ],
+            "zh_definition": [
+                "慢跑"
+            ]
+        },
+        {
+            "word": "persuade",
+            "en_definition": [
+                "to make somebody do something by giving them good reasons for doing it"
+            ],
+            "zh_definition": [
+                "劝说；说服"
+            ]
+        },
+        {
+            "word": "opera",
+            "en_definition": [
+                "a dramatic work in which all or most of the words are sung to music"
+            ],
+            "zh_definition": [
+                "歌剧"
+            ]
+        },
+        {
+            "word": "studio",
+            "en_definition": [
+                "a place where films / movies are made or produced"
+            ],
+            "zh_definition": [
+                "电影摄影棚"
+            ]
+        },
+        {
+            "word": "postpone",
+            "en_definition": [
+                "to arrange for an event, etc. to take place at a later time or date"
+            ],
+            "zh_definition": [
+                "延迟；延期"
+            ]
+        },
+        {
+            "word": "tale",
+            "en_definition": [
+                "an exciting description of an event"
+            ],
+            "zh_definition": [
+                "讲述；叙述"
+            ]
+        },
+        {
+            "word": "sufficient",
+            "en_definition": [
+                "enough for a particular purpose"
+            ],
+            "zh_definition": [
+                "足够的；充足的"
+            ]
+        },
+        {
+            "word": "kangaroo",
+            "en_definition": [
+                "a large Australian animal with a strong tail and back legs, that moves by jumping"
+            ],
+            "zh_definition": [
+                "袋鼠"
+            ]
+        },
+        {
+            "word": "engine",
+            "en_definition": [
+                "the part of a vehicle that produces power to make the vehicle move"
+            ],
+            "zh_definition": [
+                "发动机；引擎"
+            ]
+        },
+        {
+            "word": "calmly",
+            "en_definition": [
+                "behaving in a very controlled or ordinary way in a frightening or unusual situation"
+            ],
+            "zh_definition": [
+                "平静地；冷静地"
+            ]
+        },
+        {
+            "word": "further",
+            "en_definition": [
+                "at or to a greater distance"
+            ],
+            "zh_definition": [
+                "较远；更远"
+            ]
+        },
+        {
+            "word": "plate",
+            "en_definition": [
+                "a flat, usually round, dish that you put food on"
+            ],
+            "zh_definition": [
+                "盘子；碟子"
+            ]
+        },
+        {
+            "word": "flash",
+            "en_definition": [
+                "a sudden bright light that shines for a moment and then disappears"
+            ],
+            "zh_definition": [
+                "闪光；闪耀"
+            ]
+        },
+        {
+            "word": "chapter",
+            "en_definition": [
+                "a period of time in a person’s life or in history",
+                "a separate section of a book, usually with a number or title"
+            ],
+            "zh_definition": [
+                "（人生或历史的）时期，篇章",
+                "（书）的章，篇，回"
+            ]
+        },
+        {
+            "word": "highway",
+            "en_definition": [
+                "a main road for travelling long distances, especially one connecting and going through cities and towns"
+            ],
+            "zh_definition": [
+                "（尤指城镇间的）公路，干道"
+            ]
+        },
+        {
+            "word": "agricultural",
+            "en_definition": [
+                "about agriculture"
+            ],
+            "zh_definition": [
+                "农业的"
+            ]
+        },
+        {
+            "word": "drought",
+            "en_definition": [
+                "a long period of time when there is little or no rain"
+            ],
+            "zh_definition": [
+                "久旱；旱灾"
+            ]
+        },
+        {
+            "word": "movement",
+            "en_definition": [
+                "an act of moving from one place to another"
+            ],
+            "zh_definition": [
+                "移动；迁移"
+            ]
+        },
+        {
+            "word": "diagram",
+            "en_definition": [
+                "a simple drawing using lines to explain where something is, how it works, etc."
+            ],
+            "zh_definition": [
+                "简图；图解"
+            ]
+        },
+        {
+            "word": "gap year",
+            "en_definition": [
+                "a year that a young person spends working and / or travelling, often between leaving school and starting university"
+            ],
+            "zh_definition": [
+                "空缺年（常指中学毕业后上大学前所休的一年假期，用于实习或旅游）"
+            ]
+        },
+        {
+            "word": "life expectancy",
+            "en_definition": [
+                "the number of years that a person is likely to live"
+            ],
+            "zh_definition": [
+                "预期寿命"
+            ]
+        },
+        {
+            "word": "soak up",
+            "en_definition": [
+                "take in or absorb"
+            ],
+            "zh_definition": [
+                "吸收或吸掉"
+            ]
+        },
+        {
+            "word": "secondary school",
+            "en_definition": [
+                "a school for young people between the ages of 11 and 16 or 18"
+            ],
+            "zh_definition": [
+                "中等学校；中学"
+            ]
+        },
+        {
+            "word": "to be frank",
+            "en_definition": [
+                "used to show that you are being honest about something"
+            ],
+            "zh_definition": [
+                "老实说"
+            ]
+        },
+        {
+            "word": "neon light",
+            "en_definition": [
+                "very bright and colourful electric light"
+            ],
+            "zh_definition": [
+                "霓虹灯"
+            ]
+        },
+        {
+            "word": "dust storm",
+            "en_definition": [
+                "a storm that carries clouds of dust in the wind over a wide area"
+            ],
+            "zh_definition": [
+                "尘暴"
+            ]
+        },
+        {
+            "word": "brand new",
+            "en_definition": [
+                "completely new"
+            ],
+            "zh_definition": [
+                "全新的；崭新的"
+            ]
+        }
+    ]
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const cachePrefix = "henguren-v3-offline";
@@ -17,6 +18,7 @@ async function disableDevelopmentServiceWorker() {
 }
 
 export function ServiceWorkerRegister() {
+  const pathname = usePathname();
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [applyingUpdate, setApplyingUpdate] = useState(false);
 
@@ -105,7 +107,12 @@ export function ServiceWorkerRegister() {
   if (!waitingWorker) return null;
 
   return (
-    <div className="service-worker-snackbar" role="status" aria-live="polite" aria-atomic="true">
+    <div
+      className={`service-worker-snackbar${pathname === "/onboarding" ? " service-worker-snackbar--shellless" : ""}`}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <span>新版本已准备好，刷新页面即可更新。</span>
       <md-text-button disabled={applyingUpdate} onClick={applyUpdate}>
         {applyingUpdate ? "正在更新…" : "刷新更新"}

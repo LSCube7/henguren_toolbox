@@ -90,14 +90,8 @@ export async function clearOfflineCaches() {
   if (typeof caches === "undefined") return { deleted: 0 };
 
   const keys = await caches.keys();
-  let deleted = 0;
-  await Promise.all(
-    keys.map(async (key) => {
-      if (!key.startsWith(`${cachePrefix}-`)) return;
-      const ok = await caches.delete(key);
-      if (ok) deleted += 1;
-    })
-  );
+  const projectKeys = keys.filter((key) => key.startsWith(`${cachePrefix}-`));
+  const deletedCaches = await Promise.all(projectKeys.map((key) => caches.delete(key)));
 
-  return { deleted };
+  return { deleted: deletedCaches.filter(Boolean).length };
 }

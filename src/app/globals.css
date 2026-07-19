@@ -20,6 +20,7 @@
   --app-radius-xl: 28px;
   --app-radius-lg: 20px;
   --app-radius-md: 14px;
+  --md-sys-shape-corner-extra-small: 4px;
   --app-elevation-level0: none;
   --app-elevation-level1: none;
   --app-elevation-level2: 0 1px 2px rgb(20 28 44 / 10%), 0 1px 3px 1px rgb(20 28 44 / 7%);
@@ -935,6 +936,31 @@ md-outlined-select {
   background: var(--md-sys-color-secondary-container);
   border-radius: var(--app-radius-md);
   font-weight: 800;
+}
+
+.service-worker-snackbar {
+  position: fixed;
+  right: var(--md-sys-spacing-space200);
+  bottom: max(var(--md-sys-spacing-space200), env(safe-area-inset-bottom));
+  left: calc(var(--app-drawer-width) + var(--md-sys-spacing-space200));
+  z-index: 90;
+  display: grid;
+  width: min(560px, calc(100% - var(--app-drawer-width) - var(--md-sys-spacing-space200) - var(--md-sys-spacing-space200)));
+  min-height: 48px;
+  padding: var(--md-sys-spacing-space100) var(--md-sys-spacing-space100) var(--md-sys-spacing-space100) var(--md-sys-spacing-space200);
+  margin-inline: auto;
+  color: var(--md-sys-color-inverse-on-surface);
+  background: var(--md-sys-color-inverse-surface);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--md-sys-spacing-space100);
+  align-items: center;
+  line-height: 1.5;
+  animation: snackbar-enter var(--md-motion-duration-enter) var(--md-motion-easing-emphasized-decelerate) both;
+}
+
+.service-worker-snackbar md-text-button {
+  --md-text-button-label-text-color: var(--md-sys-color-inverse-primary);
 }
 
 .onboarding-route-main {
@@ -2604,6 +2630,18 @@ md-outlined-select {
   }
 }
 
+@keyframes snackbar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2616,6 +2654,12 @@ md-outlined-select {
 }
 
 @media (max-width: 899px) {
+  .service-worker-snackbar {
+    right: var(--md-sys-spacing-space200);
+    left: var(--md-sys-spacing-space200);
+    width: auto;
+  }
+
   .mobile-menu {
     display: grid;
   }

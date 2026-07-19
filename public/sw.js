@@ -1,30 +1,34 @@
-const VERSION = "henguren-v3-offline-v1";
-const APP_CACHE = `${VERSION}-app`;
-const STATIC_CACHE = `${VERSION}-static`;
-const DATA_CACHE = `${VERSION}-data`;
+const CACHE_PREFIX = "henguren-v3-offline";
+// Keep this value in sync with cacheVersion in src/lib/offline-cache.ts.
+// Increment it whenever the cached app shell or data contract changes.
+const VERSION = "v2";
+const APP_CACHE = `${CACHE_PREFIX}-${VERSION}-app`;
+const STATIC_CACHE = `${CACHE_PREFIX}-${VERSION}-static`;
+const DATA_CACHE = `${CACHE_PREFIX}-${VERSION}-data`;
+const CURRENT_CACHES = new Set([APP_CACHE, STATIC_CACHE, DATA_CACHE]);
 
 const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/settings", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms", "/offline.html"];
 const NEVER_CACHE_PREFIXES = ["/api/auth/", "/api/me", "/api/wrongbook"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(APP_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL_ROUTES))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(APP_CACHE).then((cache) => cache.addAll(APP_SHELL_ROUTES)));
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("henguren-v3-offline-") && !key.startsWith(VERSION)).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith(`${CACHE_PREFIX}-`) && !CURRENT_CACHES.has(key)).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
+  }
+
   if (event.data?.type === "CACHE_VOCAB_LISTS") {
     const names = Array.isArray(event.data.names) ? event.data.names : [];
     event.waitUntil(cacheVocabLists(names));

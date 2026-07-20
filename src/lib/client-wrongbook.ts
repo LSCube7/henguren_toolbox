@@ -42,60 +42,87 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
-async function getAllRecords(): Promise<WrongBookRecord[]> {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readonly");
-    const request = transaction.objectStore(STORE_NAME).getAll();
-    request.onsuccess = () => resolve(request.result as WrongBookRecord[]);
-    request.onerror = () => reject(request.error);
-    transaction.oncomplete = () => db.close();
-    transaction.onabort = () => db.close();
-  });
+function defaultMetadata(): WrongBookMetadata {
+  return {
+    id: META_ID,
+    updatedAt: new Date(0).toISOString(),
+    deletedRecords: [],
+    deletedBatches: []
+  };
 }
 
-async function getMetadata(): Promise<WrongBookMetadata> {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(META_STORE_NAME, "readonly");
-    const request = transaction.objectStore(META_STORE_NAME).get(META_ID);
-    request.onsuccess = () => {
-      const metadata = request.result as WrongBookMetadata | undefined;
-      resolve(metadata ?? {
-        id: META_ID,
-        updatedAt: new Date(0).toISOString(),
-        deletedRecords: [],
-        deletedBatches: []
-      });
-    };
-    request.onerror = () => reject(request.error);
-    transaction.oncomplete = () => db.close();
-    transaction.onabort = () => db.close();
-  });
+function snapshotFromStorage(clientId: string, records: WrongBookRecord[], metadata: WrongBookMetadata | undefined) {
+  const currentMetadata = metadata ?? defaultMetadata();
+  return normalizeWrongBook({
+    schemaVersion: 2,
+    userId: "local",
+    clientId,
+    updatedAt: currentMetadata.updatedAt,
+    records,
+    deletedRecords: currentMetadata.deletedRecords,
+    deletedBatches: currentMetadata.deletedBatches
+  }, "local");
 }
 
-async function writeSnapshot(snapshot: WrongBookSnapshot) {
+function metadataFromSnapshot(snapshot: WrongBookSnapshot): WrongBookMetadata {
+  return {
+    id: META_ID,
+    updatedAt: snapshot.updatedAt,
+    deletedRecords: snapshot.deletedRecords,
+    deletedBatches: snapshot.deletedBatches
+  };
+}
+
+async function updateLocalWrongBook(clientId: string, update: (snapshot: WrongBookSnapshot) => WrongBookSnapshot) {
   const db = await openDb();
-  await new Promise<void>((resolve, reject) => {
+  return await new Promise<WrongBookSnapshot>((resolve, reject) => {
+    // IndexedDB serializes readwrite transactions across tabs, so this transaction
+    // must both read the latest snapshot and write its replacement atomically.
     const transaction = db.transaction([STORE_NAME, META_STORE_NAME], "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    store.clear();
-    snapshot.records.forEach((record) => store.put(record));
-    transaction.objectStore(META_STORE_NAME).put({
-      id: META_ID,
-      updatedAt: snapshot.updatedAt,
-      deletedRecords: snapshot.deletedRecords,
-      deletedBatches: snapshot.deletedBatches
-    } satisfies WrongBookMetadata);
+    const recordStore = transaction.objectStore(STORE_NAME);
+    const metadataStore = transaction.objectStore(META_STORE_NAME);
+    const recordsRequest = recordStore.getAll();
+    const metadataRequest = metadataStore.get(META_ID);
+    let recordsReady = false;
+    let metadataReady = false;
+    let nextSnapshot: WrongBookSnapshot | null = null;
+    let updateError: unknown;
+
+    const applyUpdate = () => {
+      if (!recordsReady || !metadataReady || nextSnapshot) return;
+      try {
+        const current = snapshotFromStorage(
+          clientId,
+          recordsRequest.result as WrongBookRecord[],
+          metadataRequest.result as WrongBookMetadata | undefined
+        );
+        nextSnapshot = update(current);
+        recordStore.clear();
+        nextSnapshot.records.forEach((record) => recordStore.put(record));
+        metadataStore.put(metadataFromSnapshot(nextSnapshot));
+      } catch (error) {
+        updateError = error;
+        transaction.abort();
+      }
+    };
+
+    recordsRequest.onsuccess = () => {
+      recordsReady = true;
+      applyUpdate();
+    };
+    metadataRequest.onsuccess = () => {
+      metadataReady = true;
+      applyUpdate();
+    };
     transaction.oncomplete = () => {
       db.close();
-      resolve();
+      if (nextSnapshot) resolve(nextSnapshot);
+      else reject(new Error("错题本更新未生成新快照。"));
     };
-    transaction.onerror = () => {
+    transaction.onabort = () => {
       db.close();
-      reject(transaction.error);
+      reject(updateError ?? transaction.error ?? new Error("错题本事务已中止。"));
     };
-    transaction.onabort = () => db.close();
   });
 }
 
@@ -114,48 +141,57 @@ async function withWrongBookWrite<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 export async function readLocalWrongBook(clientId: string): Promise<WrongBookSnapshot> {
-  const [records, metadata] = await Promise.all([getAllRecords(), getMetadata()]);
-  return normalizeWrongBook({
-    schemaVersion: 2,
-    userId: "local",
-    clientId,
-    updatedAt: metadata.updatedAt,
-    records,
-    deletedRecords: metadata.deletedRecords,
-    deletedBatches: metadata.deletedBatches
-  }, "local");
+  const db = await openDb();
+  return await new Promise<WrongBookSnapshot>((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME, META_STORE_NAME], "readonly");
+    const recordsRequest = transaction.objectStore(STORE_NAME).getAll();
+    const metadataRequest = transaction.objectStore(META_STORE_NAME).get(META_ID);
+    transaction.oncomplete = () => {
+      db.close();
+      resolve(snapshotFromStorage(
+        clientId,
+        recordsRequest.result as WrongBookRecord[],
+        metadataRequest.result as WrongBookMetadata | undefined
+      ));
+    };
+    transaction.onabort = () => {
+      db.close();
+      reject(transaction.error ?? new Error("错题本读取事务已中止。"));
+    };
+  });
 }
 
 export function addWrongWord(word: VocabWord, testNo: string, batchName?: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
-    const snapshot = await readLocalWrongBook(clientId);
     const id = `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
-    const existing = snapshot.records.find((record) => record.id === id);
     const now = new Date().toISOString();
-    const wrongAttempts = [
-      ...(existing?.wrongAttempts ?? []),
-      { id: `${clientId}:${crypto.randomUUID()}`, testNo, batchName: batchName || undefined, clientId, createdAt: now }
-    ];
-    const next: WrongBookRecord = {
-      id,
-      word: word.word,
-      sourceName: word.sourceName ?? "custom",
-      sourceTitle: word.sourceTitle,
-      definitions: word.en_definition,
-      zhDefinitions: word.zh_definition,
-      wrongCount: wrongAttempts.length,
-      wrongAttempts,
-      testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
-      batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
-      createdAt: existing?.createdAt ?? now,
-      updatedAt: now
-    };
-    await writeSnapshot({
-      ...snapshot,
-      updatedAt: now,
-      records: [...snapshot.records.filter((record) => record.id !== id), next],
-      deletedRecords: snapshot.deletedRecords
+    const attemptId = `${clientId}:${crypto.randomUUID()}`;
+    await updateLocalWrongBook(clientId, (snapshot) => {
+      const existing = snapshot.records.find((record) => record.id === id);
+      const wrongAttempts = [
+        ...(existing?.wrongAttempts ?? []),
+        { id: attemptId, testNo, batchName: batchName || undefined, clientId, createdAt: now }
+      ];
+      const next: WrongBookRecord = {
+        id,
+        word: word.word,
+        sourceName: word.sourceName ?? "custom",
+        sourceTitle: word.sourceTitle,
+        definitions: word.en_definition,
+        zhDefinitions: word.zh_definition,
+        wrongCount: wrongAttempts.length,
+        wrongAttempts,
+        testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
+        batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
+        createdAt: existing?.createdAt ?? now,
+        updatedAt: now
+      };
+      return {
+        ...snapshot,
+        updatedAt: now,
+        records: [...snapshot.records.filter((record) => record.id !== id), next]
+      };
     });
   });
 }
@@ -163,50 +199,51 @@ export function addWrongWord(word: VocabWord, testNo: string, batchName?: string
 export function importWrongBookSnapshot(snapshot: Partial<WrongBookSnapshot>) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
-    const local = await readLocalWrongBook(clientId);
     const incoming = normalizeWrongBook(snapshot, snapshot.userId || "import");
-    const merged = mergeWrongBooks("local", local, incoming);
-    await writeSnapshot({ ...merged, clientId, userId: "local" });
+    await updateLocalWrongBook(clientId, (local) => {
+      const merged = mergeWrongBooks("local", local, incoming);
+      return { ...merged, clientId, userId: "local" };
+    });
   });
 }
 
 export function deleteWrongRecord(id: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
-    const snapshot = await readLocalWrongBook(clientId);
     const now = new Date().toISOString();
-    await writeSnapshot({
+    await updateLocalWrongBook(clientId, (snapshot) => ({
       ...snapshot,
       updatedAt: now,
       records: snapshot.records.filter((record) => record.id !== id),
       deletedRecords: upsertTombstone(snapshot.deletedRecords, { id, clientId, deletedAt: now })
-    });
+    }));
   });
 }
 
 export function deleteWrongBatch(testNo: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
-    const snapshot = await readLocalWrongBook(clientId);
     const now = new Date().toISOString();
-    const records = snapshot.records.flatMap((record) => {
-      const wrongAttempts = (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo !== testNo);
-      if (wrongAttempts.length === 0) return [];
-      if (wrongAttempts.length === record.wrongAttempts?.length) return [record];
-      return [{
-        ...record,
-        wrongCount: wrongAttempts.length,
-        wrongAttempts,
-        testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
-        batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
-        updatedAt: now
-      }];
-    });
-    await writeSnapshot({
-      ...snapshot,
-      updatedAt: now,
-      records,
-      deletedBatches: upsertTombstone(snapshot.deletedBatches, { id: testNo, clientId, deletedAt: now })
+    await updateLocalWrongBook(clientId, (snapshot) => {
+      const records = snapshot.records.flatMap((record) => {
+        const wrongAttempts = (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo !== testNo);
+        if (wrongAttempts.length === 0) return [];
+        if (wrongAttempts.length === record.wrongAttempts?.length) return [record];
+        return [{
+          ...record,
+          wrongCount: wrongAttempts.length,
+          wrongAttempts,
+          testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
+          batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
+          updatedAt: now
+        }];
+      });
+      return {
+        ...snapshot,
+        updatedAt: now,
+        records,
+        deletedBatches: upsertTombstone(snapshot.deletedBatches, { id: testNo, clientId, deletedAt: now })
+      };
     });
   });
 }

@@ -15,7 +15,7 @@ import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
-import type { WrongBookSnapshot, VocabWord } from "@/lib/types";
+import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, type WrongBookSnapshot, type VocabWord } from "@/lib/types";
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,10 @@ const wrongBookLevelOptions: Array<{ value: WrongBookLevel; label: string }> = [
   { value: "1", label: "错 1 次" },
   { value: "2", label: "错 2 次" },
   { value: "3plus", label: "错 3+ 次" }
+];
+const definitionLanguageOptions: Array<{ value: VocabDefinitionLanguage; label: string }> = [
+  { value: "zh", label: "中文释义" },
+  { value: "en", label: "英语释义" }
 ];
 
 const cloudActionIcon: Record<CloudAction, string> = {
@@ -59,13 +63,41 @@ function normalizeCustomWords(words: VocabWord[], sourceName: string, sourceTitl
 }
 
 function getSavedQuizSettings() {
-  if (typeof window === "undefined") return { showHint: true, enableSlipDetection: false, defaultTestCount: 20 };
+  const fallback = {
+    showHint: defaultSettings.showHint,
+    enableSlipDetection: defaultSettings.enableSlipDetection,
+    defaultTestCount: defaultSettings.defaultTestCount,
+    vocabDefinitionLanguages: defaultSettings.vocabDefinitionLanguages
+  };
+  if (typeof window === "undefined") return fallback;
   try {
     const saved = localStorage.getItem("henguren-v3-settings");
-    return saved ? { showHint: true, enableSlipDetection: false, defaultTestCount: 20, ...JSON.parse(saved) } : { showHint: true, enableSlipDetection: false, defaultTestCount: 20 };
+    const parsed = saved ? (JSON.parse(saved) as Partial<ToolboxSettings>) : {};
+    const languages = Array.isArray(parsed.vocabDefinitionLanguages)
+      ? parsed.vocabDefinitionLanguages.filter((language): language is VocabDefinitionLanguage => language === "zh" || language === "en")
+      : fallback.vocabDefinitionLanguages;
+    return {
+      ...fallback,
+      ...parsed,
+      vocabDefinitionLanguages: languages.length > 0 ? languages : fallback.vocabDefinitionLanguages
+    };
   } catch {
-    return { showHint: true, enableSlipDetection: false, defaultTestCount: 20 };
+    return fallback;
   }
+}
+
+function persistDefinitionLanguages(languages: VocabDefinitionLanguage[]) {
+  let settings = defaultSettings;
+  try {
+    const saved = localStorage.getItem("henguren-v3-settings");
+    settings = saved ? { ...defaultSettings, ...(JSON.parse(saved) as Partial<ToolboxSettings>) } : defaultSettings;
+  } catch {
+    settings = defaultSettings;
+  }
+  localStorage.setItem(
+    "henguren-v3-settings",
+    JSON.stringify({ ...settings, vocabDefinitionLanguages: languages, updatedAt: new Date().toISOString() })
+  );
 }
 
 function valueFrom(event: FormEvent<HTMLElement>) {
@@ -91,6 +123,7 @@ export function VocabClient() {
   const [testCount, setTestCount] = useState(() => getSavedQuizSettings().defaultTestCount);
   const [showHint, setShowHint] = useState(() => getSavedQuizSettings().showHint);
   const [enableSlipDetection, setEnableSlipDetection] = useState(() => getSavedQuizSettings().enableSlipDetection);
+  const [definitionLanguages, setDefinitionLanguages] = useState<VocabDefinitionLanguage[]>(() => getSavedQuizSettings().vocabDefinitionLanguages);
   const [batchName, setBatchName] = useState("");
   const [testNo, setTestNo] = useState("");
   const [testWords, setTestWords] = useState<VocabWord[]>([]);
@@ -165,6 +198,19 @@ export function VocabClient() {
     const units = list.filter((item) => getBookCode(item.name) === bookCode).map((item) => item.name);
     const allSelected = units.every((unit) => selectedUnits.includes(unit));
     setSelectedUnits((current) => (allSelected ? current.filter((item) => !units.includes(item)) : Array.from(new Set([...current, ...units]))));
+  }
+
+  function toggleDefinitionLanguage(language: VocabDefinitionLanguage) {
+    setDefinitionLanguages((current) => {
+      const next = current.includes(language) ? current.filter((item) => item !== language) : [...current, language];
+      if (next.length === 0) {
+        setMessage("请至少保留一种题目释义语言。");
+        return current;
+      }
+      persistDefinitionLanguages(next);
+      setMessage("");
+      return next;
+    });
   }
 
   async function uploadCustomList(event: ChangeEvent<HTMLInputElement>) {
@@ -420,8 +466,18 @@ export function VocabClient() {
         </section>
         <section className="md-card stack" aria-label="当前题目">
           <div className="stack">
-            <h2 className="section-title">{currentWord?.en_definition.join("; ")}</h2>
-            <p className="helper-text">{currentWord?.zh_definition.join("；")}</p>
+            {definitionLanguages.includes("en") ? (
+              <div>
+                <span className="badge badge--neutral">英语释义</span>
+                <p className="section-title">{currentWord?.en_definition.join("; ") || "未提供英语释义"}</p>
+              </div>
+            ) : null}
+            {definitionLanguages.includes("zh") ? (
+              <div>
+                <span className="badge badge--neutral">中文释义</span>
+                <p className="section-title">{currentWord?.zh_definition.join("；") || "未提供中文释义"}</p>
+              </div>
+            ) : null}
           </div>
           <div className="cluster">
             {showHint && currentWord ? <span className="badge">{currentWord.word[0]}</span> : null}
@@ -477,7 +533,8 @@ export function VocabClient() {
             <article className="md-card md-card--flat spread" key={`${word.sourceName}-${word.word}`}>
               <div>
                 <h3 className="card-title">{word.word}</h3>
-                <p className="helper-text">{word.en_definition.join("; ")}</p>
+                {definitionLanguages.includes("en") ? <p className="helper-text">英语：{word.en_definition.join("; ") || "未提供"}</p> : null}
+                {definitionLanguages.includes("zh") ? <p className="helper-text">中文：{word.zh_definition.join("；") || "未提供"}</p> : null}
               </div>
               <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
             </article>
@@ -739,6 +796,20 @@ export function VocabClient() {
             <md-switch selected={enableSlipDetection} checked={enableSlipDetection} onInput={(event) => setEnableSlipDetection(checkedFrom(event))} />
             <span>手滑判定</span>
           </label>
+          <div className="stack" aria-label="题目释义语言">
+            <span className="helper-text">题目释义语言</span>
+            <div className="cluster">
+              {definitionLanguageOptions.map((option) => (
+                <md-filter-chip
+                  key={option.value}
+                  selected={definitionLanguages.includes(option.value)}
+                  onClick={() => toggleDefinitionLanguage(option.value)}
+                >
+                  {option.label}
+                </md-filter-chip>
+              ))}
+            </div>
+          </div>
           <md-outlined-text-field label="批次名称（可选）" value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
         </div>
       </section>

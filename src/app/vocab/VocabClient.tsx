@@ -28,6 +28,7 @@ type Screen = "select" | "testing" | "result" | "wrongbook";
 type WrongBookView = "words" | "batches";
 type WrongBookLevel = "all" | "1" | "2" | "3plus";
 type CloudAction = "pull" | "overwrite" | "merge";
+type AnswerOutcome = "correct" | "wrong";
 type DefinitionLanguageMode = "all" | VocabDefinitionLanguage;
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
@@ -149,6 +150,8 @@ export function VocabClient() {
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [pendingSlip, setPendingSlip] = useState(false);
+  const [answerOutcome, setAnswerOutcome] = useState<AnswerOutcome | null>(null);
+  const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const [correctWords, setCorrectWords] = useState<VocabWord[]>([]);
   const [incorrectWords, setIncorrectWords] = useState<VocabWord[]>([]);
   const [wrongBook, setWrongBook] = useState<WrongBookSnapshot | null>(null);
@@ -165,6 +168,9 @@ export function VocabClient() {
   const [customListDialogKey, setCustomListDialogKey] = useState(0);
   const customListRef = useRef<HTMLInputElement>(null);
   const importWrongBookRef = useRef<HTMLInputElement>(null);
+  const answerInputRef = useRef<HTMLElement | null>(null);
+  const answerSubmissionRef = useRef(false);
+  const blankAnswerSpaceArmedRef = useRef(false);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
   const currentWord = testWords[currentIndex];
   const definitionLanguageMode = getDefinitionLanguageMode(definitionLanguages);
@@ -328,6 +334,8 @@ export function VocabClient() {
       setAnswer("");
       setFeedback("");
       setPendingSlip(false);
+      setAnswerOutcome(null);
+      setSubmittingAnswer(false);
       setTestNo(`test-${nowStamp()}`);
       setScreen("testing");
     } catch (error) {
@@ -337,39 +345,98 @@ export function VocabClient() {
     }
   }
 
-  function advanceAfterAnswer() {
-    if (currentIndex + 1 >= testWords.length) {
-      setAnswer("");
+  useEffect(() => {
+    if (screen !== "testing" || answerOutcome || pendingSlip) return;
+    const frame = window.requestAnimationFrame(() => answerInputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [answerOutcome, currentIndex, pendingSlip, screen]);
+
+  useEffect(() => {
+    blankAnswerSpaceArmedRef.current = false;
+  }, [currentIndex, screen]);
+
+  async function finalizeAnswer(outcome: AnswerOutcome, resultMessage: string) {
+    if (!currentWord || answerSubmissionRef.current) return;
+    answerSubmissionRef.current = true;
+    setSubmittingAnswer(true);
+    let nextMessage = resultMessage;
+    try {
+      if (outcome === "correct") {
+        setCorrectWords((current) => [...current, currentWord]);
+      } else {
+        setIncorrectWords((current) => [...current, currentWord]);
+        try {
+          await addWrongWord(currentWord, testNo, batchName || undefined);
+          await refreshWrongBook();
+        } catch {
+          nextMessage = `${resultMessage}；错题本保存失败，请在结果页下载错误 JSON 留存。`;
+        }
+      }
+      setFeedback(nextMessage);
+      setAnswerOutcome(outcome);
       setPendingSlip(false);
-      setScreen("result");
-      return;
+    } finally {
+      answerSubmissionRef.current = false;
+      setSubmittingAnswer(false);
     }
-    setCurrentIndex((index) => index + 1);
-    setAnswer("");
-    setPendingSlip(false);
   }
 
-  async function submitAnswer(forced?: "correct" | "wrong") {
-    if (!currentWord) return;
+  async function submitAnswer(forced?: AnswerOutcome) {
+    if (!currentWord || answerOutcome || answerSubmissionRef.current) return;
     const result =
       forced === "wrong"
         ? { correct: false, slip: false, message: `已计为错误，答案是 ${currentWord.word}` }
         : forced === "correct"
           ? { correct: true, slip: false, message: `已计为正确：${currentWord.word}` }
-          : evaluateAnswer(answer, currentWord.word, enableSlipDetection);
-    setFeedback(result.message);
+          : evaluateAnswer(answer, currentWord.word, { enableSlipDetection, allowMissingFirstLetter: showHint });
     if (result.slip) {
+      setFeedback(result.message);
       setPendingSlip(true);
       return;
     }
-    if (result.correct) {
-      setCorrectWords((current) => [...current, currentWord]);
-    } else {
-      setIncorrectWords((current) => [...current, currentWord]);
-      await addWrongWord(currentWord, testNo, batchName || undefined);
-      await refreshWrongBook();
+    await finalizeAnswer(result.correct ? "correct" : "wrong", result.message);
+  }
+
+  function goNextQuestion() {
+    if (!answerOutcome) return;
+    if (currentIndex + 1 >= testWords.length) {
+      setAnswer("");
+      setPendingSlip(false);
+      setAnswerOutcome(null);
+      setScreen("result");
+      return;
     }
-    advanceAfterAnswer();
+    setCurrentIndex((index) => index + 1);
+    setAnswer("");
+    setFeedback("");
+    setPendingSlip(false);
+    setAnswerOutcome(null);
+  }
+
+  function finishTestEarly() {
+    if (correctWords.length + incorrectWords.length === 0) {
+      resetTest();
+      return;
+    }
+    setScreen("result");
+    setAnswer("");
+    setFeedback("");
+    setPendingSlip(false);
+    setAnswerOutcome(null);
+  }
+
+  function retryIncorrectWords() {
+    if (incorrectWords.length === 0) return;
+    setTestWords(pickWords(incorrectWords, "all", incorrectWords.length));
+    setCorrectWords([]);
+    setIncorrectWords([]);
+    setCurrentIndex(0);
+    setAnswer("");
+    setFeedback("");
+    setPendingSlip(false);
+    setAnswerOutcome(null);
+    setTestNo(`test-${nowStamp()}`);
+    setScreen("testing");
   }
 
   function resetTest() {
@@ -379,6 +446,8 @@ export function VocabClient() {
     setIncorrectWords([]);
     setFeedback("");
     setPendingSlip(false);
+    setAnswerOutcome(null);
+    setSubmittingAnswer(false);
     setAnswer("");
     setCurrentIndex(0);
   }
@@ -476,7 +545,9 @@ export function VocabClient() {
               {currentIndex + 1} / {testWords.length} · 当前来源：{currentWord?.sourceTitle ?? currentWord?.sourceName}
             </p>
           </div>
-          <md-outlined-button onClick={resetTest}>退出测试</md-outlined-button>
+          <md-outlined-button disabled={submittingAnswer} onClick={finishTestEarly}>
+            结束测试
+          </md-outlined-button>
         </section>
         <section className="md-card stack" aria-label="当前题目">
           <div className="stack">
@@ -496,20 +567,54 @@ export function VocabClient() {
           <div className="cluster">
             {showHint && currentWord ? <span className="badge">{currentWord.word[0]}</span> : null}
             <md-outlined-text-field
+              ref={answerInputRef}
               label="输入单词"
               value={answer}
-              onInput={(event) => setAnswer(valueFrom(event))}
+              readOnly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
+              aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
+              onInput={(event) => {
+                blankAnswerSpaceArmedRef.current = false;
+                setFeedback("");
+                setAnswer(valueFrom(event));
+              }}
               onKeyDown={(event) => {
+                if (pendingSlip || submittingAnswer) return;
+                if (answerOutcome) {
+                  if (event.key === "Enter") goNextQuestion();
+                  return;
+                }
+                if (!answer.trim()) {
+                  if (event.key === " ") {
+                    event.preventDefault();
+                    if (event.repeat) return;
+                    if (blankAnswerSpaceArmedRef.current) {
+                      blankAnswerSpaceArmedRef.current = false;
+                      void submitAnswer();
+                    } else {
+                      blankAnswerSpaceArmedRef.current = true;
+                      setFeedback("再次按空格提交空答案。");
+                    }
+                    return;
+                  }
+                  blankAnswerSpaceArmedRef.current = false;
+                  if (event.key === "Enter") event.preventDefault();
+                  return;
+                }
+                blankAnswerSpaceArmedRef.current = false;
                 if (event.key === "Enter") void submitAnswer();
               }}
             />
-            <md-filled-button onClick={() => void submitAnswer()}>提交</md-filled-button>
+            {answerOutcome ? (
+              <md-filled-button onClick={goNextQuestion}>{currentIndex + 1 >= testWords.length ? "查看结果" : "下一题"}</md-filled-button>
+            ) : (
+              <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>提交</md-filled-button>
+            )}
           </div>
-          <StatusAlert message={feedback} />
+          <StatusAlert message={feedback} tone={answerOutcome === "wrong" ? "error" : "info"} />
           {pendingSlip ? (
             <div className="cluster">
-              <md-outlined-button onClick={() => void submitAnswer("correct")}>判为正确</md-outlined-button>
-              <md-outlined-button onClick={() => void submitAnswer("wrong")}>判为错误</md-outlined-button>
+              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>判为正确</md-outlined-button>
+              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("wrong")}>判为错误</md-outlined-button>
             </div>
           ) : null}
         </section>
@@ -539,7 +644,8 @@ export function VocabClient() {
             <h2 className="section-title">错误单词</h2>
             <div className="cluster">
               <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords })}>下载错误 JSON</md-outlined-button>
-              <md-filled-button onClick={resetTest}>重新开始</md-filled-button>
+              <md-outlined-button disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>重测本次错题</md-outlined-button>
+              <md-filled-button onClick={resetTest}>返回选择</md-filled-button>
             </div>
           </div>
           {incorrectWords.length === 0 ? <p className="helper-text">没有错误单词。</p> : null}

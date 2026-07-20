@@ -64,10 +64,13 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
   }
 
   const legacyWrongCount = Math.max(0, Number(record.wrongCount) || 0);
+  const fallbackLegacyAttempt = Array.from(attempts.values()).find((attempt) => attempt.testNo);
   for (let index = attempts.size; index < legacyWrongCount; index += 1) {
     const attemptId = `legacy:${id}:count:${index + 1}`;
     attempts.set(attemptId, {
       id: attemptId,
+      testNo: fallbackLegacyAttempt?.testNo,
+      batchName: fallbackLegacyAttempt?.batchName,
       clientId: "legacy",
       createdAt: String(record.createdAt ?? new Date(0).toISOString())
     });
@@ -121,7 +124,8 @@ function applyTombstones(records: WrongBookRecord[], deletedRecords: WrongBookTo
     const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => !recordDelete || attempt.createdAt >= recordDelete.deletedAt);
     const wrongAttempts = attemptsAfterRecordDelete.filter((attempt) => {
       if (!attempt.testNo) return true;
-      return !batchDeletes.has(attempt.testNo);
+      const batchDelete = batchDeletes.get(attempt.testNo);
+      return !batchDelete || attempt.createdAt >= batchDelete.deletedAt;
     });
     if (wrongAttempts.length === 0) return [];
     return [{

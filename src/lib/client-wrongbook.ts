@@ -19,12 +19,25 @@ type WrongBookMetadata = {
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
+    let upgradeBlocked = false;
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: "id" });
       if (!db.objectStoreNames.contains(META_STORE_NAME)) db.createObjectStore(META_STORE_NAME, { keyPath: "id" });
     };
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      const db = request.result;
+      db.onversionchange = () => db.close();
+      if (upgradeBlocked) {
+        db.close();
+        return;
+      }
+      resolve(db);
+    };
+    request.onblocked = () => {
+      upgradeBlocked = true;
+      reject(new Error("错题本升级被其他页面阻止，请关闭旧版本标签页后刷新重试。调试信息：模块 wrongbook-storage，错误类型 IDB_UPGRADE_BLOCKED。"));
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -36,6 +49,8 @@ async function getAllRecords(): Promise<WrongBookRecord[]> {
     const request = transaction.objectStore(STORE_NAME).getAll();
     request.onsuccess = () => resolve(request.result as WrongBookRecord[]);
     request.onerror = () => reject(request.error);
+    transaction.oncomplete = () => db.close();
+    transaction.onabort = () => db.close();
   });
 }
 
@@ -54,6 +69,8 @@ async function getMetadata(): Promise<WrongBookMetadata> {
       });
     };
     request.onerror = () => reject(request.error);
+    transaction.oncomplete = () => db.close();
+    transaction.onabort = () => db.close();
   });
 }
 
@@ -70,8 +87,15 @@ async function writeSnapshot(snapshot: WrongBookSnapshot) {
       deletedRecords: snapshot.deletedRecords,
       deletedBatches: snapshot.deletedBatches
     } satisfies WrongBookMetadata);
-    transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
+    transaction.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error);
+    };
+    transaction.onabort = () => db.close();
   });
 }
 

@@ -64,7 +64,8 @@ v3 首版采用“本地优先、整包同步”的错题本模型：
 - 未登录时，错题本保存在浏览器 IndexedDB。
 - 登录后，可通过 API 拉取、上传或合并云端错题本。
 - R2 路径使用 `wrongbooks/{userId}/current.json` 和 `wrongbooks/{userId}/backups/{timestamp}.json`。
-- 合并策略按 `sourceName + word` 聚合记录，并合并义项、批次与错误次数。
+- 错误事件使用唯一 ID 合并，避免多设备同时新增错误时丢失计数；记录和批次删除会保留删除标记，防止旧云端快照将其恢复。
+- v1 错题本快照会在读取或导入时兼容迁移到 v2，批次名称与对应测试编号会作为同一错误事件保存。
 
 ## License
 

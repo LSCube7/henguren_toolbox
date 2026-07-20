@@ -353,7 +353,7 @@ export function VocabClient() {
         }
       } else {
         setIncorrectWords((current) => [...current, resultWord]);
-        await addWrongWord(resultWord, testNo, batchName || undefined);
+        await addWrongWord(resultWord, testNo, batchName || undefined, currentWord.wrongRecordId);
         try {
           await recordMasteryResult(masteryRecordId, false);
         } catch {

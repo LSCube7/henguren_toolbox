@@ -59,9 +59,9 @@ export async function upsertWrongRecord(record: WrongBookRecord) {
   });
 }
 
-export async function addWrongWord(word: VocabWord, testNo: string, batchName?: string) {
+export async function addWrongWord(word: VocabWord, testNo: string, batchName?: string, existingRecordId?: string) {
   const records = await getAllRecords();
-  const id = `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
+  const id = existingRecordId ?? `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
   const existing = records.find((record) => record.id === id);
   const now = new Date().toISOString();
   const next: WrongBookRecord = {

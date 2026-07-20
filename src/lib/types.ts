@@ -27,6 +27,8 @@ export type WrongBookSnapshot = {
   records: WrongBookRecord[];
 };
 
+export type VocabDefinitionLanguage = "en" | "zh";
+
 export type ToolboxSettings = {
   schemaVersion: 1;
   theme: "classic" | "ink" | "garden" | "ocean";
@@ -37,6 +39,7 @@ export type ToolboxSettings = {
   showHint: boolean;
   enableSlipDetection: boolean;
   defaultTestCount: number;
+  vocabDefinitionLanguages: VocabDefinitionLanguage[];
   syncStrategy: "manual" | "auto";
   updatedAt: string;
 };
@@ -66,6 +69,7 @@ export const defaultSettings: ToolboxSettings = {
   showHint: true,
   enableSlipDetection: false,
   defaultTestCount: 20,
+  vocabDefinitionLanguages: ["en", "zh"],
   syncStrategy: "manual",
   updatedAt: new Date(0).toISOString()
 };

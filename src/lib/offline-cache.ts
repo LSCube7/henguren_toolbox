@@ -5,6 +5,14 @@ import type { VocabListMeta } from "./vocab-data";
 
 export type VocabCacheState = "unsupported" | "cached" | "missing" | "error";
 
+export type OfflineStorageSummary = {
+  cacheCount: number;
+  entryCount: number;
+  usage?: number;
+  quota?: number;
+  persisted?: boolean;
+};
+
 const cachePrefix = "henguren-v3-offline";
 // Keep this value in sync with VERSION in public/sw.js.
 const cacheVersion = "v2";
@@ -12,6 +20,10 @@ const dataCacheName = `${cachePrefix}-${cacheVersion}-data`;
 
 function vocabUrl(name: string) {
   return `/api/data/vocab/${encodeURIComponent(name)}`;
+}
+
+function textUrl(name: string) {
+  return `/api/data/text/${encodeURIComponent(name)}`;
 }
 
 export function isOnline() {
@@ -84,6 +96,44 @@ export async function cacheVocabLists(metas: VocabListMeta[]) {
   );
 
   return { cached, failed };
+}
+
+export async function cacheTextLists(names: string[]) {
+  if (names.length === 0) return { cached: 0, failed: 0 };
+  if (typeof caches === "undefined") return { cached: 0, failed: names.length };
+
+  const cache = await caches.open(dataCacheName);
+  let cached = 0;
+  let failed = 0;
+  await Promise.all(
+    names.map(async (name) => {
+      try {
+        const request = new Request(textUrl(name), { credentials: "same-origin" });
+        const response = await fetch(request);
+        if (!response.ok) throw new Error(`Failed to cache ${name}`);
+        await cache.put(request, response.clone());
+        cached += 1;
+      } catch {
+        failed += 1;
+      }
+    })
+  );
+  return { cached, failed };
+}
+
+export async function readOfflineStorageSummary(): Promise<OfflineStorageSummary> {
+  if (typeof caches === "undefined") return { cacheCount: 0, entryCount: 0 };
+  const keys = (await caches.keys()).filter((key) => key.startsWith(`${cachePrefix}-`));
+  const entryCounts = await Promise.all(keys.map(async (key) => (await (await caches.open(key)).keys()).length));
+  const estimate = typeof navigator !== "undefined" && navigator.storage?.estimate ? await navigator.storage.estimate() : undefined;
+  const persisted = typeof navigator !== "undefined" && navigator.storage?.persisted ? await navigator.storage.persisted() : undefined;
+  return {
+    cacheCount: keys.length,
+    entryCount: entryCounts.reduce((sum, count) => sum + count, 0),
+    usage: estimate?.usage,
+    quota: estimate?.quota,
+    persisted
+  };
 }
 
 export async function clearOfflineCaches() {

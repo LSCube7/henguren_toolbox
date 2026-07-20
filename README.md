@@ -66,6 +66,12 @@ v3 首版采用“本地优先、整包同步”的错题本模型：
 - R2 路径使用 `wrongbooks/{userId}/current.json` 和 `wrongbooks/{userId}/backups/{timestamp}.json`。
 - 合并策略按 `sourceName + word` 聚合记录，并合并义项、批次与错误次数。
 
+## 本地数据与离线管理
+
+- 设置页可以统一导出和合并导入设置、学习阶段、初始向导、错题本与掌握度数据。
+- 统一备份不会包含开发者模式的 R2 访问密钥或自定义同步源凭据。
+- 可以一键缓存全部单词单元与课文，查看缓存条目、本站占用和浏览器配额，或单独清除离线缓存。
+
 ## License
 
 MIT License

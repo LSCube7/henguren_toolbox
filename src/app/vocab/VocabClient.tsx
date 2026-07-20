@@ -119,6 +119,16 @@ function getDefinitionLanguageMode(languages: VocabDefinitionLanguage[]): Defini
   return languages.includes("zh") ? "zh" : "en";
 }
 
+function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: VocabDefinitionLanguage[]) {
+  if (!word) return selected;
+  const hasDefinitions = (language: VocabDefinitionLanguage) =>
+    language === "en" ? word.en_definition.length > 0 : word.zh_definition.length > 0;
+  const selectedWithDefinitions = selected.filter(hasDefinitions);
+  if (selectedWithDefinitions.length > 0) return selectedWithDefinitions;
+  const fallback = (["en", "zh"] as const).filter(hasDefinitions);
+  return fallback.length > 0 ? fallback : selected;
+}
+
 export function VocabClient() {
   const router = useRouter();
   const online = useOnlineStatus();
@@ -158,6 +168,7 @@ export function VocabClient() {
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
   const currentWord = testWords[currentIndex];
   const definitionLanguageMode = getDefinitionLanguageMode(definitionLanguages);
+  const visibleDefinitionLanguages = getVisibleDefinitionLanguages(currentWord, definitionLanguages);
 
   const refreshWrongBook = useCallback(async () => {
     setWrongBook(await readLocalWrongBook(clientId));
@@ -469,13 +480,13 @@ export function VocabClient() {
         </section>
         <section className="md-card stack" aria-label="当前题目">
           <div className="stack">
-            {definitionLanguages.includes("en") ? (
+            {visibleDefinitionLanguages.includes("en") ? (
               <div>
                 <span className="badge badge--neutral">英语释义</span>
                 <p className="section-title">{currentWord?.en_definition.join("; ") || "未提供英语释义"}</p>
               </div>
             ) : null}
-            {definitionLanguages.includes("zh") ? (
+            {visibleDefinitionLanguages.includes("zh") ? (
               <div>
                 <span className="badge badge--neutral">中文释义</span>
                 <p className="section-title">{currentWord?.zh_definition.join("；") || "未提供中文释义"}</p>
@@ -532,16 +543,19 @@ export function VocabClient() {
             </div>
           </div>
           {incorrectWords.length === 0 ? <p className="helper-text">没有错误单词。</p> : null}
-          {incorrectWords.map((word) => (
-            <article className="md-card md-card--flat spread" key={`${word.sourceName}-${word.word}`}>
-              <div>
-                <h3 className="card-title">{word.word}</h3>
-                {definitionLanguages.includes("en") ? <p className="helper-text">英语：{word.en_definition.join("; ") || "未提供"}</p> : null}
-                {definitionLanguages.includes("zh") ? <p className="helper-text">中文：{word.zh_definition.join("；") || "未提供"}</p> : null}
-              </div>
-              <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
-            </article>
-          ))}
+          {incorrectWords.map((word) => {
+            const visibleLanguages = getVisibleDefinitionLanguages(word, definitionLanguages);
+            return (
+              <article className="md-card md-card--flat spread" key={`${word.sourceName}-${word.word}`}>
+                <div>
+                  <h3 className="card-title">{word.word}</h3>
+                  {visibleLanguages.includes("en") ? <p className="helper-text">英语：{word.en_definition.join("; ") || "未提供"}</p> : null}
+                  {visibleLanguages.includes("zh") ? <p className="helper-text">中文：{word.zh_definition.join("；") || "未提供"}</p> : null}
+                </div>
+                <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
+              </article>
+            );
+          })}
         </section>
       </div>
     );

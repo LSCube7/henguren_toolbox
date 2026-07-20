@@ -93,7 +93,7 @@ export function TextClient() {
   }
 
   function submitAnswer() {
-    if (!currentQuestion) return;
+    if (!currentQuestion || currentResult) return;
     const blanks = questionBlanks(currentQuestion);
     if (blanks.some((blank) => !(answers[blank.id] ?? "").trim())) {
       setMessage("请填写当前句子的所有空格后再提交。");
@@ -101,8 +101,13 @@ export function TextClient() {
     }
     const result = evaluateClozeQuestion(currentQuestion, answers);
     setCurrentResult(result);
-    setResults((current) => [...current, result]);
+    setResults((current) => (current.some((entry) => entry.question === currentQuestion) ? current : [...current, result]));
     setMessage(result.correct ? "本句全部正确。" : `本句答对 ${result.correctCount} / ${result.total} 个空格，请核对正确答案。`);
+  }
+
+  function updateAnswer(blankId: string, event: React.FormEvent<HTMLElement>) {
+    const value = valueFrom(event);
+    setAnswers((current) => ({ ...current, [blankId]: value }));
   }
 
   function goNext() {
@@ -139,7 +144,7 @@ export function TextClient() {
           <md-outlined-button onClick={resetTest}>退出测试</md-outlined-button>
         </section>
         <section className="md-card stack" aria-label="当前挖空句子">
-          <p className="cloze-sentence">
+          <div className="cloze-sentence">
             {currentQuestion.parts.map((part, index) => {
               if (part.type === "text") return <span key={`text-${index}`}>{part.value}</span>;
               const blankNumber = questionBlanks(currentQuestion).findIndex((blank) => blank.id === part.id) + 1;
@@ -151,7 +156,7 @@ export function TextClient() {
                     label={`第 ${blankNumber} 空`}
                     value={answers[part.id] ?? ""}
                     disabled={Boolean(currentResult)}
-                    onInput={(event) => setAnswers((current) => ({ ...current, [part.id]: valueFrom(event) }))}
+                    onInput={(event) => updateAnswer(part.id, event)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" && !currentResult) submitAnswer();
                     }}
@@ -160,7 +165,7 @@ export function TextClient() {
                 </span>
               );
             })}
-          </p>
+          </div>
           <StatusAlert message={message} tone={currentResult && !currentResult.correct ? "error" : "info"} />
           <div className="cluster">
             {currentResult ? (

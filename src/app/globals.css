@@ -2087,6 +2087,31 @@ md-outlined-select {
   font-weight: 800;
 }
 
+.cloze-sentence {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 4.2;
+}
+
+.cloze-blank-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-inline: 0.25rem;
+  vertical-align: middle;
+}
+
+md-outlined-text-field.cloze-blank {
+  width: clamp(7rem, 15vw, 10rem);
+}
+
+.cloze-correction {
+  color: var(--md-sys-color-error);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .switch-field {
   display: flex;
   gap: 12px;

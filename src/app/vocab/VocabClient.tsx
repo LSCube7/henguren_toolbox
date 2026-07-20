@@ -17,7 +17,7 @@ import { deleteMasteryRecord, readMasteryMap, recordMasteryResult } from "@/lib/
 import { isMasteryDue, isMasteryLearning, masteryLabel, type MasteryRecord } from "@/lib/mastery";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
-import type { WrongBookSnapshot, VocabWord } from "@/lib/types";
+import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, type WrongBookSnapshot, type VocabWord } from "@/lib/types";
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,8 @@ type Screen = "select" | "testing" | "result" | "wrongbook";
 type WrongBookView = "words" | "batches";
 type MasteryFilter = "all" | "due" | "learning" | "mastered";
 type CloudAction = "pull" | "overwrite" | "merge";
+type AnswerOutcome = "correct" | "wrong";
+type DefinitionLanguageMode = "all" | VocabDefinitionLanguage;
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
@@ -39,6 +41,11 @@ const masteryFilterOptions: Array<{ value: MasteryFilter; label: string }> = [
   { value: "due", label: "待复习" },
   { value: "learning", label: "学习中" },
   { value: "mastered", label: "已掌握" }
+];
+const definitionLanguageOptions: Array<{ value: DefinitionLanguageMode; label: string }> = [
+  { value: "all", label: "全部" },
+  { value: "zh", label: "仅中文" },
+  { value: "en", label: "仅英语" }
 ];
 
 const cloudActionIcon: Record<CloudAction, string> = {
@@ -62,13 +69,41 @@ function normalizeCustomWords(words: VocabWord[], sourceName: string, sourceTitl
 }
 
 function getSavedQuizSettings() {
-  if (typeof window === "undefined") return { showHint: true, enableSlipDetection: false, defaultTestCount: 20 };
+  const fallback = {
+    showHint: defaultSettings.showHint,
+    enableSlipDetection: defaultSettings.enableSlipDetection,
+    defaultTestCount: defaultSettings.defaultTestCount,
+    vocabDefinitionLanguages: defaultSettings.vocabDefinitionLanguages
+  };
+  if (typeof window === "undefined") return fallback;
   try {
     const saved = localStorage.getItem("henguren-v3-settings");
-    return saved ? { showHint: true, enableSlipDetection: false, defaultTestCount: 20, ...JSON.parse(saved) } : { showHint: true, enableSlipDetection: false, defaultTestCount: 20 };
+    const parsed = saved ? (JSON.parse(saved) as Partial<ToolboxSettings>) : {};
+    const languages = Array.isArray(parsed.vocabDefinitionLanguages)
+      ? parsed.vocabDefinitionLanguages.filter((language): language is VocabDefinitionLanguage => language === "zh" || language === "en")
+      : fallback.vocabDefinitionLanguages;
+    return {
+      ...fallback,
+      ...parsed,
+      vocabDefinitionLanguages: languages.length > 0 ? languages : fallback.vocabDefinitionLanguages
+    };
   } catch {
-    return { showHint: true, enableSlipDetection: false, defaultTestCount: 20 };
+    return fallback;
   }
+}
+
+function persistDefinitionLanguages(languages: VocabDefinitionLanguage[]) {
+  let settings = defaultSettings;
+  try {
+    const saved = localStorage.getItem("henguren-v3-settings");
+    settings = saved ? { ...defaultSettings, ...(JSON.parse(saved) as Partial<ToolboxSettings>) } : defaultSettings;
+  } catch {
+    settings = defaultSettings;
+  }
+  localStorage.setItem(
+    "henguren-v3-settings",
+    JSON.stringify({ ...settings, vocabDefinitionLanguages: languages, updatedAt: new Date().toISOString() })
+  );
 }
 
 function valueFrom(event: FormEvent<HTMLElement>) {
@@ -102,6 +137,21 @@ function nextReviewLabel(record: MasteryRecord | undefined) {
   return `下次复习：${new Date(record!.nextReviewAt).toLocaleDateString("zh-CN")}`;
 }
 
+function getDefinitionLanguageMode(languages: VocabDefinitionLanguage[]): DefinitionLanguageMode {
+  if (languages.includes("zh") && languages.includes("en")) return "all";
+  return languages.includes("zh") ? "zh" : "en";
+}
+
+function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: VocabDefinitionLanguage[]) {
+  if (!word) return selected;
+  const hasDefinitions = (language: VocabDefinitionLanguage) =>
+    language === "en" ? word.en_definition.length > 0 : word.zh_definition.length > 0;
+  const selectedWithDefinitions = selected.filter(hasDefinitions);
+  if (selectedWithDefinitions.length > 0) return selectedWithDefinitions;
+  const fallback = (["en", "zh"] as const).filter(hasDefinitions);
+  return fallback.length > 0 ? fallback : selected;
+}
+
 export function VocabClient() {
   const router = useRouter();
   const online = useOnlineStatus();
@@ -110,9 +160,11 @@ export function VocabClient() {
   const [uploadedLists, setUploadedLists] = useState<UploadedList[]>([]);
   const [selectedUploadedIds, setSelectedUploadedIds] = useState<string[]>([]);
   const [testMode, setTestMode] = useState<TestMode>("all");
-  const [testCount, setTestCount] = useState(() => getSavedQuizSettings().defaultTestCount);
-  const [showHint, setShowHint] = useState(() => getSavedQuizSettings().showHint);
-  const [enableSlipDetection, setEnableSlipDetection] = useState(() => getSavedQuizSettings().enableSlipDetection);
+  const [savedQuizSettings] = useState(getSavedQuizSettings);
+  const [testCount, setTestCount] = useState(savedQuizSettings.defaultTestCount);
+  const [showHint, setShowHint] = useState(savedQuizSettings.showHint);
+  const [enableSlipDetection, setEnableSlipDetection] = useState(savedQuizSettings.enableSlipDetection);
+  const [definitionLanguages, setDefinitionLanguages] = useState<VocabDefinitionLanguage[]>(savedQuizSettings.vocabDefinitionLanguages);
   const [batchName, setBatchName] = useState("");
   const [testNo, setTestNo] = useState("");
   const [testWords, setTestWords] = useState<TestWord[]>([]);
@@ -120,9 +172,10 @@ export function VocabClient() {
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [pendingSlip, setPendingSlip] = useState(false);
+  const [answerOutcome, setAnswerOutcome] = useState<AnswerOutcome | null>(null);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const [correctWords, setCorrectWords] = useState<VocabWord[]>([]);
-  const [incorrectWords, setIncorrectWords] = useState<VocabWord[]>([]);
+  const [incorrectWords, setIncorrectWords] = useState<TestWord[]>([]);
   const [wrongBook, setWrongBook] = useState<WrongBookSnapshot | null>(null);
   const [wrongBookSearch, setWrongBookSearch] = useState("");
   const [wrongBookSource, setWrongBookSource] = useState("all");
@@ -139,9 +192,13 @@ export function VocabClient() {
   const [customListDialogKey, setCustomListDialogKey] = useState(0);
   const customListRef = useRef<HTMLInputElement>(null);
   const importWrongBookRef = useRef<HTMLInputElement>(null);
+  const answerInputRef = useRef<HTMLElement | null>(null);
   const answerSubmissionRef = useRef(false);
+  const blankAnswerSpaceArmedRef = useRef(false);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
   const currentWord = testWords[currentIndex];
+  const definitionLanguageMode = getDefinitionLanguageMode(definitionLanguages);
+  const visibleDefinitionLanguages = getVisibleDefinitionLanguages(currentWord, definitionLanguages);
 
   const refreshWrongBook = useCallback(async () => {
     const [snapshot, mastery] = await Promise.all([readLocalWrongBook(clientId), readMasteryMap()]);
@@ -196,6 +253,13 @@ export function VocabClient() {
     const units = list.filter((item) => getBookCode(item.name) === bookCode).map((item) => item.name);
     const allSelected = units.every((unit) => selectedUnits.includes(unit));
     setSelectedUnits((current) => (allSelected ? current.filter((item) => !units.includes(item)) : Array.from(new Set([...current, ...units]))));
+  }
+
+  function selectDefinitionLanguageMode(mode: DefinitionLanguageMode) {
+    const next: VocabDefinitionLanguage[] = mode === "all" ? ["en", "zh"] : [mode];
+    setDefinitionLanguages(next);
+    persistDefinitionLanguages(next);
+    setMessage("");
   }
 
   async function uploadCustomList(event: ChangeEvent<HTMLInputElement>) {
@@ -300,6 +364,8 @@ export function VocabClient() {
       setAnswer("");
       setFeedback("");
       setPendingSlip(false);
+      setAnswerOutcome(null);
+      setSubmittingAnswer(false);
       setTestNo(`test-${nowStamp()}`);
       setTestSource(source);
       setScreen("testing");
@@ -310,63 +376,113 @@ export function VocabClient() {
     }
   }
 
-  function advanceAfterAnswer() {
-    if (currentIndex + 1 >= testWords.length) {
-      setAnswer("");
-      setPendingSlip(false);
-      setScreen("result");
-      return;
-    }
-    setCurrentIndex((index) => index + 1);
-    setAnswer("");
-    setPendingSlip(false);
-  }
+  useEffect(() => {
+    if (screen !== "testing" || answerOutcome || pendingSlip) return;
+    const frame = window.requestAnimationFrame(() => answerInputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [answerOutcome, currentIndex, pendingSlip, screen]);
 
-  async function submitAnswer(forced?: "correct" | "wrong") {
+  useEffect(() => {
+    blankAnswerSpaceArmedRef.current = false;
+  }, [currentIndex, screen]);
+
+  async function finalizeAnswer(outcome: AnswerOutcome, resultMessage: string) {
     if (!currentWord || answerSubmissionRef.current) return;
-    const result =
-      forced === "wrong"
-        ? { correct: false, slip: false, message: `已计为错误，答案是 ${currentWord.word}` }
-        : forced === "correct"
-          ? { correct: true, slip: false, message: `已计为正确：${currentWord.word}` }
-          : evaluateAnswer(answer, currentWord.word, enableSlipDetection);
-    let nextFeedback = result.message;
-    if (result.slip) {
-      setFeedback(nextFeedback);
-      setPendingSlip(true);
-      return;
-    }
     answerSubmissionRef.current = true;
     setSubmittingAnswer(true);
+    let nextMessage = resultMessage;
     const resultWord = toVocabWord(currentWord);
     const masteryRecordId = currentWord.wrongRecordId ?? wrongRecordId(currentWord);
     try {
-      if (result.correct) {
+      if (outcome === "correct") {
         setCorrectWords((current) => [...current, resultWord]);
         if (testSource === "wrongbook" || wrongBook?.records.some((record) => record.id === masteryRecordId)) {
           try {
             await recordMasteryResult(masteryRecordId, true);
             await refreshWrongBook();
           } catch {
-            nextFeedback = `${result.message}；掌握度更新失败，请稍后重试。`;
+            nextMessage = `${resultMessage}；掌握度更新失败，请稍后重试。`;
           }
         }
       } else {
-        setIncorrectWords((current) => [...current, resultWord]);
-        await addWrongWord(resultWord, testNo, batchName || undefined, currentWord.wrongRecordId);
+        setIncorrectWords((current) => [...current, currentWord]);
         try {
-          await recordMasteryResult(masteryRecordId, false);
+          await addWrongWord(resultWord, testNo, batchName || undefined, currentWord.wrongRecordId);
+          try {
+            await recordMasteryResult(masteryRecordId, false);
+          } catch {
+            nextMessage = `${resultMessage}；掌握度更新失败，错题仍已保存。`;
+          }
+          await refreshWrongBook();
         } catch {
-          nextFeedback = `${result.message}；掌握度更新失败，错题仍已保存。`;
+          nextMessage = `${resultMessage}；错题本保存失败，请在结果页下载错误 JSON 留存。`;
         }
-        await refreshWrongBook();
       }
-      setFeedback(nextFeedback);
-      advanceAfterAnswer();
+      setFeedback(nextMessage);
+      setAnswerOutcome(outcome);
+      setPendingSlip(false);
     } finally {
       answerSubmissionRef.current = false;
       setSubmittingAnswer(false);
     }
+  }
+
+  async function submitAnswer(forced?: AnswerOutcome) {
+    if (!currentWord || answerOutcome || answerSubmissionRef.current) return;
+    const result =
+      forced === "wrong"
+        ? { correct: false, slip: false, message: `已计为错误，答案是 ${currentWord.word}` }
+        : forced === "correct"
+          ? { correct: true, slip: false, message: `已计为正确：${currentWord.word}` }
+          : evaluateAnswer(answer, currentWord.word, { enableSlipDetection, allowMissingFirstLetter: showHint });
+    if (result.slip) {
+      setFeedback(result.message);
+      setPendingSlip(true);
+      return;
+    }
+    await finalizeAnswer(result.correct ? "correct" : "wrong", result.message);
+  }
+
+  function goNextQuestion() {
+    if (!answerOutcome) return;
+    if (currentIndex + 1 >= testWords.length) {
+      setAnswer("");
+      setPendingSlip(false);
+      setAnswerOutcome(null);
+      setScreen("result");
+      return;
+    }
+    setCurrentIndex((index) => index + 1);
+    setAnswer("");
+    setFeedback("");
+    setPendingSlip(false);
+    setAnswerOutcome(null);
+  }
+
+  function finishTestEarly() {
+    if (correctWords.length + incorrectWords.length === 0) {
+      resetTest();
+      return;
+    }
+    setScreen("result");
+    setAnswer("");
+    setFeedback("");
+    setPendingSlip(false);
+    setAnswerOutcome(null);
+  }
+
+  function retryIncorrectWords() {
+    if (incorrectWords.length === 0) return;
+    setTestWords(pickWords(incorrectWords, "all", incorrectWords.length));
+    setCorrectWords([]);
+    setIncorrectWords([]);
+    setCurrentIndex(0);
+    setAnswer("");
+    setFeedback("");
+    setPendingSlip(false);
+    setAnswerOutcome(null);
+    setTestNo(`test-${nowStamp()}`);
+    setScreen("testing");
   }
 
   async function removeWrongRecord(id: string) {
@@ -390,6 +506,7 @@ export function VocabClient() {
     setIncorrectWords([]);
     setFeedback("");
     setPendingSlip(false);
+    setAnswerOutcome(null);
     setSubmittingAnswer(false);
     answerSubmissionRef.current = false;
     setAnswer("");
@@ -489,28 +606,72 @@ export function VocabClient() {
               {currentIndex + 1} / {testWords.length} · 当前来源：{currentWord?.sourceTitle ?? currentWord?.sourceName}
             </p>
           </div>
-          <md-outlined-button disabled={submittingAnswer} onClick={resetTest}>退出测试</md-outlined-button>
+          <md-outlined-button disabled={submittingAnswer} onClick={finishTestEarly}>
+            结束测试
+          </md-outlined-button>
         </section>
         <section className="md-card stack" aria-label="当前题目">
           <div className="stack">
-            <h2 className="section-title">{currentWord?.en_definition.join("; ")}</h2>
-            <p className="helper-text">{currentWord?.zh_definition.join("；")}</p>
+            {visibleDefinitionLanguages.includes("en") ? (
+              <div>
+                <span className="badge badge--neutral">英语释义</span>
+                <p className="section-title">{currentWord?.en_definition.join("; ") || "未提供英语释义"}</p>
+              </div>
+            ) : null}
+            {visibleDefinitionLanguages.includes("zh") ? (
+              <div>
+                <span className="badge badge--neutral">中文释义</span>
+                <p className="section-title">{currentWord?.zh_definition.join("；") || "未提供中文释义"}</p>
+              </div>
+            ) : null}
           </div>
           <div className="cluster">
             {showHint && currentWord ? <span className="badge">{currentWord.word[0]}</span> : null}
             <md-outlined-text-field
+              ref={answerInputRef}
               label="输入单词"
               value={answer}
-              readOnly={submittingAnswer}
-              aria-readonly={submittingAnswer}
-              onInput={(event) => setAnswer(valueFrom(event))}
+              readOnly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
+              aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
+              onInput={(event) => {
+                blankAnswerSpaceArmedRef.current = false;
+                setFeedback("");
+                setAnswer(valueFrom(event));
+              }}
               onKeyDown={(event) => {
+                if (pendingSlip || submittingAnswer) return;
+                if (answerOutcome) {
+                  if (event.key === "Enter") goNextQuestion();
+                  return;
+                }
+                if (!answer.trim()) {
+                  if (event.key === " ") {
+                    event.preventDefault();
+                    if (event.repeat) return;
+                    if (blankAnswerSpaceArmedRef.current) {
+                      blankAnswerSpaceArmedRef.current = false;
+                      void submitAnswer();
+                    } else {
+                      blankAnswerSpaceArmedRef.current = true;
+                      setFeedback("再次按空格提交空答案。");
+                    }
+                    return;
+                  }
+                  blankAnswerSpaceArmedRef.current = false;
+                  if (event.key === "Enter") event.preventDefault();
+                  return;
+                }
+                blankAnswerSpaceArmedRef.current = false;
                 if (event.key === "Enter") void submitAnswer();
               }}
             />
-            <md-filled-button disabled={submittingAnswer} onClick={() => void submitAnswer()}>提交</md-filled-button>
+            {answerOutcome ? (
+              <md-filled-button onClick={goNextQuestion}>{currentIndex + 1 >= testWords.length ? "查看结果" : "下一题"}</md-filled-button>
+            ) : (
+              <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>提交</md-filled-button>
+            )}
           </div>
-          <StatusAlert message={feedback} />
+          <StatusAlert message={feedback} tone={answerOutcome === "wrong" ? "error" : "info"} />
           {pendingSlip ? (
             <div className="cluster">
               <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>判为正确</md-outlined-button>
@@ -543,20 +704,25 @@ export function VocabClient() {
           <div className="spread">
             <h2 className="section-title">错误单词</h2>
             <div className="cluster">
-              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords })}>下载错误 JSON</md-outlined-button>
-              <md-filled-button onClick={resetTest}>重新开始</md-filled-button>
+              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>下载错误 JSON</md-outlined-button>
+              <md-outlined-button disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>重测本次错题</md-outlined-button>
+              <md-filled-button onClick={resetTest}>返回选择</md-filled-button>
             </div>
           </div>
           {incorrectWords.length === 0 ? <p className="helper-text">没有错误单词。</p> : null}
-          {incorrectWords.map((word) => (
-            <article className="md-card md-card--flat spread" key={`${word.sourceName}-${word.word}`}>
-              <div>
-                <h3 className="card-title">{word.word}</h3>
-                <p className="helper-text">{word.en_definition.join("; ")}</p>
-              </div>
-              <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
-            </article>
-          ))}
+          {incorrectWords.map((word) => {
+            const visibleLanguages = getVisibleDefinitionLanguages(word, definitionLanguages);
+            return (
+              <article className="md-card md-card--flat spread" key={`${word.sourceName}-${word.word}`}>
+                <div>
+                  <h3 className="card-title">{word.word}</h3>
+                  {visibleLanguages.includes("en") ? <p className="helper-text">英语：{word.en_definition.join("; ") || "未提供"}</p> : null}
+                  {visibleLanguages.includes("zh") ? <p className="helper-text">中文：{word.zh_definition.join("；") || "未提供"}</p> : null}
+                </div>
+                <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
+              </article>
+            );
+          })}
         </section>
       </div>
     );
@@ -816,6 +982,24 @@ export function VocabClient() {
             <md-switch selected={enableSlipDetection} checked={enableSlipDetection} onInput={(event) => setEnableSlipDetection(checkedFrom(event))} />
             <span>手滑判定</span>
           </label>
+          <div className="stack" aria-label="题目释义语言">
+            <span className="helper-text">题目释义语言</span>
+            <div className="button-group" role="radiogroup" aria-label="题目释义语言">
+              {definitionLanguageOptions.map((option) => (
+                <button
+                  type="button"
+                  key={option.value}
+                  className="button-group__item"
+                  role="radio"
+                  aria-checked={definitionLanguageMode === option.value}
+                  data-selected={definitionLanguageMode === option.value}
+                  onClick={() => selectDefinitionLanguageMode(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <md-outlined-text-field label="批次名称（可选）" value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
         </div>
       </section>

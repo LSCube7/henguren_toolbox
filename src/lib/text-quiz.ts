@@ -115,7 +115,7 @@ function shuffled<T>(values: T[], random: () => number) {
 
 export function createClozeQuestion(sentence: TextSentence, difficulty: ClozeDifficulty, random: () => number = Math.random): ClozeQuestion | null {
   const rule = difficultyRules[difficulty];
-  const matches = Array.from(sentence.text.matchAll(/[A-Za-z]+(?:['’][A-Za-z]+)*/g)).map((match, tokenIndex) => ({
+  const matches = Array.from(sentence.text.matchAll(/\p{L}+(?:['’]\p{L}+)*/gu)).map((match, tokenIndex) => ({
     answer: match[0],
     start: match.index,
     end: match.index + match[0].length,

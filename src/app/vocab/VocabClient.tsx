@@ -28,6 +28,7 @@ type Screen = "select" | "testing" | "result" | "wrongbook";
 type WrongBookView = "words" | "batches";
 type WrongBookLevel = "all" | "1" | "2" | "3plus";
 type CloudAction = "pull" | "overwrite" | "merge";
+type DefinitionLanguageMode = "all" | VocabDefinitionLanguage;
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
@@ -37,9 +38,10 @@ const wrongBookLevelOptions: Array<{ value: WrongBookLevel; label: string }> = [
   { value: "2", label: "错 2 次" },
   { value: "3plus", label: "错 3+ 次" }
 ];
-const definitionLanguageOptions: Array<{ value: VocabDefinitionLanguage; label: string }> = [
-  { value: "zh", label: "中文释义" },
-  { value: "en", label: "英语释义" }
+const definitionLanguageOptions: Array<{ value: DefinitionLanguageMode; label: string }> = [
+  { value: "all", label: "全部" },
+  { value: "zh", label: "仅中文" },
+  { value: "en", label: "仅英语" }
 ];
 
 const cloudActionIcon: Record<CloudAction, string> = {
@@ -112,6 +114,11 @@ function toggleValue(current: string[], value: string) {
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
+function getDefinitionLanguageMode(languages: VocabDefinitionLanguage[]): DefinitionLanguageMode {
+  if (languages.includes("zh") && languages.includes("en")) return "all";
+  return languages.includes("zh") ? "zh" : "en";
+}
+
 export function VocabClient() {
   const router = useRouter();
   const online = useOnlineStatus();
@@ -120,10 +127,11 @@ export function VocabClient() {
   const [uploadedLists, setUploadedLists] = useState<UploadedList[]>([]);
   const [selectedUploadedIds, setSelectedUploadedIds] = useState<string[]>([]);
   const [testMode, setTestMode] = useState<TestMode>("all");
-  const [testCount, setTestCount] = useState(() => getSavedQuizSettings().defaultTestCount);
-  const [showHint, setShowHint] = useState(() => getSavedQuizSettings().showHint);
-  const [enableSlipDetection, setEnableSlipDetection] = useState(() => getSavedQuizSettings().enableSlipDetection);
-  const [definitionLanguages, setDefinitionLanguages] = useState<VocabDefinitionLanguage[]>(() => getSavedQuizSettings().vocabDefinitionLanguages);
+  const [savedQuizSettings] = useState(getSavedQuizSettings);
+  const [testCount, setTestCount] = useState(savedQuizSettings.defaultTestCount);
+  const [showHint, setShowHint] = useState(savedQuizSettings.showHint);
+  const [enableSlipDetection, setEnableSlipDetection] = useState(savedQuizSettings.enableSlipDetection);
+  const [definitionLanguages, setDefinitionLanguages] = useState<VocabDefinitionLanguage[]>(savedQuizSettings.vocabDefinitionLanguages);
   const [batchName, setBatchName] = useState("");
   const [testNo, setTestNo] = useState("");
   const [testWords, setTestWords] = useState<VocabWord[]>([]);
@@ -149,6 +157,7 @@ export function VocabClient() {
   const importWrongBookRef = useRef<HTMLInputElement>(null);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
   const currentWord = testWords[currentIndex];
+  const definitionLanguageMode = getDefinitionLanguageMode(definitionLanguages);
 
   const refreshWrongBook = useCallback(async () => {
     setWrongBook(await readLocalWrongBook(clientId));
@@ -200,17 +209,11 @@ export function VocabClient() {
     setSelectedUnits((current) => (allSelected ? current.filter((item) => !units.includes(item)) : Array.from(new Set([...current, ...units]))));
   }
 
-  function toggleDefinitionLanguage(language: VocabDefinitionLanguage) {
-    setDefinitionLanguages((current) => {
-      const next = current.includes(language) ? current.filter((item) => item !== language) : [...current, language];
-      if (next.length === 0) {
-        setMessage("请至少保留一种题目释义语言。");
-        return current;
-      }
-      persistDefinitionLanguages(next);
-      setMessage("");
-      return next;
-    });
+  function selectDefinitionLanguageMode(mode: DefinitionLanguageMode) {
+    const next: VocabDefinitionLanguage[] = mode === "all" ? ["en", "zh"] : [mode];
+    setDefinitionLanguages(next);
+    persistDefinitionLanguages(next);
+    setMessage("");
   }
 
   async function uploadCustomList(event: ChangeEvent<HTMLInputElement>) {
@@ -798,15 +801,19 @@ export function VocabClient() {
           </label>
           <div className="stack" aria-label="题目释义语言">
             <span className="helper-text">题目释义语言</span>
-            <div className="cluster">
+            <div className="button-group" role="radiogroup" aria-label="题目释义语言">
               {definitionLanguageOptions.map((option) => (
-                <md-filter-chip
+                <button
+                  type="button"
                   key={option.value}
-                  selected={definitionLanguages.includes(option.value)}
-                  onClick={() => toggleDefinitionLanguage(option.value)}
+                  className="button-group__item"
+                  role="radio"
+                  aria-checked={definitionLanguageMode === option.value}
+                  data-selected={definitionLanguageMode === option.value}
+                  onClick={() => selectDefinitionLanguageMode(option.value)}
                 >
                   {option.label}
-                </md-filter-chip>
+                </button>
               ))}
             </div>
           </div>

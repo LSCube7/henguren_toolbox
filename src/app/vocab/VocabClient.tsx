@@ -323,7 +323,7 @@ export function VocabClient() {
         ? { correct: false, slip: false, message: `已计为错误，答案是 ${currentWord.word}` }
         : forced === "correct"
           ? { correct: true, slip: false, message: `已计为正确：${currentWord.word}` }
-          : evaluateAnswer(answer, currentWord.word, enableSlipDetection);
+          : evaluateAnswer(answer, currentWord.word, { enableSlipDetection, allowMissingFirstLetter: showHint });
     if (result.slip) {
       setFeedback(result.message);
       setPendingSlip(true);

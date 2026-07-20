@@ -6,6 +6,11 @@ export type QuizResult = {
   message: string;
 };
 
+export type EvaluateAnswerOptions = {
+  enableSlipDetection: boolean;
+  allowMissingFirstLetter?: boolean;
+};
+
 export function shuffleWords(words: VocabWord[]) {
   return words
     .map((word) => ({ word, score: Math.random() }))
@@ -36,13 +41,18 @@ export function levenshtein(a: string, b: string) {
   return matrix[left.length][right.length];
 }
 
-export function evaluateAnswer(answer: string, word: string, enableSlipDetection: boolean): QuizResult {
+export function evaluateAnswer(answer: string, word: string, options: EvaluateAnswerOptions): QuizResult {
   const normalizedAnswer = answer.trim().toLowerCase();
   const normalizedWord = word.trim().toLowerCase();
-  if (normalizedAnswer === normalizedWord) {
+  const answerWithoutFirstLetter = Array.from(normalizedWord).slice(1).join("");
+  const acceptedAnswers = [
+    normalizedWord,
+    ...(options.allowMissingFirstLetter && answerWithoutFirstLetter ? [answerWithoutFirstLetter] : [])
+  ];
+  if (acceptedAnswers.includes(normalizedAnswer)) {
     return { correct: true, slip: false, message: "正确" };
   }
-  if (enableSlipDetection && normalizedAnswer && levenshtein(normalizedAnswer, normalizedWord) <= 1) {
+  if (options.enableSlipDetection && normalizedAnswer && acceptedAnswers.some((acceptedAnswer) => levenshtein(normalizedAnswer, acceptedAnswer) <= 1)) {
     return { correct: true, slip: true, message: `疑似手滑，已暂按正确处理：${word}` };
   }
   return { correct: false, slip: false, message: `错误，答案是 ${word}` };

@@ -119,6 +119,7 @@ export function VocabClient() {
   const importWrongBookRef = useRef<HTMLInputElement>(null);
   const answerInputRef = useRef<HTMLElement | null>(null);
   const answerSubmissionRef = useRef(false);
+  const blankAnswerSpaceArmedRef = useRef(false);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
   const currentWord = testWords[currentIndex];
 
@@ -289,6 +290,10 @@ export function VocabClient() {
     const frame = window.requestAnimationFrame(() => answerInputRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
   }, [answerOutcome, currentIndex, pendingSlip, screen]);
+
+  useEffect(() => {
+    blankAnswerSpaceArmedRef.current = false;
+  }, [currentIndex, screen]);
 
   async function finalizeAnswer(outcome: AnswerOutcome, resultMessage: string) {
     if (!currentWord || answerSubmissionRef.current) return;
@@ -497,11 +502,36 @@ export function VocabClient() {
               value={answer}
               readOnly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
               aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
-              onInput={(event) => setAnswer(valueFrom(event))}
+              onInput={(event) => {
+                blankAnswerSpaceArmedRef.current = false;
+                setFeedback("");
+                setAnswer(valueFrom(event));
+              }}
               onKeyDown={(event) => {
-                if (event.key !== "Enter" || pendingSlip || submittingAnswer) return;
-                if (answerOutcome) goNextQuestion();
-                else void submitAnswer();
+                if (pendingSlip || submittingAnswer) return;
+                if (answerOutcome) {
+                  if (event.key === "Enter") goNextQuestion();
+                  return;
+                }
+                if (!answer.trim()) {
+                  if (event.key === " ") {
+                    event.preventDefault();
+                    if (event.repeat) return;
+                    if (blankAnswerSpaceArmedRef.current) {
+                      blankAnswerSpaceArmedRef.current = false;
+                      void submitAnswer();
+                    } else {
+                      blankAnswerSpaceArmedRef.current = true;
+                      setFeedback("再次按空格提交空答案。");
+                    }
+                    return;
+                  }
+                  blankAnswerSpaceArmedRef.current = false;
+                  if (event.key === "Enter") event.preventDefault();
+                  return;
+                }
+                blankAnswerSpaceArmedRef.current = false;
+                if (event.key === "Enter") void submitAnswer();
               }}
             />
             {answerOutcome ? (

@@ -31,6 +31,10 @@ export function isMasteryDue(record: MasteryRecord | undefined, now = new Date()
   return !record || record.nextReviewAt <= now.toISOString();
 }
 
+export function isMasteryLearning(record: MasteryRecord | undefined) {
+  return !record || record.level === "learning";
+}
+
 export function masteryLabel(record: MasteryRecord | undefined) {
   if (!record) return "待学习";
   if (record.level === "mastered") return "已掌握";

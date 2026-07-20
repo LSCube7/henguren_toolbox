@@ -481,7 +481,7 @@ export function VocabClient() {
             </p>
           </div>
           <md-outlined-button disabled={submittingAnswer} onClick={finishTestEarly}>
-            {correctWords.length + incorrectWords.length > 0 ? "提前结束" : "退出测试"}
+            结束测试
           </md-outlined-button>
         </section>
         <section className="md-card stack" aria-label="当前题目">
@@ -507,13 +507,9 @@ export function VocabClient() {
             {answerOutcome ? (
               <md-filled-button onClick={goNextQuestion}>{currentIndex + 1 >= testWords.length ? "查看结果" : "下一题"}</md-filled-button>
             ) : (
-              <>
-                <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>提交</md-filled-button>
-                <md-outlined-button disabled={submittingAnswer || pendingSlip} onClick={() => void submitAnswer("wrong")}>不会，显示答案</md-outlined-button>
-              </>
+              <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>提交</md-filled-button>
             )}
           </div>
-          <p className="helper-text">输入后按 Enter 提交；看到反馈后再次按 Enter 进入下一题。</p>
           <StatusAlert message={feedback} tone={answerOutcome === "wrong" ? "error" : "info"} />
           {pendingSlip ? (
             <div className="cluster">

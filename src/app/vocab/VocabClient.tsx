@@ -13,6 +13,8 @@ import {
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
+import { deleteMasteryRecord, readMasteryMap, recordMasteryResult } from "@/lib/client-mastery";
+import { isMasteryDue, isMasteryLearning, masteryLabel, type MasteryRecord } from "@/lib/mastery";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
 import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, type WrongBookSnapshot, type VocabWord } from "@/lib/types";
@@ -23,21 +25,22 @@ import { StatusAlert } from "../components/StatusAlert";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
 type UploadedList = VocabListMeta & { words: VocabWord[] };
+type TestWord = VocabWord & { wrongRecordId?: string };
 type TestMode = "all" | "custom";
 type Screen = "select" | "testing" | "result" | "wrongbook";
 type WrongBookView = "words" | "batches";
-type WrongBookLevel = "all" | "1" | "2" | "3plus";
+type MasteryFilter = "all" | "due" | "learning" | "mastered";
 type CloudAction = "pull" | "overwrite" | "merge";
 type AnswerOutcome = "correct" | "wrong";
 type DefinitionLanguageMode = "all" | VocabDefinitionLanguage;
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
-const wrongBookLevelOptions: Array<{ value: WrongBookLevel; label: string }> = [
+const masteryFilterOptions: Array<{ value: MasteryFilter; label: string }> = [
   { value: "all", label: "全部" },
-  { value: "1", label: "错 1 次" },
-  { value: "2", label: "错 2 次" },
-  { value: "3plus", label: "错 3+ 次" }
+  { value: "due", label: "待复习" },
+  { value: "learning", label: "学习中" },
+  { value: "mastered", label: "已掌握" }
 ];
 const definitionLanguageOptions: Array<{ value: DefinitionLanguageMode; label: string }> = [
   { value: "all", label: "全部" },
@@ -115,6 +118,25 @@ function toggleValue(current: string[], value: string) {
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
+function wrongRecordId(word: Pick<VocabWord, "word" | "sourceName">) {
+  return `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
+}
+
+function toVocabWord(word: TestWord): VocabWord {
+  return {
+    word: word.word,
+    en_definition: word.en_definition,
+    zh_definition: word.zh_definition,
+    sourceName: word.sourceName,
+    sourceTitle: word.sourceTitle
+  };
+}
+
+function nextReviewLabel(record: MasteryRecord | undefined) {
+  if (isMasteryDue(record)) return "现在可复习";
+  return `下次复习：${new Date(record!.nextReviewAt).toLocaleDateString("zh-CN")}`;
+}
+
 function getDefinitionLanguageMode(languages: VocabDefinitionLanguage[]): DefinitionLanguageMode {
   if (languages.includes("zh") && languages.includes("en")) return "all";
   return languages.includes("zh") ? "zh" : "en";
@@ -145,7 +167,7 @@ export function VocabClient() {
   const [definitionLanguages, setDefinitionLanguages] = useState<VocabDefinitionLanguage[]>(savedQuizSettings.vocabDefinitionLanguages);
   const [batchName, setBatchName] = useState("");
   const [testNo, setTestNo] = useState("");
-  const [testWords, setTestWords] = useState<VocabWord[]>([]);
+  const [testWords, setTestWords] = useState<TestWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -153,12 +175,14 @@ export function VocabClient() {
   const [answerOutcome, setAnswerOutcome] = useState<AnswerOutcome | null>(null);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const [correctWords, setCorrectWords] = useState<VocabWord[]>([]);
-  const [incorrectWords, setIncorrectWords] = useState<VocabWord[]>([]);
+  const [incorrectWords, setIncorrectWords] = useState<TestWord[]>([]);
   const [wrongBook, setWrongBook] = useState<WrongBookSnapshot | null>(null);
   const [wrongBookSearch, setWrongBookSearch] = useState("");
   const [wrongBookSource, setWrongBookSource] = useState("all");
-  const [wrongBookLevel, setWrongBookLevel] = useState<WrongBookLevel>("all");
+  const [masteryFilter, setMasteryFilter] = useState<MasteryFilter>("all");
+  const [masteryById, setMasteryById] = useState<Record<string, MasteryRecord>>({});
   const [wrongBookView, setWrongBookView] = useState<WrongBookView>("words");
+  const [testSource, setTestSource] = useState<"selection" | "wrongbook">("selection");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [cloudAction, setCloudAction] = useState<CloudAction | null>(null);
@@ -177,14 +201,18 @@ export function VocabClient() {
   const visibleDefinitionLanguages = getVisibleDefinitionLanguages(currentWord, definitionLanguages);
 
   const refreshWrongBook = useCallback(async () => {
-    setWrongBook(await readLocalWrongBook(clientId));
+    const [snapshot, mastery] = await Promise.all([readLocalWrongBook(clientId), readMasteryMap()]);
+    setWrongBook(snapshot);
+    setMasteryById(mastery);
   }, [clientId]);
 
   useEffect(() => {
     let active = true;
     async function loadWrongBook() {
-      const snapshot = await readLocalWrongBook(clientId);
-      if (active) setWrongBook(snapshot);
+      const [snapshot, mastery] = await Promise.all([readLocalWrongBook(clientId), readMasteryMap()]);
+      if (!active) return;
+      setWrongBook(snapshot);
+      setMasteryById(mastery);
     }
     void loadWrongBook();
     return () => {
@@ -209,12 +237,13 @@ export function VocabClient() {
   const filteredWrongRecords = wrongRecords.filter((record) => {
     const keywordMatch = record.word.toLowerCase().includes(wrongBookSearch.toLowerCase());
     const sourceMatch = wrongBookSource === "all" || record.sourceName === wrongBookSource;
-    const levelMatch =
-      wrongBookLevel === "all" ||
-      (wrongBookLevel === "1" && record.wrongCount === 1) ||
-      (wrongBookLevel === "2" && record.wrongCount === 2) ||
-      (wrongBookLevel === "3plus" && record.wrongCount >= 3);
-    return keywordMatch && sourceMatch && levelMatch;
+    const mastery = masteryById[record.id];
+    const masteryMatch =
+      masteryFilter === "all" ||
+      (masteryFilter === "due" && isMasteryDue(mastery)) ||
+      (masteryFilter === "learning" && isMasteryLearning(mastery)) ||
+      (masteryFilter === "mastered" && mastery?.level === "mastered");
+    return keywordMatch && sourceMatch && masteryMatch;
   });
   const selectedCacheStates = selectedMetas.map((meta) => vocabCacheStates[meta.name] ?? "missing");
   const cachedUnitCount = selectedCacheStates.filter((state) => state === "cached").length;
@@ -311,23 +340,24 @@ export function VocabClient() {
       if (source === "selection" && selectedMetas.length > 0 && online) {
         await cacheSelectedUnits(false);
       }
-      const testSource =
+      const testWordsSource =
         source === "wrongbook"
-          ? wrongRecords.map((record) => ({
+          ? filteredWrongRecords.map((record) => ({
               word: record.word,
               en_definition: record.definitions ?? [],
               zh_definition: record.zhDefinitions ?? [],
               sourceName: record.sourceName,
-              sourceTitle: record.sourceTitle ?? record.sourceName
+              sourceTitle: record.sourceTitle ?? record.sourceName,
+              wrongRecordId: record.id
             }))
           : [...(await Promise.all(selectedMetas.map(loadVocabList))).flat(), ...selectedCustomLists.flatMap((item) => item.words)];
 
-      if (testSource.length === 0) {
+      if (testWordsSource.length === 0) {
         setMessage("请先选择至少一个单元、上传词表，或在错题本中保留记录。");
         return;
       }
 
-      setTestWords(pickWords(testSource, testMode, testCount));
+      setTestWords(pickWords(testWordsSource, testMode, testCount));
       setCorrectWords([]);
       setIncorrectWords([]);
       setCurrentIndex(0);
@@ -337,6 +367,7 @@ export function VocabClient() {
       setAnswerOutcome(null);
       setSubmittingAnswer(false);
       setTestNo(`test-${nowStamp()}`);
+      setTestSource(source);
       setScreen("testing");
     } catch (error) {
       setMessage(!online ? "该 Unit 尚未离线缓存，请联网打开或手动缓存一次后再离线使用。" : error instanceof Error ? error.message : "词表加载失败。");
@@ -360,13 +391,28 @@ export function VocabClient() {
     answerSubmissionRef.current = true;
     setSubmittingAnswer(true);
     let nextMessage = resultMessage;
+    const resultWord = toVocabWord(currentWord);
+    const masteryRecordId = currentWord.wrongRecordId ?? wrongRecordId(currentWord);
     try {
       if (outcome === "correct") {
-        setCorrectWords((current) => [...current, currentWord]);
+        setCorrectWords((current) => [...current, resultWord]);
+        if (testSource === "wrongbook" || wrongBook?.records.some((record) => record.id === masteryRecordId)) {
+          try {
+            await recordMasteryResult(masteryRecordId, true);
+            await refreshWrongBook();
+          } catch {
+            nextMessage = `${resultMessage}；掌握度更新失败，请稍后重试。`;
+          }
+        }
       } else {
         setIncorrectWords((current) => [...current, currentWord]);
         try {
-          await addWrongWord(currentWord, testNo, batchName || undefined);
+          await addWrongWord(resultWord, testNo, batchName || undefined, currentWord.wrongRecordId);
+          try {
+            await recordMasteryResult(masteryRecordId, false);
+          } catch {
+            nextMessage = `${resultMessage}；掌握度更新失败，错题仍已保存。`;
+          }
           await refreshWrongBook();
         } catch {
           nextMessage = `${resultMessage}；错题本保存失败，请在结果页下载错误 JSON 留存。`;
@@ -439,6 +485,20 @@ export function VocabClient() {
     setScreen("testing");
   }
 
+  async function removeWrongRecord(id: string) {
+    await Promise.all([deleteWrongRecord(id), deleteMasteryRecord(id)]);
+    await refreshWrongBook();
+  }
+
+  async function removeWrongBatch(testNo: string) {
+    await deleteWrongBatch(testNo);
+    const snapshot = await readLocalWrongBook(clientId);
+    const activeIds = new Set(snapshot.records.map((record) => record.id));
+    const mastery = await readMasteryMap();
+    await Promise.all(Object.keys(mastery).filter((id) => !activeIds.has(id)).map(deleteMasteryRecord));
+    await refreshWrongBook();
+  }
+
   function resetTest() {
     setScreen("select");
     setTestWords([]);
@@ -448,6 +508,7 @@ export function VocabClient() {
     setPendingSlip(false);
     setAnswerOutcome(null);
     setSubmittingAnswer(false);
+    answerSubmissionRef.current = false;
     setAnswer("");
     setCurrentIndex(0);
   }
@@ -643,7 +704,7 @@ export function VocabClient() {
           <div className="spread">
             <h2 className="section-title">错误单词</h2>
             <div className="cluster">
-              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords })}>下载错误 JSON</md-outlined-button>
+              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>下载错误 JSON</md-outlined-button>
               <md-outlined-button disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>重测本次错题</md-outlined-button>
               <md-filled-button onClick={resetTest}>返回选择</md-filled-button>
             </div>
@@ -673,12 +734,12 @@ export function VocabClient() {
         <section className="md-card spread" aria-label="错题本说明">
           <div>
             <h2 className="section-title">错题本</h2>
-            <p className="helper-text">错题本优先保存在本机。登录或配置自定义同步源后，可以手动拉取、上传或合并云端数据。</p>
+            <p className="helper-text">错题本优先保存在本机；掌握度会按答题结果安排下次复习，目前同样保存在本机。</p>
           </div>
           <div className="cluster">
             <md-outlined-button onClick={() => setScreen("select")}>返回测试</md-outlined-button>
-            <md-filled-button disabled={wrongRecords.length === 0} onClick={() => void startTest("wrongbook")}>
-              错题测试
+            <md-filled-button disabled={filteredWrongRecords.length === 0} onClick={() => void startTest("wrongbook")}>
+              复习当前筛选
             </md-filled-button>
           </div>
         </section>
@@ -704,18 +765,18 @@ export function VocabClient() {
                   </md-select-option>
                 ))}
               </md-filled-select>
-              <div className="filter-section" aria-label="错误次数筛选">
-                <span className="filter-label">错误次数</span>
-                <div className="button-group" role="radiogroup" aria-label="错误次数">
-                  {wrongBookLevelOptions.map((option) => (
+              <div className="filter-section" aria-label="掌握度筛选">
+                <span className="filter-label">掌握度</span>
+                <div className="button-group" role="radiogroup" aria-label="掌握度">
+                  {masteryFilterOptions.map((option) => (
                     <button
                       className="button-group__item"
                       type="button"
                       role="radio"
-                      aria-checked={wrongBookLevel === option.value}
-                      data-selected={wrongBookLevel === option.value}
+                      aria-checked={masteryFilter === option.value}
+                      data-selected={masteryFilter === option.value}
                       key={option.value}
-                      onClick={() => setWrongBookLevel(option.value)}
+                      onClick={() => setMasteryFilter(option.value)}
                     >
                       {option.label}
                     </button>
@@ -744,9 +805,11 @@ export function VocabClient() {
                       <div className="record-chip-row" aria-label={`${record.word} 错题信息`}>
                         <span className="info-chip">来源：{record.sourceTitle ?? record.sourceName}</span>
                         <span className="info-chip info-chip--strong">错 {record.wrongCount} 次</span>
+                        <span className="info-chip info-chip--strong">{masteryLabel(masteryById[record.id])}</span>
+                        <span className="info-chip">{nextReviewLabel(masteryById[record.id])}</span>
                       </div>
                     </div>
-                    <md-outlined-button onClick={() => void deleteWrongRecord(record.id).then(refreshWrongBook)} aria-label={`删除 ${record.word}`}>
+                    <md-outlined-button onClick={() => void removeWrongRecord(record.id)} aria-label={`删除 ${record.word}`}>
                       删除
                     </md-outlined-button>
                   </article>
@@ -759,7 +822,7 @@ export function VocabClient() {
                         {batch.createdAt} · {batch.syncedCount} 词
                       </p>
                     </div>
-                    <md-outlined-button onClick={() => void deleteWrongBatch(batch.testNo).then(refreshWrongBook)} aria-label={`删除批次 ${batch.testNo}`}>
+                    <md-outlined-button onClick={() => void removeWrongBatch(batch.testNo)} aria-label={`删除批次 ${batch.testNo}`}>
                       删除
                     </md-outlined-button>
                   </article>

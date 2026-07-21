@@ -23,6 +23,7 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { StatusAlert } from "../components/StatusAlert";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import type { MaterialSymbolName } from "@/generated/material-symbols";
 
 type UploadedList = VocabListMeta & { words: VocabWord[] };
 type TestWord = VocabWord & { wrongRecordId?: string };
@@ -48,7 +49,7 @@ const definitionLanguageOptions: Array<{ value: DefinitionLanguageMode; label: s
   { value: "en", label: "仅英语" }
 ];
 
-const cloudActionIcon: Record<CloudAction, string> = {
+const cloudActionIcon: Record<CloudAction, MaterialSymbolName> = {
   pull: "cloud_download",
   overwrite: "cloud_upload",
   merge: "cloud_sync"

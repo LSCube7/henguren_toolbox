@@ -1,0 +1,8 @@
+/* 此文件由 pnpm run fonts:build 生成，请勿手动修改。 */
+@font-face {
+  font-family: "Material Symbols Rounded Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/material-symbols-rounded.63d310f5ce7a.woff2") format("woff2");
+}

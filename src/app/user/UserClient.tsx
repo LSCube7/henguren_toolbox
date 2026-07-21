@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
 import { isOnline } from "@/lib/offline-cache";
+import type { MaterialSymbolName } from "@/generated/material-symbols";
 
 const authMessages: Record<string, string> = {
   ok: "已完成登录。",
@@ -23,7 +24,7 @@ const authMessages: Record<string, string> = {
 
 type SyncAction = "pull" | "overwrite" | "merge";
 
-const syncActionIcon: Record<SyncAction, string> = {
+const syncActionIcon: Record<SyncAction, MaterialSymbolName> = {
   pull: "cloud_download",
   overwrite: "cloud_upload",
   merge: "cloud_sync"
@@ -35,7 +36,7 @@ const syncActionLabel: Record<SyncAction, string> = {
   merge: "正在合并上传"
 };
 
-function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession | null) {
+function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession | null): MaterialSymbolName {
   if (summary?.status === "offline") return "cloud_off";
   if (summary?.status === "error") return "cloud_alert";
   if (summary?.status === "synced") return "cloud_done";

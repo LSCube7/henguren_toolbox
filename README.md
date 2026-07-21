@@ -39,6 +39,15 @@ pnpm dev
 pnpm build
 ```
 
+Material Symbols 使用本地子集字体。新增图标时，先将名称加入 `config/material-symbols.json`，再重新生成并检查产物：
+
+```bash
+pnpm run fonts:build
+pnpm run fonts:check
+```
+
+生产构建会自动检查图标清单、类型定义和字体文件是否一致，生成过程不访问网络。
+
 ## 环境变量
 
 复制 `.env.example` 到 `.env.local` 后填写：

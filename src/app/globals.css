@@ -138,8 +138,7 @@ md-outlined-select {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "liga";
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 0;
 }
 
 .app-shell {
@@ -291,7 +290,7 @@ md-outlined-select {
 }
 
 .app-nav__item:hover .material-symbols-rounded {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 0;
   font-weight: normal;
 }
 
@@ -360,8 +359,7 @@ md-outlined-select {
 }
 
 .app-nav__item[aria-current="page"] .material-symbols-rounded {
-  font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24;
-  font-weight: 700;
+  font-variation-settings: "FILL" 1;
 }
 
 .app-nav__item[aria-current="page"]:hover .app-nav__icon-state {
@@ -418,7 +416,7 @@ md-outlined-select {
 }
 
 .rail-action .material-symbols-rounded {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 0;
 }
 
 .rail-action[aria-current="page"],
@@ -435,7 +433,7 @@ md-outlined-select {
 .rail-action[data-status="syncing"] .material-symbols-rounded,
 .rail-action[data-status="synced"] .material-symbols-rounded,
 .rail-action[data-status="error"] .material-symbols-rounded {
-  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 1;
 }
 
 .rail-action[data-status="error"] {
@@ -530,7 +528,7 @@ md-outlined-select {
 
 .user-nav-icon .material-symbols-rounded {
   font-size: 26px;
-  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 1;
 }
 
 .mobile-menu {
@@ -910,7 +908,7 @@ md-outlined-select {
 .sync-status-chip .material-symbols-rounded {
   flex: 0 0 auto;
   font-size: 20px;
-  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 1;
 }
 
 .sync-status-chip[data-status="offline"],
@@ -921,7 +919,7 @@ md-outlined-select {
 
 .sync-status-chip[data-status="offline"] .material-symbols-rounded,
 .sync-status-chip[data-status="signed-out"] .material-symbols-rounded {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 0;
 }
 
 .sync-status-chip[data-status="error"] {
@@ -1073,7 +1071,7 @@ md-outlined-select {
 .onboarding-mark .material-symbols-rounded,
 .onboarding-login__icon .material-symbols-rounded {
   font-size: 32px;
-  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 1;
 }
 
 .onboarding-content {
@@ -1131,7 +1129,7 @@ md-outlined-select {
 
 .onboarding-choice .material-symbols-rounded {
   font-size: 32px;
-  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  font-variation-settings: "FILL" 1;
 }
 
 .onboarding-choice span {

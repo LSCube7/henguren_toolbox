@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { AppShell } from "./components/AppShell";
 import { ServiceWorkerRegister } from "./components/ServiceWorkerRegister";
 import { AppThemeProvider } from "./theme/AppThemeProvider";
-import "@fontsource-variable/material-symbols-rounded/full.css";
+import "@/generated/material-symbols.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

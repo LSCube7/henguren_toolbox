@@ -9,6 +9,7 @@ import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
 import { readWrongBookSyncSummary, type SyncStatus, type WrongBookSyncSummary } from "@/lib/client-sync";
+import type { MaterialSymbolName } from "@/generated/material-symbols";
 
 const toolItems = [
   { edition: "junior", href: "/shici", label: "寻找实词", icon: "search" },
@@ -33,7 +34,7 @@ const syncStatusLabel: Record<SyncStatus, string> = {
   error: "同步状态异常"
 };
 
-const syncStatusIcon: Record<SyncStatus, string> = {
+const syncStatusIcon: Record<SyncStatus, MaterialSymbolName> = {
   "signed-out": "cloud_off",
   offline: "cloud_off",
   ready: "cloud_sync",
@@ -118,7 +119,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const syncTitle = syncSummary?.message ?? syncStatusLabel[syncStatus];
   const userTitle = user ? `${user.name}${user.email ? ` · ${user.email}` : ""}` : "未登录";
 
-  function renderNavIcon(icon: string) {
+  function renderNavIcon(icon: MaterialSymbolName) {
     return (
       <span className="app-nav__icon-state" aria-hidden="true">
         <span className="app-nav__icon">

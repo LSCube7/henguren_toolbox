@@ -4,6 +4,7 @@ import { CorePalette, Hct, argbFromHex, hexFromArgb } from "@material/material-c
 import { useMemo, useRef, useState } from "react";
 import { customThemePresetId, defaultThemeSeed, inferThemePreset, isValidHexColor, normalizeHexColor, prideThemeFlags, themePresets } from "@/lib/theme-presets";
 import type { ToolboxSettings } from "@/lib/types";
+import { MaterialIcon } from "./MaterialIcon";
 
 function readInitialPrideFlag(seedColor: string | undefined) {
   const savedPreset = inferThemePreset(seedColor);
@@ -195,10 +196,10 @@ export function ThemePicker({
           </div>
           <div className="theme-preset-actions" aria-label="更多主题选项">
             <button className="theme-action-circle" type="button" aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
-              <span className="material-symbols-rounded" aria-hidden="true">question_mark</span>
+              <MaterialIcon name="question_mark" />
             </button>
             <button className="theme-action-circle" type="button" aria-label="自定义主题色" title="自定义主题色" data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
-              <span className="material-symbols-rounded" aria-hidden="true">palette</span>
+              <MaterialIcon name="palette" />
             </button>
           </div>
         </div>
@@ -207,17 +208,17 @@ export function ThemePicker({
         <div className="theme-preset-panel-title">
           <span>Pride Color</span>
           <button className="theme-panel-close" type="button" aria-label="收起 Pride Color" onClick={() => setPrideOpen(false)}>
-            <span className="material-symbols-rounded" aria-hidden="true">close</span>
+            <MaterialIcon name="close" />
           </button>
         </div>
         <div className="pride-picker">
           <div className="pride-scroll-hint">
-            <span className="material-symbols-rounded" aria-hidden="true">swipe</span>
+            <MaterialIcon name="swipe" />
             <span>横向滚动查看更多旗帜</span>
           </div>
           <div className="pride-flag-scroll">
             <button className="pride-scroll-button" type="button" aria-label="向左查看更多 Pride 旗帜" onClick={() => scrollPrideFlags("left")}>
-              <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+              <MaterialIcon name="chevron_left" />
             </button>
             <div ref={prideSegmentsRef} className="pride-flag-segments" role="tablist" aria-label="选择 Pride 旗帜">
               {prideThemeFlags.map((flag) => (
@@ -227,7 +228,7 @@ export function ThemePicker({
               ))}
             </div>
             <button className="pride-scroll-button" type="button" aria-label="向右查看更多 Pride 旗帜" onClick={() => scrollPrideFlags("right")}>
-              <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
+              <MaterialIcon name="chevron_right" />
             </button>
           </div>
           <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`}>

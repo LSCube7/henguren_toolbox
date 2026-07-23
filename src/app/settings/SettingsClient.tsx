@@ -3,10 +3,9 @@
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { SettingsSection } from "../components/SettingsSection";
-import { StatusAlert } from "../components/StatusAlert";
+import { useSnackbar } from "../components/Snackbar";
 import { ThemePicker } from "../components/ThemePicker";
 import type { ToolboxSettings } from "@/lib/types";
-import { useState } from "react";
 import { useEdition, writeEdition } from "@/lib/edition";
 import { restartOnboarding } from "@/lib/onboarding";
 import { DataManagement } from "./DataManagement";
@@ -28,8 +27,8 @@ export function SettingsClient() {
   const router = useRouter();
   const settings = useClientSettings();
   const edition = useEdition();
-  const [message, setMessage] = useState("");
   const { locale, t } = useI18n();
+  const { showSnackbar } = useSnackbar();
 
   function update(next: Partial<ToolboxSettings>) {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };
@@ -45,7 +44,7 @@ export function SettingsClient() {
         schemaVersion: 1,
         updatedAt: new Date().toISOString()
       });
-      setMessage(t("settings.sync.customSuccess"));
+      showSnackbar(t("settings.sync.customSuccess"));
       return;
     }
     const response = await fetch("/api/settings", {
@@ -53,7 +52,7 @@ export function SettingsClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings)
     });
-    setMessage(response.ok ? t("settings.sync.cloudSuccess") : t("settings.sync.signInRequired"));
+    showSnackbar(response.ok ? t("settings.sync.cloudSuccess") : t("settings.sync.signInRequired"), response.ok ? "info" : "error");
   }
 
   function restartInitialGuide() {
@@ -157,7 +156,6 @@ export function SettingsClient() {
           control={<md-switch selected={Boolean(settings.developerMode)} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
         />
       </section>
-      <StatusAlert message={message} />
     </div>
   );
 }

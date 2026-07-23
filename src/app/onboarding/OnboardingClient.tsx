@@ -11,6 +11,7 @@ import { defaultSettings, type ToolboxSettings, type UserSession } from "@/lib/t
 import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
+import { useSnackbar } from "../components/Snackbar";
 
 type StepId = "login" | "cloud" | "edition" | "theme" | "sync" | "done";
 type CloudStatus = "idle" | "loading" | "available" | "empty" | "error" | "skipped";
@@ -82,7 +83,10 @@ export function OnboardingClient() {
   const searchParams = useSearchParams();
   const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const { locale, t } = useI18n();
+  const { showSnackbar } = useSnackbar();
   const returnTo = safeReturnTo(searchParams.get("returnTo"));
+  const authStatus = searchParams.get("auth") ?? "";
+  const authMessageKey = authMessages[authStatus];
   const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());
   const [settings, setSettings] = useState<ToolboxSettings>(() => readClientSettings());
   const [localSettingsBeforeCloud] = useState<ToolboxSettings>(settings);
@@ -95,8 +99,6 @@ export function OnboardingClient() {
   const [cloudDecision, setCloudDecision] = useState<CloudDecision>(null);
   const [cloudErrorStatus, setCloudErrorStatus] = useState("");
   const [cloudCheckVersion, setCloudCheckVersion] = useState(0);
-  const authMessageKey = authMessages[searchParams.get("auth") ?? ""];
-  const message = authMessageKey ? t(authMessageKey) : "";
   const step = steps[stepIndex];
   const canGoNext =
     step.id === "login"
@@ -109,6 +111,10 @@ export function OnboardingClient() {
     if (!mounted) return;
     sessionStorage.setItem(onboardingStepStorageKey, `${onboardingFlowVersion}:${step.id}`);
   }, [mounted, step.id]);
+
+  useEffect(() => {
+    if (authMessageKey) showSnackbar(t(authMessageKey), authStatus === "ok" ? "info" : "error");
+  }, [authMessageKey, authStatus, showSnackbar, t]);
 
   useEffect(() => {
     let active = true;
@@ -384,7 +390,6 @@ export function OnboardingClient() {
           ) : null}
         </div>
 
-        {message ? <p className="status-alert">{message}</p> : null}
         <div className="onboarding-actions">
           <md-text-button disabled={stepIndex === 0} onClick={goBack}>
             {t("onboarding.previous")}

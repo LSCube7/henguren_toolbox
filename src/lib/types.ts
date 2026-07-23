@@ -1,3 +1,5 @@
+import type { AppLocale } from "@/i18n/config";
+
 export type UserSession = {
   id: string;
   name: string;
@@ -55,6 +57,8 @@ export type ToolboxSettings = {
   themeSeedColor?: string;
   colorMode?: "light" | "dark" | "system";
   developerMode?: boolean;
+  showTranslationKeys?: boolean;
+  locale: AppLocale;
   showHint: boolean;
   enableSlipDetection: boolean;
   defaultTestCount: number;
@@ -85,6 +89,8 @@ export const defaultSettings: ToolboxSettings = {
   themePreset: "default-blue",
   colorMode: "system",
   developerMode: false,
+  showTranslationKeys: false,
+  locale: "zh-CN",
   showHint: true,
   enableSlipDetection: false,
   defaultTestCount: 20,

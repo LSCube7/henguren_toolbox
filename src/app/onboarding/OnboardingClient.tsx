@@ -8,31 +8,33 @@ import { ThemePicker } from "../components/ThemePicker";
 import { completeOnboarding, onboardingStepStorageKey } from "@/lib/onboarding";
 import { readEdition, writeEdition, type Edition } from "@/lib/edition";
 import { defaultSettings, type ToolboxSettings, type UserSession } from "@/lib/types";
+import { useI18n } from "../i18n/AppI18nProvider";
+import type { MessageKey } from "@/i18n/config";
 
 const settingsKey = "henguren-v3-settings";
 
 type StepId = "welcome" | "edition" | "theme" | "login" | "sync" | "done";
 
-const steps: Array<{ id: StepId; title: string; description: string }> = [
-  { id: "welcome", title: "欢迎使用恨古人工具箱", description: "先用几十秒完成基础偏好，之后也可以在设置里重新开始。" },
-  { id: "edition", title: "选择学习阶段", description: "这会影响首页和侧边栏默认展示哪些学习工具。" },
-  { id: "theme", title: "选择主题外观", description: "选择一个 Material 3 主题色，也可以展开 Pride Color 或自定义 HCT 颜色。" },
-  { id: "login", title: "登录与本地使用", description: "使用 LSCube OAuth 登录后可以使用云端错题本和设置同步；也可以明确选择暂不登录。" },
-  { id: "sync", title: "设置同步策略", description: "这里只保存后续默认行为，不会在完成向导时自动上传云端。" },
-  { id: "done", title: "准备好了", description: "你的工具箱已经完成初始配置。" }
+const steps: Array<{ id: StepId; title: MessageKey; description: MessageKey }> = [
+  { id: "welcome", title: "onboarding.welcome.title", description: "onboarding.welcome.description" },
+  { id: "edition", title: "onboarding.edition.title", description: "onboarding.edition.description" },
+  { id: "theme", title: "onboarding.theme.title", description: "onboarding.theme.description" },
+  { id: "login", title: "onboarding.login.title", description: "onboarding.login.description" },
+  { id: "sync", title: "onboarding.sync.title", description: "onboarding.sync.description" },
+  { id: "done", title: "onboarding.done.title", description: "onboarding.done.description" }
 ];
 
-const authMessages: Record<string, string> = {
-  ok: "已完成登录，可以继续向导。",
-  missing_code_state: "登录回调缺少授权码或 state，请重新登录。",
-  missing_oauth_cookie: "登录会话已过期，请重新登录。",
-  state_mismatch: "LSCube OAuth state 校验失败，请重新登录。",
-  unconfigured: "LSCube OAuth 环境变量尚未配置完整。",
-  code_expired: "LSCube OAuth 授权码已过期或已被使用，请重新点击登录。",
-  invalid_grant: "LSCube OAuth 授权码无效，请确认回调地址、PKCE 和客户端配置后重试。",
-  token_http: "LSCube OAuth token exchange 失败，请查看服务端日志。",
-  token_no_access_token: "LSCube OAuth token 响应缺少 access_token。",
-  userinfo_http: "LSCube OAuth 用户信息请求失败，请查看服务端日志。"
+const authMessages: Record<string, MessageKey> = {
+  ok: "auth.okOnboarding",
+  missing_code_state: "auth.missingCode",
+  missing_oauth_cookie: "auth.missingCookie",
+  state_mismatch: "auth.stateMismatch",
+  unconfigured: "auth.unconfigured",
+  code_expired: "auth.codeExpired",
+  invalid_grant: "auth.invalidGrant",
+  token_http: "auth.tokenHttp",
+  token_no_access_token: "auth.noAccessToken",
+  userinfo_http: "auth.userinfoHttp"
 };
 
 function subscribeNoop() {
@@ -71,6 +73,7 @@ export function OnboardingClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const { t } = useI18n();
   const returnTo = safeReturnTo(searchParams.get("returnTo"));
   const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());
   const [settings, setSettings] = useState<ToolboxSettings>(() => readSettings());
@@ -78,7 +81,10 @@ export function OnboardingClient() {
   const [user, setUser] = useState<UserSession | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [loginSkipped, setLoginSkipped] = useState(false);
-  const [message, setMessage] = useState(() => authMessages[searchParams.get("auth") ?? ""] ?? "");
+  const [message, setMessage] = useState(() => {
+    const key = authMessages[searchParams.get("auth") ?? ""];
+    return key ? t(key) : "";
+  });
   const step = steps[stepIndex];
   const canGoNext = step.id !== "login" || Boolean(user) || loginSkipped;
 
@@ -140,15 +146,15 @@ export function OnboardingClient() {
 
   function skipLogin() {
     setLoginSkipped(true);
-    setMessage("已选择暂不登录。设置将只保存在本地，之后可在用户页登录。");
+    setMessage(t("onboarding.signIn.skipped"));
   }
 
   if (!mounted) return null;
 
   return (
-    <section className="onboarding-shell onboarding-shell--route" aria-label="首次使用向导">
+    <section className="onboarding-shell onboarding-shell--route" aria-label={t("onboarding.aria")}>
       <div className="onboarding-panel">
-        <div className="onboarding-progress" aria-label="向导进度">
+        <div className="onboarding-progress" aria-label={t("onboarding.progress")}>
           {steps.map((item, index) => (
             <span className="onboarding-progress__dot" data-active={index <= stepIndex} key={item.id} />
           ))}
@@ -158,31 +164,31 @@ export function OnboardingClient() {
             <MaterialIcon name={step.id === "done" ? "check" : "auto_awesome"} />
           </span>
           <div>
-            <p className="breadcrumb">初始设置 · {stepIndex + 1} / {steps.length}</p>
-            <h1 className="page-title">{step.title}</h1>
-            <p className="page-description">{step.description}</p>
+            <p className="breadcrumb">{t("onboarding.step", { current: stepIndex + 1, total: steps.length })}</p>
+            <h1 className="page-title">{t(step.title)}</h1>
+            <p className="page-description">{t(step.description)}</p>
           </div>
         </div>
 
         <div className="onboarding-content">
           {step.id === "welcome" ? (
             <div className="onboarding-hero">
-              <div className="metric-value">准备好了</div>
-              <p className="helper-text">配置会保存在本机浏览器中；不登录也可以继续使用本地工具箱。</p>
+              <div className="metric-value">{t("onboarding.done.title")}</div>
+              <p className="helper-text">{t("onboarding.done.local")}</p>
             </div>
           ) : null}
 
           {step.id === "edition" ? (
-            <div className="onboarding-choice-grid" role="radiogroup" aria-label="学习阶段">
+            <div className="onboarding-choice-grid" role="radiogroup" aria-label={t("onboarding.edition.aria")}>
               <button className="onboarding-choice" type="button" data-selected={edition === "junior"} onClick={() => updateEdition("junior")}>
                 <MaterialIcon name="school" />
-                <span>初中版</span>
-                <small>寻找实词、文学常识</small>
+                <span>{t("edition.junior")}</span>
+                <small>{t("onboarding.edition.juniorTools")}</small>
               </button>
               <button className="onboarding-choice" type="button" data-selected={edition === "senior"} onClick={() => updateEdition("senior")}>
                 <MaterialIcon name="workspace_premium" />
-                <span>高中版</span>
-                <small>单词测试、课文测试</small>
+                <span>{t("edition.senior")}</span>
+                <small>{t("onboarding.edition.seniorTools")}</small>
               </button>
             </div>
           ) : null}
@@ -195,37 +201,37 @@ export function OnboardingClient() {
                 <MaterialIcon name={user ? "account_circle" : "person"} />
               </span>
               <div>
-                <h3 className="card-title">{userLoading ? "正在读取登录状态" : user ? user.name : "未登录"}</h3>
-                <p className="helper-text">{user ? user.email || user.id : "未登录时必须点击“暂不登录”才能继续；完成向导不会上传云端设置。"}</p>
+                <h3 className="card-title">{userLoading ? t("onboarding.signIn.loading") : user ? user.name : t("user.signedOut")}</h3>
+                <p className="helper-text">{user ? user.email || user.id : t("onboarding.signIn.requiredChoice")}</p>
               </div>
               <div className="cluster">
                 <md-outlined-button onClick={skipLogin} disabled={Boolean(user)}>
-                  暂不登录
+                  {t("onboarding.signIn.skip")}
                 </md-outlined-button>
-                <md-filled-button onClick={startLogin}>登录 LSCube OAuth</md-filled-button>
+                <md-filled-button onClick={startLogin}>{t("onboarding.signIn.action")}</md-filled-button>
               </div>
             </div>
           ) : null}
 
           {step.id === "sync" ? (
-            <div className="onboarding-choice-grid" role="radiogroup" aria-label="同步策略">
+            <div className="onboarding-choice-grid" role="radiogroup" aria-label={t("onboarding.sync.aria")}>
               <button className="onboarding-choice" type="button" data-selected={settings.syncStrategy === "manual"} onClick={() => updateSettings({ syncStrategy: "manual" })}>
                 <MaterialIcon name="touch_app" />
-                <span>手动同步</span>
-                <small>推荐：由你明确选择拉取、覆盖或合并。</small>
+                <span>{t("settings.syncStrategy.manual")}</span>
+                <small>{t("onboarding.sync.manualDescription")}</small>
               </button>
               <button className="onboarding-choice" type="button" data-selected={settings.syncStrategy === "auto"} onClick={() => updateSettings({ syncStrategy: "auto" })}>
                 <MaterialIcon name="sync" />
-                <span>自动同步</span>
-                <small>保存为后续默认行为；完成向导不会自动上传。</small>
+                <span>{t("settings.syncStrategy.auto")}</span>
+                <small>{t("onboarding.sync.autoDescription")}</small>
               </button>
             </div>
           ) : null}
 
           {step.id === "done" ? (
             <div className="onboarding-hero">
-              <p className="helper-text">之后可以在“个人设置”里重新开始初始向导，或继续微调主题、阶段和同步策略。</p>
-              <p className="helper-text">设置已保存到本地；如需同步到云端，请登录后到设置页手动点击“同步设置”。</p>
+              <p className="helper-text">{t("onboarding.done.settings")}</p>
+              <p className="helper-text">{t("onboarding.done.sync")}</p>
             </div>
           ) : null}
         </div>
@@ -233,10 +239,10 @@ export function OnboardingClient() {
         {message ? <p className="status-alert">{message}</p> : null}
         <div className="onboarding-actions">
           <md-text-button disabled={stepIndex === 0} onClick={goBack}>
-            上一步
+            {t("onboarding.previous")}
           </md-text-button>
           <md-filled-button disabled={!canGoNext} onClick={goNext}>
-            {step.id === "done" ? "完成" : "下一步"}
+            {t(step.id === "done" ? "onboarding.finish" : "onboarding.next")}
           </md-filled-button>
         </div>
       </div>

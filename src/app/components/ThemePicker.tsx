@@ -5,6 +5,36 @@ import { useMemo, useRef, useState } from "react";
 import { customThemePresetId, defaultThemeSeed, inferThemePreset, isValidHexColor, normalizeHexColor, prideThemeFlags, themePresets } from "@/lib/theme-presets";
 import type { ToolboxSettings } from "@/lib/types";
 import { MaterialIcon } from "./MaterialIcon";
+import { useI18n } from "../i18n/AppI18nProvider";
+import type { MessageKey } from "@/i18n/config";
+
+const standardPresetLabels: Record<string, MessageKey> = {
+  "default-blue": "theme.preset.default-blue",
+  red: "theme.preset.red",
+  orange: "theme.preset.orange",
+  yellow: "theme.preset.yellow",
+  green: "theme.preset.green",
+  cyan: "theme.preset.cyan",
+  blue: "theme.preset.blue",
+  purple: "theme.preset.purple",
+  graphite: "theme.preset.graphite"
+};
+
+const prideColorLabels: Record<string, MessageKey> = {
+  blue: "theme.color.blue",
+  pink: "theme.color.pink",
+  yellow: "theme.color.yellow",
+  purple: "theme.color.purple",
+  magenta: "theme.color.magenta",
+  cyan: "theme.color.cyan",
+  orange: "theme.color.orange",
+  rose: "theme.color.rose",
+  green: "theme.color.green",
+  teal: "theme.color.teal",
+  gray: "theme.color.gray",
+  mint: "theme.color.mint",
+  lavender: "theme.color.lavender"
+};
 
 function readInitialPrideFlag(seedColor: string | undefined) {
   const savedPreset = inferThemePreset(seedColor);
@@ -72,6 +102,7 @@ export function ThemePicker({
   onChange: (next: Partial<ToolboxSettings>) => void;
   showReset?: boolean;
 }) {
+  const { locale, t } = useI18n();
   const [prideOpen, setPrideOpen] = useState(false);
   const [selectedPrideFlag, setSelectedPrideFlag] = useState(() => readInitialPrideFlag(settings.themeSeedColor));
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
@@ -87,6 +118,13 @@ export function ThemePicker({
   const customDraftRgb = rgbFromHex(customDraftColor.hex);
   const customDraftHexIsInvalid = Boolean(customDraftColor.hex && !isValidHexColor(normalizeHexColor(customDraftColor.hex)));
   const hctGradients = useMemo(() => hctSliderGradients(customDraftColor.hex), [customDraftColor.hex]);
+
+  function presetLabel(preset: (typeof themePresets)[number]) {
+    const standardKey = standardPresetLabels[preset.id];
+    if (standardKey) return t(standardKey);
+    const colorKey = prideColorLabels[preset.id.split("-").at(-1) ?? ""];
+    return colorKey ? `${preset.prideFlag ?? "Pride"} ${t(colorKey)}` : preset.name;
+  }
 
   function selectPreset(presetId: string, seedColor: string) {
     onChange({ themePreset: presetId, themeSeedColor: seedColor });
@@ -178,7 +216,7 @@ export function ThemePicker({
     <div className="theme-settings">
       <div className="theme-preset-section">
         <div className="theme-preset-row">
-          <div className="theme-preset-grid" role="radiogroup" aria-label="主题预设颜色">
+          <div className="theme-preset-grid" role="radiogroup" aria-label={t("theme.presetAria")}>
             {standardPresets.map((preset) => (
               <button
                 className="theme-preset-circle"
@@ -187,18 +225,18 @@ export function ThemePicker({
                 key={preset.id}
                 type="button"
                 role="radio"
-                aria-label={preset.name}
-                title={preset.name}
+                aria-label={presetLabel(preset)}
+                title={presetLabel(preset)}
                 aria-checked={activePreset === preset.id}
                 onClick={() => selectPreset(preset.id, preset.seedColor)}
               />
             ))}
           </div>
-          <div className="theme-preset-actions" aria-label="更多主题选项">
+          <div className="theme-preset-actions" aria-label={t("theme.moreAria")}>
             <button className="theme-action-circle" type="button" aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
               <MaterialIcon name="question_mark" />
             </button>
-            <button className="theme-action-circle" type="button" aria-label="自定义主题色" title="自定义主题色" data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
+            <button className="theme-action-circle" type="button" aria-label={t("theme.custom")} title={t("theme.custom")} data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
               <MaterialIcon name="palette" />
             </button>
           </div>
@@ -207,27 +245,27 @@ export function ThemePicker({
       <section className="theme-preset-popover" id="pride-color-panel" aria-label="Pride Color" data-open={prideOpen} inert={!prideOpen ? true : undefined}>
         <div className="theme-preset-panel-title">
           <span>Pride Color</span>
-          <button className="theme-panel-close" type="button" aria-label="收起 Pride Color" onClick={() => setPrideOpen(false)}>
+          <button className="theme-panel-close" type="button" aria-label={t("theme.pride.collapse")} onClick={() => setPrideOpen(false)}>
             <MaterialIcon name="close" />
           </button>
         </div>
         <div className="pride-picker">
           <div className="pride-scroll-hint">
             <MaterialIcon name="swipe" />
-            <span>横向滚动查看更多旗帜</span>
+            <span>{t("theme.pride.hint")}</span>
           </div>
           <div className="pride-flag-scroll">
-            <button className="pride-scroll-button" type="button" aria-label="向左查看更多 Pride 旗帜" onClick={() => scrollPrideFlags("left")}>
+            <button className="pride-scroll-button" type="button" aria-label={t("theme.pride.left")} onClick={() => scrollPrideFlags("left")}>
               <MaterialIcon name="chevron_left" />
             </button>
-            <div ref={prideSegmentsRef} className="pride-flag-segments" role="tablist" aria-label="选择 Pride 旗帜">
+            <div ref={prideSegmentsRef} className="pride-flag-segments" role="tablist" aria-label={t("theme.pride.select")}>
               {prideThemeFlags.map((flag) => (
                 <button key={flag.id} type="button" role="tab" aria-selected={selectedPrideFlag === flag.id} data-selected={selectedPrideFlag === flag.id} onClick={() => setSelectedPrideFlag(flag.id)}>
                   {flag.name}
                 </button>
               ))}
             </div>
-            <button className="pride-scroll-button" type="button" aria-label="向右查看更多 Pride 旗帜" onClick={() => scrollPrideFlags("right")}>
+            <button className="pride-scroll-button" type="button" aria-label={t("theme.pride.right")} onClick={() => scrollPrideFlags("right")}>
               <MaterialIcon name="chevron_right" />
             </button>
           </div>
@@ -240,8 +278,8 @@ export function ThemePicker({
                 key={preset.id}
                 type="button"
                 role="radio"
-                aria-label={preset.name}
-                title={preset.name}
+                aria-label={presetLabel(preset)}
+                title={presetLabel(preset)}
                 aria-checked={activePreset === preset.id}
                 onClick={() => selectPreset(preset.id, preset.seedColor)}
               />
@@ -253,27 +291,27 @@ export function ThemePicker({
         <span className="custom-color-readout" style={{ "--theme-preset-color": customColorValue } as React.CSSProperties}>
           {customColorValue.toUpperCase()}
         </span>
-        {showReset ? <md-outlined-button onClick={resetDefaultTheme}>恢复默认主题</md-outlined-button> : null}
+        {showReset ? <md-outlined-button onClick={resetDefaultTheme}>{t("theme.reset")}</md-outlined-button> : null}
       </div>
       <div className="theme-mode-row">
         <div>
-          <h3 className="card-title">颜色模式</h3>
-          <p className="helper-text">默认跟随系统，也可以固定为浅色或深色。</p>
+          <h3 className="card-title">{t("theme.mode.title")}</h3>
+          <p className="helper-text">{t("theme.mode.description")}</p>
         </div>
-        <md-filled-select value={settings.colorMode ?? "system"} onInput={(event) => onChange({ colorMode: valueFrom(event) as ToolboxSettings["colorMode"] })}>
+        <md-filled-select key={`${locale}-color-mode`} value={settings.colorMode ?? "system"} onInput={(event) => onChange({ colorMode: valueFrom(event) as ToolboxSettings["colorMode"] })}>
           <md-select-option value="system">
-            <div slot="headline">跟随系统</div>
+            <div slot="headline">{t("theme.mode.system")}</div>
           </md-select-option>
           <md-select-option value="light">
-            <div slot="headline">浅色</div>
+            <div slot="headline">{t("theme.mode.light")}</div>
           </md-select-option>
           <md-select-option value="dark">
-            <div slot="headline">深色</div>
+            <div slot="headline">{t("theme.mode.dark")}</div>
           </md-select-option>
         </md-filled-select>
       </div>
       <md-dialog key={customDialogKey} class="hct-dialog" open={customDialogOpen} onClosed={handleCustomDialogClosed} onClose={handleCustomDialogClosed} onCancel={handleCustomDialogClosed}>
-        <div slot="headline">HCT 颜色选择</div>
+        <div slot="headline">{t("theme.hct.title")}</div>
         <div slot="content" className="hct-color-dialog">
           <div className="hct-color-preview" style={{ background: customDraftColor.hex }} aria-hidden="true" />
           <div className="hct-field-grid">
@@ -283,7 +321,7 @@ export function ThemePicker({
                 <span aria-hidden="true">#</span>
                 <input aria-invalid={customDraftHexIsInvalid} aria-label="HEX" value={customDraftColor.hex.replace(/^#/, "")} maxLength={6} onInput={(event) => updateDraftHex((event.currentTarget as HTMLInputElement).value)} />
               </div>
-              {customDraftHexIsInvalid ? <small>请输入 #RRGGBB 格式</small> : null}
+              {customDraftHexIsInvalid ? <small>{t("theme.hct.invalidHex")}</small> : null}
             </label>
             <div className="rgb-field" aria-label="RGB">
               <span>RGB</span>
@@ -311,8 +349,8 @@ export function ThemePicker({
           </label>
         </div>
         <div slot="actions">
-          <md-text-button onClick={() => closeCustomDialog(false)}>取消</md-text-button>
-          <md-filled-button onClick={applyCustomColor}>应用</md-filled-button>
+          <md-text-button onClick={() => closeCustomDialog(false)}>{t("common.cancel")}</md-text-button>
+          <md-filled-button onClick={applyCustomColor}>{t("common.apply")}</md-filled-button>
         </div>
       </md-dialog>
     </div>

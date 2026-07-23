@@ -2,6 +2,7 @@
 
 import contents from "@/assets/js/wenchang/contents.json";
 import { useMemo, useState } from "react";
+import { useI18n } from "../i18n/AppI18nProvider";
 
 type Item = {
   name: string;
@@ -12,11 +13,12 @@ type Item = {
 };
 
 const groups = [
-  { title: "文章", items: contents.article as Item[] },
-  { title: "诗歌", items: contents.poem as Item[] }
-];
+  { title: "wenchang.article", items: contents.article as Item[] },
+  { title: "wenchang.poem", items: contents.poem as Item[] }
+] as const;
 
 export function WenchangClient() {
+  const { t } = useI18n();
   const [filter, setFilter] = useState<{ field: keyof Item; value: string } | null>(null);
   const filteredGroups = useMemo(
     () =>
@@ -34,25 +36,25 @@ export function WenchangClient() {
   return (
     <div className="stack">
       <div className="cluster">
-        <span className={filter ? "badge" : "badge badge--neutral"}>{filter ? `筛选：${filter.value}` : "全部条目"}</span>
+        <span className={filter ? "badge" : "badge badge--neutral"}>{filter ? t("wenchang.filtered", { value: filter.value }) : t("wenchang.all")}</span>
         <md-outlined-button onClick={() => setFilter(null)} disabled={!filter}>
-          清除筛选
+          {t("wenchang.clear")}
         </md-outlined-button>
       </div>
       {filteredGroups.map((group) => (
         <section className="md-card stack" key={group.title} aria-labelledby={`${group.title}-title`}>
           <h2 className="section-title" id={`${group.title}-title`}>
-            {group.title}
+            {t(group.title)}
           </h2>
           <div className="table-wrap">
             <table className="md-table">
               <thead>
                 <tr>
-                  <th scope="col">名称</th>
-                  <th scope="col">作者</th>
-                  <th scope="col">出处</th>
-                  <th scope="col">年级</th>
-                  <th scope="col">体裁</th>
+                  <th scope="col">{t("wenchang.name")}</th>
+                  <th scope="col">{t("wenchang.author")}</th>
+                  <th scope="col">{t("wenchang.source")}</th>
+                  <th scope="col">{t("wenchang.grade")}</th>
+                  <th scope="col">{t("wenchang.genre")}</th>
                 </tr>
               </thead>
               <tbody>

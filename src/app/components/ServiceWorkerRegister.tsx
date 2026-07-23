@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useI18n } from "../i18n/AppI18nProvider";
 
 const cachePrefix = "henguren-v3-offline";
 
@@ -18,6 +19,7 @@ async function disableDevelopmentServiceWorker() {
 }
 
 export function ServiceWorkerRegister() {
+  const { t } = useI18n();
   const pathname = usePathname();
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [applyingUpdate, setApplyingUpdate] = useState(false);
@@ -113,9 +115,9 @@ export function ServiceWorkerRegister() {
       aria-live="polite"
       aria-atomic="true"
     >
-      <span>新版本已准备好，刷新页面即可更新。</span>
+      <span>{t("update.ready")}</span>
       <md-text-button disabled={applyingUpdate} onClick={applyUpdate}>
-        {applyingUpdate ? "正在更新…" : "刷新更新"}
+        {t(applyingUpdate ? "update.applying" : "update.action")}
       </md-text-button>
     </div>
   );

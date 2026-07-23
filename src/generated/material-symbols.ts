@@ -14,6 +14,7 @@ export const materialSymbolCodepoints = {
   "cloud_off": "\u{e2c1}",
   "cloud_sync": "\u{eb5a}",
   "cloud_upload": "\u{e2c3}",
+  "code": "\u{e86f}",
   "history": "\u{e28e}",
   "home": "\u{e88a}",
   "menu_book": "\u{ea19}",

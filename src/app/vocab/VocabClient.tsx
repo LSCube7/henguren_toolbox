@@ -691,7 +691,16 @@ export function VocabClient() {
               <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>{t("vocab.submit")}</md-filled-button>
             )}
           </div>
-          {answerFeedback ? <p className="helper-text">{answerFeedback}</p> : null}
+          {answerFeedback ? (
+            <div
+              className={`md-card md-card--flat${answerOutcome === "wrong" ? " badge--error" : ""}`}
+              role={answerOutcome === "wrong" ? "alert" : "status"}
+              aria-live={answerOutcome === "wrong" ? "assertive" : "polite"}
+              aria-atomic="true"
+            >
+              {answerFeedback}
+            </div>
+          ) : null}
           {pendingSlip ? (
             <div className="cluster">
               <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>{t("vocab.markCorrect")}</md-outlined-button>

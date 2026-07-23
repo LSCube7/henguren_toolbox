@@ -12,7 +12,7 @@ import {
 import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { SettingsSection } from "../components/SettingsSection";
-import { StatusAlert } from "../components/StatusAlert";
+import { useSnackbar } from "../components/Snackbar";
 
 function valueFrom(event: React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
@@ -26,8 +26,8 @@ function selectedFrom(event: React.FormEvent<HTMLElement>) {
 export function DeveloperClient() {
   const settings = useClientSettings();
   const [developerSource, setDeveloperSource] = useState<DeveloperSyncSource>(() => readDeveloperSyncSourceDraft());
-  const [message, setMessage] = useState("");
   const { t } = useI18n();
+  const { showSnackbar } = useSnackbar();
 
   function updateSettings(showTranslationKeys: boolean) {
     writeClientSettings({ ...settings, showTranslationKeys, updatedAt: new Date().toISOString() });
@@ -42,16 +42,16 @@ export function DeveloperClient() {
   async function testDeveloperSource() {
     try {
       await testDeveloperSyncSource(developerSource);
-      setMessage(t("settings.customSync.testSuccess"));
+      showSnackbar(t("settings.customSync.testSuccess"));
     } catch {
-      setMessage(t("settings.customSync.testError"));
+      showSnackbar(t("settings.customSync.testError"), "error");
     }
   }
 
   function clearDeveloperSource() {
     clearDeveloperSyncSource();
     setDeveloperSource(readDeveloperSyncSourceDraft());
-    setMessage(t("settings.customSync.clearSuccess"));
+    showSnackbar(t("settings.customSync.clearSuccess"));
   }
 
   if (!settings.developerMode) {
@@ -107,7 +107,6 @@ export function DeveloperClient() {
           <md-outlined-button onClick={clearDeveloperSource}>{t("settings.customSync.clear")}</md-outlined-button>
         </div>
       </section>
-      <StatusAlert message={message} />
     </div>
   );
 }

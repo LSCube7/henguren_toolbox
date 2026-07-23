@@ -21,7 +21,7 @@ import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, ty
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { StatusAlert } from "../components/StatusAlert";
+import { useSnackbar } from "../components/Snackbar";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -160,6 +160,7 @@ function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: Vo
 export function VocabClient() {
   const router = useRouter();
   const { locale, t } = useI18n();
+  const { clearSnackbar, showSnackbar } = useSnackbar();
   const online = useOnlineStatus();
   const [screen, setScreen] = useState<Screen>("select");
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
@@ -176,7 +177,7 @@ export function VocabClient() {
   const [testWords, setTestWords] = useState<TestWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
+  const [answerFeedback, setAnswerFeedback] = useState("");
   const [pendingSlip, setPendingSlip] = useState(false);
   const [answerOutcome, setAnswerOutcome] = useState<AnswerOutcome | null>(null);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
@@ -189,7 +190,6 @@ export function VocabClient() {
   const [masteryById, setMasteryById] = useState<Record<string, MasteryRecord>>({});
   const [wrongBookView, setWrongBookView] = useState<WrongBookView>("words");
   const [testSource, setTestSource] = useState<"selection" | "wrongbook">("selection");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [cloudAction, setCloudAction] = useState<CloudAction | null>(null);
   const [cacheBusy, setCacheBusy] = useState(false);
@@ -264,7 +264,7 @@ export function VocabClient() {
     const next: VocabDefinitionLanguage[] = mode === "all" ? ["en", "zh"] : [mode];
     setDefinitionLanguages(next);
     persistDefinitionLanguages(next);
-    setMessage("");
+    clearSnackbar();
   }
 
   async function uploadCustomList(event: ChangeEvent<HTMLInputElement>) {
@@ -294,11 +294,11 @@ export function VocabClient() {
 
   async function cacheSelectedUnits(manual = true) {
     if (selectedMetas.length === 0) {
-      if (manual) setMessage(t("vocab.cache.selectRequired"));
+      if (manual) showSnackbar(t("vocab.cache.selectRequired"), "error");
       return;
     }
     if (!online) {
-      if (manual) setMessage(t("vocab.cache.offline"));
+      if (manual) showSnackbar(t("vocab.cache.offline"), "error");
       return;
     }
 
@@ -307,9 +307,12 @@ export function VocabClient() {
       const result = await cacheVocabLists(selectedMetas);
       await refreshVocabCacheStates();
       if (manual) {
-        setMessage(result.failed > 0 ? t("vocab.cache.partial", { cached: result.cached, failed: result.failed }) : t("vocab.cache.success", { count: result.cached }));
+        showSnackbar(
+          result.failed > 0 ? t("vocab.cache.partial", { cached: result.cached, failed: result.failed }) : t("vocab.cache.success", { count: result.cached }),
+          result.failed > 0 ? "error" : "info"
+        );
       } else if (result.failed > 0) {
-        setMessage(t("vocab.cache.autoPartial", { failed: result.failed }));
+        showSnackbar(t("vocab.cache.autoPartial", { failed: result.failed }), "error");
       }
     } finally {
       setCacheBusy(false);
@@ -340,7 +343,7 @@ export function VocabClient() {
 
   async function startTest(source: "selection" | "wrongbook" = "selection") {
     setLoading(true);
-    setMessage("");
+    clearSnackbar();
     try {
       if (source === "selection" && selectedMetas.length > 0 && online) {
         await cacheSelectedUnits(false);
@@ -358,7 +361,7 @@ export function VocabClient() {
           : [...(await Promise.all(selectedMetas.map(loadVocabList))).flat(), ...selectedCustomLists.flatMap((item) => item.words)];
 
       if (testWordsSource.length === 0) {
-        setMessage(t("vocab.selectionRequired"));
+        showSnackbar(t("vocab.selectionRequired"), "error");
         return;
       }
 
@@ -367,7 +370,7 @@ export function VocabClient() {
       setIncorrectWords([]);
       setCurrentIndex(0);
       setAnswer("");
-      setFeedback("");
+      setAnswerFeedback("");
       setPendingSlip(false);
       setAnswerOutcome(null);
       setSubmittingAnswer(false);
@@ -375,7 +378,7 @@ export function VocabClient() {
       setTestSource(source);
       setScreen("testing");
     } catch {
-      setMessage(!online ? t("vocab.offlineMissing") : t("vocab.loadError"));
+      showSnackbar(!online ? t("vocab.offlineMissing") : t("vocab.loadError"), "error");
     } finally {
       setLoading(false);
     }
@@ -395,7 +398,7 @@ export function VocabClient() {
     if (!currentWord || answerSubmissionRef.current) return;
     answerSubmissionRef.current = true;
     setSubmittingAnswer(true);
-    let nextMessage = resultMessage;
+    let saveErrorMessage = "";
     const resultWord = toVocabWord(currentWord);
     const masteryRecordId = currentWord.wrongRecordId ?? wrongRecordId(currentWord);
     try {
@@ -406,7 +409,7 @@ export function VocabClient() {
             await recordMasteryResult(masteryRecordId, true);
             await refreshWrongBook();
           } catch {
-            nextMessage = t("vocab.masteryUpdateError", { message: resultMessage });
+            saveErrorMessage = t("vocab.masteryUpdateError", { message: resultMessage });
           }
         }
       } else {
@@ -416,14 +419,15 @@ export function VocabClient() {
           try {
             await recordMasteryResult(masteryRecordId, false);
           } catch {
-            nextMessage = t("vocab.masterySaveError", { message: resultMessage });
+            saveErrorMessage = t("vocab.masterySaveError", { message: resultMessage });
           }
           await refreshWrongBook();
         } catch {
-          nextMessage = t("vocab.wrongbookSaveError", { message: resultMessage });
+          saveErrorMessage = t("vocab.wrongbookSaveError", { message: resultMessage });
         }
       }
-      setFeedback(nextMessage);
+      setAnswerFeedback(resultMessage);
+      if (saveErrorMessage) showSnackbar(saveErrorMessage, "error");
       setAnswerOutcome(outcome);
       setPendingSlip(false);
     } finally {
@@ -450,7 +454,7 @@ export function VocabClient() {
             ? t("vocab.answer.correct")
             : t("vocab.answer.wrong", { word: currentWord.word });
     if (result.slip) {
-      setFeedback(localizedResultMessage);
+      setAnswerFeedback(localizedResultMessage);
       setPendingSlip(true);
       return;
     }
@@ -461,6 +465,7 @@ export function VocabClient() {
     if (!answerOutcome) return;
     if (currentIndex + 1 >= testWords.length) {
       setAnswer("");
+      setAnswerFeedback("");
       setPendingSlip(false);
       setAnswerOutcome(null);
       setScreen("result");
@@ -468,7 +473,7 @@ export function VocabClient() {
     }
     setCurrentIndex((index) => index + 1);
     setAnswer("");
-    setFeedback("");
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
   }
@@ -480,7 +485,7 @@ export function VocabClient() {
     }
     setScreen("result");
     setAnswer("");
-    setFeedback("");
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
   }
@@ -492,7 +497,7 @@ export function VocabClient() {
     setIncorrectWords([]);
     setCurrentIndex(0);
     setAnswer("");
-    setFeedback("");
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
     setTestNo(`test-${nowStamp()}`);
@@ -518,7 +523,7 @@ export function VocabClient() {
     setTestWords([]);
     setCorrectWords([]);
     setIncorrectWords([]);
-    setFeedback("");
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
     setSubmittingAnswer(false);
@@ -532,7 +537,7 @@ export function VocabClient() {
     if (!file) return;
     await importWrongBookSnapshot(JSON.parse(await file.text()) as Partial<WrongBookSnapshot>);
     await refreshWrongBook();
-    setMessage(t("vocab.importSuccess"));
+    showSnackbar(t("vocab.importSuccess"));
     event.target.value = "";
   }
 
@@ -541,9 +546,9 @@ export function VocabClient() {
     try {
       await pullAndMergeWrongBook();
       await refreshWrongBook();
-      setMessage(t("vocab.cloud.pullSuccess"));
+      showSnackbar(t("vocab.cloud.pullSuccess"));
     } catch {
-      setMessage(t("vocab.cloud.pullError"));
+      showSnackbar(t("vocab.cloud.pullError"), "error");
     } finally {
       setCloudAction(null);
     }
@@ -553,9 +558,9 @@ export function VocabClient() {
     setCloudAction("overwrite");
     try {
       await overwriteCloudWrongBook();
-      setMessage(t("vocab.cloud.overwriteSuccess"));
+      showSnackbar(t("vocab.cloud.overwriteSuccess"));
     } catch {
-      setMessage(t("vocab.cloud.overwriteError"));
+      showSnackbar(t("vocab.cloud.overwriteError"), "error");
     } finally {
       setCloudAction(null);
     }
@@ -566,9 +571,9 @@ export function VocabClient() {
     try {
       await mergeUploadWrongBook();
       await refreshWrongBook();
-      setMessage(t("vocab.cloud.mergeSuccess"));
+      showSnackbar(t("vocab.cloud.mergeSuccess"));
     } catch {
-      setMessage(t("vocab.cloud.mergeError"));
+      showSnackbar(t("vocab.cloud.mergeError"), "error");
     } finally {
       setCloudAction(null);
     }
@@ -576,7 +581,7 @@ export function VocabClient() {
 
   async function preparePrintableVocabulary() {
     setLoading(true);
-    setMessage("");
+    clearSnackbar();
     try {
       if (selectedMetas.length > 0 && online) {
         await cacheSelectedUnits(false);
@@ -592,7 +597,7 @@ export function VocabClient() {
       ].filter((source) => source.words.length > 0);
 
       if (selectedSources.length === 0) {
-        setMessage(t("vocab.printSelectionRequired"));
+        showSnackbar(t("vocab.printSelectionRequired"), "error");
         return;
       }
       sessionStorage.setItem(
@@ -604,7 +609,7 @@ export function VocabClient() {
       );
       router.push("/vocab/print" as Route);
     } catch {
-      setMessage(!online ? t("vocab.printOfflineMissing") : t("vocab.printError"));
+      showSnackbar(!online ? t("vocab.printOfflineMissing") : t("vocab.printError"), "error");
     } finally {
       setLoading(false);
     }
@@ -649,7 +654,7 @@ export function VocabClient() {
               aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
               onInput={(event) => {
                 blankAnswerSpaceArmedRef.current = false;
-                setFeedback("");
+                setAnswerFeedback("");
                 setAnswer(valueFrom(event));
               }}
               onKeyDown={(event) => {
@@ -667,11 +672,12 @@ export function VocabClient() {
                       void submitAnswer();
                     } else {
                       blankAnswerSpaceArmedRef.current = true;
-                      setFeedback(t("vocab.answer.emptyConfirm"));
+                      setAnswerFeedback(t("vocab.answer.emptyConfirm"));
                     }
                     return;
                   }
                   blankAnswerSpaceArmedRef.current = false;
+                  setAnswerFeedback("");
                   if (event.key === "Enter") event.preventDefault();
                   return;
                 }
@@ -685,7 +691,16 @@ export function VocabClient() {
               <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>{t("vocab.submit")}</md-filled-button>
             )}
           </div>
-          <StatusAlert message={feedback} tone={answerOutcome === "wrong" ? "error" : "info"} />
+          {answerFeedback ? (
+            <div
+              className={`md-card md-card--flat${answerOutcome === "wrong" ? " badge--error" : ""}`}
+              role={answerOutcome === "wrong" ? "alert" : "status"}
+              aria-live={answerOutcome === "wrong" ? "assertive" : "polite"}
+              aria-atomic="true"
+            >
+              {answerFeedback}
+            </div>
+          ) : null}
           {pendingSlip ? (
             <div className="cluster">
               <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>{t("vocab.markCorrect")}</md-outlined-button>
@@ -858,7 +873,6 @@ export function VocabClient() {
             <md-filled-button disabled={!online || Boolean(cloudAction)} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
           </div>
         </section>
-        <StatusAlert message={message} />
       </div>
     );
   }
@@ -1017,7 +1031,6 @@ export function VocabClient() {
           <md-outlined-text-field label={t("vocab.batchName")} value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
         </div>
       </section>
-      <StatusAlert message={message} />
 
       <md-dialog open={loading}>
         <div slot="headline">{t("vocab.preparing")}</div>

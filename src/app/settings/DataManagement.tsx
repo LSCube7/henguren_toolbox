@@ -12,7 +12,7 @@ import {
 import { cacheTextLists, cacheVocabLists, clearOfflineCaches, readOfflineStorageSummary, type OfflineStorageSummary } from "@/lib/offline-cache";
 import type { VocabListMeta } from "@/lib/vocab-data";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
-import { StatusAlert } from "../components/StatusAlert";
+import { useSnackbar } from "../components/Snackbar";
 import { useI18n } from "../i18n/AppI18nProvider";
 
 function formatBytes(value: number | undefined, unavailable: string) {
@@ -28,8 +28,8 @@ export function DataManagement() {
   const [offlineSummary, setOfflineSummary] = useState<OfflineStorageSummary | null>(null);
   const [pendingBackup, setPendingBackup] = useState<ToolboxBackup | null>(null);
   const [busy, setBusy] = useState<"export" | "import" | "cache" | "clear" | null>(null);
-  const [message, setMessage] = useState("");
   const { locale, t } = useI18n();
+  const { clearSnackbar, showSnackbar } = useSnackbar();
 
   const refreshOfflineSummary = useCallback(async () => {
     setOfflineSummary(await readOfflineStorageSummary());
@@ -49,12 +49,12 @@ export function DataManagement() {
 
   async function exportBackup() {
     setBusy("export");
-    setMessage("");
+    clearSnackbar();
     try {
       downloadToolboxBackup(await createToolboxBackup());
-      setMessage(t("data.backup.exportSuccess"));
+      showSnackbar(t("data.backup.exportSuccess"));
     } catch {
-      setMessage(t("data.backup.exportError"));
+      showSnackbar(t("data.backup.exportError"), "error");
     } finally {
       setBusy(null);
     }
@@ -66,14 +66,14 @@ export function DataManagement() {
     try {
       if (file.size > 10 * 1024 * 1024) {
         setPendingBackup(null);
-        setMessage(t("data.backup.tooLarge"));
+        showSnackbar(t("data.backup.tooLarge"), "error");
         return;
       }
       setPendingBackup(parseToolboxBackup(await file.text()));
-      setMessage(t("data.backup.readSuccess"));
+      showSnackbar(t("data.backup.readSuccess"));
     } catch {
       setPendingBackup(null);
-      setMessage(t("data.backup.readError"));
+      showSnackbar(t("data.backup.readError"), "error");
     } finally {
       event.target.value = "";
     }
@@ -85,9 +85,9 @@ export function DataManagement() {
     try {
       const result = await importToolboxBackup(pendingBackup);
       setPendingBackup(null);
-      setMessage(t("data.backup.importSuccess", { wrongbookCount: result.wrongbookCount, masteryCount: result.masteryCount }));
+      showSnackbar(t("data.backup.importSuccess", { wrongbookCount: result.wrongbookCount, masteryCount: result.masteryCount }));
     } catch {
-      setMessage(t("data.backup.importPartial"));
+      showSnackbar(t("data.backup.importPartial"), "error");
     } finally {
       setBusy(null);
     }
@@ -95,7 +95,7 @@ export function DataManagement() {
 
   async function cacheAllLearningData() {
     if (!navigator.onLine) {
-      setMessage(t("data.offline.offlineError"));
+      showSnackbar(t("data.offline.offlineError"), "error");
       return;
     }
     setBusy("cache");
@@ -106,7 +106,10 @@ export function DataManagement() {
       ]);
       await refreshOfflineSummary();
       const failed = vocab.failed + text.failed;
-      setMessage(t(failed > 0 ? "data.offline.cachePartial" : "data.offline.cacheSuccess", { vocabCount: vocab.cached, textCount: text.cached, failedCount: failed }));
+      showSnackbar(
+        t(failed > 0 ? "data.offline.cachePartial" : "data.offline.cacheSuccess", { vocabCount: vocab.cached, textCount: text.cached, failedCount: failed }),
+        failed > 0 ? "error" : "info"
+      );
     } finally {
       setBusy(null);
     }
@@ -118,9 +121,9 @@ export function DataManagement() {
     try {
       const result = await clearOfflineCaches();
       await refreshOfflineSummary();
-      setMessage(result.deleted > 0 ? t("data.offline.clearSuccess", { count: result.deleted }) : t("data.offline.clearEmpty"));
+      showSnackbar(result.deleted > 0 ? t("data.offline.clearSuccess", { count: result.deleted }) : t("data.offline.clearEmpty"));
     } catch {
-      setMessage(t("data.offline.clearError"));
+      showSnackbar(t("data.offline.clearError"), "error");
     } finally {
       setBusy(null);
     }
@@ -191,7 +194,6 @@ export function DataManagement() {
         </div>
         <p className="helper-text">{t("data.offline.persistence", { status: offlineSummary?.persisted === undefined ? t("data.unavailable") : offlineSummary.persisted ? t("data.offline.enabled") : t("data.offline.disabled") })}</p>
       </section>
-      <StatusAlert message={message} />
     </section>
   );
 }

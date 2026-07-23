@@ -3,11 +3,14 @@ import { getCurrentUser } from "@/lib/session";
 import { readJsonFromR2, settingsKey, writeJsonToR2 } from "@/lib/r2";
 import { defaultSettings, type ToolboxSettings } from "@/lib/types";
 
-export async function GET() {
+export async function GET(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const settings = await readJsonFromR2<ToolboxSettings>(settingsKey(user.id));
+  if (new URL(request.url).searchParams.get("availability") === "1") {
+    return NextResponse.json({ available: Boolean(settings), settings });
+  }
   return NextResponse.json(settings ?? defaultSettings);
 }
 

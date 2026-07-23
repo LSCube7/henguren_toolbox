@@ -8,6 +8,7 @@ export type OnboardingState = {
 
 export const onboardingStorageKey = "henguren-v3-onboarding";
 export const onboardingStepStorageKey = "henguren-v3-onboarding-step";
+export const onboardingLoginDecisionStorageKey = "henguren-v3-onboarding-login-decision";
 export const onboardingChangeEvent = "henguren-onboarding-change";
 
 export function readOnboardingState(): OnboardingState {
@@ -34,11 +35,13 @@ export function completeOnboarding() {
   };
   localStorage.setItem(onboardingStorageKey, JSON.stringify(state));
   sessionStorage.removeItem(onboardingStepStorageKey);
+  sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
   window.dispatchEvent(new Event(onboardingChangeEvent));
 }
 
 export function restartOnboarding() {
   localStorage.removeItem(onboardingStorageKey);
   sessionStorage.removeItem(onboardingStepStorageKey);
+  sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
   window.dispatchEvent(new Event(onboardingChangeEvent));
 }

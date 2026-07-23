@@ -7,7 +7,7 @@ const STATIC_CACHE = `${CACHE_PREFIX}-${VERSION}-static`;
 const DATA_CACHE = `${CACHE_PREFIX}-${VERSION}-data`;
 const CURRENT_CACHES = new Set([APP_CACHE, STATIC_CACHE, DATA_CACHE]);
 
-const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/settings", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms", "/offline.html"];
+const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/settings", "/developer", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms", "/offline.html"];
 const NEVER_CACHE_PREFIXES = ["/api/auth/", "/api/me", "/api/wrongbook"];
 
 self.addEventListener("install", (event) => {

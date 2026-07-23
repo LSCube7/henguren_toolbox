@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { AppShell } from "./components/AppShell";
 import { ServiceWorkerRegister } from "./components/ServiceWorkerRegister";
 import { AppThemeProvider } from "./theme/AppThemeProvider";
+import { AppI18nProvider } from "./i18n/AppI18nProvider";
 import "@/generated/material-symbols.css";
 import "./globals.css";
 
@@ -32,8 +33,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="zh-CN">
       <body>
         <AppThemeProvider>
-          <ServiceWorkerRegister />
-          <AppShell>{children}</AppShell>
+          <AppI18nProvider>
+            <ServiceWorkerRegister />
+            <AppShell>{children}</AppShell>
+          </AppI18nProvider>
         </AppThemeProvider>
       </body>
     </html>

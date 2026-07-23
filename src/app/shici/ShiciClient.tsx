@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import definitions from "@/assets/js/shici/definitions.json";
+import { useI18n } from "../i18n/AppI18nProvider";
 
 const definitionMap = definitions as Record<string, string[]>;
 const words = Object.keys(definitionMap).sort((a, b) => b.length - a.length);
@@ -18,6 +19,7 @@ function buildLatex(foundWords: string[]) {
 }
 
 export function ShiciClient() {
+  const { t } = useI18n();
   const [text, setText] = useState("");
   const [activeWordKey, setActiveWordKey] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -60,18 +62,18 @@ export function ShiciClient() {
   }
 
   return (
-    <section className="md-card stack" aria-label="实词查找工具">
+    <section className="md-card stack" aria-label={t("shici.aria")}>
       <div className="cluster">
-        <span className="badge">已识别 {foundWords.length} 个实词</span>
+        <span className="badge">{t("shici.found", { count: foundWords.length })}</span>
         <md-outlined-button onClick={() => void copyLatex()} disabled={foundWords.length === 0}>
-          复制义项
+          {t("shici.copy")}
         </md-outlined-button>
         <md-filled-button onClick={downloadLatex} disabled={foundWords.length === 0}>
-          下载 TeX
+          {t("shici.download")}
         </md-filled-button>
       </div>
       <md-outlined-text-field
-        label="输入古文"
+        label={t("shici.input")}
         value={text}
         rows={6}
         type="textarea"
@@ -79,7 +81,7 @@ export function ShiciClient() {
       />
       <div className="md-card md-card--flat preview-panel" aria-live="polite" ref={previewRef}>
         {segments.length === 0 ? (
-          <span className="helper-text">输入文本后会在这里安全高亮实词。</span>
+          <span className="helper-text">{t("shici.empty")}</span>
         ) : (
           segments.map((segment, index) =>
             definitionMap[segment] ? (() => {

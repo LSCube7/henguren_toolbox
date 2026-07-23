@@ -3,6 +3,7 @@
 import type { VocabWord } from "@/lib/types";
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { useI18n } from "../../i18n/AppI18nProvider";
 
 type PrintableSource = {
   title: string;
@@ -40,7 +41,7 @@ function readPrintablePayload(): PrintablePayload | null {
       createdAt: parsed.createdAt ?? new Date().toISOString(),
       sources: parsed.sources
         .map((source) => ({
-          title: String(source.title ?? "未命名词表"),
+          title: String(source.title ?? ""),
           words: Array.isArray(source.words) ? source.words : []
         }))
         .filter((source) => source.words.length > 0)
@@ -61,33 +62,34 @@ function toggleLanguage(current: DefinitionLanguage[], value: DefinitionLanguage
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
-function definitionsFor(word: VocabWord, languages: DefinitionLanguage[]) {
+function definitionsFor(word: VocabWord, languages: DefinitionLanguage[], unavailable: string) {
   const definitions = [
     ...(languages.includes("en") ? word.en_definition ?? [] : []),
     ...(languages.includes("zh") ? word.zh_definition ?? [] : [])
   ];
-  return definitions.length > 0 ? definitions.join("；") : "未提供释义";
+  return definitions.length > 0 ? definitions.join("；") : unavailable;
 }
 
 export function VocabPrintClient() {
+  const { locale, t } = useI18n();
   const payload = useSyncExternalStore(subscribePrintablePayload, readPrintablePayload, () => null);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("definition");
   const [definitionLanguages, setDefinitionLanguages] = useState<DefinitionLanguage[]>(["en", "zh"]);
   const [showHint, setShowHint] = useState(true);
 
   const words = useMemo(() => payload?.sources.flatMap((source) => source.words.map((word) => ({ ...word, sourceTitle: word.sourceTitle ?? source.title }))) ?? [], [payload]);
-  const sourceInfo = useMemo(() => payload?.sources.map((source) => source.title).join("、") ?? "未选择词表", [payload]);
-  const createdAt = payload?.createdAt ? new Date(payload.createdAt).toLocaleString("zh-CN") : "";
-  const answerTitle = displayMode === "definition" ? "答案：原词" : "答案：释义";
+  const sourceInfo = useMemo(() => payload?.sources.map((source) => source.title || t("print.untitled")).join(", ") ?? t("print.noSource"), [payload, t]);
+  const createdAt = payload?.createdAt ? new Date(payload.createdAt).toLocaleString(locale) : "";
+  const answerTitle = t(displayMode === "definition" ? "print.answerWord" : "print.answerDefinition");
 
   if (!payload || words.length === 0) {
     return (
       <section className="md-card stack">
-        <h2 className="section-title">没有可打印的词表</h2>
-        <p className="helper-text">请先返回单词测试页，选择 Unit 或自定义词表后再创建打印版。</p>
+        <h2 className="section-title">{t("print.emptyTitle")}</h2>
+        <p className="helper-text">{t("print.emptyDescription")}</p>
         <div>
           <Link href="/vocab">
-            <md-filled-button>返回单词测试</md-filled-button>
+            <md-filled-button>{t("print.backVocab")}</md-filled-button>
           </Link>
         </div>
       </section>
@@ -96,71 +98,71 @@ export function VocabPrintClient() {
 
   return (
     <div className="stack-lg vocab-print-page">
-      <section className="md-card stack print-config" aria-label="打印版设置">
+      <section className="md-card stack print-config" aria-label={t("print.settingsAria")}>
         <div className="spread">
           <div>
-            <h2 className="section-title">显示设置</h2>
-            <p className="helper-text">当前共 {words.length} 个单词。选择纸面上显示原词还是释义，再打印。</p>
+            <h2 className="section-title">{t("print.settingsTitle")}</h2>
+            <p className="helper-text">{t("print.settingsDescription", { count: words.length })}</p>
           </div>
           <div className="cluster">
             <Link href="/vocab">
-              <md-outlined-button>返回选择</md-outlined-button>
+              <md-outlined-button>{t("print.back")}</md-outlined-button>
             </Link>
-            <md-filled-button onClick={() => window.print()}>打印</md-filled-button>
+            <md-filled-button onClick={() => window.print()}>{t("print.action")}</md-filled-button>
           </div>
         </div>
 
         <div className="print-option-grid">
           <div className="stack">
-            <h3 className="card-title">题目显示</h3>
-            <div className="cluster" role="radiogroup" aria-label="题目显示内容">
+            <h3 className="card-title">{t("print.displayTitle")}</h3>
+            <div className="cluster" role="radiogroup" aria-label={t("print.displayAria")}>
               <md-filter-chip selected={displayMode === "definition"} onClick={() => setDisplayMode("definition")} role="radio" aria-checked={displayMode === "definition"}>
-                显示释义，默写原词
+                {t("print.definitionPrompt")}
               </md-filter-chip>
               <md-filter-chip selected={displayMode === "word"} onClick={() => setDisplayMode("word")} role="radio" aria-checked={displayMode === "word"}>
-                显示原词，默写释义
+                {t("print.wordPrompt")}
               </md-filter-chip>
             </div>
           </div>
 
           <div className="stack">
-            <h3 className="card-title">释义语言</h3>
-            <div className="cluster" aria-label="选择释义语言">
+            <h3 className="card-title">{t("print.languageTitle")}</h3>
+            <div className="cluster" aria-label={t("print.languageAria")}>
               <md-filter-chip selected={definitionLanguages.includes("zh")} onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "zh"))}>
-                中文
+                {t("language.chinese")}
               </md-filter-chip>
               <md-filter-chip selected={definitionLanguages.includes("en")} onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "en"))}>
-                英语
+                {t("language.english")}
               </md-filter-chip>
             </div>
-            {definitionLanguages.length === 0 ? <p className="helper-text">至少建议选择一种释义语言，否则会显示“未提供释义”。</p> : null}
+            {definitionLanguages.length === 0 ? <p className="helper-text">{t("print.languageWarning")}</p> : null}
           </div>
 
           <label className="switch-field print-switch-field">
             <md-switch selected={showHint} checked={showHint} onInput={(event) => setShowHint(Boolean((event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean }).checked ?? (event.currentTarget as HTMLElement & { selected?: boolean }).selected))} />
-            <span>首字母提示</span>
+            <span>{t("print.hint")}</span>
           </label>
         </div>
       </section>
 
-      <section className="print-sheet" aria-label="打印预览">
+      <section className="print-sheet" aria-label={t("print.previewAria")}>
         <header className="print-sheet__header">
           <div>
             <p className="print-sheet__eyebrow">Henguren Toolbox</p>
-            <h2>单词测试打印版</h2>
+            <h2>{t("page.print.title")}</h2>
           </div>
           <div className="print-sheet__meta">
-            <span>来源：{sourceInfo}</span>
-            <span>生成时间：{createdAt}</span>
-            <span>共 {words.length} 题</span>
+            <span>{t("print.source", { source: sourceInfo })}</span>
+            <span>{t("print.createdAt", { time: createdAt })}</span>
+            <span>{t("print.total", { count: words.length })}</span>
           </div>
         </header>
 
         <section className="print-section">
-          <h3>默写题目</h3>
+          <h3>{t("print.questions")}</h3>
           <div className="print-word-list">
             {words.map((word, index) => {
-              const prompt = displayMode === "definition" ? definitionsFor(word, definitionLanguages) : word.word;
+              const prompt = displayMode === "definition" ? definitionsFor(word, definitionLanguages, t("print.noDefinition")) : word.word;
               const hint = showHint && displayMode === "definition" ? word.word[0] : "";
               return (
                 <article className="print-word-item" key={`${word.sourceName ?? word.sourceTitle}-${word.word}-${index}`}>
@@ -179,13 +181,13 @@ export function VocabPrintClient() {
           <div className="print-answer-grid">
             {words.map((word, index) => (
               <span className="print-answer-item" key={`answer-${word.sourceName ?? word.sourceTitle}-${word.word}-${index}`}>
-                {index + 1}. {displayMode === "definition" ? word.word : definitionsFor(word, definitionLanguages)}
+                {index + 1}. {displayMode === "definition" ? word.word : definitionsFor(word, definitionLanguages, t("print.noDefinition"))}
               </span>
             ))}
           </div>
         </section>
 
-        <footer className="print-sheet__footer">恨古人工具箱 · {sourceInfo}</footer>
+        <footer className="print-sheet__footer">{t("app.name")} · {sourceInfo}</footer>
       </section>
     </div>
   );

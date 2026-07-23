@@ -14,7 +14,7 @@ import {
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
 import { deleteMasteryRecord, readMasteryMap, recordMasteryResult } from "@/lib/client-mastery";
-import { isMasteryDue, isMasteryLearning, masteryLabel, type MasteryRecord } from "@/lib/mastery";
+import { isMasteryDue, isMasteryLearning, type MasteryRecord } from "@/lib/mastery";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
 import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, type WrongBookSnapshot, type VocabWord } from "@/lib/types";
@@ -24,6 +24,8 @@ import { useRouter } from "next/navigation";
 import { StatusAlert } from "../components/StatusAlert";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
+import { useI18n } from "../i18n/AppI18nProvider";
+import type { MessageKey } from "@/i18n/config";
 
 type UploadedList = VocabListMeta & { words: VocabWord[] };
 type TestWord = VocabWord & { wrongRecordId?: string };
@@ -37,16 +39,16 @@ type DefinitionLanguageMode = "all" | VocabDefinitionLanguage;
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
-const masteryFilterOptions: Array<{ value: MasteryFilter; label: string }> = [
-  { value: "all", label: "全部" },
-  { value: "due", label: "待复习" },
-  { value: "learning", label: "学习中" },
-  { value: "mastered", label: "已掌握" }
+const masteryFilterOptions: Array<{ value: MasteryFilter; label: MessageKey }> = [
+  { value: "all", label: "vocab.filter.all" },
+  { value: "due", label: "vocab.filter.due" },
+  { value: "learning", label: "vocab.filter.learning" },
+  { value: "mastered", label: "vocab.filter.mastered" }
 ];
-const definitionLanguageOptions: Array<{ value: DefinitionLanguageMode; label: string }> = [
-  { value: "all", label: "全部" },
-  { value: "zh", label: "仅中文" },
-  { value: "en", label: "仅英语" }
+const definitionLanguageOptions: Array<{ value: DefinitionLanguageMode; label: MessageKey }> = [
+  { value: "all", label: "vocab.filter.all" },
+  { value: "zh", label: "vocab.language.zhOnly" },
+  { value: "en", label: "vocab.language.enOnly" }
 ];
 
 const cloudActionIcon: Record<CloudAction, MaterialSymbolName> = {
@@ -55,10 +57,10 @@ const cloudActionIcon: Record<CloudAction, MaterialSymbolName> = {
   merge: "cloud_sync"
 };
 
-const cloudActionLabel: Record<CloudAction, string> = {
-  pull: "正在拉取云端错题本",
-  overwrite: "正在上传覆盖云端",
-  merge: "正在合并上传"
+const cloudActionLabel: Record<CloudAction, MessageKey> = {
+  pull: "user.wrongbookSync.pulling",
+  overwrite: "user.wrongbookSync.overwriting",
+  merge: "user.wrongbookSync.merging"
 };
 
 function nowStamp() {
@@ -133,9 +135,11 @@ function toVocabWord(word: TestWord): VocabWord {
   };
 }
 
-function nextReviewLabel(record: MasteryRecord | undefined) {
-  if (isMasteryDue(record)) return "现在可复习";
-  return `下次复习：${new Date(record!.nextReviewAt).toLocaleDateString("zh-CN")}`;
+function masteryMessageKey(record: MasteryRecord | undefined): MessageKey {
+  if (!record) return "vocab.mastery.new";
+  if (record.level === "mastered") return "vocab.mastery.mastered";
+  if (record.level === "reviewing") return "vocab.mastery.reviewing";
+  return "vocab.mastery.learning";
 }
 
 function getDefinitionLanguageMode(languages: VocabDefinitionLanguage[]): DefinitionLanguageMode {
@@ -155,6 +159,7 @@ function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: Vo
 
 export function VocabClient() {
   const router = useRouter();
+  const { locale, t } = useI18n();
   const online = useOnlineStatus();
   const [screen, setScreen] = useState<Screen>("select");
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
@@ -229,8 +234,7 @@ export function VocabClient() {
   const selectedHiddenCustomCount = hiddenCustomLists.filter((item) => selectedUploadedIds.includes(item.name)).length;
   const hiddenCustomSelectionState = selectedHiddenCustomCount === 0 ? "none" : selectedHiddenCustomCount === hiddenCustomLists.length ? "all" : "partial";
   const hiddenCustomSelectionIcon = hiddenCustomSelectionState === "all" ? "✓" : hiddenCustomSelectionState === "partial" ? "−" : "□";
-  const hiddenCustomSelectionText =
-    hiddenCustomSelectionState === "all" ? "隐藏词表已全选" : hiddenCustomSelectionState === "partial" ? "隐藏词表已部分选择" : "隐藏词表未选择";
+  const hiddenCustomSelectionText = t(hiddenCustomSelectionState === "all" ? "vocab.hidden.all" : hiddenCustomSelectionState === "partial" ? "vocab.hidden.partial" : "vocab.hidden.none");
   const maxTestCount = selectedUnits.length * 80 + selectedCustomLists.reduce((sum, item) => sum + item.words.length, 0);
   const wrongRecords = wrongBook?.records ?? [];
   const wrongBookSources = Array.from(new Set(wrongRecords.map((record) => record.sourceName))).sort();
@@ -290,11 +294,11 @@ export function VocabClient() {
 
   async function cacheSelectedUnits(manual = true) {
     if (selectedMetas.length === 0) {
-      if (manual) setMessage("请先选择至少一个 Unit。");
+      if (manual) setMessage(t("vocab.cache.selectRequired"));
       return;
     }
     if (!online) {
-      if (manual) setMessage("当前离线，无法缓存新的 Unit；已缓存的 Unit 仍可使用。");
+      if (manual) setMessage(t("vocab.cache.offline"));
       return;
     }
 
@@ -303,9 +307,9 @@ export function VocabClient() {
       const result = await cacheVocabLists(selectedMetas);
       await refreshVocabCacheStates();
       if (manual) {
-        setMessage(result.failed > 0 ? `已缓存 ${result.cached} 个 Unit，${result.failed} 个缓存失败。` : `已缓存 ${result.cached} 个 Unit。`);
+        setMessage(result.failed > 0 ? t("vocab.cache.partial", { cached: result.cached, failed: result.failed }) : t("vocab.cache.success", { count: result.cached }));
       } else if (result.failed > 0) {
-        setMessage(`部分 Unit 自动缓存失败（${result.failed} 个），测试会继续尝试加载。`);
+        setMessage(t("vocab.cache.autoPartial", { failed: result.failed }));
       }
     } finally {
       setCacheBusy(false);
@@ -354,7 +358,7 @@ export function VocabClient() {
           : [...(await Promise.all(selectedMetas.map(loadVocabList))).flat(), ...selectedCustomLists.flatMap((item) => item.words)];
 
       if (testWordsSource.length === 0) {
-        setMessage("请先选择至少一个单元、上传词表，或在错题本中保留记录。");
+        setMessage(t("vocab.selectionRequired"));
         return;
       }
 
@@ -370,8 +374,8 @@ export function VocabClient() {
       setTestNo(`test-${nowStamp()}`);
       setTestSource(source);
       setScreen("testing");
-    } catch (error) {
-      setMessage(!online ? "该 Unit 尚未离线缓存，请联网打开或手动缓存一次后再离线使用。" : error instanceof Error ? error.message : "词表加载失败。");
+    } catch {
+      setMessage(!online ? t("vocab.offlineMissing") : t("vocab.loadError"));
     } finally {
       setLoading(false);
     }
@@ -402,7 +406,7 @@ export function VocabClient() {
             await recordMasteryResult(masteryRecordId, true);
             await refreshWrongBook();
           } catch {
-            nextMessage = `${resultMessage}；掌握度更新失败，请稍后重试。`;
+            nextMessage = t("vocab.masteryUpdateError", { message: resultMessage });
           }
         }
       } else {
@@ -412,11 +416,11 @@ export function VocabClient() {
           try {
             await recordMasteryResult(masteryRecordId, false);
           } catch {
-            nextMessage = `${resultMessage}；掌握度更新失败，错题仍已保存。`;
+            nextMessage = t("vocab.masterySaveError", { message: resultMessage });
           }
           await refreshWrongBook();
         } catch {
-          nextMessage = `${resultMessage}；错题本保存失败，请在结果页下载错误 JSON 留存。`;
+          nextMessage = t("vocab.wrongbookSaveError", { message: resultMessage });
         }
       }
       setFeedback(nextMessage);
@@ -432,16 +436,25 @@ export function VocabClient() {
     if (!currentWord || answerOutcome || answerSubmissionRef.current) return;
     const result =
       forced === "wrong"
-        ? { correct: false, slip: false, message: `已计为错误，答案是 ${currentWord.word}` }
+        ? { correct: false, slip: false, message: t("vocab.answer.forcedWrong", { word: currentWord.word }) }
         : forced === "correct"
-          ? { correct: true, slip: false, message: `已计为正确：${currentWord.word}` }
+          ? { correct: true, slip: false, message: t("vocab.answer.forcedCorrect", { word: currentWord.word }) }
           : evaluateAnswer(answer, currentWord.word, { enableSlipDetection, allowMissingFirstLetter: showHint });
+    const localizedResultMessage = forced === "wrong"
+      ? t("vocab.answer.forcedWrong", { word: currentWord.word })
+      : forced === "correct"
+        ? t("vocab.answer.forcedCorrect", { word: currentWord.word })
+        : result.slip
+          ? t("vocab.answer.slip", { word: currentWord.word })
+          : result.correct
+            ? t("vocab.answer.correct")
+            : t("vocab.answer.wrong", { word: currentWord.word });
     if (result.slip) {
-      setFeedback(result.message);
+      setFeedback(localizedResultMessage);
       setPendingSlip(true);
       return;
     }
-    await finalizeAnswer(result.correct ? "correct" : "wrong", result.message);
+    await finalizeAnswer(result.correct ? "correct" : "wrong", localizedResultMessage);
   }
 
   function goNextQuestion() {
@@ -519,7 +532,7 @@ export function VocabClient() {
     if (!file) return;
     await importWrongBookSnapshot(JSON.parse(await file.text()) as Partial<WrongBookSnapshot>);
     await refreshWrongBook();
-    setMessage("错题本已导入并合并。");
+    setMessage(t("vocab.importSuccess"));
     event.target.value = "";
   }
 
@@ -528,9 +541,9 @@ export function VocabClient() {
     try {
       await pullAndMergeWrongBook();
       await refreshWrongBook();
-      setMessage("已拉取云端错题本并合并到本地。");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "需要登录后才能拉取云端错题本。");
+      setMessage(t("vocab.cloud.pullSuccess"));
+    } catch {
+      setMessage(t("vocab.cloud.pullError"));
     } finally {
       setCloudAction(null);
     }
@@ -540,9 +553,9 @@ export function VocabClient() {
     setCloudAction("overwrite");
     try {
       await overwriteCloudWrongBook();
-      setMessage("已用本地错题本上传覆盖云端。");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "需要登录后才能上传错题本。");
+      setMessage(t("vocab.cloud.overwriteSuccess"));
+    } catch {
+      setMessage(t("vocab.cloud.overwriteError"));
     } finally {
       setCloudAction(null);
     }
@@ -553,9 +566,9 @@ export function VocabClient() {
     try {
       await mergeUploadWrongBook();
       await refreshWrongBook();
-      setMessage("已完成本地与云端合并上传。");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "需要登录后才能合并上传错题本。");
+      setMessage(t("vocab.cloud.mergeSuccess"));
+    } catch {
+      setMessage(t("vocab.cloud.mergeError"));
     } finally {
       setCloudAction(null);
     }
@@ -579,7 +592,7 @@ export function VocabClient() {
       ].filter((source) => source.words.length > 0);
 
       if (selectedSources.length === 0) {
-        setMessage("请先选择至少一个 Unit 或上传并选择自定义词表。");
+        setMessage(t("vocab.printSelectionRequired"));
         return;
       }
       sessionStorage.setItem(
@@ -590,8 +603,8 @@ export function VocabClient() {
         })
       );
       router.push("/vocab/print" as Route);
-    } catch (error) {
-      setMessage(!online ? "该 Unit 尚未离线缓存，请联网打开或手动缓存一次后再创建打印版。" : error instanceof Error ? error.message : "打印版准备失败。");
+    } catch {
+      setMessage(!online ? t("vocab.printOfflineMissing") : t("vocab.printError"));
     } finally {
       setLoading(false);
     }
@@ -600,29 +613,29 @@ export function VocabClient() {
   if (screen === "testing") {
     return (
       <div className="stack">
-        <section className="md-card spread" aria-label="测试进度">
+        <section className="md-card spread" aria-label={t("vocab.progressAria")}>
           <div>
-            <h2 className="section-title">测试中</h2>
+            <h2 className="section-title">{t("vocab.testing")}</h2>
             <p className="helper-text">
-              {currentIndex + 1} / {testWords.length} · 当前来源：{currentWord?.sourceTitle ?? currentWord?.sourceName}
+              {t("vocab.progress", { current: currentIndex + 1, total: testWords.length, source: currentWord?.sourceTitle ?? currentWord?.sourceName ?? "—" })}
             </p>
           </div>
           <md-outlined-button disabled={submittingAnswer} onClick={finishTestEarly}>
-            结束测试
+            {t("vocab.finish")}
           </md-outlined-button>
         </section>
-        <section className="md-card stack" aria-label="当前题目">
+        <section className="md-card stack" aria-label={t("vocab.questionAria")}>
           <div className="stack">
             {visibleDefinitionLanguages.includes("en") ? (
               <div>
-                <span className="badge badge--neutral">英语释义</span>
-                <p className="section-title">{currentWord?.en_definition.join("; ") || "未提供英语释义"}</p>
+                <span className="badge badge--neutral">{t("vocab.definition.en")}</span>
+                <p className="section-title">{currentWord?.en_definition.join("; ") || t("vocab.definition.enMissing")}</p>
               </div>
             ) : null}
             {visibleDefinitionLanguages.includes("zh") ? (
               <div>
-                <span className="badge badge--neutral">中文释义</span>
-                <p className="section-title">{currentWord?.zh_definition.join("；") || "未提供中文释义"}</p>
+                <span className="badge badge--neutral">{t("vocab.definition.zh")}</span>
+                <p className="section-title">{currentWord?.zh_definition.join("；") || t("vocab.definition.zhMissing")}</p>
               </div>
             ) : null}
           </div>
@@ -630,7 +643,7 @@ export function VocabClient() {
             {showHint && currentWord ? <span className="badge">{currentWord.word[0]}</span> : null}
             <md-outlined-text-field
               ref={answerInputRef}
-              label="输入单词"
+              label={t("vocab.answerInput")}
               value={answer}
               readOnly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
               aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
@@ -654,7 +667,7 @@ export function VocabClient() {
                       void submitAnswer();
                     } else {
                       blankAnswerSpaceArmedRef.current = true;
-                      setFeedback("再次按空格提交空答案。");
+                      setFeedback(t("vocab.answer.emptyConfirm"));
                     }
                     return;
                   }
@@ -667,16 +680,16 @@ export function VocabClient() {
               }}
             />
             {answerOutcome ? (
-              <md-filled-button onClick={goNextQuestion}>{currentIndex + 1 >= testWords.length ? "查看结果" : "下一题"}</md-filled-button>
+              <md-filled-button onClick={goNextQuestion}>{t(currentIndex + 1 >= testWords.length ? "vocab.viewResults" : "vocab.nextQuestion")}</md-filled-button>
             ) : (
-              <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>提交</md-filled-button>
+              <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>{t("vocab.submit")}</md-filled-button>
             )}
           </div>
           <StatusAlert message={feedback} tone={answerOutcome === "wrong" ? "error" : "info"} />
           {pendingSlip ? (
             <div className="cluster">
-              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>判为正确</md-outlined-button>
-              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("wrong")}>判为错误</md-outlined-button>
+              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>{t("vocab.markCorrect")}</md-outlined-button>
+              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("wrong")}>{t("vocab.markWrong")}</md-outlined-button>
             </div>
           ) : null}
         </section>
@@ -689,11 +702,11 @@ export function VocabClient() {
     const rate = total === 0 ? 0 : Math.round((correctWords.length / total) * 100);
     return (
       <div className="stack">
-        <section className="md-grid" aria-label="测试结果">
+        <section className="md-grid" aria-label={t("vocab.resultsAria")}>
           {[
-            ["正确率", `${rate}%`],
-            ["正确", correctWords.length],
-            ["错误", incorrectWords.length]
+            [t("vocab.rate"), `${rate}%`],
+            [t("vocab.correct"), correctWords.length],
+            [t("vocab.wrong"), incorrectWords.length]
           ].map(([title, value]) => (
             <article className="md-card" key={title}>
               <p className="helper-text">{title}</p>
@@ -701,24 +714,24 @@ export function VocabClient() {
             </article>
           ))}
         </section>
-        <section className="md-card stack" aria-label="错误单词">
+        <section className="md-card stack" aria-label={t("vocab.incorrectAria")}>
           <div className="spread">
-            <h2 className="section-title">错误单词</h2>
+            <h2 className="section-title">{t("vocab.incorrectTitle")}</h2>
             <div className="cluster">
-              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>下载错误 JSON</md-outlined-button>
-              <md-outlined-button disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>重测本次错题</md-outlined-button>
-              <md-filled-button onClick={resetTest}>返回选择</md-filled-button>
+              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>{t("vocab.downloadErrors")}</md-outlined-button>
+              <md-outlined-button disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>{t("vocab.retryErrors")}</md-outlined-button>
+              <md-filled-button onClick={resetTest}>{t("vocab.backSelection")}</md-filled-button>
             </div>
           </div>
-          {incorrectWords.length === 0 ? <p className="helper-text">没有错误单词。</p> : null}
+          {incorrectWords.length === 0 ? <p className="helper-text">{t("vocab.noErrors")}</p> : null}
           {incorrectWords.map((word) => {
             const visibleLanguages = getVisibleDefinitionLanguages(word, definitionLanguages);
             return (
               <article className="md-card md-card--flat spread" key={`${word.sourceName}-${word.word}`}>
                 <div>
                   <h3 className="card-title">{word.word}</h3>
-                  {visibleLanguages.includes("en") ? <p className="helper-text">英语：{word.en_definition.join("; ") || "未提供"}</p> : null}
-                  {visibleLanguages.includes("zh") ? <p className="helper-text">中文：{word.zh_definition.join("；") || "未提供"}</p> : null}
+                  {visibleLanguages.includes("en") ? <p className="helper-text">{t("vocab.definition.enPrefix", { definition: word.en_definition.join("; ") || t("vocab.definition.missing") })}</p> : null}
+                  {visibleLanguages.includes("zh") ? <p className="helper-text">{t("vocab.definition.zhPrefix", { definition: word.zh_definition.join("；") || t("vocab.definition.missing") })}</p> : null}
                 </div>
                 <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
               </article>
@@ -732,33 +745,33 @@ export function VocabClient() {
   if (screen === "wrongbook") {
     return (
       <div className="stack">
-        <section className="md-card spread" aria-label="错题本说明">
+        <section className="md-card spread" aria-label={t("vocab.wrongbookInfoAria")}>
           <div>
-            <h2 className="section-title">错题本</h2>
-            <p className="helper-text">错题本优先保存在本机；掌握度会按答题结果安排下次复习，目前同样保存在本机。</p>
+            <h2 className="section-title">{t("vocab.wrongbook")}</h2>
+            <p className="helper-text">{t("vocab.wrongbookDescription")}</p>
           </div>
           <div className="cluster">
-            <md-outlined-button onClick={() => setScreen("select")}>返回测试</md-outlined-button>
+            <md-outlined-button onClick={() => setScreen("select")}>{t("vocab.backTest")}</md-outlined-button>
             <md-filled-button disabled={filteredWrongRecords.length === 0} onClick={() => void startTest("wrongbook")}>
-              复习当前筛选
+              {t("vocab.reviewFiltered")}
             </md-filled-button>
           </div>
         </section>
-        <section className="md-card stack" aria-label="错题记录">
+        <section className="md-card stack" aria-label={t("vocab.recordsAria")}>
           <div className="spread">
-            <h2 className="section-title">错题记录</h2>
+            <h2 className="section-title">{t("vocab.records")}</h2>
             <div className="cluster">
-              <md-outlined-button onClick={() => wrongBook && downloadJson(`wrongbook_${nowStamp()}.json`, wrongBook)}>导出</md-outlined-button>
-              <md-outlined-button onClick={() => importWrongBookRef.current?.click()}>导入</md-outlined-button>
+              <md-outlined-button onClick={() => wrongBook && downloadJson(`wrongbook_${nowStamp()}.json`, wrongBook)}>{t("vocab.export")}</md-outlined-button>
+              <md-outlined-button onClick={() => importWrongBookRef.current?.click()}>{t("vocab.import")}</md-outlined-button>
               <input ref={importWrongBookRef} className="hidden-input" type="file" accept=".json" onChange={(event) => void importWrongBook(event)} />
             </div>
           </div>
           <div className="wrongbook-filters">
-            <md-outlined-text-field label="搜索单词" value={wrongBookSearch} onInput={(event) => setWrongBookSearch(valueFrom(event))} />
+            <md-outlined-text-field label={t("vocab.search")} value={wrongBookSearch} onInput={(event) => setWrongBookSearch(valueFrom(event))} />
             <div className="wrongbook-filter-row">
-              <md-filled-select className="wrongbook-source-select" label="来源" value={wrongBookSource} onInput={(event) => setWrongBookSource(valueFrom(event))}>
+              <md-filled-select className="wrongbook-source-select" label={t("vocab.source")} value={wrongBookSource} onInput={(event) => setWrongBookSource(valueFrom(event))}>
                 <md-select-option value="all">
-                  <div slot="headline">全部来源</div>
+                  <div slot="headline">{t("vocab.allSources")}</div>
                 </md-select-option>
                 {wrongBookSources.map((source) => (
                   <md-select-option key={source} value={source}>
@@ -766,9 +779,9 @@ export function VocabClient() {
                   </md-select-option>
                 ))}
               </md-filled-select>
-              <div className="filter-section" aria-label="掌握度筛选">
-                <span className="filter-label">掌握度</span>
-                <div className="button-group" role="radiogroup" aria-label="掌握度">
+              <div className="filter-section" aria-label={t("vocab.mastery")}>
+                <span className="filter-label">{t("vocab.mastery")}</span>
+                <div className="button-group" role="radiogroup" aria-label={t("vocab.mastery")}>
                   {masteryFilterOptions.map((option) => (
                     <button
                       className="button-group__item"
@@ -779,19 +792,19 @@ export function VocabClient() {
                       key={option.value}
                       onClick={() => setMasteryFilter(option.value)}
                     >
-                      {option.label}
+                      {t(option.label)}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="filter-section" aria-label="视图筛选">
-                <span className="filter-label">视图</span>
+              <div className="filter-section" aria-label={t("vocab.view")}>
+                <span className="filter-label">{t("vocab.view")}</span>
                 <div className="chip-scroll">
                   <md-filter-chip selected={wrongBookView === "words"} onClick={() => setWrongBookView("words")}>
-                    单词
+                    {t("vocab.view.words")}
                   </md-filter-chip>
                   <md-filter-chip selected={wrongBookView === "batches"} onClick={() => setWrongBookView("batches")}>
-                    批次
+                    {t("vocab.view.batches")}
                   </md-filter-chip>
                 </div>
               </div>
@@ -803,15 +816,15 @@ export function VocabClient() {
                   <article className="md-card md-card--flat spread" key={record.id}>
                     <div>
                       <h3 className="card-title">{record.word}</h3>
-                      <div className="record-chip-row" aria-label={`${record.word} 错题信息`}>
-                        <span className="info-chip">来源：{record.sourceTitle ?? record.sourceName}</span>
-                        <span className="info-chip info-chip--strong">错 {record.wrongCount} 次</span>
-                        <span className="info-chip info-chip--strong">{masteryLabel(masteryById[record.id])}</span>
-                        <span className="info-chip">{nextReviewLabel(masteryById[record.id])}</span>
+                      <div className="record-chip-row" aria-label={t("vocab.recordAria", { word: record.word })}>
+                        <span className="info-chip">{t("vocab.recordSource", { source: record.sourceTitle ?? record.sourceName })}</span>
+                        <span className="info-chip info-chip--strong">{t("vocab.wrongCount", { count: record.wrongCount })}</span>
+                        <span className="info-chip info-chip--strong">{t(masteryMessageKey(masteryById[record.id]))}</span>
+                        <span className="info-chip">{isMasteryDue(masteryById[record.id]) ? t("vocab.review.now") : t("vocab.review.next", { date: new Date(masteryById[record.id]!.nextReviewAt).toLocaleDateString(locale) })}</span>
                       </div>
                     </div>
-                    <md-outlined-button onClick={() => void removeWrongRecord(record.id)} aria-label={`删除 ${record.word}`}>
-                      删除
+                    <md-outlined-button onClick={() => void removeWrongRecord(record.id)} aria-label={t("vocab.deleteWordAria", { word: record.word })}>
+                      {t("vocab.delete")}
                     </md-outlined-button>
                   </article>
                 ))
@@ -820,29 +833,29 @@ export function VocabClient() {
                     <div>
                       <h3 className="card-title">{batch.batchName || batch.testNo}</h3>
                       <p className="helper-text">
-                        {batch.createdAt} · {batch.syncedCount} 词
+                        {t("vocab.batchCount", { date: batch.createdAt, count: batch.syncedCount })}
                       </p>
                     </div>
-                    <md-outlined-button onClick={() => void removeWrongBatch(batch.testNo)} aria-label={`删除批次 ${batch.testNo}`}>
-                      删除
+                    <md-outlined-button onClick={() => void removeWrongBatch(batch.testNo)} aria-label={t("vocab.deleteBatchAria", { batch: batch.testNo })}>
+                      {t("vocab.delete")}
                     </md-outlined-button>
                   </article>
                 ))}
           </div>
         </section>
-        <section className="md-card spread" aria-label="云端同步">
+        <section className="md-card spread" aria-label={t("vocab.cloudAria")}>
           <div>
-            <h2 className="section-title">云端同步</h2>
-            <p className="helper-text">提供拉取云端、上传覆盖、合并上传三种显式操作，默认不自动覆盖本地数据。</p>
+            <h2 className="section-title">{t("vocab.cloudTitle")}</h2>
+            <p className="helper-text">{t("vocab.cloudDescription")}</p>
             <span className="sync-status-chip" data-status={!online ? "offline" : cloudAction ? "syncing" : "ready"}>
               <MaterialIcon name={!online ? "cloud_off" : cloudAction ? cloudActionIcon[cloudAction] : "cloud_sync"} />
-              <span>{!online ? "当前离线，云端同步不可用" : cloudAction ? cloudActionLabel[cloudAction] : "云端同步可用"}</span>
+              <span>{t(!online ? "vocab.cloudOffline" : cloudAction ? cloudActionLabel[cloudAction] : "vocab.cloudReady")}</span>
             </span>
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void pullCloud()}>拉取云端</md-outlined-button>
-            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void overwriteCloud()}>上传覆盖</md-outlined-button>
-            <md-filled-button disabled={!online || Boolean(cloudAction)} onClick={() => void mergeCloud()}>合并上传</md-filled-button>
+            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</md-outlined-button>
+            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void overwriteCloud()}>{t("vocab.cloudOverwrite")}</md-outlined-button>
+            <md-filled-button disabled={!online || Boolean(cloudAction)} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
           </div>
         </section>
         <StatusAlert message={message} />
@@ -852,25 +865,25 @@ export function VocabClient() {
 
   return (
     <div className="stack">
-      <section className="md-card spread" aria-label="选择单词列表">
+      <section className="md-card spread" aria-label={t("vocab.selectionAria")}>
         <div>
-          <h2 className="section-title">选择单词列表</h2>
+          <h2 className="section-title">{t("vocab.selectionTitle")}</h2>
           <p className="helper-text">
-            选择一个或多个单元，也可以上传自定义 JSON 词表。
-            {selectedMetas.length === 0 ? " 选择 Unit 后可以缓存离线词表。" : ` 已选 ${selectedMetas.length} 个 Unit · 已缓存 ${cachedUnitCount} · 未缓存 ${missingUnitCount}`}
+            {t("vocab.selectionDescription")}{" "}
+            {selectedMetas.length === 0 ? t("vocab.selectionCacheHint") : t("vocab.selectionSummary", { selected: selectedMetas.length, cached: cachedUnitCount, missing: missingUnitCount })}
           </p>
         </div>
         <div className="cluster">
-          <span className={online ? "badge badge--neutral" : "badge badge--error"}>{online ? "在线" : "离线"}</span>
+          <span className={online ? "badge badge--neutral" : "badge badge--error"}>{t(online ? "vocab.online" : "vocab.offline")}</span>
           <md-outlined-button disabled={!online || cacheBusy || selectedMetas.length === 0} onClick={() => void cacheSelectedUnits()}>
-            {cacheBusy ? "正在缓存" : "缓存已选 Unit"}
+            {t(cacheBusy ? "vocab.caching" : "vocab.cacheSelected")}
           </md-outlined-button>
           <md-outlined-button disabled={selectedMetas.length === 0 && selectedCustomLists.length === 0} onClick={() => void preparePrintableVocabulary()}>
-            创建打印版
+            {t("vocab.createPrint")}
           </md-outlined-button>
-          <md-outlined-button onClick={() => setScreen("wrongbook")}>打开错题本</md-outlined-button>
+          <md-outlined-button onClick={() => setScreen("wrongbook")}>{t("vocab.openWrongbook")}</md-outlined-button>
           <md-filled-button disabled={loading} onClick={() => void startTest()}>
-            开始测试
+            {t("vocab.start")}
           </md-filled-button>
         </div>
       </section>
@@ -885,7 +898,7 @@ export function VocabClient() {
                 <h3 className="card-title" id={`${book.code}-title`}>
                   {book.title}
                 </h3>
-                <md-outlined-button onClick={() => toggleBook(book.code)}>{allSelected ? "已全选" : "全选"}</md-outlined-button>
+                <md-outlined-button onClick={() => toggleBook(book.code)}>{t(allSelected ? "vocab.allSelected" : "vocab.selectAll")}</md-outlined-button>
               </div>
               <div className="unit-grid">
                 {Array.from({ length: Math.ceil(units.length / 2) }, (_, rowIndex) => (
@@ -905,15 +918,15 @@ export function VocabClient() {
             </section>
           );
         })}
-        <section className="md-card stack" aria-label="自定义词表">
+        <section className="md-card stack" aria-label={t("vocab.customAria")}>
           <div className="spread">
-            <h3 className="card-title">自定义词表</h3>
-            <md-outlined-button onClick={() => customListRef.current?.click()}>上传</md-outlined-button>
+            <h3 className="card-title">{t("vocab.customTitle")}</h3>
+            <md-outlined-button onClick={() => customListRef.current?.click()}>{t("vocab.upload")}</md-outlined-button>
             <input ref={customListRef} className="hidden-input" type="file" accept=".json" multiple onChange={(event) => void uploadCustomList(event)} />
           </div>
           <div className="unit-grid">
             {Array.from({ length: Math.ceil((visibleCustomLists.length + (customOverflowCount > 0 ? 1 : 0)) / 2) }, (_, rowIndex) => {
-              const cells = customOverflowCount > 0 ? [...visibleCustomLists, { name: "__more__", title: `更多 ${customOverflowCount}…` }] : visibleCustomLists;
+              const cells = customOverflowCount > 0 ? [...visibleCustomLists, { name: "__more__", title: t("vocab.more", { count: customOverflowCount }) }] : visibleCustomLists;
               return (
                 <div className="unit-row" key={`custom-row-${rowIndex}`}>
                   {cells.slice(rowIndex * 2, rowIndex * 2 + 2).map((item) =>
@@ -923,7 +936,7 @@ export function VocabClient() {
                         data-state={hiddenCustomSelectionState}
                         key={item.name}
                         type="button"
-                        aria-label={`${hiddenCustomSelectionText}，打开更多自定义词表`}
+                        aria-label={t("vocab.moreAria", { selection: hiddenCustomSelectionText })}
                         onClick={openCustomListDialog}
                       >
                         <span className="more-chip__icon" aria-hidden="true">
@@ -945,30 +958,30 @@ export function VocabClient() {
               );
             })}
           </div>
-          {uploadedLists.length === 0 ? <p className="helper-text">尚未上传。</p> : null}
+          {uploadedLists.length === 0 ? <p className="helper-text">{t("vocab.noUploads")}</p> : null}
         </section>
       </div>
 
-      <section className="md-card stack" aria-label="测试设置">
-        <h2 className="section-title">测试设置</h2>
+      <section className="md-card stack" aria-label={t("vocab.settingsAria")}>
+        <h2 className="section-title">{t("vocab.settingsTitle")}</h2>
         <div className="quiz-settings-grid">
-          <md-filled-select label="测试模式" value={testMode} onInput={(event) => setTestMode(valueFrom(event) as TestMode)}>
+          <md-filled-select key={`${locale}-vocab-mode`} label={t("vocab.mode")} value={testMode} onInput={(event) => setTestMode(valueFrom(event) as TestMode)}>
             <md-select-option value="all">
-              <div slot="headline">全部</div>
+              <div slot="headline">{t("vocab.filter.all")}</div>
             </md-select-option>
             <md-select-option value="custom">
-              <div slot="headline">自定义数量</div>
+              <div slot="headline">{t("vocab.mode.custom")}</div>
             </md-select-option>
           </md-filled-select>
           {testMode === "all" ? (
             <div className="material-static-field" aria-disabled="true">
-              <span>全部模式下不可用</span>
+              <span>{t("vocab.modeAllDisabled")}</span>
               <strong>{testCount}</strong>
             </div>
           ) : (
             <md-outlined-text-field
               type="number"
-              label="测试数量"
+              label={t("vocab.testCount")}
               value={testCount}
               min={1}
               max={Math.max(maxTestCount, testCount, 1)}
@@ -977,15 +990,15 @@ export function VocabClient() {
           )}
           <label className="switch-field">
             <md-switch selected={showHint} checked={showHint} onInput={(event) => setShowHint(checkedFrom(event))} />
-            <span>首字母提示</span>
+            <span>{t("vocab.hint")}</span>
           </label>
           <label className="switch-field">
             <md-switch selected={enableSlipDetection} checked={enableSlipDetection} onInput={(event) => setEnableSlipDetection(checkedFrom(event))} />
-            <span>手滑判定</span>
+            <span>{t("vocab.slip")}</span>
           </label>
-          <div className="stack" aria-label="题目释义语言">
-            <span className="helper-text">题目释义语言</span>
-            <div className="button-group" role="radiogroup" aria-label="题目释义语言">
+          <div className="stack" aria-label={t("vocab.definitionLanguageAria")}>
+            <span className="helper-text">{t("vocab.definitionLanguage")}</span>
+            <div className="button-group" role="radiogroup" aria-label={t("vocab.definitionLanguageAria")}>
               {definitionLanguageOptions.map((option) => (
                 <button
                   type="button"
@@ -996,22 +1009,22 @@ export function VocabClient() {
                   data-selected={definitionLanguageMode === option.value}
                   onClick={() => selectDefinitionLanguageMode(option.value)}
                 >
-                  {option.label}
+                  {t(option.label)}
                 </button>
               ))}
             </div>
           </div>
-          <md-outlined-text-field label="批次名称（可选）" value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
+          <md-outlined-text-field label={t("vocab.batchName")} value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
         </div>
       </section>
       <StatusAlert message={message} />
 
       <md-dialog open={loading}>
-        <div slot="headline">正在准备测试</div>
-        <div slot="content">正在加载词表，请稍候。</div>
+        <div slot="headline">{t("vocab.preparing")}</div>
+        <div slot="content">{t("vocab.preparingDescription")}</div>
       </md-dialog>
       <md-dialog key={customListDialogKey} open={customListDialogOpen} onClosed={closeCustomListDialog} onClose={closeCustomListDialog} onCancel={closeCustomListDialog}>
-        <div slot="headline">自定义词表</div>
+        <div slot="headline">{t("vocab.customTitle")}</div>
         <div slot="content" className="custom-list-dialog">
           {uploadedLists.map((item) => (
             <md-filter-chip
@@ -1024,7 +1037,7 @@ export function VocabClient() {
           ))}
         </div>
         <div slot="actions">
-          <md-text-button onClick={closeCustomListDialog}>完成</md-text-button>
+          <md-text-button onClick={closeCustomListDialog}>{t("vocab.customDone")}</md-text-button>
         </div>
       </md-dialog>
     </div>

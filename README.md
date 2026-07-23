@@ -39,6 +39,13 @@ pnpm dev
 pnpm build
 ```
 
+## 持续集成与发布
+
+- 提交到 `dev` 或 `main` 的拉取请求会自动运行 lint、类型检查和生产构建。
+- `main` 收到新提交后，发布工作流会再次完成上述检查，并按 `package.json` 中的版本创建 `v<version>` GitHub Release。
+- 发布前必须先更新 `package.json` 中的版本。若对应标签已经存在，工作流会停止，不会覆盖已有 Release。
+- Release 使用仓库自带的 `GITHUB_TOKEN` 创建，不需要额外配置发布密钥；发布说明包含中文说明和 GitHub 自动生成的变更记录。
+
 Material Symbols 使用本地子集字体。新增图标时，先将名称加入 `config/material-symbols.json`，再重新生成并检查产物：
 
 ```bash

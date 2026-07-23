@@ -19,7 +19,7 @@ type SnackbarContextValue = {
 };
 
 const SnackbarContext = createContext<SnackbarContextValue | null>(null);
-const snackbarDuration = 5000;
+export const snackbarAutoDismissDuration = 5000;
 const snackbarExitDuration = 200;
 
 function legacyCopy(text: string) {
@@ -58,7 +58,7 @@ function SnackbarSurface({ notice, onDismiss }: { notice: SnackbarNotice; onDism
 
   useEffect(() => {
     if (notice.tone === "error" || closing) return;
-    const timer = window.setTimeout(dismiss, snackbarDuration - snackbarExitDuration);
+    const timer = window.setTimeout(dismiss, snackbarAutoDismissDuration - snackbarExitDuration);
     return () => window.clearTimeout(timer);
   }, [closing, dismiss, notice.tone]);
 

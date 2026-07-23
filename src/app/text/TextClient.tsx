@@ -39,6 +39,7 @@ export function TextClient() {
   const { clearSnackbar, showSnackbar } = useSnackbar();
   const [selected, setSelected] = useState(textLists[0]?.name ?? "");
   const [book, setBook] = useState<TextBook | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [paragraphIndex, setParagraphIndex] = useState(0);
   const [scope, setScope] = useState<TestScope>("paragraph");
@@ -59,6 +60,7 @@ export function TextClient() {
       try {
         clearSnackbar();
         setBook(null);
+        setLoadError(false);
         const response = await fetch(`/api/data/text/${selected}`);
         if (!response.ok) throw new Error("text_cache_miss");
         setBook((await response.json()) as TextBook);
@@ -67,6 +69,7 @@ export function TextClient() {
         setScreen("select");
       } catch {
         setBook(null);
+        setLoadError(true);
         showSnackbar(t("text.offlineMissing"), "error");
       }
     }
@@ -270,7 +273,7 @@ export function TextClient() {
             </div>
           </>
         ) : (
-          <p className="helper-text">{t("text.loading")}</p>
+          <p className="helper-text">{t(loadError ? "text.offlineMissing" : "text.loading")}</p>
         )}
       </section>
 

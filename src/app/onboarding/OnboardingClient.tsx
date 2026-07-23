@@ -95,10 +95,8 @@ export function OnboardingClient() {
   const [cloudDecision, setCloudDecision] = useState<CloudDecision>(null);
   const [cloudErrorStatus, setCloudErrorStatus] = useState("");
   const [cloudCheckVersion, setCloudCheckVersion] = useState(0);
-  const [message, setMessage] = useState(() => {
-    const key = authMessages[searchParams.get("auth") ?? ""];
-    return key ? t(key) : "";
-  });
+  const authMessageKey = authMessages[searchParams.get("auth") ?? ""];
+  const message = authMessageKey ? t(authMessageKey) : "";
   const step = steps[stepIndex];
   const canGoNext =
     step.id === "login"
@@ -221,7 +219,6 @@ export function OnboardingClient() {
     sessionStorage.setItem(onboardingLoginDecisionStorageKey, "skipped");
     setLoginSkipped(true);
     setCloudStatus("skipped");
-    setMessage(t("onboarding.signIn.skipped"));
   }
 
   function applyCloudSettings() {
@@ -229,7 +226,6 @@ export function OnboardingClient() {
     setSettings(cloudSettings);
     writeSettings(cloudSettings);
     setCloudDecision("cloud");
-    setMessage(t("onboarding.cloud.applied"));
   }
 
   function keepLocalSettings() {
@@ -238,7 +234,6 @@ export function OnboardingClient() {
       writeSettings(localSettingsBeforeCloud);
     }
     setCloudDecision("local");
-    setMessage(t("onboarding.cloud.keptLocal"));
   }
 
   function retryCloudSettings() {

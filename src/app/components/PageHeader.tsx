@@ -1,13 +1,19 @@
-export function PageHeader({ current, title, description }: { current: string; title: string; description: string }) {
+"use client";
+
+import { useI18n } from "../i18n/AppI18nProvider";
+import type { MessageKey } from "@/i18n/config";
+
+export function PageHeader({ current, title, description }: { current: MessageKey; title: MessageKey; description: MessageKey }) {
+  const { t } = useI18n();
   return (
     <header className="page-header">
-      <div className="breadcrumb" aria-label="面包屑">
-        <span>恨古人工具箱</span>
+      <div className="breadcrumb" aria-label={t("breadcrumb.aria")}>
+        <span>{t("app.name")}</span>
         <span aria-hidden="true">/</span>
-        <span>{current}</span>
+        <span>{t(current)}</span>
       </div>
-      <h1 className="page-title">{title}</h1>
-      <p className="page-description">{description}</p>
+      <h1 className="page-title">{t(title)}</h1>
+      <p className="page-description">{t(description)}</p>
     </header>
   );
 }

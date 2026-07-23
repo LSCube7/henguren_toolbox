@@ -3,16 +3,18 @@
 import { ToolCard } from "./components/ToolCard";
 import { MaterialIcon } from "./components/MaterialIcon";
 import { useEdition } from "@/lib/edition";
+import { useI18n } from "./i18n/AppI18nProvider";
 
 const tools = [
-  { edition: "junior", href: "/shici", title: "寻找实词", body: "安全高亮 150 个文言实词", status: "已迁移", icon: "search" },
-  { edition: "junior", href: "/wenchang", title: "文学常识", body: "篇目、作者、出处筛选", status: "已迁移", icon: "menu_book" },
-  { edition: "senior", href: "/vocab", title: "单词测试", body: "练习单词，整理错题，并按需同步", status: "推荐", icon: "spellcheck" },
-  { edition: "senior", href: "/text", title: "课文测试", body: "按范围与难度随机挖空，逐句练习课文", status: "已完成", icon: "article" }
+  { edition: "junior", href: "/shici", title: "nav.shici", body: "tool.shici.description", status: "status.migrated", icon: "search" },
+  { edition: "junior", href: "/wenchang", title: "nav.wenchang", body: "tool.wenchang.description", status: "status.migrated", icon: "menu_book" },
+  { edition: "senior", href: "/vocab", title: "nav.vocab", body: "tool.vocab.description", status: "status.recommended", icon: "spellcheck" },
+  { edition: "senior", href: "/text", title: "nav.text", body: "tool.text.description", status: "status.completed", icon: "article" }
 ] as const;
 
 export function HomeTools() {
   const edition = useEdition();
+  const { t } = useI18n();
   const visibleTools = tools.filter((tool) => tool.edition === edition);
 
   return (
@@ -24,12 +26,12 @@ export function HomeTools() {
           </span>
           <div>
             <h2 className="section-title" id="tools-title">
-              {edition === "junior" ? "初中版学习工具" : "高中版学习工具"}
+              {t(edition === "junior" ? "home.juniorTools" : "home.seniorTools")}
             </h2>
-            <p className="helper-text">{edition === "junior" ? "文言实词与文学常识。" : "英语单词与课文挖空测试。"}</p>
+            <p className="helper-text">{t(edition === "junior" ? "home.juniorDescription" : "home.seniorDescription")}</p>
           </div>
         </div>
-        <span className="badge">{edition === "junior" ? "初中版" : "高中版"}</span>
+        <span className="badge">{t(edition === "junior" ? "edition.junior" : "edition.senior")}</span>
       </div>
       <div className="md-grid">
         {visibleTools.map((tool) => (

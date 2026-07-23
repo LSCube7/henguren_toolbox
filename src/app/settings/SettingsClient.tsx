@@ -5,75 +5,36 @@ import type { Route } from "next";
 import { SettingsSection } from "../components/SettingsSection";
 import { StatusAlert } from "../components/StatusAlert";
 import { ThemePicker } from "../components/ThemePicker";
-import { defaultSettings, type ToolboxSettings } from "@/lib/types";
+import type { ToolboxSettings } from "@/lib/types";
 import { useState } from "react";
 import { useEdition, writeEdition } from "@/lib/edition";
 import { restartOnboarding } from "@/lib/onboarding";
 import { DataManagement } from "./DataManagement";
-import {
-  clearDeveloperSyncSource,
-  isDeveloperSyncSourceReady,
-  readDeveloperSyncSource,
-  readDeveloperSyncSourceDraft,
-  testDeveloperSyncSource,
-  writeDeveloperSettings,
-  writeDeveloperSyncSource,
-  type DeveloperSyncSource
-} from "@/lib/developer-sync-source";
-import { useI18n, languageChangeEvent } from "../i18n/AppI18nProvider";
+import { readDeveloperSyncSource, writeDeveloperSettings } from "@/lib/developer-sync-source";
+import { useI18n } from "../i18n/AppI18nProvider";
 import { isAppLocale } from "@/i18n/config";
-
-const key = "henguren-v3-settings";
-
-function readSettings() {
-  if (typeof window === "undefined") return defaultSettings;
-  const saved = localStorage.getItem(key);
-  return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
-}
+import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
 
 function valueFrom(event: React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
 }
 
 function checkedFrom(event: React.FormEvent<HTMLElement>) {
-  return Boolean((event.currentTarget as HTMLElement & { checked?: boolean }).checked);
+  const target = event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean };
+  return Boolean(target.selected ?? target.checked);
 }
 
 export function SettingsClient() {
   const router = useRouter();
-  const [settings, setSettings] = useState<ToolboxSettings>(() => readSettings());
-  const [developerSource, setDeveloperSource] = useState<DeveloperSyncSource>(() => readDeveloperSyncSourceDraft());
+  const settings = useClientSettings();
   const edition = useEdition();
   const [message, setMessage] = useState("");
   const { locale, t } = useI18n();
 
   function update(next: Partial<ToolboxSettings>) {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };
-    setSettings(value);
-    localStorage.setItem(key, JSON.stringify(value));
+    writeClientSettings(value);
     window.dispatchEvent(new Event("henguren-theme-change"));
-    window.dispatchEvent(new Event(languageChangeEvent));
-  }
-
-  function updateDeveloperSource(next: Partial<DeveloperSyncSource>) {
-    const value = { ...developerSource, ...next, type: "r2" as const, updatedAt: new Date().toISOString() };
-    setDeveloperSource(value);
-    writeDeveloperSyncSource(value);
-  }
-
-  async function testDeveloperSource() {
-    try {
-      await testDeveloperSyncSource(developerSource);
-      setMessage(t("settings.customSync.testSuccess"));
-    } catch {
-      setMessage(t("settings.customSync.testError"));
-    }
-  }
-
-  function clearDeveloperSource() {
-    clearDeveloperSyncSource();
-    setDeveloperSource(readDeveloperSyncSourceDraft());
-    setMessage(t("settings.customSync.clearSuccess"));
   }
 
   async function syncSettings() {
@@ -195,46 +156,6 @@ export function SettingsClient() {
           description="settings.developerMode.description"
           control={<md-switch selected={Boolean(settings.developerMode)} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
         />
-        {settings.developerMode ? (
-          <SettingsSection
-            title="settings.translationKeys.title"
-            description="settings.translationKeys.description"
-            control={
-              <md-switch
-                selected={Boolean(settings.showTranslationKeys)}
-                checked={Boolean(settings.showTranslationKeys)}
-                onInput={(event) => update({ showTranslationKeys: checkedFrom(event) })}
-              />
-            }
-          />
-        ) : null}
-        <section className="md-card stack developer-panel" aria-label={t("settings.customSync.aria")}>
-          <div>
-            <p className="breadcrumb">Settings / {t("settings.developerMode.title")}</p>
-            <h2 className="section-title">{t("settings.customSync.title")}</h2>
-            <p className="helper-text">{t("settings.customSync.description")}</p>
-          </div>
-          <div className="field-grid">
-            <md-outlined-text-field label="Account ID" value={developerSource.accountId} onInput={(event) => updateDeveloperSource({ accountId: valueFrom(event) })} />
-            <md-outlined-text-field label="Bucket Name" value={developerSource.bucketName} onInput={(event) => updateDeveloperSource({ bucketName: valueFrom(event) })} />
-            <md-outlined-text-field label="Access Key ID" value={developerSource.accessKeyId} onInput={(event) => updateDeveloperSource({ accessKeyId: valueFrom(event) })} />
-            <md-outlined-text-field
-              label="Secret Access Key"
-              type="password"
-              value={developerSource.secretAccessKey}
-              onInput={(event) => updateDeveloperSource({ secretAccessKey: valueFrom(event) })}
-            />
-            <md-outlined-text-field label="Key Prefix" value={developerSource.keyPrefix} onInput={(event) => updateDeveloperSource({ keyPrefix: valueFrom(event) })} />
-            <md-outlined-text-field label="Profile ID" value={developerSource.profileId} onInput={(event) => updateDeveloperSource({ profileId: valueFrom(event) })} />
-          </div>
-          <div className="cluster">
-            <span className={settings.developerMode && isDeveloperSyncSourceReady(developerSource) ? "badge" : "badge badge--neutral"}>
-              {t(!settings.developerMode ? "settings.customSync.disabled" : isDeveloperSyncSourceReady(developerSource) ? "settings.customSync.ready" : "settings.customSync.incomplete")}
-            </span>
-            <md-outlined-button onClick={() => void testDeveloperSource()}>{t("settings.customSync.test")}</md-outlined-button>
-            <md-outlined-button onClick={clearDeveloperSource}>{t("settings.customSync.clear")}</md-outlined-button>
-          </div>
-        </section>
       </section>
       <StatusAlert message={message} />
     </div>

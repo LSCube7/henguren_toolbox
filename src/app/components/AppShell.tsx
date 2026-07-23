@@ -12,6 +12,7 @@ import { readWrongBookSyncSummary, type SyncStatus, type WrongBookSyncSummary } 
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
+import { useClientSettings } from "@/lib/client-settings";
 
 const toolItems = [
   { edition: "junior", href: "/shici", label: "nav.shici", icon: "search" },
@@ -71,6 +72,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const [user, setUser] = useState<UserSession | null>(null);
   const edition = useEdition();
   const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
+  const settings = useClientSettings();
   const { t } = useI18n();
 
   useEffect(() => {
@@ -180,6 +182,18 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             <MaterialIcon name={item.icon} />
           </Link>
         ))}
+        {settings.developerMode ? (
+          <Link
+            href={"/developer" as Route}
+            className="rail-action"
+            aria-current={pathname.startsWith("/developer") ? "page" : undefined}
+            aria-label={t("nav.developer")}
+            title={t("nav.developer")}
+            onClick={onNavigate}
+          >
+            <MaterialIcon name="code" />
+          </Link>
+        ) : null}
         <Link
           href="/user"
           className="user-nav-card"

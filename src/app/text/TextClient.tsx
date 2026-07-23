@@ -10,7 +10,7 @@ import {
   type TextSentence
 } from "@/lib/text-quiz";
 import { useEffect, useMemo, useState } from "react";
-import { StatusAlert } from "../components/StatusAlert";
+import { useSnackbar } from "../components/Snackbar";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 
@@ -36,9 +36,10 @@ function questionBlanks(question: ClozeQuestion) {
 
 export function TextClient() {
   const { locale, t } = useI18n();
+  const { clearSnackbar, showSnackbar } = useSnackbar();
   const [selected, setSelected] = useState(textLists[0]?.name ?? "");
   const [book, setBook] = useState<TextBook | null>(null);
-  const [message, setMessage] = useState("");
+  const [loadError, setLoadError] = useState(false);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [paragraphIndex, setParagraphIndex] = useState(0);
   const [scope, setScope] = useState<TestScope>("paragraph");
@@ -57,8 +58,9 @@ export function TextClient() {
   useEffect(() => {
     async function load() {
       try {
-        setMessage("");
+        clearSnackbar();
         setBook(null);
+        setLoadError(false);
         const response = await fetch(`/api/data/text/${selected}`);
         if (!response.ok) throw new Error("text_cache_miss");
         setBook((await response.json()) as TextBook);
@@ -67,11 +69,12 @@ export function TextClient() {
         setScreen("select");
       } catch {
         setBook(null);
-        setMessage(t("text.offlineMissing"));
+        setLoadError(true);
+        showSnackbar(t("text.offlineMissing"), "error");
       }
     }
     if (selected) void load();
-  }, [selected, t]);
+  }, [clearSnackbar, selected, showSnackbar, t]);
 
   const scopeSentences = useMemo(() => {
     if (!book) return [];
@@ -83,7 +86,7 @@ export function TextClient() {
   function startTest() {
     const nextQuestions = createClozeQuiz(scopeSentences, questionCount, difficulty);
     if (nextQuestions.length === 0) {
-      setMessage(t("text.noSentences"));
+      showSnackbar(t("text.noSentences"), "error");
       return;
     }
     setQuestions(nextQuestions);
@@ -91,7 +94,7 @@ export function TextClient() {
     setAnswers({});
     setCurrentResult(null);
     setResults([]);
-    setMessage("");
+    clearSnackbar();
     setScreen("testing");
   }
 
@@ -99,13 +102,13 @@ export function TextClient() {
     if (!currentQuestion || currentResult) return;
     const blanks = questionBlanks(currentQuestion);
     if (blanks.some((blank) => !(answers[blank.id] ?? "").trim())) {
-      setMessage(t("text.completeBlanks"));
+      showSnackbar(t("text.completeBlanks"), "error");
       return;
     }
     const result = evaluateClozeQuestion(currentQuestion, answers);
     setCurrentResult(result);
     setResults((current) => (current.some((entry) => entry.question === currentQuestion) ? current : [...current, result]));
-    setMessage(result.correct ? t("text.sentenceCorrect") : t("text.sentenceResult", { correct: result.correctCount, total: result.total }));
+    showSnackbar(result.correct ? t("text.sentenceCorrect") : t("text.sentenceResult", { correct: result.correctCount, total: result.total }));
   }
 
   function updateAnswer(blankId: string, event: React.FormEvent<HTMLElement>) {
@@ -117,13 +120,13 @@ export function TextClient() {
     if (!currentResult) return;
     if (currentIndex + 1 >= questions.length) {
       setScreen("result");
-      setMessage("");
+      clearSnackbar();
       return;
     }
     setCurrentIndex((index) => index + 1);
     setAnswers({});
     setCurrentResult(null);
-    setMessage("");
+    clearSnackbar();
   }
 
   function resetTest() {
@@ -133,7 +136,7 @@ export function TextClient() {
     setAnswers({});
     setCurrentResult(null);
     setCurrentIndex(0);
-    setMessage("");
+    clearSnackbar();
   }
 
   if (screen === "testing" && currentQuestion) {
@@ -169,7 +172,6 @@ export function TextClient() {
               );
             })}
           </div>
-          <StatusAlert message={message} tone={currentResult && !currentResult.correct ? "error" : "info"} />
           <div className="cluster">
             {currentResult ? (
               <md-filled-button onClick={goNext}>{t(currentIndex + 1 >= questions.length ? "text.viewResults" : "text.nextSentence")}</md-filled-button>
@@ -271,7 +273,7 @@ export function TextClient() {
             </div>
           </>
         ) : (
-          <p className="helper-text">{message || t("text.loading")}</p>
+          <p className="helper-text">{t(loadError ? "text.offlineMissing" : "text.loading")}</p>
         )}
       </section>
 
@@ -318,7 +320,6 @@ export function TextClient() {
           </p>
         ))}
       </section>
-      <StatusAlert message={message} tone={message === t("text.offlineMissing") ? "error" : "info"} />
     </div>
   );
 }

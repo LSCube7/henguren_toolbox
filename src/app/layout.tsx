@@ -3,6 +3,7 @@ import { AppShell } from "./components/AppShell";
 import { ServiceWorkerRegister } from "./components/ServiceWorkerRegister";
 import { AppThemeProvider } from "./theme/AppThemeProvider";
 import { AppI18nProvider } from "./i18n/AppI18nProvider";
+import { SnackbarProvider } from "./components/Snackbar";
 import "@/generated/material-symbols.css";
 import "./globals.css";
 
@@ -34,8 +35,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <AppThemeProvider>
           <AppI18nProvider>
-            <ServiceWorkerRegister />
-            <AppShell>{children}</AppShell>
+            <SnackbarProvider>
+              <ServiceWorkerRegister />
+              <AppShell>{children}</AppShell>
+            </SnackbarProvider>
           </AppI18nProvider>
         </AppThemeProvider>
       </body>

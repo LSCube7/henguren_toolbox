@@ -1,7 +1,7 @@
 "use client";
 
 import type { UserSession } from "@/lib/types";
-import { StatusAlert } from "../components/StatusAlert";
+import { useSnackbar } from "../components/Snackbar";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -49,15 +49,18 @@ function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession
 export function UserClient() {
   const searchParams = useSearchParams();
   const { t } = useI18n();
+  const { clearSnackbar, showSnackbar } = useSnackbar();
+  const authStatus = searchParams.get("auth") ?? "";
+  const authMessageKey = authMessages[authStatus];
   const [user, setUser] = useState<UserSession | null>(null);
   const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncAction, setSyncAction] = useState<SyncAction | null>(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState(() => {
-    const key = authMessages[searchParams.get("auth") ?? ""];
-    return key ? t(key) : "";
-  });
+
+  useEffect(() => {
+    if (authMessageKey) showSnackbar(t(authMessageKey), authStatus === "ok" ? "info" : "error");
+  }, [authMessageKey, authStatus, showSnackbar, t]);
 
   const refresh = useCallback(async (markLoading = false) => {
     if (markLoading) setLoading(true);
@@ -110,32 +113,32 @@ export function UserClient() {
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    setMessage(t("user.logoutSuccess"));
+    showSnackbar(t("user.logoutSuccess"));
     await refresh(true);
   }
 
   async function runSync(action: "pull" | "overwrite" | "merge") {
     if (syncSummary?.status === "offline" || !isOnline()) {
-      setMessage(t("user.wrongbookSync.offline"));
+      showSnackbar(t("user.wrongbookSync.offline"), "error");
       return;
     }
     setSyncing(true);
     setSyncAction(action);
-    setMessage("");
+    clearSnackbar();
     try {
       if (action === "pull") {
         await pullAndMergeWrongBook();
-        setMessage(t("user.wrongbookSync.pullSuccess"));
+        showSnackbar(t("user.wrongbookSync.pullSuccess"));
       } else if (action === "overwrite") {
         await overwriteCloudWrongBook();
-        setMessage(t("user.wrongbookSync.overwriteSuccess"));
+        showSnackbar(t("user.wrongbookSync.overwriteSuccess"));
       } else {
         await mergeUploadWrongBook();
-        setMessage(t("user.wrongbookSync.mergeSuccess"));
+        showSnackbar(t("user.wrongbookSync.mergeSuccess"));
       }
       await refresh();
     } catch {
-      setMessage(t("user.wrongbookSync.error"));
+      showSnackbar(t("user.wrongbookSync.error"), "error");
     } finally {
       setSyncing(false);
       setSyncAction(null);
@@ -189,7 +192,6 @@ export function UserClient() {
           <md-filled-button disabled={syncDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
         </div>
       </section>
-      <StatusAlert message={message} />
     </div>
   );
 }

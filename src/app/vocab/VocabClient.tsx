@@ -21,7 +21,7 @@ import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, ty
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { snackbarAutoDismissDuration, useSnackbar, type SnackbarTone } from "../components/Snackbar";
+import { useSnackbar } from "../components/Snackbar";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -177,7 +177,7 @@ export function VocabClient() {
   const [testWords, setTestWords] = useState<TestWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
-  const [answerCorrection, setAnswerCorrection] = useState("");
+  const [answerFeedback, setAnswerFeedback] = useState("");
   const [pendingSlip, setPendingSlip] = useState(false);
   const [answerOutcome, setAnswerOutcome] = useState<AnswerOutcome | null>(null);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
@@ -201,7 +201,6 @@ export function VocabClient() {
   const answerInputRef = useRef<HTMLElement | null>(null);
   const answerSubmissionRef = useRef(false);
   const blankAnswerSpaceArmedRef = useRef(false);
-  const blankAnswerSpaceTimerRef = useRef<number | null>(null);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
   const currentWord = testWords[currentIndex];
   const definitionLanguageMode = getDefinitionLanguageMode(definitionLanguages);
@@ -371,8 +370,7 @@ export function VocabClient() {
       setIncorrectWords([]);
       setCurrentIndex(0);
       setAnswer("");
-      setAnswerCorrection("");
-      clearSnackbar();
+      setAnswerFeedback("");
       setPendingSlip(false);
       setAnswerOutcome(null);
       setSubmittingAnswer(false);
@@ -394,21 +392,13 @@ export function VocabClient() {
 
   useEffect(() => {
     blankAnswerSpaceArmedRef.current = false;
-    if (blankAnswerSpaceTimerRef.current !== null) {
-      window.clearTimeout(blankAnswerSpaceTimerRef.current);
-      blankAnswerSpaceTimerRef.current = null;
-    }
-    return () => {
-      if (blankAnswerSpaceTimerRef.current !== null) window.clearTimeout(blankAnswerSpaceTimerRef.current);
-    };
   }, [currentIndex, screen]);
 
   async function finalizeAnswer(outcome: AnswerOutcome, resultMessage: string) {
     if (!currentWord || answerSubmissionRef.current) return;
     answerSubmissionRef.current = true;
     setSubmittingAnswer(true);
-    let nextMessage = resultMessage;
-    let nextTone: SnackbarTone = "info";
+    let saveErrorMessage = "";
     const resultWord = toVocabWord(currentWord);
     const masteryRecordId = currentWord.wrongRecordId ?? wrongRecordId(currentWord);
     try {
@@ -419,8 +409,7 @@ export function VocabClient() {
             await recordMasteryResult(masteryRecordId, true);
             await refreshWrongBook();
           } catch {
-            nextMessage = t("vocab.masteryUpdateError", { message: resultMessage });
-            nextTone = "error";
+            saveErrorMessage = t("vocab.masteryUpdateError", { message: resultMessage });
           }
         }
       } else {
@@ -430,17 +419,15 @@ export function VocabClient() {
           try {
             await recordMasteryResult(masteryRecordId, false);
           } catch {
-            nextMessage = t("vocab.masterySaveError", { message: resultMessage });
-            nextTone = "error";
+            saveErrorMessage = t("vocab.masterySaveError", { message: resultMessage });
           }
           await refreshWrongBook();
         } catch {
-          nextMessage = t("vocab.wrongbookSaveError", { message: resultMessage });
-          nextTone = "error";
+          saveErrorMessage = t("vocab.wrongbookSaveError", { message: resultMessage });
         }
       }
-      showSnackbar(nextMessage, nextTone);
-      setAnswerCorrection(outcome === "wrong" ? resultMessage : "");
+      setAnswerFeedback(resultMessage);
+      if (saveErrorMessage) showSnackbar(saveErrorMessage, "error");
       setAnswerOutcome(outcome);
       setPendingSlip(false);
     } finally {
@@ -467,7 +454,7 @@ export function VocabClient() {
             ? t("vocab.answer.correct")
             : t("vocab.answer.wrong", { word: currentWord.word });
     if (result.slip) {
-      showSnackbar(localizedResultMessage);
+      setAnswerFeedback(localizedResultMessage);
       setPendingSlip(true);
       return;
     }
@@ -478,8 +465,7 @@ export function VocabClient() {
     if (!answerOutcome) return;
     if (currentIndex + 1 >= testWords.length) {
       setAnswer("");
-      setAnswerCorrection("");
-      clearSnackbar();
+      setAnswerFeedback("");
       setPendingSlip(false);
       setAnswerOutcome(null);
       setScreen("result");
@@ -487,8 +473,7 @@ export function VocabClient() {
     }
     setCurrentIndex((index) => index + 1);
     setAnswer("");
-    setAnswerCorrection("");
-    clearSnackbar();
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
   }
@@ -500,8 +485,7 @@ export function VocabClient() {
     }
     setScreen("result");
     setAnswer("");
-    setAnswerCorrection("");
-    clearSnackbar();
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
   }
@@ -513,8 +497,7 @@ export function VocabClient() {
     setIncorrectWords([]);
     setCurrentIndex(0);
     setAnswer("");
-    setAnswerCorrection("");
-    clearSnackbar();
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
     setTestNo(`test-${nowStamp()}`);
@@ -540,8 +523,7 @@ export function VocabClient() {
     setTestWords([]);
     setCorrectWords([]);
     setIncorrectWords([]);
-    setAnswerCorrection("");
-    clearSnackbar();
+    setAnswerFeedback("");
     setPendingSlip(false);
     setAnswerOutcome(null);
     setSubmittingAnswer(false);
@@ -672,11 +654,7 @@ export function VocabClient() {
               aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
               onInput={(event) => {
                 blankAnswerSpaceArmedRef.current = false;
-                if (blankAnswerSpaceTimerRef.current !== null) {
-                  window.clearTimeout(blankAnswerSpaceTimerRef.current);
-                  blankAnswerSpaceTimerRef.current = null;
-                }
-                clearSnackbar();
+                setAnswerFeedback("");
                 setAnswer(valueFrom(event));
               }}
               onKeyDown={(event) => {
@@ -691,26 +669,15 @@ export function VocabClient() {
                     if (event.repeat) return;
                     if (blankAnswerSpaceArmedRef.current) {
                       blankAnswerSpaceArmedRef.current = false;
-                      if (blankAnswerSpaceTimerRef.current !== null) {
-                        window.clearTimeout(blankAnswerSpaceTimerRef.current);
-                        blankAnswerSpaceTimerRef.current = null;
-                      }
                       void submitAnswer();
                     } else {
                       blankAnswerSpaceArmedRef.current = true;
-                      blankAnswerSpaceTimerRef.current = window.setTimeout(() => {
-                        blankAnswerSpaceArmedRef.current = false;
-                        blankAnswerSpaceTimerRef.current = null;
-                      }, snackbarAutoDismissDuration);
-                      showSnackbar(t("vocab.answer.emptyConfirm"));
+                      setAnswerFeedback(t("vocab.answer.emptyConfirm"));
                     }
                     return;
                   }
                   blankAnswerSpaceArmedRef.current = false;
-                  if (blankAnswerSpaceTimerRef.current !== null) {
-                    window.clearTimeout(blankAnswerSpaceTimerRef.current);
-                    blankAnswerSpaceTimerRef.current = null;
-                  }
+                  setAnswerFeedback("");
                   if (event.key === "Enter") event.preventDefault();
                   return;
                 }
@@ -724,7 +691,7 @@ export function VocabClient() {
               <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>{t("vocab.submit")}</md-filled-button>
             )}
           </div>
-          {answerCorrection ? <p className="helper-text">{answerCorrection}</p> : null}
+          {answerFeedback ? <p className="helper-text">{answerFeedback}</p> : null}
           {pendingSlip ? (
             <div className="cluster">
               <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>{t("vocab.markCorrect")}</md-outlined-button>

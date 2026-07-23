@@ -19,7 +19,7 @@ type SnackbarContextValue = {
 };
 
 const SnackbarContext = createContext<SnackbarContextValue | null>(null);
-export const snackbarAutoDismissDuration = 5000;
+const snackbarAutoDismissDuration = 5000;
 const snackbarExitDuration = 200;
 
 function legacyCopy(text: string) {

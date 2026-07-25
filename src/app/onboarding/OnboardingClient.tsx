@@ -7,13 +7,13 @@ import { MaterialIcon } from "../components/MaterialIcon";
 import { ThemePicker } from "../components/ThemePicker";
 import { completeOnboarding, onboardingLoginDecisionStorageKey, onboardingStepStorageKey } from "@/lib/onboarding";
 import { readEdition, writeEdition, type Edition } from "@/lib/edition";
-import { defaultSettings, type ToolboxSettings, type UserSession } from "@/lib/types";
+import { normalizeToolboxSettings, type ToolboxSettings, type UserSession } from "@/lib/types";
 import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { useSnackbar } from "../components/Snackbar";
 
-type StepId = "login" | "cloud" | "edition" | "theme" | "sync" | "done";
+type StepId = "login" | "cloud" | "edition" | "theme" | "done";
 type CloudStatus = "idle" | "loading" | "available" | "empty" | "error" | "skipped";
 type CloudDecision = "cloud" | "local" | null;
 
@@ -22,7 +22,6 @@ const steps: Array<{ id: StepId; title: MessageKey; description: MessageKey }> =
   { id: "cloud", title: "onboarding.cloud.title", description: "onboarding.cloud.description" },
   { id: "edition", title: "onboarding.edition.title", description: "onboarding.edition.description" },
   { id: "theme", title: "onboarding.theme.title", description: "onboarding.theme.description" },
-  { id: "sync", title: "onboarding.sync.title", description: "onboarding.sync.description" },
   { id: "done", title: "onboarding.done.title", description: "onboarding.done.description" }
 ];
 
@@ -68,7 +67,8 @@ function readLoginSkipped() {
 function stepIndexFromStorage() {
   if (typeof window === "undefined") return 0;
   const savedValue = sessionStorage.getItem(onboardingStepStorageKey);
-  const saved = savedValue?.startsWith(`${onboardingFlowVersion}:`) ? (savedValue.slice(onboardingFlowVersion.length + 1) as StepId) : null;
+  const storedStep = savedValue?.startsWith(`${onboardingFlowVersion}:`) ? savedValue.slice(onboardingFlowVersion.length + 1) : null;
+  const saved = (storedStep === "sync" ? "done" : storedStep) as StepId | null;
   const index = steps.findIndex((step) => step.id === saved);
   return index >= 0 ? index : 0;
 }
@@ -173,7 +173,7 @@ export function OnboardingClient() {
           setCloudStatus("empty");
           return;
         }
-        setCloudSettings({ ...defaultSettings, ...data.settings, schemaVersion: 1 });
+        setCloudSettings(normalizeToolboxSettings(data.settings));
         setCloudStatus("available");
       } catch {
         if (active) {
@@ -365,21 +365,6 @@ export function OnboardingClient() {
                   </button>
                 </div>
               ) : null}
-            </div>
-          ) : null}
-
-          {step.id === "sync" ? (
-            <div className="onboarding-choice-grid" role="radiogroup" aria-label={t("onboarding.sync.aria")}>
-              <button className="onboarding-choice" type="button" data-selected={settings.syncStrategy === "manual"} onClick={() => updateSettings({ syncStrategy: "manual" })}>
-                <MaterialIcon name="touch_app" />
-                <span>{t("settings.syncStrategy.manual")}</span>
-                <small>{t("onboarding.sync.manualDescription")}</small>
-              </button>
-              <button className="onboarding-choice" type="button" data-selected={settings.syncStrategy === "auto"} onClick={() => updateSettings({ syncStrategy: "auto" })}>
-                <MaterialIcon name="sync" />
-                <span>{t("settings.syncStrategy.auto")}</span>
-                <small>{t("onboarding.sync.autoDescription")}</small>
-              </button>
             </div>
           ) : null}
 

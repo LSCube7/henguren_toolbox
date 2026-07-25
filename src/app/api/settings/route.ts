@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { readJsonFromR2, settingsKey, writeJsonToR2 } from "@/lib/r2";
-import { defaultSettings, type ToolboxSettings } from "@/lib/types";
+import { defaultSettings, normalizeToolboxSettings } from "@/lib/types";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const settings = await readJsonFromR2<ToolboxSettings>(settingsKey(user.id));
+  const storedSettings = await readJsonFromR2<unknown>(settingsKey(user.id));
+  const settings = storedSettings ? normalizeToolboxSettings(storedSettings) : null;
   if (new URL(request.url).searchParams.get("availability") === "1") {
     return NextResponse.json({ available: Boolean(settings), settings });
   }
@@ -18,13 +19,8 @@ export async function PUT(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = (await request.json()) as Partial<ToolboxSettings>;
-  const settings: ToolboxSettings = {
-    ...defaultSettings,
-    ...body,
-    schemaVersion: 1,
-    updatedAt: new Date().toISOString()
-  };
+  const settings = normalizeToolboxSettings(await request.json());
+  settings.updatedAt = new Date().toISOString();
   await writeJsonToR2(settingsKey(user.id), settings);
   return NextResponse.json(settings);
 }

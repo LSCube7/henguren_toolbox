@@ -99,7 +99,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         const summary = await readWrongBookSyncSummary();
         if (!active) return;
         setSyncSummary(summary);
-        setUser(summary.user);
+        if (summary.user || summary.status === "signed-out") setUser(summary.user);
       } catch {
         if (active) setSyncSummary({ status: "error", user: null, localCount: 0, message: t("sync.readError") });
       }

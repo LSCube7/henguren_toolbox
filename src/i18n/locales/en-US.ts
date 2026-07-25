@@ -333,6 +333,7 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "auth.tokenHttp": "LSCube OAuth token exchange failed. Check the server logs.",
   "auth.noAccessToken": "The LSCube OAuth token response did not include an access_token.",
   "auth.userinfoHttp": "The LSCube OAuth user-info request failed. Check the server logs.",
+  "auth.userinfoMissingSubject": "LSCube OAuth did not return an identifier that can distinguish this account, so sign-in was stopped. Debug: USERINFO_MISSING_SUBJECT.",
   "user.loginAria": "User sign-in status",
   "user.avatarAlt": "{name}'s avatar",
   "user.loading": "Reading sign-in status",

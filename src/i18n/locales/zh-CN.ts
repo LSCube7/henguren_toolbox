@@ -331,6 +331,7 @@ export const zhCN = {
   "auth.tokenHttp": "LSCube OAuth token exchange 失败，请查看服务端日志。",
   "auth.noAccessToken": "LSCube OAuth token 响应缺少 access_token。",
   "auth.userinfoHttp": "LSCube OAuth 用户信息请求失败，请查看服务端日志。",
+  "auth.userinfoMissingSubject": "LSCube OAuth 未返回可用于区分账号的用户标识，登录已中止。调试信息：错误类型 USERINFO_MISSING_SUBJECT。",
   "user.loginAria": "用户登录状态",
   "user.avatarAlt": "{name} 的头像",
   "user.loading": "正在读取登录状态",

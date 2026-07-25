@@ -1,22 +1,10 @@
 import { NextResponse } from "next/server";
 import { setSessionCookie } from "@/lib/session";
-import type { UserSession } from "@/lib/types";
+import { userSessionFromOAuthProfile } from "@/lib/oauth-profile";
 
 type TokenResponse = {
   access_token?: string;
   id_token?: string;
-};
-
-type UserInfoResponse = {
-  sub?: string;
-  id?: string;
-  name?: string;
-  nickname?: string;
-  email?: string;
-  picture?: string;
-  avatar_url?: string;
-  avatarUrl?: string;
-  avatar?: string;
 };
 
 type ClientAuthMethod = "none" | "post" | "basic";
@@ -71,6 +59,14 @@ async function readSafeErrorBody(response: Response) {
   return text.slice(0, 500);
 }
 
+async function cancelResponseBody(response: Response) {
+  try {
+    await response.body?.cancel();
+  } catch (error) {
+    console.warn("OAuth response body cancellation failed", { errorType: error instanceof Error ? error.name : "UnknownError" });
+  }
+}
+
 function classifyTokenError(body: string) {
   const normalized = body.toLowerCase();
   if (normalized.includes("authorization code expired") || normalized.includes("code expired")) return "code_expired";
@@ -123,49 +119,71 @@ export async function GET(request: Request) {
     tokenHeaders.Authorization = createBasicAuthHeader(clientId, clientSecret);
   }
 
-  const tokenResponse = await fetch(tokenUrl, {
-    method: "POST",
-    headers: tokenHeaders,
-    body: tokenBody
-  });
+  let tokenResponse: Response;
+  try {
+    tokenResponse = await fetch(tokenUrl, {
+      method: "POST",
+      headers: tokenHeaders,
+      body: tokenBody
+    });
+  } catch (error) {
+    console.error("OAuth token exchange request failed", { errorType: error instanceof Error ? error.name : "UnknownError", clientAuthMethod });
+    return redirectWithClearedOAuthCookies(redirectTarget(), "token_http");
+  }
 
   if (!tokenResponse.ok) {
     const body = await readSafeErrorBody(tokenResponse);
     console.error("OAuth token exchange failed", {
       status: tokenResponse.status,
       statusText: tokenResponse.statusText,
-      body,
       clientAuthMethod
     });
     return redirectWithClearedOAuthCookies(redirectTarget(), classifyTokenError(body));
   }
 
-  const token = (await tokenResponse.json()) as TokenResponse;
+  let token: TokenResponse;
+  try {
+    token = (await tokenResponse.json()) as TokenResponse;
+  } catch {
+    console.error("OAuth token response was not valid JSON", { status: tokenResponse.status, clientAuthMethod });
+    return redirectWithClearedOAuthCookies(redirectTarget(), "token_http");
+  }
   if (!token.access_token) {
     console.error("OAuth token response did not include access_token");
     return redirectWithClearedOAuthCookies(redirectTarget(), "token_no_access_token");
   }
 
-  const userResponse = await fetch(userInfoUrl, {
-    headers: { Authorization: `Bearer ${token.access_token}` }
-  });
+  let userResponse: Response;
+  try {
+    userResponse = await fetch(userInfoUrl, {
+      headers: { Authorization: `Bearer ${token.access_token}` }
+    });
+  } catch (error) {
+    console.error("OAuth userinfo request failed", { errorType: error instanceof Error ? error.name : "UnknownError" });
+    return redirectWithClearedOAuthCookies(redirectTarget(), "userinfo_http");
+  }
 
   if (!userResponse.ok) {
+    await cancelResponseBody(userResponse);
     console.error("OAuth userinfo request failed", {
       status: userResponse.status,
-      statusText: userResponse.statusText,
-      body: await readSafeErrorBody(userResponse)
+      statusText: userResponse.statusText
     });
     return redirectWithClearedOAuthCookies(redirectTarget(), "userinfo_http");
   }
 
-  const profile = (await userResponse.json()) as UserInfoResponse;
-  const user: UserSession = {
-    id: profile.sub || profile.id || "unknown",
-    name: profile.name || profile.nickname || "LSCube OAuth 用户",
-    email: profile.email,
-    avatarUrl: profile.picture || profile.avatar_url || profile.avatarUrl || profile.avatar
-  };
+  let profile: unknown;
+  try {
+    profile = await userResponse.json();
+  } catch {
+    console.error("OAuth userinfo response was not valid JSON", { status: userResponse.status });
+    return redirectWithClearedOAuthCookies(redirectTarget(), "userinfo_http");
+  }
+  const user = userSessionFromOAuthProfile(profile);
+  if (!user) {
+    console.error("OAuth userinfo response did not include a stable subject identifier");
+    return redirectWithClearedOAuthCookies(redirectTarget(), "userinfo_missing_subject");
+  }
 
   await setSessionCookie(user);
   return redirectWithClearedOAuthCookies(redirectTarget(), "ok");

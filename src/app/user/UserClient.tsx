@@ -21,7 +21,8 @@ const authMessages: Record<string, MessageKey> = {
   invalid_grant: "auth.invalidGrant",
   token_http: "auth.tokenHttp",
   token_no_access_token: "auth.noAccessToken",
-  userinfo_http: "auth.userinfoHttp"
+  userinfo_http: "auth.userinfoHttp",
+  userinfo_missing_subject: "auth.userinfoMissingSubject"
 };
 
 type SyncAction = "pull" | "overwrite" | "merge";

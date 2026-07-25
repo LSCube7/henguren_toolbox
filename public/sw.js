@@ -1,7 +1,7 @@
 const CACHE_PREFIX = "henguren-v3-offline";
 // Keep this value in sync with cacheVersion in src/lib/offline-cache.ts.
 // Increment it whenever the cached app shell or data contract changes.
-const VERSION = "v2";
+const VERSION = "v3";
 const APP_CACHE = `${CACHE_PREFIX}-${VERSION}-app`;
 const STATIC_CACHE = `${CACHE_PREFIX}-${VERSION}-static`;
 const DATA_CACHE = `${CACHE_PREFIX}-${VERSION}-data`;

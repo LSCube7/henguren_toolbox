@@ -15,7 +15,7 @@ export type OfflineStorageSummary = {
 
 const cachePrefix = "henguren-v3-offline";
 // Keep this value in sync with VERSION in public/sw.js.
-const cacheVersion = "v2";
+const cacheVersion = "v3";
 const dataCacheName = `${cachePrefix}-${cacheVersion}-data`;
 
 function vocabUrl(name: string) {

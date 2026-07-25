@@ -4,7 +4,7 @@ This file gives coding agents the working rules for this repository. Follow it b
 
 ## Project
 
-Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The current `main` branch is v3.0.0; the historical Vue version is preserved on the `v2` branch.
+Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The current `main` release is v3.1.0; the historical Vue version is preserved on the `v2` branch.
 
 Core goals:
 
@@ -50,6 +50,7 @@ Core goals:
 Use these commands for validation:
 
 ```bash
+pnpm test
 pnpm run lint
 pnpm run typecheck
 pnpm run build
@@ -81,7 +82,7 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
 
 ## Data And Sync Rules
 
-- Do not add a database for v3.0.0 unless explicitly requested.
+- Do not add a database in the current v3 release line unless explicitly requested.
 - Wrongbook cloud sync stores whole JSON snapshots in R2.
 - Current R2 paths:
   - `wrongbooks/{userId}/current.json`
@@ -145,9 +146,19 @@ Settings are local-first. Upload to cloud only through explicit settings sync.
 ## Git And Validation
 
 - The working tree may be dirty. Do not revert unrelated user changes.
+- Follow the global `AGENTS.md` commit and pull request rules unless this repository defines a more specific rule below.
+- Split work by the requested feature/content items and the agreed plan. Keep each commit and pull request focused on one reviewable concern; do not mix unrelated features, fixes, formatting, or dependency changes.
+- Create a dedicated branch for every pull request. Name it `{type}/{feature}`, where `{type}` matches the Conventional Commit prefix and `{feature}` is a concise kebab-case description, for example `feat/vocab-import` or `fix/offline-sync-status`.
+- Use English Conventional Commit messages whose type and scope match the branch and pull request content.
+- Push feature/content branches and open their pull requests against `dev`. Do not open routine feature or fix pull requests directly against `main`.
+- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the rebase merge strategy.
+- All pull request reviews are performed manually by the repository owner. Agents must not approve, merge, enable auto-merge for, or otherwise bypass review on a pull request.
+- Before pushing each pull request branch, inspect previous local and remote temporary/topic branches. Delete obsolete prior temporary branches only after confirming they contain no uncommitted, unique, or still-unmerged work; never delete an active pull request branch.
+- Any command that uses `gh` requires network access. Explain the intended GitHub operation and request network permission or escalation before running it.
 - Before finishing substantial changes, run:
+  - `pnpm test`
   - `pnpm run lint`
   - `pnpm run typecheck`
   - `pnpm run build`
 - After `next build`, check `git status --short` and restore unintended generated-file changes if needed.
-- Do not push unless explicitly asked.
+- Agents may commit and push when appropriate for the task, after reviewing the diff and completing relevant validation. Pushing still requires the network-access notice and permission required by the global `AGENTS.md`.

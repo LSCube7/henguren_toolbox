@@ -12,10 +12,10 @@ test("rejects malformed userinfo payloads", () => {
   assert.equal(userSessionFromOAuthProfile("not-an-object"), null);
 });
 
-test("normalizes a valid OAuth profile", () => {
+test("normalizes profile fields while preserving the opaque subject", () => {
   assert.deepEqual(
     userSessionFromOAuthProfile({ sub: " user-1 ", name: " Test User ", email: " test@example.com ", picture: " https://example.com/avatar.png " }),
-    { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: "https://example.com/avatar.png" }
+    { id: " user-1 ", name: "Test User", email: "test@example.com", avatarUrl: "https://example.com/avatar.png" }
   );
 });
 

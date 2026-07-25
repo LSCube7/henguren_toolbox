@@ -21,11 +21,18 @@ function nonEmptyString(...values: unknown[]) {
   return undefined;
 }
 
+function nonEmptyIdentifier(...values: unknown[]) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return undefined;
+}
+
 export function userSessionFromOAuthProfile(profile: unknown): UserSession | null {
   if (!profile || typeof profile !== "object") return null;
 
   const userInfo = profile as OAuthUserInfo;
-  const id = nonEmptyString(userInfo.sub, userInfo.id);
+  const id = nonEmptyIdentifier(userInfo.sub, userInfo.id);
   if (!id) return null;
 
   return {

@@ -7,6 +7,7 @@ const decoder = new TextDecoder();
 const sessionFutureToleranceMs = 5 * 60 * 1000;
 
 type SessionPayload = {
+  version?: 2;
   user?: UserSession;
   createdAt?: number;
 };
@@ -31,7 +32,7 @@ async function importSigningKey(secret: string) {
 }
 
 export async function createSignedSessionToken(user: UserSession, secret: string, now = Date.now()) {
-  const payload = base64UrlEncode(JSON.stringify({ user, createdAt: now } satisfies SessionPayload));
+  const payload = base64UrlEncode(JSON.stringify({ version: 2, user, createdAt: now } satisfies SessionPayload));
   const key = await importSigningKey(secret);
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
   return `${payload}.${base64UrlEncode(signature)}`;
@@ -49,6 +50,7 @@ export async function readSignedSessionToken(token: string | undefined, secret: 
 
     const parsed = JSON.parse(decoder.decode(base64UrlDecodeBytes(payload))) as SessionPayload;
     if (!parsed.user || typeof parsed.createdAt !== "number" || !Number.isFinite(parsed.createdAt)) return null;
+    if (parsed.user.id === "unknown" && parsed.version !== 2) return null;
     if (parsed.createdAt > now + sessionFutureToleranceMs) return null;
     if (now - parsed.createdAt > sessionMaxAgeSeconds * 1000) return null;
     return parsed.user;

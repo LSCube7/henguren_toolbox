@@ -59,6 +59,14 @@ async function readSafeErrorBody(response: Response) {
   return text.slice(0, 500);
 }
 
+async function cancelResponseBody(response: Response) {
+  try {
+    await response.body?.cancel();
+  } catch (error) {
+    console.warn("OAuth response body cancellation failed", { errorType: error instanceof Error ? error.name : "UnknownError" });
+  }
+}
+
 function classifyTokenError(body: string) {
   const normalized = body.toLowerCase();
   if (normalized.includes("authorization code expired") || normalized.includes("code expired")) return "code_expired";
@@ -156,6 +164,7 @@ export async function GET(request: Request) {
   }
 
   if (!userResponse.ok) {
+    await cancelResponseBody(userResponse);
     console.error("OAuth userinfo request failed", {
       status: userResponse.status,
       statusText: userResponse.statusText

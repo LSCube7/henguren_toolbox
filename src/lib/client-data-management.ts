@@ -3,7 +3,7 @@
 import { getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
 import { editionStorageKey, writeEdition, type Edition } from "./edition";
 import { onboardingChangeEvent, onboardingStorageKey, readOnboardingState, type OnboardingState } from "./onboarding";
-import { defaultSettings, type ToolboxSettings, type WrongBookSnapshot } from "./types";
+import { normalizeToolboxSettings, type ToolboxSettings, type WrongBookSnapshot } from "./types";
 
 const settingsKey = "henguren-v3-settings";
 const masteryDbName = "henguren-v3-mastery";
@@ -72,9 +72,9 @@ async function mergeMasteryRecords(records: BackupMasteryRecord[]) {
 function readSettings() {
   try {
     const saved = localStorage.getItem(settingsKey);
-    return saved ? ({ ...defaultSettings, ...(JSON.parse(saved) as Partial<ToolboxSettings>) } as ToolboxSettings) : defaultSettings;
+    return normalizeToolboxSettings(saved ? JSON.parse(saved) : null);
   } catch {
-    return defaultSettings;
+    return normalizeToolboxSettings(null);
   }
 }
 
@@ -119,7 +119,7 @@ export function parseToolboxBackup(raw: string): ToolboxBackup {
     app: "henguren-toolbox-v3",
     schemaVersion: 1,
     exportedAt: String(parsed.exportedAt ?? new Date(0).toISOString()),
-    settings: { ...defaultSettings, ...parsed.settings, schemaVersion: 1 },
+    settings: normalizeToolboxSettings(parsed.settings),
     edition: parsed.edition === "senior" ? "senior" : "junior",
     onboarding: {
       completed: Boolean(parsed.onboarding?.completed),
@@ -136,7 +136,7 @@ export async function importToolboxBackup(backup: ToolboxBackup) {
   const currentSettings = readSettings();
   localStorage.setItem(
     settingsKey,
-    JSON.stringify({ ...defaultSettings, ...backup.settings, developerMode: currentSettings.developerMode, schemaVersion: 1, updatedAt: new Date().toISOString() })
+    JSON.stringify(normalizeToolboxSettings({ ...backup.settings, developerMode: currentSettings.developerMode, updatedAt: new Date().toISOString() }))
   );
   writeEdition(backup.edition);
   localStorage.setItem(onboardingStorageKey, JSON.stringify(backup.onboarding));

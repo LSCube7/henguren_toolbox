@@ -10,6 +10,7 @@
     "prebuild": "pnpm run fonts:check",
     "build": "next build",
     "start": "next start",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/session-token.test.mjs src/lib/oauth-profile.test.mjs",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "typecheck": "tsc --noEmit"
   },

@@ -1,11 +1,14 @@
 const CACHE_PREFIX = "henguren-v3-offline";
-// Keep this value in sync with cacheVersion in src/lib/offline-cache.ts.
-// Increment it whenever the cached app shell or data contract changes.
-const VERSION = "v3";
-const APP_CACHE = `${CACHE_PREFIX}-${VERSION}-app`;
-const STATIC_CACHE = `${CACHE_PREFIX}-${VERSION}-static`;
-const DATA_CACHE = `${CACHE_PREFIX}-${VERSION}-data`;
+// Increment shell and data versions independently so an app-shell update does
+// not discard vocabulary or text lists that users explicitly cached offline.
+const SHELL_VERSION = "v3";
+// Keep this value in sync with dataCacheVersion in src/lib/offline-cache.ts.
+const DATA_VERSION = "v2";
+const APP_CACHE = `${CACHE_PREFIX}-${SHELL_VERSION}-app`;
+const STATIC_CACHE = `${CACHE_PREFIX}-${SHELL_VERSION}-static`;
+const DATA_CACHE = `${CACHE_PREFIX}-${DATA_VERSION}-data`;
 const CURRENT_CACHES = new Set([APP_CACHE, STATIC_CACHE, DATA_CACHE]);
+const LEGACY_DATA_CACHES = [`${CACHE_PREFIX}-v1-data`];
 
 const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/settings", "/developer", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms", "/offline.html"];
 const NEVER_CACHE_PREFIXES = ["/api/auth/", "/api/me", "/api/wrongbook"];
@@ -16,12 +19,31 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
+    migrateLegacyDataCaches()
+      .then(() => caches.keys())
       .then((keys) => Promise.all(keys.filter((key) => key.startsWith(`${CACHE_PREFIX}-`) && !CURRENT_CACHES.has(key)).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
+
+async function migrateLegacyDataCaches() {
+  const existingCacheNames = new Set(await caches.keys());
+  const sourceNames = LEGACY_DATA_CACHES.filter((name) => existingCacheNames.has(name));
+  if (sourceNames.length === 0) return;
+
+  const targetCache = await caches.open(DATA_CACHE);
+  for (const sourceName of sourceNames) {
+    const sourceCache = await caches.open(sourceName);
+    const requests = await sourceCache.keys();
+    await Promise.all(
+      requests.map(async (request) => {
+        if (await targetCache.match(request)) return;
+        const response = await sourceCache.match(request);
+        if (response) await targetCache.put(request, response);
+      })
+    );
+  }
+}
 
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") {

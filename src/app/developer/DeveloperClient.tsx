@@ -5,10 +5,9 @@ import {
   clearDeveloperSyncSource,
   isDeveloperSyncSourceReady,
   readDeveloperSyncSourceDraft,
-  testDeveloperSyncSource,
   writeDeveloperSyncSource,
   type DeveloperSyncSource
-} from "@/lib/developer-sync-source";
+} from "@/lib/developer-sync-config";
 import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { SettingsSection } from "../components/SettingsSection";
@@ -41,6 +40,7 @@ export function DeveloperClient() {
 
   async function testDeveloperSource() {
     try {
+      const { testDeveloperSyncSource } = await import("@/lib/developer-sync-source");
       await testDeveloperSyncSource(developerSource);
       showSnackbar(t("settings.customSync.testSuccess"));
     } catch {

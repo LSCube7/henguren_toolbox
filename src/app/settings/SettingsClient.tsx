@@ -9,7 +9,7 @@ import type { ToolboxSettings } from "@/lib/types";
 import { useEdition, writeEdition } from "@/lib/edition";
 import { restartOnboarding } from "@/lib/onboarding";
 import { DataManagement } from "./DataManagement";
-import { readDeveloperSyncSource, writeDeveloperSettings } from "@/lib/developer-sync-source";
+import { readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { isAppLocale } from "@/i18n/config";
 import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
@@ -39,6 +39,7 @@ export function SettingsClient() {
   async function syncSettings() {
     const developerSourceValue = readDeveloperSyncSource();
     if (developerSourceValue) {
+      const { writeDeveloperSettings } = await import("@/lib/developer-sync-source");
       await writeDeveloperSettings(developerSourceValue, {
         ...settings,
         schemaVersion: 1,

@@ -14,8 +14,62 @@ const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/setti
 const NEVER_CACHE_PREFIXES = ["/api/auth/", "/api/me", "/api/wrongbook"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(APP_CACHE).then((cache) => cache.addAll(APP_SHELL_ROUTES)));
+  event.waitUntil(precacheAppShell());
 });
+
+function addStaticAssetUrl(assetUrls, value, baseUrl) {
+  try {
+    const url = new URL(value, baseUrl);
+    if (url.origin !== self.location.origin) return;
+    if (!url.pathname.startsWith("/_next/") && !/\.(?:css|js|mjs|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|ico|webmanifest)$/i.test(url.pathname)) return;
+    url.hash = "";
+    assetUrls.add(url.href);
+  } catch {
+    // Ignore malformed or unsupported asset references in generated markup.
+  }
+}
+
+function collectMarkupAssetUrls(markup, baseUrl) {
+  const assetUrls = new Set();
+  for (const match of markup.matchAll(/\b(?:src|href)=["']([^"']+)["']/gi)) {
+    addStaticAssetUrl(assetUrls, match[1], baseUrl);
+  }
+  return assetUrls;
+}
+
+function collectStyleAssetUrls(stylesheet, baseUrl) {
+  const assetUrls = new Set();
+  for (const match of stylesheet.matchAll(/url\(\s*(["']?)([^"')]+)\1\s*\)/gi)) {
+    addStaticAssetUrl(assetUrls, match[2], baseUrl);
+  }
+  return assetUrls;
+}
+
+async function precacheAppShell() {
+  const appCache = await caches.open(APP_CACHE);
+  await appCache.addAll(APP_SHELL_ROUTES);
+
+  const assetUrls = new Set();
+  for (const route of APP_SHELL_ROUTES) {
+    const response = await appCache.match(route);
+    if (!response) continue;
+    const markup = await response.text();
+    for (const assetUrl of collectMarkupAssetUrls(markup, new URL(route, self.location.origin))) assetUrls.add(assetUrl);
+  }
+
+  const staticCache = await caches.open(STATIC_CACHE);
+  await staticCache.addAll([...assetUrls]);
+
+  const styleAssetUrls = new Set();
+  for (const assetUrl of assetUrls) {
+    if (!new URL(assetUrl).pathname.endsWith(".css")) continue;
+    const response = await staticCache.match(assetUrl);
+    if (!response) continue;
+    const stylesheet = await response.text();
+    for (const styleAssetUrl of collectStyleAssetUrls(stylesheet, assetUrl)) styleAssetUrls.add(styleAssetUrl);
+  }
+  await staticCache.addAll([...styleAssetUrls]);
+}
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(

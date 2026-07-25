@@ -1,7 +1,7 @@
 "use client";
 
 import { getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
-import { readDeveloperSyncSource, readDeveloperWrongBook, writeDeveloperWrongBook } from "./developer-sync-source";
+import { readDeveloperSyncSource } from "./developer-sync-config";
 import { isOnline } from "./offline-cache";
 import type { UserSession, WrongBookSnapshot } from "./types";
 import { emptyWrongBook, mergeWrongBooks, normalizeWrongBook } from "./wrongbook";
@@ -15,6 +15,10 @@ export type WrongBookSyncSummary = {
   cloudCount?: number;
   message: string;
 };
+
+function loadDeveloperSyncSource() {
+  return import("./developer-sync-source");
+}
 
 async function readUser() {
   const response = await fetch("/api/me");
@@ -37,6 +41,7 @@ export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> 
   const developerSource = readDeveloperSyncSource();
   if (developerSource) {
     try {
+      const { readDeveloperWrongBook } = await loadDeveloperSyncSource();
       const cloud = await readDeveloperWrongBook(developerSource);
       return {
         status: "ready",
@@ -111,6 +116,7 @@ export async function pullAndMergeWrongBook() {
   if (!isOnline()) throw new Error("当前离线，无法拉取云端错题本；本地错题本仍可使用。");
   const developerSource = readDeveloperSyncSource();
   if (developerSource) {
+    const { readDeveloperWrongBook } = await loadDeveloperSyncSource();
     const cloud = (await readDeveloperWrongBook(developerSource)) ?? emptyWrongBook(developerSource.profileId, getClientId());
     await importWrongBookSnapshot(cloud);
     return;
@@ -124,6 +130,7 @@ export async function overwriteCloudWrongBook() {
   if (!isOnline()) throw new Error("当前离线，无法上传错题本；本地错题本仍可使用。");
   const developerSource = readDeveloperSyncSource();
   if (developerSource) {
+    const { writeDeveloperWrongBook } = await loadDeveloperSyncSource();
     const snapshot = normalizeWrongBook(await readLocalWrongBook(getClientId()), developerSource.profileId);
     await writeDeveloperWrongBook(developerSource, snapshot);
     return snapshot;
@@ -141,6 +148,7 @@ export async function mergeUploadWrongBook() {
   if (!isOnline()) throw new Error("当前离线，无法合并上传错题本；本地错题本仍可使用。");
   const developerSource = readDeveloperSyncSource();
   if (developerSource) {
+    const { readDeveloperWrongBook, writeDeveloperWrongBook } = await loadDeveloperSyncSource();
     const cloud = await readDeveloperWrongBook(developerSource);
     const local = normalizeWrongBook(await readLocalWrongBook(getClientId()), developerSource.profileId);
     const merged = mergeWrongBooks(developerSource.profileId, cloud, local);

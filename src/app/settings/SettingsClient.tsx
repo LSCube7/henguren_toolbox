@@ -118,20 +118,6 @@ export function SettingsClient() {
         control={<md-outlined-text-field label={t("settings.testCount.label")} type="number" min={1} max={200} value={settings.defaultTestCount} onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })} />}
       />
       <SettingsSection
-        title="settings.syncStrategy.title"
-        description="settings.syncStrategy.description"
-        control={
-          <md-filled-select key={`${locale}-sync-strategy`} value={settings.syncStrategy} onInput={(event) => update({ syncStrategy: valueFrom(event) as ToolboxSettings["syncStrategy"] })}>
-            <md-select-option value="manual">
-              <div slot="headline">{t("settings.syncStrategy.manual")}</div>
-            </md-select-option>
-            <md-select-option value="auto">
-              <div slot="headline">{t("settings.syncStrategy.auto")}</div>
-            </md-select-option>
-          </md-filled-select>
-        }
-      />
-      <SettingsSection
         title="settings.sync.title"
         description="settings.sync.description"
         control={<md-filled-button onClick={() => void syncSettings()}>{t("settings.sync.action")}</md-filled-button>}

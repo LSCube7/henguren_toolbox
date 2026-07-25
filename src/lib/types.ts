@@ -63,7 +63,7 @@ export type ToolboxSettings = {
   enableSlipDetection: boolean;
   defaultTestCount: number;
   vocabDefinitionLanguages: VocabDefinitionLanguage[];
-  syncStrategy: "manual" | "auto";
+  syncStrategy: "manual";
   updatedAt: string;
 };
 
@@ -98,3 +98,13 @@ export const defaultSettings: ToolboxSettings = {
   syncStrategy: "manual",
   updatedAt: new Date(0).toISOString()
 };
+
+export function normalizeToolboxSettings(value: unknown): ToolboxSettings {
+  const saved = value && typeof value === "object" ? (value as Partial<ToolboxSettings>) : {};
+  return {
+    ...defaultSettings,
+    ...saved,
+    schemaVersion: 1,
+    syncStrategy: "manual"
+  };
+}

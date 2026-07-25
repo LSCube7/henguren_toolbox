@@ -3,7 +3,7 @@
 import "client-only";
 
 import { useMemo, useSyncExternalStore } from "react";
-import { defaultSettings, type ToolboxSettings } from "./types";
+import { defaultSettings, normalizeToolboxSettings, type ToolboxSettings } from "./types";
 
 export const toolboxSettingsKey = "henguren-v3-settings";
 export const toolboxSettingsChangeEvent = "henguren-settings-change";
@@ -11,7 +11,7 @@ export const toolboxSettingsChangeEvent = "henguren-settings-change";
 function parseSettings(serialized: string | null): ToolboxSettings {
   if (!serialized) return defaultSettings;
   try {
-    return { ...defaultSettings, ...(JSON.parse(serialized) as Partial<ToolboxSettings>) };
+    return normalizeToolboxSettings(JSON.parse(serialized));
   } catch {
     return defaultSettings;
   }
@@ -35,7 +35,7 @@ export function readClientSettings() {
 }
 
 export function writeClientSettings(settings: ToolboxSettings) {
-  localStorage.setItem(toolboxSettingsKey, JSON.stringify(settings));
+  localStorage.setItem(toolboxSettingsKey, JSON.stringify(normalizeToolboxSettings(settings)));
   window.dispatchEvent(new Event(toolboxSettingsChangeEvent));
 }
 

@@ -19,6 +19,10 @@ export type WrongBookTombstone = {
   id: string;
   clientId: string;
   deletedAt: string;
+  /** Attempt ids observed and removed by this deletion. */
+  deletedAttemptIds?: string[];
+  /** Timestamp fallback retained only for tombstones written before observed-remove metadata. */
+  legacyDeletedAt?: string;
 };
 
 export type WrongBookRecord = {

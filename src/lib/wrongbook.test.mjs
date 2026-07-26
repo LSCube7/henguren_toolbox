@@ -24,23 +24,24 @@ function snapshot(overrides = {}) {
   };
 }
 
-test("preserves a legacy record updated after an old timestamp tombstone", () => {
+test("preserves only the latest synthesized attempt after a legacy deletion cutoff", () => {
   const normalized = normalizeWrongBook(snapshot({
     records: [{
       ...word,
-      wrongCount: 2,
+      wrongCount: 4,
       testNos: ["legacy-test"],
-      updatedAt: "2026-01-03T00:00:00.000Z"
+      updatedAt: "2026-01-10T00:00:00.000Z"
     }],
     deletedRecords: [{
       id: word.id,
       clientId: "new-client",
-      deletedAt: "2026-01-02T00:00:00.000Z"
+      deletedAt: "2026-01-05T00:00:00.000Z"
     }]
   }), "user");
 
   assert.equal(normalized.records.length, 1);
-  assert.equal(normalized.records[0].wrongCount, 2);
+  assert.equal(normalized.records[0].wrongCount, 1);
+  assert.equal(normalized.records[0].wrongAttempts[0].createdAt, "2026-01-10T00:00:00.000Z");
 });
 
 test("uses observed attempt ids instead of client clocks for record deletion", () => {

@@ -94,7 +94,9 @@ function normalizeTombstones(values: unknown, normalizeId: (id: string) => strin
 
 function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
   const attempts = new Map<string, WrongBookAttempt>();
-  const legacyAttemptCreatedAt = String(record.updatedAt ?? record.createdAt ?? new Date(0).toISOString());
+  const synthesizedAttemptIds = new Set<string>();
+  const legacyAttemptCreatedAt = String(record.createdAt ?? new Date(0).toISOString());
+  const legacyAttemptUpdatedAt = String(record.updatedAt ?? record.createdAt ?? new Date(0).toISOString());
   if (Array.isArray(record.wrongAttempts)) {
     record.wrongAttempts.forEach((attempt) => {
       if (!attempt || typeof attempt !== "object") return;
@@ -107,6 +109,7 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
         clientId: String(attempt.clientId ?? "legacy"),
         createdAt: String(attempt.createdAt ?? legacyAttemptCreatedAt)
       });
+      if (!attempt.createdAt) synthesizedAttemptIds.add(attemptId);
     });
   }
 
@@ -122,6 +125,7 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
         clientId: "legacy",
         createdAt: legacyAttemptCreatedAt
       });
+      synthesizedAttemptIds.add(attemptId);
     });
   }
 
@@ -136,6 +140,12 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
       clientId: "legacy",
       createdAt: legacyAttemptCreatedAt
     });
+    synthesizedAttemptIds.add(attemptId);
+  }
+  const latestSynthesizedAttemptId = Array.from(synthesizedAttemptIds).at(-1);
+  if (latestSynthesizedAttemptId) {
+    const latestAttempt = attempts.get(latestSynthesizedAttemptId);
+    if (latestAttempt) attempts.set(latestSynthesizedAttemptId, { ...latestAttempt, createdAt: legacyAttemptUpdatedAt });
   }
   return Array.from(attempts.values());
 }

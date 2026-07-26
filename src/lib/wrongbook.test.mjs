@@ -186,6 +186,33 @@ test("deduplicates synthesized attempts across record id aliases", () => {
   ]);
 });
 
+test("deduplicates previous and current synthesized attempt ids", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      wrongCount: 1,
+      wrongAttempts: [{
+        id: "legacy:unit:example:legacy-test",
+        testNo: "legacy-test",
+        clientId: "legacy",
+        createdAt: word.createdAt
+      }]
+    }]
+  }), snapshot({
+    schemaVersion: 1,
+    records: [{
+      ...word,
+      wrongCount: 1,
+      testNos: ["legacy-test"]
+    }]
+  }));
+
+  assert.equal(merged.records[0].wrongCount, 1);
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), [
+    'legacy-v2:["unit:example","test","legacy-test"]'
+  ]);
+});
+
 test("keeps synthesized test and count attempts distinct for delimiter-like test ids", () => {
   const normalized = normalizeWrongBook(snapshot({
     records: [{
@@ -564,6 +591,80 @@ test("does not migrate mastery when an alias is another record's canonical id", 
   assert.deepEqual(migrations, []);
 });
 
+test("does not migrate mastery from an alias shared with a deleted record", () => {
+  const ambiguousLegacyId = "a:b:c";
+  const deletedRecordId = 'tuple-v1:["a:b","c"]';
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [
+      {
+        ...word,
+        id: deletedRecordId,
+        sourceName: "a:b",
+        word: "c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "deleted-attempt", clientId: "deleted-client", createdAt: word.createdAt }]
+      },
+      {
+        ...word,
+        id: 'tuple-v1:["a","b:c"]',
+        sourceName: "a",
+        word: "b:c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "retained-attempt", clientId: "retained-client", createdAt: word.createdAt }]
+      }
+    ],
+    deletedRecords: [{
+      id: deletedRecordId,
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }));
+  const legacyMastery = {
+    id: ambiguousLegacyId,
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations(
+    merged.records,
+    { [legacyMastery.id]: legacyMastery },
+    merged.deletedRecords
+  );
+
+  assert.deepEqual(merged.records.map((record) => record.id), ['tuple-v1:["a","b:c"]']);
+  assert.deepEqual(migrations, []);
+});
+
+test("does not migrate mastery from an arbitrary alias retained by a tombstone", () => {
+  const sharedAlias = "shared-import-id";
+  const legacyMastery = {
+    id: sharedAlias,
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations(
+    [{ ...word, aliases: [sharedAlias] }],
+    { [legacyMastery.id]: legacyMastery },
+    [{
+      id: "other:entry",
+      aliases: [sharedAlias],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  );
+
+  assert.deepEqual(migrations, []);
+});
+
 test("keeps canonical tombstones scoped when the id is another record's alias", () => {
   const merged = mergeWrongBooks("user", snapshot({
     records: [
@@ -619,5 +720,6 @@ test("applies standalone arbitrary-id tombstones through retained record aliases
   assert.equal(merged.records[0].id, word.id);
   assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
   assert.equal(merged.deletedRecords[0].id, word.id);
+  assert.deepEqual(merged.deletedRecords[0].aliases, ["legacy-import-id"]);
   assert.deepEqual(merged.records[0].aliases, ["legacy-import-id"]);
 });

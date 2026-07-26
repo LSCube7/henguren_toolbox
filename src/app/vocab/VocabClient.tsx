@@ -152,7 +152,11 @@ async function loadWrongBookData(clientId: string) {
   const [wrongBookResult, masteryResult] = results;
   if (wrongBookResult.status !== "fulfilled" || masteryResult.status !== "fulfilled") return results;
   try {
-    const migratedMastery = await migrateMasteryRecordIds(wrongBookResult.value.records, masteryResult.value);
+    const migratedMastery = await migrateMasteryRecordIds(
+      wrongBookResult.value.records,
+      masteryResult.value,
+      wrongBookResult.value.deletedRecords
+    );
     return [wrongBookResult, { status: "fulfilled", value: migratedMastery }] as const;
   } catch (reason) {
     return [wrongBookResult, { status: "rejected", reason }] as const;

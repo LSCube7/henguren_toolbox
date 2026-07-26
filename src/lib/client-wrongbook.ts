@@ -234,14 +234,27 @@ export function deleteWrongRecord(id: string) {
     const clientId = getClientId();
     const now = new Date().toISOString();
     await updateLocalWrongBook(clientId, (snapshot) => {
-      const deletedAttemptIds = snapshot.records
-        .find((record) => record.id === id)
-        ?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
+      const deletedRecord = snapshot.records.find((record) => record.id === id);
+      const deletedAttemptIds = deletedRecord?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
+      const aliases = deletedRecord
+        ? Array.from(new Set([
+          deletedRecord.id,
+          ...(deletedRecord.aliases ?? []),
+          legacyWrongBookRecordId(deletedRecord),
+          wrongBookRecordId(deletedRecord)
+        ])).filter((alias) => alias !== id)
+        : [];
       return {
         ...snapshot,
         updatedAt: now,
         records: snapshot.records.filter((record) => record.id !== id),
-        deletedRecords: upsertTombstone(snapshot.deletedRecords, { id, clientId, deletedAt: now, deletedAttemptIds })
+        deletedRecords: upsertTombstone(snapshot.deletedRecords, {
+          id,
+          aliases: aliases.length > 0 ? aliases : undefined,
+          clientId,
+          deletedAt: now,
+          deletedAttemptIds
+        })
       };
     });
   });

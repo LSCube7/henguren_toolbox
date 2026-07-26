@@ -17,6 +17,8 @@ export type WrongBookAttempt = {
 
 export type WrongBookTombstone = {
   id: string;
+  /** Historical record ids retained so deleted records still reserve ambiguous aliases. */
+  aliases?: string[];
   clientId: string;
   deletedAt: string;
   /** Attempt ids observed and removed by this deletion. */

@@ -1,7 +1,7 @@
 "use client";
 
 import { nextMasteryRecord, type MasteryRecord } from "./mastery";
-import type { WrongBookRecord } from "./types";
+import type { WrongBookRecord, WrongBookTombstone } from "./types";
 import { planMasteryRecordIdMigrations } from "./wrongbook";
 
 const DB_NAME = "henguren-v3-mastery";
@@ -35,8 +35,12 @@ export async function readMasteryMap() {
   return Object.fromEntries(records.map((record) => [record.id, record]));
 }
 
-export async function migrateMasteryRecordIds(records: WrongBookRecord[], masteryById: Record<string, MasteryRecord>) {
-  if (planMasteryRecordIdMigrations(records, masteryById).length === 0) return masteryById;
+export async function migrateMasteryRecordIds(
+  records: WrongBookRecord[],
+  masteryById: Record<string, MasteryRecord>,
+  deletedRecords: WrongBookTombstone[] = []
+) {
+  if (planMasteryRecordIdMigrations(records, masteryById, deletedRecords).length === 0) return masteryById;
   const db = await openDb();
   return await new Promise<Record<string, MasteryRecord>>((resolve, reject) => {
     const transaction = db.transaction(STORE_NAME, "readwrite");
@@ -46,7 +50,7 @@ export async function migrateMasteryRecordIds(records: WrongBookRecord[], master
     request.onsuccess = () => {
       const current = Object.fromEntries((request.result as MasteryRecord[]).map((record) => [record.id, record]));
       migrated = { ...current };
-      planMasteryRecordIdMigrations(records, current).forEach(({ legacyId, canonicalId, record }) => {
+      planMasteryRecordIdMigrations(records, current, deletedRecords).forEach(({ legacyId, canonicalId, record }) => {
         store.put(record);
         store.delete(legacyId);
         delete migrated[legacyId];

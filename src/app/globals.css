@@ -85,6 +85,10 @@
   color-scheme: dark;
 }
 
+:root[data-theme-pending="true"] body {
+  visibility: hidden;
+}
+
 html,
 body {
   min-height: 100%;
@@ -1016,6 +1020,20 @@ md-outlined-select {
   background:
     radial-gradient(circle at top left, color-mix(in srgb, var(--md-sys-color-primary-container) 70%, transparent), transparent 34rem),
     var(--md-sys-color-surface);
+}
+
+.onboarding-gate__content[data-ready="false"] {
+  visibility: hidden;
+}
+
+.onboarding-gate__fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface);
+  place-items: center;
 }
 
 .onboarding-shell {

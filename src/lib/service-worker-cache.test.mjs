@@ -106,6 +106,7 @@ test("precaches current shell assets and migrates legacy learning data", async (
   const dataCache = worker.cachesByName.get("henguren-v3-offline-v2-data");
   assert.equal(await (await dataCache.match("/api/data/vocab/sample")).text(), "cached lesson");
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v1-data"), false);
+  assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-app"), false);
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-static"), false);
   assert.equal(worker.wasClaimed(), true);
 });

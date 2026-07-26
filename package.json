@@ -3,6 +3,9 @@
   "version": "3.1.0",
   "private": true,
   "packageManager": "pnpm@10.8.0",
+  "engines": {
+    "node": ">=22.6.0"
+  },
   "scripts": {
     "dev": "next dev",
     "fonts:build": "node scripts/build-material-symbols.mjs",
@@ -10,7 +13,7 @@
     "prebuild": "pnpm run fonts:check",
     "build": "next build",
     "start": "next start",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/session-token.test.mjs src/lib/oauth-profile.test.mjs src/lib/service-worker-cache.test.mjs",
+    "test": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/i18n/locale-detection.test.mjs src/lib/session-token.test.mjs src/lib/oauth-profile.test.mjs src/lib/service-worker-cache.test.mjs src/lib/settings.test.mjs src/lib/wrongbook.test.mjs",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "typecheck": "tsc --noEmit"
   },

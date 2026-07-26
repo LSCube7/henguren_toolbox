@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
-import type { UserSession } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { defaultSettingsForLocale, type UserSession } from "@/lib/types";
+import { useEffect, useMemo, useState } from "react";
 import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
@@ -72,8 +72,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const [user, setUser] = useState<UserSession | null>(null);
   const edition = useEdition();
   const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
-  const settings = useClientSettings();
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
+  const settings = useClientSettings(fallbackSettings);
 
   useEffect(() => {
     let active = true;
@@ -287,28 +288,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
 
   if (pathname === "/onboarding") {
-    return (
-      <main className="onboarding-route-main">
-        {children}
-        <OnboardingGate />
-      </main>
-    );
+    return <main className="onboarding-route-main">{children}</main>;
   }
 
   return (
-    <div className="app-shell">
-      <button className="mobile-menu" type="button" aria-label={t("nav.open")} onClick={() => setMobileOpen(true)}>
-        ☰
-      </button>
-      <button className="drawer-scrim" data-open={mobileOpen} aria-label={t("nav.close")} onClick={() => setMobileOpen(false)} />
-      <aside className="app-drawer" data-open={mobileOpen} aria-label={t("nav.sidebar")}>
-        <NavList onNavigate={() => setMobileOpen(false)} />
-      </aside>
-      <main className="app-main">
-        <div className="app-content">{children}</div>
-        <AppFooter />
-      </main>
-      <OnboardingGate />
-    </div>
+    <OnboardingGate>
+      <div className="app-shell">
+        <button className="mobile-menu" type="button" aria-label={t("nav.open")} onClick={() => setMobileOpen(true)}>
+          ☰
+        </button>
+        <button className="drawer-scrim" data-open={mobileOpen} aria-label={t("nav.close")} onClick={() => setMobileOpen(false)} />
+        <aside className="app-drawer" data-open={mobileOpen} aria-label={t("nav.sidebar")}>
+          <NavList onNavigate={() => setMobileOpen(false)} />
+        </aside>
+        <main className="app-main">
+          <div className="app-content">{children}</div>
+          <AppFooter />
+        </main>
+      </div>
+    </OnboardingGate>
   );
 }

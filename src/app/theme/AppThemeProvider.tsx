@@ -3,15 +3,14 @@
 import "../material-web";
 import { defaultThemeSeed, resolveThemeSeed } from "@/lib/theme-presets";
 import { argbFromHex, hexFromArgb, themeFromSourceColor, type Scheme } from "@material/material-color-utilities";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { themeSettingsKey, themeStyleCacheKey, type CachedThemeStyle } from "./theme-cache";
 
 type StoredTheme = {
   themePreset?: string;
   themeSeedColor?: string;
   colorMode?: "light" | "dark" | "system";
 };
-
-const settingsKey = "henguren-v3-settings";
 
 const schemeColorRoles = [
   "primary",
@@ -45,10 +44,20 @@ const schemeColorRoles = [
   "inversePrimary"
 ] as const;
 
+const derivedSurfaceProperties = [
+  "--md-sys-color-surface-dim",
+  "--md-sys-color-surface-bright",
+  "--md-sys-color-surface-container-lowest",
+  "--md-sys-color-surface-container-low",
+  "--md-sys-color-surface-container",
+  "--md-sys-color-surface-container-high",
+  "--md-sys-color-surface-container-highest"
+] as const;
+
 function getStoredTheme(): StoredTheme {
   if (typeof window === "undefined") return {};
   try {
-    const saved = localStorage.getItem(settingsKey);
+    const saved = localStorage.getItem(themeSettingsKey);
     return saved ? (JSON.parse(saved) as StoredTheme) : {};
   } catch {
     return {};
@@ -113,6 +122,7 @@ function applyTheme(theme: StoredTheme) {
   }
   const scheme = mode === "dark" ? materialTheme.schemes.dark : materialTheme.schemes.light;
   root.dataset.theme = mode;
+  root.style.colorScheme = mode;
   root.style.setProperty("--md-source-color", seed);
   schemeColorRoles.forEach((role) => setSchemeColor(root, role, readSchemeColor(scheme, role)));
 
@@ -137,22 +147,35 @@ function applyTheme(theme: StoredTheme) {
     root.style.setProperty("--md-sys-color-surface-container-high", mixHex(surface, secondaryContainer, 0.34));
     root.style.setProperty("--md-sys-color-surface-container-highest", mixHex(surface, secondaryContainer, 0.45));
   }
+
+  const propertyNames = [
+    "--md-source-color",
+    ...schemeColorRoles.map((role) => `--md-sys-color-${roleToCssName(role)}`),
+    ...derivedSurfaceProperties
+  ];
+  const cache: CachedThemeStyle = {
+    seed: seed.toLowerCase(),
+    mode,
+    properties: Object.fromEntries(propertyNames.map((name) => [name, root.style.getPropertyValue(name)]))
+  };
+  try {
+    localStorage.setItem(themeStyleCacheKey, JSON.stringify(cache));
+  } catch {
+    // The active page still receives the theme when storage is unavailable.
+  }
+  root.removeAttribute("data-theme-pending");
 }
+
+if (typeof window !== "undefined") applyTheme(getStoredTheme());
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeState, setThemeState] = useState<StoredTheme>(() => getStoredTheme());
-  const mounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false
-  );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(themeState);
   }, [themeState]);
 
   useEffect(() => {
-    applyTheme(getStoredTheme());
     function refreshTheme() {
       setThemeState(getStoredTheme());
     }
@@ -172,10 +195,6 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
       media.removeEventListener("change", refreshTheme);
     };
   }, []);
-
-  if (!mounted) {
-    return null;
-  }
 
   return children;
 }

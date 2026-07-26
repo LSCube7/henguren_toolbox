@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { mergeWrongBooks, normalizeWrongBook } from "./wrongbook";
+import { mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook } from "./wrongbook";
 
 const DB_NAME = "henguren-v3";
 const STORE_NAME = "wrongbook";
@@ -127,8 +127,7 @@ async function updateLocalWrongBook(clientId: string, update: (snapshot: WrongBo
 }
 
 function upsertTombstone(tombstones: WrongBookTombstone[], next: WrongBookTombstone) {
-  const existing = tombstones.find((tombstone) => tombstone.id === next.id);
-  return [...tombstones.filter((tombstone) => tombstone.id !== next.id), existing && existing.deletedAt > next.deletedAt ? existing : next];
+  return mergeWrongBookTombstones([...tombstones, next]);
 }
 
 async function withWrongBookWrite<T>(operation: () => Promise<T>): Promise<T> {
@@ -211,12 +210,17 @@ export function deleteWrongRecord(id: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
-    await updateLocalWrongBook(clientId, (snapshot) => ({
-      ...snapshot,
-      updatedAt: now,
-      records: snapshot.records.filter((record) => record.id !== id),
-      deletedRecords: upsertTombstone(snapshot.deletedRecords, { id, clientId, deletedAt: now })
-    }));
+    await updateLocalWrongBook(clientId, (snapshot) => {
+      const deletedAttemptIds = snapshot.records
+        .find((record) => record.id === id)
+        ?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
+      return {
+        ...snapshot,
+        updatedAt: now,
+        records: snapshot.records.filter((record) => record.id !== id),
+        deletedRecords: upsertTombstone(snapshot.deletedRecords, { id, clientId, deletedAt: now, deletedAttemptIds })
+      };
+    });
   });
 }
 
@@ -225,6 +229,9 @@ export function deleteWrongBatch(testNo: string) {
     const clientId = getClientId();
     const now = new Date().toISOString();
     await updateLocalWrongBook(clientId, (snapshot) => {
+      const deletedAttemptIds = snapshot.records.flatMap((record) =>
+        (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo === testNo).map((attempt) => attempt.id)
+      );
       const records = snapshot.records.flatMap((record) => {
         const wrongAttempts = (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo !== testNo);
         if (wrongAttempts.length === 0) return [];
@@ -242,7 +249,7 @@ export function deleteWrongBatch(testNo: string) {
         ...snapshot,
         updatedAt: now,
         records,
-        deletedBatches: upsertTombstone(snapshot.deletedBatches, { id: testNo, clientId, deletedAt: now })
+        deletedBatches: upsertTombstone(snapshot.deletedBatches, { id: testNo, clientId, deletedAt: now, deletedAttemptIds })
       };
     });
   });

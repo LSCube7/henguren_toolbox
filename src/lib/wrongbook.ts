@@ -8,31 +8,95 @@ function uniqueStrings(values: unknown) {
   return Array.isArray(values) ? Array.from(new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))) : [];
 }
 
-function latestTombstones(values: WrongBookTombstone[]) {
+function legacyDeletionCutoffs(tombstone: WrongBookTombstone) {
+  const cutoffs = new Map<string, string>();
+  Object.entries(tombstone.legacyDeletionCutoffs ?? {}).forEach(([clientId, deletedAt]) => {
+    if (clientId && deletedAt) cutoffs.set(clientId, deletedAt);
+  });
+  const legacyDeletedAt = tombstone.legacyDeletedAt ?? (Array.isArray(tombstone.deletedAttemptIds) ? undefined : tombstone.deletedAt);
+  if (legacyDeletedAt) {
+    const existing = cutoffs.get(tombstone.clientId);
+    if (!existing || legacyDeletedAt > existing) cutoffs.set(tombstone.clientId, legacyDeletedAt);
+  }
+  return cutoffs;
+}
+
+function mergeLegacyDeletionCutoffs(...tombstones: WrongBookTombstone[]) {
+  const merged = new Map<string, string>();
+  tombstones.forEach((tombstone) => {
+    legacyDeletionCutoffs(tombstone).forEach((deletedAt, clientId) => {
+      const existing = merged.get(clientId);
+      if (!existing || deletedAt > existing) merged.set(clientId, deletedAt);
+    });
+  });
+  return Object.fromEntries(merged);
+}
+
+function isAttemptDeleted(attempt: WrongBookAttempt, tombstone: WrongBookTombstone | undefined) {
+  if (!tombstone) return false;
+  if (tombstone.deletedAttemptIds?.includes(attempt.id)) return true;
+  const cutoffs = legacyDeletionCutoffs(tombstone);
+  const legacyCutoff = attempt.clientId === "legacy"
+    ? Array.from(cutoffs.values()).sort().at(-1)
+    : cutoffs.get(attempt.clientId);
+  if (!legacyCutoff) return false;
+  return attempt.createdAt < legacyCutoff;
+}
+
+export function mergeWrongBookTombstones(values: WrongBookTombstone[]) {
   const tombstones = new Map<string, WrongBookTombstone>();
   values.forEach((value) => {
     const existing = tombstones.get(value.id);
-    if (!existing || existing.deletedAt < value.deletedAt) tombstones.set(value.id, value);
+    if (!existing) {
+      tombstones.set(value.id, value);
+      return;
+    }
+    const newest = existing.deletedAt >= value.deletedAt ? existing : value;
+    const hasObservedAttempts = Array.isArray(existing.deletedAttemptIds) || Array.isArray(value.deletedAttemptIds);
+    tombstones.set(value.id, {
+      ...newest,
+      deletedAttemptIds: hasObservedAttempts
+        ? uniqueStrings([...(existing.deletedAttemptIds ?? []), ...(value.deletedAttemptIds ?? [])])
+        : undefined,
+      legacyDeletionCutoffs: mergeLegacyDeletionCutoffs(existing, value),
+      legacyDeletedAt: undefined
+    });
   });
   return Array.from(tombstones.values());
 }
 
 function normalizeTombstones(values: unknown, normalizeId: (id: string) => string): WrongBookTombstone[] {
   if (!Array.isArray(values)) return [];
-  return latestTombstones(
+  return mergeWrongBookTombstones(
     values
       .filter((value): value is Partial<WrongBookTombstone> => Boolean(value && typeof value === "object"))
-      .map((value) => ({
-        id: normalizeId(String(value.id ?? "")),
-        clientId: String(value.clientId ?? "legacy"),
-        deletedAt: String(value.deletedAt ?? new Date(0).toISOString())
-      }))
+      .map((value) => {
+        const deletedAt = String(value.deletedAt ?? new Date(0).toISOString());
+        const hasObservedAttempts = Array.isArray(value.deletedAttemptIds);
+        return {
+          id: normalizeId(String(value.id ?? "")),
+          clientId: String(value.clientId ?? "legacy"),
+          deletedAt,
+          deletedAttemptIds: hasObservedAttempts ? uniqueStrings(value.deletedAttemptIds) : undefined,
+          legacyDeletionCutoffs: mergeLegacyDeletionCutoffs({
+            id: String(value.id ?? ""),
+            clientId: String(value.clientId ?? "legacy"),
+            deletedAt,
+            deletedAttemptIds: hasObservedAttempts ? uniqueStrings(value.deletedAttemptIds) : undefined,
+            legacyDeletionCutoffs: value.legacyDeletionCutoffs,
+            legacyDeletedAt: value.legacyDeletedAt ? String(value.legacyDeletedAt) : undefined
+          })
+        };
+      })
       .filter((value) => value.id.length > 0)
   );
 }
 
 function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
   const attempts = new Map<string, WrongBookAttempt>();
+  const synthesizedAttemptIds = new Set<string>();
+  const legacyAttemptCreatedAt = String(record.createdAt ?? new Date(0).toISOString());
+  const legacyAttemptUpdatedAt = String(record.updatedAt ?? record.createdAt ?? new Date(0).toISOString());
   if (Array.isArray(record.wrongAttempts)) {
     record.wrongAttempts.forEach((attempt) => {
       if (!attempt || typeof attempt !== "object") return;
@@ -43,8 +107,9 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
         testNo: attempt.testNo ? String(attempt.testNo) : undefined,
         batchName: attempt.batchName ? String(attempt.batchName) : undefined,
         clientId: String(attempt.clientId ?? "legacy"),
-        createdAt: String(attempt.createdAt ?? record.createdAt ?? new Date(0).toISOString())
+        createdAt: String(attempt.createdAt ?? legacyAttemptCreatedAt)
       });
+      if (!attempt.createdAt) synthesizedAttemptIds.add(attemptId);
     });
   }
 
@@ -58,8 +123,9 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
         testNo,
         batchName: legacyBatchNames[index] ?? legacyBatchNames[0],
         clientId: "legacy",
-        createdAt: String(record.createdAt ?? new Date(0).toISOString())
+        createdAt: legacyAttemptCreatedAt
       });
+      synthesizedAttemptIds.add(attemptId);
     });
   }
 
@@ -72,8 +138,14 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
       testNo: fallbackLegacyAttempt?.testNo,
       batchName: fallbackLegacyAttempt?.batchName,
       clientId: "legacy",
-      createdAt: String(record.createdAt ?? new Date(0).toISOString())
+      createdAt: legacyAttemptCreatedAt
     });
+    synthesizedAttemptIds.add(attemptId);
+  }
+  const latestSynthesizedAttemptId = Array.from(synthesizedAttemptIds).at(-1);
+  if (latestSynthesizedAttemptId) {
+    const latestAttempt = attempts.get(latestSynthesizedAttemptId);
+    if (latestAttempt) attempts.set(latestSynthesizedAttemptId, { ...latestAttempt, createdAt: legacyAttemptUpdatedAt });
   }
   return Array.from(attempts.values());
 }
@@ -121,11 +193,10 @@ function applyTombstones(records: WrongBookRecord[], deletedRecords: WrongBookTo
   const batchDeletes = new Map(deletedBatches.map((tombstone) => [tombstone.id, tombstone]));
   return records.flatMap((record) => {
     const recordDelete = recordDeletes.get(record.id);
-    const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => !recordDelete || attempt.createdAt >= recordDelete.deletedAt);
+    const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => !isAttemptDeleted(attempt, recordDelete));
     const wrongAttempts = attemptsAfterRecordDelete.filter((attempt) => {
       if (!attempt.testNo) return true;
-      const batchDelete = batchDeletes.get(attempt.testNo);
-      return !batchDelete || attempt.createdAt >= batchDelete.deletedAt;
+      return !isAttemptDeleted(attempt, batchDeletes.get(attempt.testNo));
     });
     if (wrongAttempts.length === 0) return [];
     return [{
@@ -167,8 +238,8 @@ export function normalizeWrongBook(snapshot: Partial<WrongBookSnapshot>, userId:
 
 export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSnapshot | null | undefined>): WrongBookSnapshot {
   const normalized = snapshots.filter((snapshot): snapshot is WrongBookSnapshot => Boolean(snapshot)).map((snapshot) => normalizeWrongBook(snapshot, userId));
-  const deletedRecords = latestTombstones(normalized.flatMap((snapshot) => snapshot.deletedRecords));
-  const deletedBatches = latestTombstones(normalized.flatMap((snapshot) => snapshot.deletedBatches));
+  const deletedRecords = mergeWrongBookTombstones(normalized.flatMap((snapshot) => snapshot.deletedRecords));
+  const deletedBatches = mergeWrongBookTombstones(normalized.flatMap((snapshot) => snapshot.deletedBatches));
   const records = new Map<string, WrongBookRecord>();
 
   normalized.flatMap((snapshot) => snapshot.records).forEach((record) => {

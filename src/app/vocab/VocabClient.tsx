@@ -17,7 +17,7 @@ import { deleteMasteryRecord, readMasteryMap, recordMasteryResult } from "@/lib/
 import { isMasteryDue, isMasteryLearning, type MasteryRecord } from "@/lib/mastery";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
-import { defaultSettings, type ToolboxSettings, type VocabDefinitionLanguage, type WrongBookSnapshot, type VocabWord } from "@/lib/types";
+import { defaultSettings, defaultSettingsForLocale, type ToolboxSettings, type VocabDefinitionLanguage, type WrongBookSnapshot, type VocabWord } from "@/lib/types";
 import { getBookCode, getBookTitle, loadVocabList, type VocabListMeta } from "@/lib/vocab-data";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, ty
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
+import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 
 type UploadedList = VocabListMeta & { words: VocabWord[] };
 type TestWord = VocabWord & { wrongRecordId?: string };
@@ -95,18 +96,9 @@ function getSavedQuizSettings() {
   }
 }
 
-function persistDefinitionLanguages(languages: VocabDefinitionLanguage[]) {
-  let settings = defaultSettings;
-  try {
-    const saved = localStorage.getItem("henguren-v3-settings");
-    settings = saved ? { ...defaultSettings, ...(JSON.parse(saved) as Partial<ToolboxSettings>) } : defaultSettings;
-  } catch {
-    settings = defaultSettings;
-  }
-  localStorage.setItem(
-    "henguren-v3-settings",
-    JSON.stringify({ ...settings, vocabDefinitionLanguages: languages, updatedAt: new Date().toISOString() })
-  );
+function persistDefinitionLanguages(languages: VocabDefinitionLanguage[], fallbackSettings: ToolboxSettings) {
+  const settings = readClientSettings(fallbackSettings);
+  writeClientSettings({ ...settings, vocabDefinitionLanguages: languages, updatedAt: new Date().toISOString() });
 }
 
 function valueFrom(event: FormEvent<HTMLElement>) {
@@ -170,6 +162,7 @@ function wrongBookLoadErrorKey(error: unknown): MessageKey {
 export function VocabClient() {
   const router = useRouter();
   const { locale, t } = useI18n();
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const { clearSnackbar, showSnackbar } = useSnackbar();
   const online = useOnlineStatus();
   const [screen, setScreen] = useState<Screen>("select");
@@ -286,7 +279,7 @@ export function VocabClient() {
   function selectDefinitionLanguageMode(mode: DefinitionLanguageMode) {
     const next: VocabDefinitionLanguage[] = mode === "all" ? ["en", "zh"] : [mode];
     setDefinitionLanguages(next);
-    persistDefinitionLanguages(next);
+    persistDefinitionLanguages(next, fallbackSettings);
     clearSnackbar();
   }
 

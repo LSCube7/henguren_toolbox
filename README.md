@@ -47,6 +47,8 @@ v3 的界面使用官方 Material Web 实现 Material Design 3 风格：无顶�
 
 ## 开发
 
+开发环境需要 Node.js 22.6.0 或更高版本，并使用项目声明的 pnpm 版本。
+
 ```bash
 pnpm install
 pnpm dev

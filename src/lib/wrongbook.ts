@@ -156,7 +156,10 @@ function normalizeTombstones(values: unknown, normalizeId: (id: string) => strin
   );
 }
 
-function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
+function normalizeAttempts(record: Partial<WrongBookRecord>) {
+  const synthesisId = wrongBookRecordId(record);
+  const synthesizedId = (kind: "test" | "count", value: string | number) =>
+    `legacy-v2:${JSON.stringify([synthesisId, kind, value])}`;
   const attempts = new Map<string, WrongBookAttempt>();
   const synthesizedAttemptIds = new Set<string>();
   const legacyAttemptCreatedAt = String(record.createdAt ?? new Date(0).toISOString());
@@ -181,7 +184,7 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
   const legacyBatchNames = uniqueStrings(record.batchNames);
   if (attempts.size === 0) {
     legacyTestNos.forEach((testNo, index) => {
-      const attemptId = `legacy:${id}:${testNo}`;
+      const attemptId = synthesizedId("test", testNo);
       attempts.set(attemptId, {
         id: attemptId,
         testNo,
@@ -196,7 +199,7 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
   const legacyWrongCount = Math.max(0, Number(record.wrongCount) || 0);
   const fallbackLegacyAttempt = Array.from(attempts.values()).find((attempt) => attempt.testNo);
   for (let index = attempts.size; index < legacyWrongCount; index += 1) {
-    const attemptId = `legacy:${id}:count:${index + 1}`;
+    const attemptId = synthesizedId("count", index + 1);
     attempts.set(attemptId, {
       id: attemptId,
       testNo: fallbackLegacyAttempt?.testNo,
@@ -219,7 +222,7 @@ function normalizeRecord(record: Partial<WrongBookRecord>): WrongBookRecord {
   const aliases = Array.isArray(record.aliases)
     ? Array.from(new Set(record.aliases.map((alias) => String(alias).toLowerCase()).filter((alias) => alias && alias !== id)))
     : [];
-  const attempts = normalizeAttempts(record, id);
+  const attempts = normalizeAttempts(record);
   return {
     id,
     aliases: aliases.length > 0 ? aliases : undefined,
@@ -239,7 +242,10 @@ function normalizeRecord(record: Partial<WrongBookRecord>): WrongBookRecord {
 
 function mergeRecords(existing: WrongBookRecord, incoming: WrongBookRecord) {
   const attempts = new Map<string, WrongBookAttempt>();
-  [...(existing.wrongAttempts ?? []), ...(incoming.wrongAttempts ?? [])].forEach((attempt) => attempts.set(attempt.id, attempt));
+  [...(existing.wrongAttempts ?? []), ...(incoming.wrongAttempts ?? [])].forEach((attempt) => {
+    const current = attempts.get(attempt.id);
+    if (!current || attempt.createdAt > current.createdAt) attempts.set(attempt.id, attempt);
+  });
   const wrongAttempts = Array.from(attempts.values());
   const newest = existing.updatedAt >= incoming.updatedAt ? existing : incoming;
   const canonicalId = wrongBookRecordId(newest);
@@ -280,6 +286,31 @@ function applyTombstones(records: WrongBookRecord[], deletedRecords: WrongBookTo
       batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : []))))
     }];
   });
+}
+
+export function removeWrongBookBatchAttempts(records: WrongBookRecord[], testNo: string, updatedAt: string) {
+  const removedRecordIds: string[] = [];
+  const deletedAttemptIds = records.flatMap((record) =>
+    (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo === testNo).map((attempt) => attempt.id)
+  );
+  const remainingRecords = records.flatMap((record) => {
+    const currentAttempts = record.wrongAttempts ?? [];
+    const wrongAttempts = currentAttempts.filter((attempt) => attempt.testNo !== testNo);
+    if (wrongAttempts.length === 0) {
+      if (currentAttempts.some((attempt) => attempt.testNo === testNo)) removedRecordIds.push(record.id);
+      return [];
+    }
+    if (wrongAttempts.length === currentAttempts.length) return [record];
+    return [{
+      ...record,
+      wrongCount: wrongAttempts.length,
+      wrongAttempts,
+      testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
+      batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
+      updatedAt
+    }];
+  });
+  return { records: remainingRecords, removedRecordIds, deletedAttemptIds };
 }
 
 export function emptyWrongBook(userId: string, clientId = "server"): WrongBookSnapshot {

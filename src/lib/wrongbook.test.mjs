@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, normalizeWrongBook, planMasteryRecordIdMigrations } from "./wrongbook.ts";
+import { mergeWrongBooks, normalizeWrongBook, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",
@@ -159,8 +159,109 @@ test("merges legacy records with noncanonical ids by source and word", () => {
   assert.equal(merged.records[0].wrongCount, 2);
   assert.deepEqual(
     merged.records[0].wrongAttempts.map((attempt) => attempt.id).sort(),
-    ["current-attempt", "legacy:legacy-import-id:legacy-test"]
+    ["current-attempt", 'legacy-v2:["unit:example","test","legacy-test"]']
   );
+});
+
+test("deduplicates synthesized attempts across record id aliases", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "legacy-import-id",
+      wrongCount: 2,
+      testNos: ["legacy-test"]
+    }]
+  }), snapshot({
+    records: [{
+      ...word,
+      wrongCount: 2,
+      testNos: ["legacy-test"]
+    }]
+  }));
+
+  assert.equal(merged.records[0].wrongCount, 2);
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id).sort(), [
+    'legacy-v2:["unit:example","count",2]',
+    'legacy-v2:["unit:example","test","legacy-test"]'
+  ]);
+});
+
+test("keeps synthesized test and count attempts distinct for delimiter-like test ids", () => {
+  const normalized = normalizeWrongBook(snapshot({
+    records: [{
+      ...word,
+      wrongCount: 2,
+      testNos: ["count:2"]
+    }]
+  }), "user");
+
+  assert.equal(normalized.records[0].wrongCount, 2);
+  assert.deepEqual(normalized.records[0].wrongAttempts.map((attempt) => attempt.id).sort(), [
+    'legacy-v2:["unit:example","count",2]',
+    'legacy-v2:["unit:example","test","count:2"]'
+  ]);
+});
+
+test("keeps the newest duplicate synthesized attempt regardless of snapshot order", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "newer-alias",
+      wrongCount: 1,
+      testNos: ["legacy-test"],
+      updatedAt: "2026-01-05T00:00:00.000Z"
+    }]
+  }), snapshot({
+    records: [{
+      ...word,
+      id: "older-alias",
+      wrongCount: 1,
+      testNos: ["legacy-test"],
+      updatedAt: "2026-01-02T00:00:00.000Z"
+    }],
+    deletedRecords: [{
+      id: word.id,
+      clientId: "legacy-client",
+      deletedAt: "2026-01-03T00:00:00.000Z"
+    }]
+  }));
+
+  assert.equal(merged.records.length, 1);
+  assert.equal(merged.records[0].wrongAttempts[0].createdAt, "2026-01-05T00:00:00.000Z");
+});
+
+test("reports only records fully removed by a batch deletion", () => {
+  const removed = {
+    ...word,
+    id: "unit:removed",
+    word: "removed",
+    wrongCount: 1,
+    wrongAttempts: [{ id: "removed-attempt", testNo: "target", clientId: "client-a", createdAt: word.createdAt }]
+  };
+  const retained = {
+    ...word,
+    id: "unit:retained",
+    word: "retained",
+    wrongCount: 2,
+    wrongAttempts: [
+      { id: "target-attempt", testNo: "target", clientId: "client-a", createdAt: word.createdAt },
+      { id: "other-attempt", testNo: "other", clientId: "client-b", createdAt: word.createdAt }
+    ]
+  };
+  const unrelated = {
+    ...word,
+    id: "unit:unrelated",
+    word: "unrelated",
+    wrongCount: 1,
+    wrongAttempts: [{ id: "unrelated-attempt", testNo: "other", clientId: "client-b", createdAt: word.createdAt }]
+  };
+  const result = removeWrongBookBatchAttempts([removed, retained, unrelated], "target", "2026-01-02T00:00:00.000Z");
+
+  assert.deepEqual(result.removedRecordIds, [removed.id]);
+  assert.deepEqual(result.deletedAttemptIds.sort(), ["removed-attempt", "target-attempt"]);
+  assert.deepEqual(result.records.map((record) => record.id), [retained.id, unrelated.id]);
+  assert.deepEqual(result.records[0].wrongAttempts.map((attempt) => attempt.id), ["other-attempt"]);
+  assert.equal(result.records[1], unrelated);
 });
 
 test("applies legacy-id tombstones to every alias in a merged record", () => {

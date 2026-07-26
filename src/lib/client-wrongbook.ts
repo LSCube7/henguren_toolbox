@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { legacyWrongBookRecordId, mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook, wrongBookRecordId } from "./wrongbook";
+import { legacyWrongBookRecordId, mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook, removeWrongBookBatchAttempts, wrongBookRecordId } from "./wrongbook";
 
 const DB_NAME = "henguren-v3";
 const STORE_NAME = "wrongbook";
@@ -251,30 +251,23 @@ export function deleteWrongBatch(testNo: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
+    let removedRecordIds: string[] = [];
     await updateLocalWrongBook(clientId, (snapshot) => {
-      const deletedAttemptIds = snapshot.records.flatMap((record) =>
-        (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo === testNo).map((attempt) => attempt.id)
-      );
-      const records = snapshot.records.flatMap((record) => {
-        const wrongAttempts = (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo !== testNo);
-        if (wrongAttempts.length === 0) return [];
-        if (wrongAttempts.length === record.wrongAttempts?.length) return [record];
-        return [{
-          ...record,
-          wrongCount: wrongAttempts.length,
-          wrongAttempts,
-          testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
-          batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
-          updatedAt: now
-        }];
-      });
+      const deletion = removeWrongBookBatchAttempts(snapshot.records, testNo, now);
+      removedRecordIds = deletion.removedRecordIds;
       return {
         ...snapshot,
         updatedAt: now,
-        records,
-        deletedBatches: upsertTombstone(snapshot.deletedBatches, { id: testNo, clientId, deletedAt: now, deletedAttemptIds })
+        records: deletion.records,
+        deletedBatches: upsertTombstone(snapshot.deletedBatches, {
+          id: testNo,
+          clientId,
+          deletedAt: now,
+          deletedAttemptIds: deletion.deletedAttemptIds
+        })
       };
     });
+    return removedRecordIds;
   });
 }
 

@@ -128,3 +128,35 @@ test("retains legacy deletion cutoffs for their originating clients", () => {
     "device-a": "2026-01-03T00:00:00.000Z"
   });
 });
+
+test("merges legacy records with noncanonical ids by source and word", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    schemaVersion: 1,
+    records: [{
+      ...word,
+      id: "legacy-import-id",
+      wrongCount: 1,
+      testNos: ["legacy-test"]
+    }]
+  }), snapshot({
+    updatedAt: "2026-01-02T00:00:00.000Z",
+    records: [{
+      ...word,
+      wrongCount: 1,
+      wrongAttempts: [{
+        id: "current-attempt",
+        clientId: "current-client",
+        createdAt: "2026-01-02T00:00:00.000Z"
+      }],
+      updatedAt: "2026-01-02T00:00:00.000Z"
+    }]
+  }));
+
+  assert.equal(merged.records.length, 1);
+  assert.equal(merged.records[0].id, word.id);
+  assert.equal(merged.records[0].wrongCount, 2);
+  assert.deepEqual(
+    merged.records[0].wrongAttempts.map((attempt) => attempt.id).sort(),
+    ["current-attempt", "legacy:legacy-import-id:legacy-test"]
+  );
+});

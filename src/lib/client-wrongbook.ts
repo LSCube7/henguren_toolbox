@@ -210,7 +210,7 @@ export function deleteWrongRecord(id: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
-    await updateLocalWrongBook(clientId, (snapshot) => {
+    return await updateLocalWrongBook(clientId, (snapshot) => {
       const deletedAttemptIds = snapshot.records
         .find((record) => record.id === id)
         ?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
@@ -228,7 +228,7 @@ export function deleteWrongBatch(testNo: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
-    await updateLocalWrongBook(clientId, (snapshot) => {
+    return await updateLocalWrongBook(clientId, (snapshot) => {
       const deletedAttemptIds = snapshot.records.flatMap((record) =>
         (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo === testNo).map((attempt) => attempt.id)
       );

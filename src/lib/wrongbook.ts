@@ -4,6 +4,10 @@ function recordId(record: Partial<WrongBookRecord>) {
   return String(record.id || `${record.sourceName ?? "custom"}:${record.word ?? "unknown"}`).toLowerCase();
 }
 
+function recordKey(record: Pick<WrongBookRecord, "sourceName" | "word">) {
+  return `${record.sourceName}::${record.word}`.toLowerCase();
+}
+
 function uniqueStrings(values: unknown) {
   return Array.isArray(values) ? Array.from(new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))) : [];
 }
@@ -243,8 +247,9 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
   const records = new Map<string, WrongBookRecord>();
 
   normalized.flatMap((snapshot) => snapshot.records).forEach((record) => {
-    const existing = records.get(record.id);
-    records.set(record.id, existing ? mergeRecords(existing, record) : record);
+    const key = recordKey(record);
+    const existing = records.get(key);
+    records.set(key, existing ? mergeRecords(existing, record) : record);
   });
 
   const activeRecords = applyTombstones(Array.from(records.values()), deletedRecords, deletedBatches);

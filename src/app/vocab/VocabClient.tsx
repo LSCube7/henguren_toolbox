@@ -521,17 +521,40 @@ export function VocabClient() {
   }
 
   async function removeWrongRecord(id: string) {
-    await Promise.all([deleteWrongRecord(id), deleteMasteryRecord(id)]);
+    try {
+      await deleteWrongRecord(id);
+    } catch {
+      showSnackbar(t("vocab.wrongbookDeleteError"), "error");
+      return;
+    }
+
     await refreshWrongBook();
+    try {
+      await deleteMasteryRecord(id);
+      setMasteryById((current) => Object.fromEntries(Object.entries(current).filter(([recordId]) => recordId !== id)));
+    } catch {
+      showSnackbar(t("vocab.masteryCleanupError"), "error");
+    }
   }
 
   async function removeWrongBatch(testNo: string) {
-    await deleteWrongBatch(testNo);
-    const snapshot = await readLocalWrongBook(clientId);
-    const activeIds = new Set(snapshot.records.map((record) => record.id));
-    const mastery = await readMasteryMap();
-    await Promise.all(Object.keys(mastery).filter((id) => !activeIds.has(id)).map(deleteMasteryRecord));
+    let snapshot: WrongBookSnapshot;
+    try {
+      snapshot = await deleteWrongBatch(testNo);
+    } catch {
+      showSnackbar(t("vocab.wrongbookDeleteError"), "error");
+      return;
+    }
+
     await refreshWrongBook();
+    const activeIds = new Set(snapshot.records.map((record) => record.id));
+    try {
+      const mastery = await readMasteryMap();
+      await Promise.all(Object.keys(mastery).filter((id) => !activeIds.has(id)).map(deleteMasteryRecord));
+      setMasteryById((current) => Object.fromEntries(Object.entries(current).filter(([id]) => activeIds.has(id))));
+    } catch {
+      showSnackbar(t("vocab.masteryCleanupError"), "error");
+    }
   }
 
   function resetTest() {

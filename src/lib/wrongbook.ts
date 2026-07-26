@@ -1,4 +1,5 @@
 import type { WrongBookAttempt, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone } from "./types";
+import type { MasteryRecord } from "./mastery";
 
 type WrongBookIdentity = Partial<Pick<WrongBookRecord, "sourceName" | "word">>;
 
@@ -13,14 +14,41 @@ function recordIdentity(record: WrongBookIdentity) {
   ] as const;
 }
 
+export function legacyWrongBookRecordId(record: WrongBookIdentity) {
+  return recordIdentity(record).join(":");
+}
+
 export function wrongBookRecordId(record: WrongBookIdentity) {
   const identity = recordIdentity(record);
-  if (identity.every((value) => !value.includes(":"))) return identity.join(":");
+  if (identity.every((value) => !value.includes(":"))) return legacyWrongBookRecordId(record);
   return `tuple-v1:${JSON.stringify(identity)}`;
 }
 
 function recordKey(record: WrongBookIdentity) {
   return JSON.stringify(recordIdentity(record));
+}
+
+export function planMasteryRecordIdMigrations(records: WrongBookRecord[], masteryById: Record<string, MasteryRecord>) {
+  const targetsByLegacyId = new Map<string, Set<string>>();
+  records.forEach((record) => {
+    const legacyId = legacyWrongBookRecordId(record);
+    const canonicalId = wrongBookRecordId(record);
+    if (legacyId === canonicalId) return;
+    const targets = targetsByLegacyId.get(legacyId) ?? new Set<string>();
+    targets.add(canonicalId);
+    targetsByLegacyId.set(legacyId, targets);
+  });
+
+  return Array.from(targetsByLegacyId).flatMap(([legacyId, targets]) => {
+    if (targets.size !== 1) return [];
+    const legacyRecord = masteryById[legacyId];
+    if (!legacyRecord) return [];
+    const [canonicalId] = targets;
+    if (!canonicalId) return [];
+    const canonicalRecord = masteryById[canonicalId];
+    const newest = !canonicalRecord || canonicalRecord.updatedAt < legacyRecord.updatedAt ? legacyRecord : canonicalRecord;
+    return [{ legacyId, canonicalId, record: { ...newest, id: canonicalId } }];
+  });
 }
 
 function uniqueStrings(values: unknown) {
@@ -265,6 +293,7 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     const canonicalId = wrongBookRecordId(record);
     const aliases = recordAliases.get(key) ?? new Set<string>();
     aliases.add(recordId(record));
+    aliases.add(legacyWrongBookRecordId(record));
     aliases.add(canonicalId);
     recordAliases.set(key, aliases);
     canonicalRecordIds.set(key, canonicalId);
@@ -280,6 +309,7 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     const canonicalId = wrongBookRecordId(record);
     const aliases = recordAliases.get(key) ?? new Set<string>();
     aliases.add(record.id);
+    aliases.add(legacyWrongBookRecordId(record));
     aliases.add(canonicalId);
     recordAliases.set(key, aliases);
     canonicalRecordIds.set(key, canonicalId);

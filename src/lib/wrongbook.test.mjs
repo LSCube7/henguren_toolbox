@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, normalizeWrongBook } from "./wrongbook.ts";
+import { mergeWrongBooks, normalizeWrongBook, planMasteryRecordIdMigrations } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",
@@ -233,4 +233,91 @@ test("uses distinct record ids for delimiter-containing source and word pairs", 
     ['tuple-v1:["a","b:c"]', 'tuple-v1:["a:b","c"]']
   );
   assert.deepEqual(merged.records.map((record) => record.word).sort(), ["b:c", "c"]);
+});
+
+test("migrates standalone legacy tombstones to tuple record ids", () => {
+  const sourceName = "a:b";
+  const recordId = 'tuple-v1:["a:b","c"]';
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [],
+    deletedRecords: [{
+      id: "a:b:c",
+      clientId: "legacy-client",
+      deletedAt: "2026-01-03T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }), snapshot({
+    records: [{
+      ...word,
+      id: recordId,
+      sourceName,
+      word: "c",
+      wrongCount: 2,
+      wrongAttempts: [
+        { id: "deleted-attempt", clientId: "legacy-client", createdAt: "2026-01-01T00:00:00.000Z" },
+        { id: "current-attempt", clientId: "current-client", createdAt: "2026-01-04T00:00:00.000Z" }
+      ]
+    }]
+  }));
+
+  assert.equal(merged.records[0].id, recordId);
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
+  assert.equal(merged.deletedRecords[0].id, recordId);
+});
+
+test("plans mastery migration to the tuple record id", () => {
+  const record = {
+    ...word,
+    id: 'tuple-v1:["a:b","c"]',
+    sourceName: "a:b",
+    word: "c"
+  };
+  const legacyMastery = {
+    id: "a:b:c",
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations([record], { [legacyMastery.id]: legacyMastery });
+
+  assert.equal(migrations.length, 1);
+  assert.equal(migrations[0].legacyId, legacyMastery.id);
+  assert.equal(migrations[0].canonicalId, record.id);
+  assert.deepEqual(migrations[0].record, { ...legacyMastery, id: record.id });
+});
+
+test("keeps newer canonical mastery progress during id migration", () => {
+  const record = {
+    ...word,
+    id: 'tuple-v1:["a:b","c"]',
+    sourceName: "a:b",
+    word: "c"
+  };
+  const legacyMastery = {
+    id: "a:b:c",
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const canonicalMastery = {
+    ...legacyMastery,
+    id: record.id,
+    level: "mastered",
+    correctStreak: 4,
+    reviewCount: 8,
+    updatedAt: "2026-01-04T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations([record], {
+    [legacyMastery.id]: legacyMastery,
+    [canonicalMastery.id]: canonicalMastery
+  });
+
+  assert.equal(migrations.length, 1);
+  assert.deepEqual(migrations[0].record, canonicalMastery);
 });

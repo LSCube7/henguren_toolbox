@@ -13,7 +13,7 @@ import {
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
-import { deleteMasteryRecord, readMasteryMap, recordMasteryResult } from "@/lib/client-mastery";
+import { deleteMasteryRecord, migrateMasteryRecordIds, readMasteryMap, recordMasteryResult } from "@/lib/client-mastery";
 import { isMasteryDue, isMasteryLearning, type MasteryRecord } from "@/lib/mastery";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { cacheVocabLists, readVocabCacheStates, useOnlineStatus, type VocabCacheState } from "@/lib/offline-cache";
@@ -146,8 +146,16 @@ function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: Vo
   return fallback.length > 0 ? fallback : selected;
 }
 
-function loadWrongBookData(clientId: string) {
-  return Promise.allSettled([readLocalWrongBook(clientId), readMasteryMap()] as const);
+async function loadWrongBookData(clientId: string) {
+  const results = await Promise.allSettled([readLocalWrongBook(clientId), readMasteryMap()] as const);
+  const [wrongBookResult, masteryResult] = results;
+  if (wrongBookResult.status !== "fulfilled" || masteryResult.status !== "fulfilled") return results;
+  try {
+    const migratedMastery = await migrateMasteryRecordIds(wrongBookResult.value.records, masteryResult.value);
+    return [wrongBookResult, { status: "fulfilled", value: migratedMastery }] as const;
+  } catch (reason) {
+    return [wrongBookResult, { status: "rejected", reason }] as const;
+  }
 }
 
 function wrongBookLoadErrorKey(error: unknown): MessageKey {

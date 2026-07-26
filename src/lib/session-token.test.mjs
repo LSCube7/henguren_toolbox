@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createSignedSessionToken, readSignedSessionToken, sessionMaxAgeSeconds } from "./session-token.ts";
+import { createSignedSessionToken, readSignedSessionToken, sessionMaxAgeSeconds } from "../../.next/test-dist/lib/session-token.js";
 
 const secret = "test-session-secret-with-sufficient-entropy";
 const user = { id: "user-1", name: "Test User", email: "test@example.com" };

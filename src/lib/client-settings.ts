@@ -11,7 +11,9 @@ export const toolboxSettingsChangeEvent = "henguren-settings-change";
 function parseSettings(serialized: string | null, fallbackSettings = defaultSettings): ToolboxSettings {
   if (!serialized) return fallbackSettings;
   try {
-    return normalizeToolboxSettings(JSON.parse(serialized));
+    const saved = JSON.parse(serialized) as unknown;
+    if (!saved || typeof saved !== "object") return fallbackSettings;
+    return normalizeToolboxSettings(saved, fallbackSettings);
   } catch {
     return fallbackSettings;
   }

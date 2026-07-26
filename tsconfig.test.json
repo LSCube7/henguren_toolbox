@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "outDir": ".next/test-dist",
+    "noEmit": false,
+    "incremental": false,
+    "sourceMap": false
+  },
+  "files": [
+    "src/i18n/locale-detection.ts",
+    "src/lib/oauth-profile.ts",
+    "src/lib/session-token.ts",
+    "src/lib/types.ts",
+    "src/lib/wrongbook.ts"
+  ],
+  "include": []
+}

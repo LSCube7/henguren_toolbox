@@ -287,28 +287,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
 
   if (pathname === "/onboarding") {
-    return (
-      <main className="onboarding-route-main">
-        {children}
-        <OnboardingGate />
-      </main>
-    );
+    return <main className="onboarding-route-main">{children}</main>;
   }
 
   return (
-    <div className="app-shell">
-      <button className="mobile-menu" type="button" aria-label={t("nav.open")} onClick={() => setMobileOpen(true)}>
-        ☰
-      </button>
-      <button className="drawer-scrim" data-open={mobileOpen} aria-label={t("nav.close")} onClick={() => setMobileOpen(false)} />
-      <aside className="app-drawer" data-open={mobileOpen} aria-label={t("nav.sidebar")}>
-        <NavList onNavigate={() => setMobileOpen(false)} />
-      </aside>
-      <main className="app-main">
-        <div className="app-content">{children}</div>
-        <AppFooter />
-      </main>
-      <OnboardingGate />
-    </div>
+    <OnboardingGate>
+      <div className="app-shell">
+        <button className="mobile-menu" type="button" aria-label={t("nav.open")} onClick={() => setMobileOpen(true)}>
+          ☰
+        </button>
+        <button className="drawer-scrim" data-open={mobileOpen} aria-label={t("nav.close")} onClick={() => setMobileOpen(false)} />
+        <aside className="app-drawer" data-open={mobileOpen} aria-label={t("nav.sidebar")}>
+          <NavList onNavigate={() => setMobileOpen(false)} />
+        </aside>
+        <main className="app-main">
+          <div className="app-content">{children}</div>
+          <AppFooter />
+        </main>
+      </div>
+    </OnboardingGate>
   );
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, normalizeWrongBook } from "./wrongbook.ts";
+import { mergeWrongBooks, normalizeWrongBook } from "../../.next/test-dist/lib/wrongbook.js";
 
 const word = {
   id: "unit:example",
@@ -103,4 +103,27 @@ test("unions observed attempts from repeated deletions", () => {
   }));
 
   assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["attempt-c"]);
+});
+
+test("retains legacy deletion cutoffs for their originating clients", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      wrongCount: 3,
+      wrongAttempts: [
+        { id: "stale-a", clientId: "device-a", createdAt: "2026-01-01T00:00:00.000Z" },
+        { id: "observed-b", clientId: "device-b", createdAt: "2026-01-02T00:00:00.000Z" },
+        { id: "future-a", clientId: "device-a", createdAt: "2026-01-04T00:00:00.000Z" }
+      ]
+    }],
+    deletedRecords: [
+      { id: word.id, clientId: "device-a", deletedAt: "2026-01-03T00:00:00.000Z" },
+      { id: word.id, clientId: "device-b", deletedAt: "2026-01-05T00:00:00.000Z", deletedAttemptIds: ["observed-b"] }
+    ]
+  }));
+
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["future-a"]);
+  assert.deepEqual(merged.deletedRecords[0].legacyDeletionCutoffs, {
+    "device-a": "2026-01-03T00:00:00.000Z"
+  });
 });

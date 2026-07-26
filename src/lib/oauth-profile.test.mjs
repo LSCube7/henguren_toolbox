@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { userSessionFromOAuthProfile } from "./oauth-profile.ts";
+import { userSessionFromOAuthProfile } from "../../.next/test-dist/lib/oauth-profile.js";
 
 test("rejects OAuth profiles without a stable identifier", () => {
   assert.equal(userSessionFromOAuthProfile({ name: "No Subject" }), null);

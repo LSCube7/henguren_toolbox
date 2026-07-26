@@ -8,25 +8,38 @@ function uniqueStrings(values: unknown) {
   return Array.isArray(values) ? Array.from(new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))) : [];
 }
 
-function laterTimestamp(left: string | undefined, right: string | undefined) {
-  if (!left) return right;
-  if (!right) return left;
-  return left >= right ? left : right;
+function legacyDeletionCutoffs(tombstone: WrongBookTombstone) {
+  const cutoffs = new Map<string, string>();
+  Object.entries(tombstone.legacyDeletionCutoffs ?? {}).forEach(([clientId, deletedAt]) => {
+    if (clientId && deletedAt) cutoffs.set(clientId, deletedAt);
+  });
+  const legacyDeletedAt = tombstone.legacyDeletedAt ?? (Array.isArray(tombstone.deletedAttemptIds) ? undefined : tombstone.deletedAt);
+  if (legacyDeletedAt) {
+    const existing = cutoffs.get(tombstone.clientId);
+    if (!existing || legacyDeletedAt > existing) cutoffs.set(tombstone.clientId, legacyDeletedAt);
+  }
+  return cutoffs;
 }
 
-function legacyDeleteCutoff(tombstone: WrongBookTombstone) {
-  if (tombstone.legacyDeletedAt) return tombstone.legacyDeletedAt;
-  return Array.isArray(tombstone.deletedAttemptIds) ? undefined : tombstone.deletedAt;
+function mergeLegacyDeletionCutoffs(...tombstones: WrongBookTombstone[]) {
+  const merged = new Map<string, string>();
+  tombstones.forEach((tombstone) => {
+    legacyDeletionCutoffs(tombstone).forEach((deletedAt, clientId) => {
+      const existing = merged.get(clientId);
+      if (!existing || deletedAt > existing) merged.set(clientId, deletedAt);
+    });
+  });
+  return Object.fromEntries(merged);
 }
 
 function isAttemptDeleted(attempt: WrongBookAttempt, tombstone: WrongBookTombstone | undefined) {
   if (!tombstone) return false;
   if (tombstone.deletedAttemptIds?.includes(attempt.id)) return true;
-  const legacyCutoff = legacyDeleteCutoff(tombstone);
+  const cutoffs = legacyDeletionCutoffs(tombstone);
+  const legacyCutoff = attempt.clientId === "legacy"
+    ? Array.from(cutoffs.values()).sort().at(-1)
+    : cutoffs.get(attempt.clientId);
   if (!legacyCutoff) return false;
-  // Old tombstones do not record what another device had observed. Prefer
-  // preserving cross-device attempts over silently deleting concurrent data.
-  if (attempt.clientId !== "legacy" && attempt.clientId !== tombstone.clientId) return false;
   return attempt.createdAt < legacyCutoff;
 }
 
@@ -45,7 +58,8 @@ export function mergeWrongBookTombstones(values: WrongBookTombstone[]) {
       deletedAttemptIds: hasObservedAttempts
         ? uniqueStrings([...(existing.deletedAttemptIds ?? []), ...(value.deletedAttemptIds ?? [])])
         : undefined,
-      legacyDeletedAt: laterTimestamp(legacyDeleteCutoff(existing), legacyDeleteCutoff(value))
+      legacyDeletionCutoffs: mergeLegacyDeletionCutoffs(existing, value),
+      legacyDeletedAt: undefined
     });
   });
   return Array.from(tombstones.values());
@@ -64,11 +78,14 @@ function normalizeTombstones(values: unknown, normalizeId: (id: string) => strin
           clientId: String(value.clientId ?? "legacy"),
           deletedAt,
           deletedAttemptIds: hasObservedAttempts ? uniqueStrings(value.deletedAttemptIds) : undefined,
-          legacyDeletedAt: value.legacyDeletedAt
-            ? String(value.legacyDeletedAt)
-            : hasObservedAttempts
-              ? undefined
-              : deletedAt
+          legacyDeletionCutoffs: mergeLegacyDeletionCutoffs({
+            id: String(value.id ?? ""),
+            clientId: String(value.clientId ?? "legacy"),
+            deletedAt,
+            deletedAttemptIds: hasObservedAttempts ? uniqueStrings(value.deletedAttemptIds) : undefined,
+            legacyDeletionCutoffs: value.legacyDeletionCutoffs,
+            legacyDeletedAt: value.legacyDeletedAt ? String(value.legacyDeletedAt) : undefined
+          })
         };
       })
       .filter((value) => value.id.length > 0)

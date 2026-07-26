@@ -1,4 +1,4 @@
-import { defaultLocale, type AppLocale } from "@/i18n/config";
+import { defaultLocale, type AppLocale } from "../i18n/config";
 
 export type UserSession = {
   id: string;
@@ -21,7 +21,9 @@ export type WrongBookTombstone = {
   deletedAt: string;
   /** Attempt ids observed and removed by this deletion. */
   deletedAttemptIds?: string[];
-  /** Timestamp fallback retained only for tombstones written before observed-remove metadata. */
+  /** Per-client timestamp fallbacks retained for tombstones written before observed-remove metadata. */
+  legacyDeletionCutoffs?: Record<string, string>;
+  /** @deprecated Read-only compatibility with snapshots created during the v3.1.0 release cycle. */
   legacyDeletedAt?: string;
 };
 
@@ -103,10 +105,10 @@ export const defaultSettings: ToolboxSettings = {
   updatedAt: new Date(0).toISOString()
 };
 
-export function normalizeToolboxSettings(value: unknown): ToolboxSettings {
+export function normalizeToolboxSettings(value: unknown, fallbackSettings = defaultSettings): ToolboxSettings {
   const saved = value && typeof value === "object" ? (value as Partial<ToolboxSettings>) : {};
   return {
-    ...defaultSettings,
+    ...fallbackSettings,
     ...saved,
     schemaVersion: 1,
     syncStrategy: "manual"

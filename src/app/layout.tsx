@@ -6,6 +6,7 @@ import { AppI18nProvider } from "./i18n/AppI18nProvider";
 import { SnackbarProvider } from "./components/Snackbar";
 import { getRequestLocale } from "@/i18n/request-locale";
 import { translate } from "@/i18n/config";
+import { themeBootstrapScript } from "./theme/theme-bootstrap";
 import "@/generated/material-symbols.css";
 import "./globals.css";
 
@@ -37,7 +38,10 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const initialLocale = await getRequestLocale();
   return (
-    <html lang={initialLocale}>
+    <html lang={initialLocale} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
+      </head>
       <body>
         <AppThemeProvider>
           <AppI18nProvider initialLocale={initialLocale}>

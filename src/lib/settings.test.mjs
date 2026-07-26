@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defaultSettings, normalizeToolboxSettings } from "../../.next/test-dist/lib/types.js";
+import { defaultSettings, normalizeToolboxSettings } from "./types.ts";
 
 test("uses the request locale when legacy settings omit locale", () => {
   const fallbackSettings = { ...defaultSettings, locale: "zh-CN" };

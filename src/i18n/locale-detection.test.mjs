@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveRequestLocale } from "../../.next/test-dist/i18n/locale-detection.js";
+import { resolveRequestLocale } from "./locale-detection.ts";
 
 test("selects Chinese for zh language preferences", () => {
   assert.equal(resolveRequestLocale("zh-CN,zh;q=0.9,en;q=0.8"), "zh-CN");

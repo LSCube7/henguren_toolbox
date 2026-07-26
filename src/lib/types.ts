@@ -1,4 +1,4 @@
-import { defaultLocale, type AppLocale } from "../i18n/config";
+import { defaultLocale, type AppLocale } from "../i18n/config.ts";
 
 export type UserSession = {
   id: string;

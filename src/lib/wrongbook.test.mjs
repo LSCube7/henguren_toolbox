@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, normalizeWrongBook } from "../../.next/test-dist/lib/wrongbook.js";
+import { mergeWrongBooks, normalizeWrongBook } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",

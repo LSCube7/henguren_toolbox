@@ -1,5 +1,5 @@
-import { enUS } from "./locales/en-US";
-import { zhCN } from "./locales/zh-CN";
+import { enUS } from "./locales/en-US.ts";
+import { zhCN } from "./locales/zh-CN.ts";
 
 export const supportedLocales = ["zh-CN", "en-US"] as const;
 

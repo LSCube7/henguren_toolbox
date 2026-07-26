@@ -205,13 +205,13 @@ test("applies legacy-id tombstones to every alias in a merged record", () => {
   assert.deepEqual(mergedAgain.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
 });
 
-test("keeps delimiter-containing source and word pairs distinct", () => {
+test("uses distinct record ids for delimiter-containing source and word pairs", () => {
   const merged = mergeWrongBooks("user", snapshot({
     records: [
       {
         ...word,
         id: "first-record",
-        sourceName: "a::b",
+        sourceName: "a:b",
         word: "c",
         wrongCount: 1,
         wrongAttempts: [{ id: "first-attempt", clientId: "client-a", createdAt: word.createdAt }]
@@ -220,7 +220,7 @@ test("keeps delimiter-containing source and word pairs distinct", () => {
         ...word,
         id: "second-record",
         sourceName: "a",
-        word: "b::c",
+        word: "b:c",
         wrongCount: 1,
         wrongAttempts: [{ id: "second-attempt", clientId: "client-b", createdAt: word.createdAt }]
       }
@@ -228,5 +228,9 @@ test("keeps delimiter-containing source and word pairs distinct", () => {
   }));
 
   assert.equal(merged.records.length, 2);
-  assert.deepEqual(merged.records.map((record) => record.word).sort(), ["b::c", "c"]);
+  assert.deepEqual(
+    merged.records.map((record) => record.id).sort(),
+    ['tuple-v1:["a","b:c"]', 'tuple-v1:["a:b","c"]']
+  );
+  assert.deepEqual(merged.records.map((record) => record.word).sort(), ["b:c", "c"]);
 });

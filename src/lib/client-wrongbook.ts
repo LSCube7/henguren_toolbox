@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook } from "./wrongbook";
+import { mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook, wrongBookRecordId } from "./wrongbook";
 
 const DB_NAME = "henguren-v3";
 const STORE_NAME = "wrongbook";
@@ -163,7 +163,7 @@ export async function readLocalWrongBook(clientId: string): Promise<WrongBookSna
 export function addWrongWord(word: VocabWord, testNo: string, batchName?: string, existingRecordId?: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
-    const id = existingRecordId ?? `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
+    const id = existingRecordId ?? wrongBookRecordId(word);
     const now = new Date().toISOString();
     const attemptId = `${clientId}:${crypto.randomUUID()}`;
     await updateLocalWrongBook(clientId, (snapshot) => {

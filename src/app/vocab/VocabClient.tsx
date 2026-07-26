@@ -27,6 +27,7 @@ import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
+import { wrongBookRecordId } from "@/lib/wrongbook";
 
 type UploadedList = VocabListMeta & { words: VocabWord[] };
 type TestWord = VocabWord & { wrongRecordId?: string };
@@ -111,10 +112,6 @@ function checkedFrom(event: FormEvent<HTMLElement>) {
 
 function toggleValue(current: string[], value: string) {
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
-}
-
-function wrongRecordId(word: Pick<VocabWord, "word" | "sourceName">) {
-  return `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
 }
 
 function toVocabWord(word: TestWord): VocabWord {
@@ -416,7 +413,7 @@ export function VocabClient() {
     setSubmittingAnswer(true);
     let saveErrorMessage = "";
     const resultWord = toVocabWord(currentWord);
-    const masteryRecordId = currentWord.wrongRecordId ?? wrongRecordId(currentWord);
+    const masteryRecordId = currentWord.wrongRecordId ?? wrongBookRecordId(currentWord);
     try {
       if (outcome === "correct") {
         setCorrectWords((current) => [...current, resultWord]);

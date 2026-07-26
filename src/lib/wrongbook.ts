@@ -1,18 +1,26 @@
 import type { WrongBookAttempt, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone } from "./types";
 
+type WrongBookIdentity = Partial<Pick<WrongBookRecord, "sourceName" | "word">>;
+
 function recordId(record: Partial<WrongBookRecord>) {
-  return String(record.id || canonicalRecordId(record)).toLowerCase();
+  return String(record.id || wrongBookRecordId(record)).toLowerCase();
 }
 
-function canonicalRecordId(record: Partial<Pick<WrongBookRecord, "sourceName" | "word">>) {
-  return `${record.sourceName ?? "custom"}:${record.word ?? "unknown"}`.toLowerCase();
-}
-
-function recordKey(record: Partial<Pick<WrongBookRecord, "sourceName" | "word">>) {
-  return JSON.stringify([
+function recordIdentity(record: WrongBookIdentity) {
+  return [
     String(record.sourceName ?? "custom").toLowerCase(),
     String(record.word ?? "unknown").toLowerCase()
-  ]);
+  ] as const;
+}
+
+export function wrongBookRecordId(record: WrongBookIdentity) {
+  const identity = recordIdentity(record);
+  if (identity.every((value) => !value.includes(":"))) return identity.join(":");
+  return `tuple-v1:${JSON.stringify(identity)}`;
+}
+
+function recordKey(record: WrongBookIdentity) {
+  return JSON.stringify(recordIdentity(record));
 }
 
 function uniqueStrings(values: unknown) {
@@ -188,7 +196,7 @@ function mergeRecords(existing: WrongBookRecord, incoming: WrongBookRecord) {
   return {
     ...existing,
     ...newest,
-    id: canonicalRecordId(newest),
+    id: wrongBookRecordId(newest),
     definitions: Array.from(new Set([...(existing.definitions ?? []), ...(incoming.definitions ?? [])])),
     zhDefinitions: Array.from(new Set([...(existing.zhDefinitions ?? []), ...(incoming.zhDefinitions ?? [])])),
     wrongCount: wrongAttempts.length,
@@ -254,7 +262,7 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
   const canonicalRecordIds = new Map<string, string>();
   presentSnapshots.flatMap((snapshot) => snapshot.records ?? []).forEach((record) => {
     const key = recordKey(record);
-    const canonicalId = canonicalRecordId(record);
+    const canonicalId = wrongBookRecordId(record);
     const aliases = recordAliases.get(key) ?? new Set<string>();
     aliases.add(recordId(record));
     aliases.add(canonicalId);
@@ -269,7 +277,7 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
 
   normalized.flatMap((snapshot) => snapshot.records).forEach((record) => {
     const key = recordKey(record);
-    const canonicalId = canonicalRecordId(record);
+    const canonicalId = wrongBookRecordId(record);
     const aliases = recordAliases.get(key) ?? new Set<string>();
     aliases.add(record.id);
     aliases.add(canonicalId);

@@ -202,6 +202,56 @@ test("keeps synthesized test and count attempts distinct for delimiter-like test
   ]);
 });
 
+test("applies previous synthesized attempt ids from record tombstones", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      wrongCount: 1,
+      testNos: ["legacy-test"]
+    }]
+  }), snapshot({
+    deletedRecords: [{
+      id: word.id,
+      clientId: "legacy-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: ["legacy:unit:example:legacy-test"]
+    }]
+  }));
+
+  assert.deepEqual(merged.records, []);
+});
+
+test("matches previous and current synthesized ids in both directions for batch tombstones", () => {
+  const previousAttempt = {
+    id: "legacy:unit:example:legacy-test",
+    testNo: "legacy-test",
+    clientId: "legacy",
+    createdAt: word.createdAt
+  };
+  const currentAttemptId = 'legacy-v2:["unit:example","test","legacy-test"]';
+  const previousDeletedByCurrent = mergeWrongBooks("user", snapshot({
+    records: [{ ...word, wrongCount: 1, wrongAttempts: [previousAttempt] }],
+    deletedBatches: [{
+      id: "legacy-test",
+      clientId: "current-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: [currentAttemptId]
+    }]
+  }));
+  const currentDeletedByPrevious = mergeWrongBooks("user", snapshot({
+    records: [{ ...word, wrongCount: 1, testNos: ["legacy-test"] }],
+    deletedBatches: [{
+      id: "legacy-test",
+      clientId: "previous-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: [previousAttempt.id]
+    }]
+  }));
+
+  assert.deepEqual(previousDeletedByCurrent.records, []);
+  assert.deepEqual(currentDeletedByPrevious.records, []);
+});
+
 test("keeps the newest duplicate synthesized attempt regardless of snapshot order", () => {
   const merged = mergeWrongBooks("user", snapshot({
     records: [{

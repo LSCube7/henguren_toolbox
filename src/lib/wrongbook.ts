@@ -2,6 +2,7 @@ import type { WrongBookAttempt, WrongBookRecord, WrongBookSnapshot, WrongBookTom
 import type { MasteryRecord } from "./mastery";
 
 type WrongBookIdentity = Partial<Pick<WrongBookRecord, "sourceName" | "word">>;
+type SynthesizedAttemptIdentity = readonly ["test", string] | readonly ["count", number];
 
 function recordId(record: Partial<WrongBookRecord>) {
   return String(record.id || wrongBookRecordId(record)).toLowerCase();
@@ -36,6 +37,45 @@ function recordIdAliases(record: Partial<WrongBookRecord>) {
     legacyWrongBookRecordId(record),
     wrongBookRecordId(record)
   ].filter(Boolean)));
+}
+
+function encodedSynthesizedAttemptId(recordId: string, identity: SynthesizedAttemptIdentity) {
+  return `legacy-v2:${JSON.stringify([recordId, ...identity])}`;
+}
+
+function synthesizedAttemptIdentity(record: Partial<WrongBookRecord>, attempt: WrongBookAttempt): SynthesizedAttemptIdentity | null {
+  if (attempt.clientId !== "legacy") return null;
+  const aliases = recordIdAliases(record);
+  if (attempt.id.startsWith("legacy-v2:")) {
+    try {
+      const value = JSON.parse(attempt.id.slice("legacy-v2:".length)) as unknown;
+      if (!Array.isArray(value) || value.length !== 3 || !aliases.includes(String(value[0]).toLowerCase())) return null;
+      if (value[1] === "test" && typeof value[2] === "string") return ["test", value[2]];
+      if (value[1] === "count" && Number.isInteger(value[2]) && Number(value[2]) > 0) return ["count", Number(value[2])];
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  for (const alias of aliases.sort((left, right) => right.length - left.length)) {
+    const prefix = `legacy:${alias}:`;
+    if (!attempt.id.startsWith(prefix)) continue;
+    const suffix = attempt.id.slice(prefix.length);
+    if (attempt.testNo && suffix === attempt.testNo) return ["test", attempt.testNo];
+    const count = /^count:(\d+)$/.exec(suffix)?.[1];
+    if (count && Number(count) > 0) return ["count", Number(count)];
+  }
+  return null;
+}
+
+function equivalentSynthesizedAttemptIds(record: Partial<WrongBookRecord>, attempt: WrongBookAttempt) {
+  const identity = synthesizedAttemptIdentity(record, attempt);
+  if (!identity) return new Set([attempt.id]);
+  return new Set(recordIdAliases(record).flatMap((alias) => [
+    encodedSynthesizedAttemptId(alias, identity),
+    identity[0] === "test" ? `legacy:${alias}:${identity[1]}` : `legacy:${alias}:count:${identity[1]}`
+  ]));
 }
 
 export function planMasteryRecordIdMigrations(records: WrongBookRecord[], masteryById: Record<string, MasteryRecord>) {
@@ -96,9 +136,10 @@ function mergeLegacyDeletionCutoffs(...tombstones: WrongBookTombstone[]) {
   return Object.fromEntries(merged);
 }
 
-function isAttemptDeleted(attempt: WrongBookAttempt, tombstone: WrongBookTombstone | undefined) {
+function isAttemptDeleted(attempt: WrongBookAttempt, tombstone: WrongBookTombstone | undefined, record: WrongBookRecord) {
   if (!tombstone) return false;
-  if (tombstone.deletedAttemptIds?.includes(attempt.id)) return true;
+  const equivalentIds = equivalentSynthesizedAttemptIds(record, attempt);
+  if (tombstone.deletedAttemptIds?.some((id) => equivalentIds.has(id))) return true;
   const cutoffs = legacyDeletionCutoffs(tombstone);
   const legacyCutoff = attempt.clientId === "legacy"
     ? Array.from(cutoffs.values()).sort().at(-1)
@@ -158,8 +199,7 @@ function normalizeTombstones(values: unknown, normalizeId: (id: string) => strin
 
 function normalizeAttempts(record: Partial<WrongBookRecord>) {
   const synthesisId = wrongBookRecordId(record);
-  const synthesizedId = (kind: "test" | "count", value: string | number) =>
-    `legacy-v2:${JSON.stringify([synthesisId, kind, value])}`;
+  const synthesizedId = (identity: SynthesizedAttemptIdentity) => encodedSynthesizedAttemptId(synthesisId, identity);
   const attempts = new Map<string, WrongBookAttempt>();
   const synthesizedAttemptIds = new Set<string>();
   const legacyAttemptCreatedAt = String(record.createdAt ?? new Date(0).toISOString());
@@ -184,7 +224,7 @@ function normalizeAttempts(record: Partial<WrongBookRecord>) {
   const legacyBatchNames = uniqueStrings(record.batchNames);
   if (attempts.size === 0) {
     legacyTestNos.forEach((testNo, index) => {
-      const attemptId = synthesizedId("test", testNo);
+      const attemptId = synthesizedId(["test", testNo]);
       attempts.set(attemptId, {
         id: attemptId,
         testNo,
@@ -199,7 +239,7 @@ function normalizeAttempts(record: Partial<WrongBookRecord>) {
   const legacyWrongCount = Math.max(0, Number(record.wrongCount) || 0);
   const fallbackLegacyAttempt = Array.from(attempts.values()).find((attempt) => attempt.testNo);
   for (let index = attempts.size; index < legacyWrongCount; index += 1) {
-    const attemptId = synthesizedId("count", index + 1);
+    const attemptId = synthesizedId(["count", index + 1]);
     attempts.set(attemptId, {
       id: attemptId,
       testNo: fallbackLegacyAttempt?.testNo,
@@ -272,10 +312,10 @@ function applyTombstones(records: WrongBookRecord[], deletedRecords: WrongBookTo
   const batchDeletes = new Map(deletedBatches.map((tombstone) => [tombstone.id, tombstone]));
   return records.flatMap((record) => {
     const recordDelete = recordDeletes.get(record.id);
-    const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => !isAttemptDeleted(attempt, recordDelete));
+    const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => !isAttemptDeleted(attempt, recordDelete, record));
     const wrongAttempts = attemptsAfterRecordDelete.filter((attempt) => {
       if (!attempt.testNo) return true;
-      return !isAttemptDeleted(attempt, batchDeletes.get(attempt.testNo));
+      return !isAttemptDeleted(attempt, batchDeletes.get(attempt.testNo), record);
     });
     if (wrongAttempts.length === 0) return [];
     return [{

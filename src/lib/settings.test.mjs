@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defaultSettings, normalizeToolboxSettings } from "./types.ts";
+import { defaultSettings, defaultSettingsForLocale, normalizeToolboxSettings } from "./types.ts";
+
+test("creates request-aware default settings", () => {
+  assert.equal(defaultSettingsForLocale("zh-CN").locale, "zh-CN");
+  assert.equal(defaultSettingsForLocale("en-US"), defaultSettings);
+});
 
 test("uses the request locale when legacy settings omit locale", () => {
   const fallbackSettings = { ...defaultSettings, locale: "zh-CN" };

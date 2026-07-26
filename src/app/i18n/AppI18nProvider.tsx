@@ -10,7 +10,7 @@ import {
   type MessageValues
 } from "@/i18n/config";
 import { useClientSettings } from "@/lib/client-settings";
-import { defaultSettings } from "@/lib/types";
+import { defaultSettingsForLocale } from "@/lib/types";
 
 type I18nContextValue = {
   locale: AppLocale;
@@ -21,7 +21,7 @@ type I18nContextValue = {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 export function AppI18nProvider({ children, initialLocale }: { children: React.ReactNode; initialLocale: AppLocale }) {
-  const fallbackSettings = useMemo(() => ({ ...defaultSettings, locale: initialLocale }), [initialLocale]);
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(initialLocale), [initialLocale]);
   const settings = useClientSettings(fallbackSettings);
   const locale = isAppLocale(settings.locale) ? settings.locale : defaultLocale;
   const showTranslationKeys = settings.developerMode === true && settings.showTranslationKeys === true;

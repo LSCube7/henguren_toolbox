@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
-import type { UserSession } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { defaultSettingsForLocale, type UserSession } from "@/lib/types";
+import { useEffect, useMemo, useState } from "react";
 import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
@@ -72,8 +72,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const [user, setUser] = useState<UserSession | null>(null);
   const edition = useEdition();
   const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
-  const settings = useClientSettings();
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
+  const settings = useClientSettings(fallbackSettings);
 
   useEffect(() => {
     let active = true;

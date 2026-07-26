@@ -105,6 +105,10 @@ export const defaultSettings: ToolboxSettings = {
   updatedAt: new Date(0).toISOString()
 };
 
+export function defaultSettingsForLocale(locale: AppLocale): ToolboxSettings {
+  return locale === defaultSettings.locale ? defaultSettings : { ...defaultSettings, locale };
+}
+
 export function normalizeToolboxSettings(value: unknown, fallbackSettings = defaultSettings): ToolboxSettings {
   const saved = value && typeof value === "object" ? (value as Partial<ToolboxSettings>) : {};
   return {

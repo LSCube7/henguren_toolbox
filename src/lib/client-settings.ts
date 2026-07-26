@@ -32,8 +32,8 @@ function subscribeToSettings(onStoreChange: () => void) {
   };
 }
 
-export function readClientSettings() {
-  return parseSettings(getSettingsSnapshot());
+export function readClientSettings(fallbackSettings = defaultSettings) {
+  return parseSettings(getSettingsSnapshot(), fallbackSettings);
 }
 
 export function writeClientSettings(settings: ToolboxSettings) {

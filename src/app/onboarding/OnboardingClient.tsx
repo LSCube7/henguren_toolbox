@@ -2,12 +2,12 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { ThemePicker } from "../components/ThemePicker";
 import { completeOnboarding, onboardingLoginDecisionStorageKey, onboardingStepStorageKey } from "@/lib/onboarding";
 import { readEdition, writeEdition, type Edition } from "@/lib/edition";
-import { normalizeToolboxSettings, type ToolboxSettings, type UserSession } from "@/lib/types";
+import { defaultSettingsForLocale, normalizeToolboxSettings, type ToolboxSettings, type UserSession } from "@/lib/types";
 import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
@@ -84,12 +84,13 @@ export function OnboardingClient() {
   const searchParams = useSearchParams();
   const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const { locale, t } = useI18n();
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const { showSnackbar } = useSnackbar();
   const returnTo = safeReturnTo(searchParams.get("returnTo"));
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
   const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());
-  const [settings, setSettings] = useState<ToolboxSettings>(() => readClientSettings());
+  const [settings, setSettings] = useState<ToolboxSettings>(() => readClientSettings(fallbackSettings));
   const [localSettingsBeforeCloud] = useState<ToolboxSettings>(settings);
   const [edition, setEdition] = useState<Edition>(() => readEdition());
   const [user, setUser] = useState<UserSession | null>(null);
@@ -173,7 +174,7 @@ export function OnboardingClient() {
           setCloudStatus("empty");
           return;
         }
-        setCloudSettings(normalizeToolboxSettings(data.settings));
+        setCloudSettings(normalizeToolboxSettings(data.settings, fallbackSettings));
         setCloudStatus("available");
       } catch {
         if (active) {
@@ -188,7 +189,7 @@ export function OnboardingClient() {
     return () => {
       active = false;
     };
-  }, [cloudCheckVersion, user]);
+  }, [cloudCheckVersion, fallbackSettings, user]);
 
   function updateSettings(next: Partial<ToolboxSettings>) {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };

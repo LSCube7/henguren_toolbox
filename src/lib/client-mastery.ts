@@ -2,7 +2,7 @@
 
 import { nextMasteryRecord, type MasteryRecord } from "./mastery";
 import type { WrongBookRecord } from "./types";
-import { legacyWrongBookRecordId, planMasteryRecordIdMigrations, wrongBookRecordId } from "./wrongbook";
+import { planMasteryRecordIdMigrations } from "./wrongbook";
 
 const DB_NAME = "henguren-v3-mastery";
 const DB_VERSION = 1;
@@ -36,8 +36,7 @@ export async function readMasteryMap() {
 }
 
 export async function migrateMasteryRecordIds(records: WrongBookRecord[], masteryById: Record<string, MasteryRecord>) {
-  const needsMigration = records.some((record) => legacyWrongBookRecordId(record) !== wrongBookRecordId(record));
-  if (!needsMigration) return masteryById;
+  if (planMasteryRecordIdMigrations(records, masteryById).length === 0) return masteryById;
   const db = await openDb();
   return await new Promise<Record<string, MasteryRecord>>((resolve, reject) => {
     const transaction = db.transaction(STORE_NAME, "readwrite");

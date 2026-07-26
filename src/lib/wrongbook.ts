@@ -28,26 +28,43 @@ function recordKey(record: WrongBookIdentity) {
   return JSON.stringify(recordIdentity(record));
 }
 
+function recordIdAliases(record: Partial<WrongBookRecord>) {
+  const aliases = Array.isArray(record.aliases) ? record.aliases : [];
+  return Array.from(new Set([
+    recordId(record),
+    ...aliases.map((alias) => String(alias).toLowerCase()),
+    legacyWrongBookRecordId(record),
+    wrongBookRecordId(record)
+  ].filter(Boolean)));
+}
+
 export function planMasteryRecordIdMigrations(records: WrongBookRecord[], masteryById: Record<string, MasteryRecord>) {
-  const targetsByLegacyId = new Map<string, Set<string>>();
+  const targetsByAlias = new Map<string, Set<string>>();
   records.forEach((record) => {
-    const legacyId = legacyWrongBookRecordId(record);
     const canonicalId = wrongBookRecordId(record);
-    if (legacyId === canonicalId) return;
-    const targets = targetsByLegacyId.get(legacyId) ?? new Set<string>();
-    targets.add(canonicalId);
-    targetsByLegacyId.set(legacyId, targets);
+    recordIdAliases(record).forEach((alias) => {
+      const targets = targetsByAlias.get(alias) ?? new Set<string>();
+      targets.add(canonicalId);
+      targetsByAlias.set(alias, targets);
+    });
   });
 
-  return Array.from(targetsByLegacyId).flatMap(([legacyId, targets]) => {
-    if (targets.size !== 1) return [];
-    const legacyRecord = masteryById[legacyId];
-    if (!legacyRecord) return [];
+  const aliasesByCanonicalId = new Map<string, string[]>();
+  targetsByAlias.forEach((targets, alias) => {
+    if (targets.size !== 1 || !masteryById[alias]) return;
     const [canonicalId] = targets;
-    if (!canonicalId) return [];
-    const canonicalRecord = masteryById[canonicalId];
-    const newest = !canonicalRecord || canonicalRecord.updatedAt < legacyRecord.updatedAt ? legacyRecord : canonicalRecord;
-    return [{ legacyId, canonicalId, record: { ...newest, id: canonicalId } }];
+    if (!canonicalId || alias === canonicalId) return;
+    aliasesByCanonicalId.set(canonicalId, [...(aliasesByCanonicalId.get(canonicalId) ?? []), alias]);
+  });
+
+  return Array.from(aliasesByCanonicalId).flatMap(([canonicalId, aliases]) => {
+    const candidates = [masteryById[canonicalId], ...aliases.map((alias) => masteryById[alias])]
+      .filter((record): record is MasteryRecord => Boolean(record));
+    const newest = candidates.reduce((current, candidate) => (
+      candidate.updatedAt > current.updatedAt ? candidate : current
+    ));
+    const canonicalRecord = { ...newest, id: canonicalId };
+    return aliases.map((legacyId) => ({ legacyId, canonicalId, record: canonicalRecord }));
   });
 }
 
@@ -199,9 +216,13 @@ function normalizeAttempts(record: Partial<WrongBookRecord>, id: string) {
 
 function normalizeRecord(record: Partial<WrongBookRecord>): WrongBookRecord {
   const id = recordId(record);
+  const aliases = Array.isArray(record.aliases)
+    ? Array.from(new Set(record.aliases.map((alias) => String(alias).toLowerCase()).filter((alias) => alias && alias !== id)))
+    : [];
   const attempts = normalizeAttempts(record, id);
   return {
     id,
+    aliases: aliases.length > 0 ? aliases : undefined,
     word: String(record.word ?? ""),
     sourceName: String(record.sourceName ?? "custom"),
     sourceTitle: record.sourceTitle ? String(record.sourceTitle) : undefined,
@@ -221,10 +242,14 @@ function mergeRecords(existing: WrongBookRecord, incoming: WrongBookRecord) {
   [...(existing.wrongAttempts ?? []), ...(incoming.wrongAttempts ?? [])].forEach((attempt) => attempts.set(attempt.id, attempt));
   const wrongAttempts = Array.from(attempts.values());
   const newest = existing.updatedAt >= incoming.updatedAt ? existing : incoming;
+  const canonicalId = wrongBookRecordId(newest);
+  const aliases = Array.from(new Set([...recordIdAliases(existing), ...recordIdAliases(incoming)]))
+    .filter((alias) => alias !== canonicalId);
   return {
     ...existing,
     ...newest,
-    id: wrongBookRecordId(newest),
+    id: canonicalId,
+    aliases: aliases.length > 0 ? aliases : undefined,
     definitions: Array.from(new Set([...(existing.definitions ?? []), ...(incoming.definitions ?? [])])),
     zhDefinitions: Array.from(new Set([...(existing.zhDefinitions ?? []), ...(incoming.zhDefinitions ?? [])])),
     wrongCount: wrongAttempts.length,
@@ -292,9 +317,7 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     const key = recordKey(record);
     const canonicalId = wrongBookRecordId(record);
     const aliases = recordAliases.get(key) ?? new Set<string>();
-    aliases.add(recordId(record));
-    aliases.add(legacyWrongBookRecordId(record));
-    aliases.add(canonicalId);
+    recordIdAliases(record).forEach((alias) => aliases.add(alias));
     recordAliases.set(key, aliases);
     canonicalRecordIds.set(key, canonicalId);
   });
@@ -308,13 +331,16 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     const key = recordKey(record);
     const canonicalId = wrongBookRecordId(record);
     const aliases = recordAliases.get(key) ?? new Set<string>();
-    aliases.add(record.id);
-    aliases.add(legacyWrongBookRecordId(record));
-    aliases.add(canonicalId);
+    recordIdAliases(record).forEach((alias) => aliases.add(alias));
     recordAliases.set(key, aliases);
     canonicalRecordIds.set(key, canonicalId);
     const existing = records.get(key);
-    const canonicalRecord = { ...record, id: canonicalId };
+    const historicalAliases = Array.from(aliases).filter((alias) => alias !== canonicalId);
+    const canonicalRecord = {
+      ...record,
+      id: canonicalId,
+      aliases: historicalAliases.length > 0 ? historicalAliases : undefined
+    };
     records.set(key, existing ? mergeRecords(existing, canonicalRecord) : canonicalRecord);
   });
 

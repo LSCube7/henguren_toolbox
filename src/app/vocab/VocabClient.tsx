@@ -3,6 +3,7 @@
 import list from "@/assets/js/vocabulary/list.json";
 import {
   addWrongWord,
+  canonicalizeLocalWrongBookRecordIds,
   deleteWrongBatch,
   deleteWrongRecord,
   downloadJson,
@@ -147,7 +148,7 @@ function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: Vo
 }
 
 async function loadWrongBookData(clientId: string) {
-  const results = await Promise.allSettled([readLocalWrongBook(clientId), readMasteryMap()] as const);
+  const results = await Promise.allSettled([canonicalizeLocalWrongBookRecordIds(clientId), readMasteryMap()] as const);
   const [wrongBookResult, masteryResult] = results;
   if (wrongBookResult.status !== "fulfilled" || masteryResult.status !== "fulfilled") return results;
   try {

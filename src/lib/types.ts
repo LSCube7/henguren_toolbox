@@ -29,6 +29,8 @@ export type WrongBookTombstone = {
 
 export type WrongBookRecord = {
   id: string;
+  /** Historical ids retained so mastery data and deletion tombstones can follow canonical id migrations. */
+  aliases?: string[];
   word: string;
   sourceName: string;
   sourceTitle?: string;

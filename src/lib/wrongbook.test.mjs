@@ -321,3 +321,152 @@ test("keeps newer canonical mastery progress during id migration", () => {
   assert.equal(migrations.length, 1);
   assert.deepEqual(migrations[0].record, canonicalMastery);
 });
+
+test("preserves arbitrary imported ids as aliases during canonicalization", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "legacy-import-id",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "legacy-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+    }]
+  }));
+
+  assert.equal(merged.records[0].id, word.id);
+  assert.deepEqual(merged.records[0].aliases, ["legacy-import-id"]);
+});
+
+test("migrates mastery from an arbitrary stored record id", () => {
+  const legacyMastery = {
+    id: "legacy-import-id",
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations([{
+    ...word,
+    aliases: [legacyMastery.id]
+  }], { [legacyMastery.id]: legacyMastery });
+
+  assert.equal(migrations.length, 1);
+  assert.equal(migrations[0].legacyId, legacyMastery.id);
+  assert.equal(migrations[0].canonicalId, word.id);
+  assert.deepEqual(migrations[0].record, { ...legacyMastery, id: word.id });
+});
+
+test("uses the newest mastery progress across every historical id alias", () => {
+  const olderMastery = {
+    id: "legacy-import-id",
+    level: "learning",
+    correctStreak: 1,
+    reviewCount: 2,
+    lastReviewedAt: "2026-01-02T00:00:00.000Z",
+    nextReviewAt: "2026-01-03T00:00:00.000Z",
+    updatedAt: "2026-01-02T00:00:00.000Z"
+  };
+  const newerMastery = {
+    ...olderMastery,
+    id: "older-import-id",
+    level: "reviewing",
+    correctStreak: 3,
+    reviewCount: 5,
+    updatedAt: "2026-01-04T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations([{
+    ...word,
+    aliases: [olderMastery.id, newerMastery.id]
+  }], {
+    [olderMastery.id]: olderMastery,
+    [newerMastery.id]: newerMastery
+  });
+
+  assert.equal(migrations.length, 2);
+  assert.deepEqual(new Set(migrations.map((migration) => migration.legacyId)), new Set([olderMastery.id, newerMastery.id]));
+  assert.ok(migrations.every((migration) => migration.record.id === word.id));
+  assert.ok(migrations.every((migration) => migration.record.updatedAt === newerMastery.updatedAt));
+});
+
+test("does not migrate mastery when an alias is another record's canonical id", () => {
+  const canonicalMastery = {
+    id: word.id,
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const migrations = planMasteryRecordIdMigrations([
+    word,
+    {
+      ...word,
+      id: "other:entry",
+      aliases: [word.id],
+      sourceName: "other",
+      word: "entry"
+    }
+  ], { [canonicalMastery.id]: canonicalMastery });
+
+  assert.deepEqual(migrations, []);
+});
+
+test("keeps canonical tombstones scoped when the id is another record's alias", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [
+      {
+        ...word,
+        wrongCount: 1,
+        wrongAttempts: [{ id: "canonical-attempt", clientId: "canonical-client", createdAt: word.createdAt }]
+      },
+      {
+        ...word,
+        id: "other:entry",
+        aliases: [word.id],
+        sourceName: "other",
+        word: "entry",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "other-attempt", clientId: "other-client", createdAt: word.createdAt }]
+      }
+    ],
+    deletedRecords: [{
+      id: word.id,
+      clientId: "canonical-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: ["canonical-attempt"]
+    }]
+  }));
+
+  assert.deepEqual(merged.records.map((record) => record.id), ["other:entry"]);
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["other-attempt"]);
+  assert.equal(merged.deletedRecords[0].id, word.id);
+});
+
+test("applies standalone arbitrary-id tombstones through retained record aliases", () => {
+  const canonicalSnapshot = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "legacy-import-id",
+      wrongCount: 2,
+      wrongAttempts: [
+        { id: "deleted-attempt", clientId: "legacy-client", createdAt: "2026-01-01T00:00:00.000Z" },
+        { id: "current-attempt", clientId: "current-client", createdAt: "2026-01-04T00:00:00.000Z" }
+      ]
+    }]
+  }));
+  const merged = mergeWrongBooks("user", snapshot({
+    deletedRecords: [{
+      id: "legacy-import-id",
+      clientId: "legacy-client",
+      deletedAt: "2026-01-03T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }), canonicalSnapshot);
+
+  assert.equal(merged.records[0].id, word.id);
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
+  assert.equal(merged.deletedRecords[0].id, word.id);
+  assert.deepEqual(merged.records[0].aliases, ["legacy-import-id"]);
+});

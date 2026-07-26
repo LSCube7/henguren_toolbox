@@ -53,8 +53,8 @@ async function loadServiceWorker() {
 
   const cachesByName = new Map([
     ["henguren-v3-offline-v1-data", new MemoryCache(fetchResponse, [["/api/data/vocab/sample", new Response("cached lesson")]])],
-    ["henguren-v3-offline-v2-app", new MemoryCache(fetchResponse)],
-    ["henguren-v3-offline-v2-static", new MemoryCache(fetchResponse)]
+    ["henguren-v3-offline-v3-app", new MemoryCache(fetchResponse)],
+    ["henguren-v3-offline-v3-static", new MemoryCache(fetchResponse)]
   ]);
   const cacheStorage = {
     async keys() {
@@ -97,7 +97,7 @@ test("precaches current shell assets and migrates legacy learning data", async (
   const worker = await loadServiceWorker();
 
   await runExtendableEvent(worker.listeners.get("install"));
-  const staticCache = worker.cachesByName.get("henguren-v3-offline-v3-static");
+  const staticCache = worker.cachesByName.get("henguren-v3-offline-v4-static");
   assert.ok(await staticCache.match("/_next/static/app.js"));
   assert.ok(await staticCache.match("/_next/static/app.css"));
   assert.ok(await staticCache.match("/fonts/icons.woff2"));
@@ -106,6 +106,7 @@ test("precaches current shell assets and migrates legacy learning data", async (
   const dataCache = worker.cachesByName.get("henguren-v3-offline-v2-data");
   assert.equal(await (await dataCache.match("/api/data/vocab/sample")).text(), "cached lesson");
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v1-data"), false);
-  assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-static"), false);
+  assert.equal(worker.cachesByName.has("henguren-v3-offline-v3-app"), false);
+  assert.equal(worker.cachesByName.has("henguren-v3-offline-v3-static"), false);
   assert.equal(worker.wasClaimed(), true);
 });

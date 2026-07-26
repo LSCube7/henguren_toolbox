@@ -227,13 +227,13 @@ export function VocabClient() {
     if (masteryResult.status === "fulfilled") {
       setMasteryById(masteryResult.value);
     } else {
-      setMasteryById({});
       if (wrongBookResult.status === "fulfilled") showSnackbar(t("vocab.masteryLoadError"), "error");
     }
+    return wrongBookResult.status === "fulfilled" && masteryResult.status === "fulfilled";
   }, [showSnackbar, t]);
 
   const refreshWrongBook = useCallback(async () => {
-    applyWrongBookData(await loadWrongBookData(clientId));
+    return applyWrongBookData(await loadWrongBookData(clientId));
   }, [applyWrongBookData, clientId]);
 
   useEffect(() => {
@@ -559,8 +559,8 @@ export function VocabClient() {
     const file = event.target.files?.[0];
     if (!file) return;
     await importWrongBookSnapshot(JSON.parse(await file.text()) as Partial<WrongBookSnapshot>);
-    await refreshWrongBook();
-    showSnackbar(t("vocab.importSuccess"));
+    const refreshed = await refreshWrongBook();
+    if (refreshed) showSnackbar(t("vocab.importSuccess"));
     event.target.value = "";
   }
 
@@ -568,8 +568,8 @@ export function VocabClient() {
     setCloudAction("pull");
     try {
       await pullAndMergeWrongBook();
-      await refreshWrongBook();
-      showSnackbar(t("vocab.cloud.pullSuccess"));
+      const refreshed = await refreshWrongBook();
+      if (refreshed) showSnackbar(t("vocab.cloud.pullSuccess"));
     } catch {
       showSnackbar(t("vocab.cloud.pullError"), "error");
     } finally {
@@ -593,8 +593,8 @@ export function VocabClient() {
     setCloudAction("merge");
     try {
       await mergeUploadWrongBook();
-      await refreshWrongBook();
-      showSnackbar(t("vocab.cloud.mergeSuccess"));
+      const refreshed = await refreshWrongBook();
+      if (refreshed) showSnackbar(t("vocab.cloud.mergeSuccess"));
     } catch {
       showSnackbar(t("vocab.cloud.mergeError"), "error");
     } finally {

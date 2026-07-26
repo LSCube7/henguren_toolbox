@@ -8,7 +8,7 @@ v3 的界面使用官方 Material Web 实现 Material Design 3 风格：无顶�
 
 | 分支 | 状态 | 说明 |
 | --- | --- | --- |
-| `main` | v3.0.0 | Next.js + TypeScript 重构主线 |
+| `main` | v3.1.0 | Next.js + TypeScript 重构主线 |
 | `v2` | 冻结归档 | Vue CLI 版本，保留 v2.10.0 状态 |
 
 当前 Vue 版本已归档为 `v2` 分支，并建议与 `v2.10.0` 标签一起作为历史版本保留。
@@ -60,7 +60,7 @@ pnpm build
 
 ## 持续集成与发布
 
-- 提交到 `dev` 或 `main` 的拉取请求会自动运行 lint、类型检查和生产构建。
+- 提交到 `dev` 或 `main` 的拉取请求会自动运行测试、lint、类型检查和生产构建。
 - `main` 收到新提交后，发布工作流会再次完成上述检查，并按 `package.json` 中的版本创建 `v<version>` GitHub Release。
 - 发布前必须先更新 `package.json` 中的版本。若对应标签已经存在，工作流会停止，不会覆盖已有 Release。
 - Release 使用仓库自带的 `GITHUB_TOKEN` 创建，不需要额外配置发布密钥；发布说明包含中文说明和 GitHub 自动生成的变更记录。

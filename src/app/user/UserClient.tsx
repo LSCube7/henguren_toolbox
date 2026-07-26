@@ -162,7 +162,8 @@ export function UserClient() {
   }
 
   const canSync = Boolean(user) || syncSummary?.source === "custom";
-  const syncDisabled = !canSync || syncing || syncSummary?.status === "offline" || syncSummary?.status === "error";
+  const syncUnavailable = !canSync || syncing || syncSummary?.status === "offline";
+  const syncReadDisabled = syncUnavailable || syncSummary?.status === "error";
   const currentSyncIcon = syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
   const currentSyncText = syncing && syncAction
     ? t(syncActionLabel[syncAction])
@@ -210,9 +211,9 @@ export function UserClient() {
           </span>
         </div>
         <div className="cluster">
-          <md-outlined-button disabled={syncDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
-          <md-outlined-button disabled={syncDisabled} onClick={() => void runSync("overwrite")}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
-          <md-filled-button disabled={syncDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
+          <md-outlined-button disabled={syncReadDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
+          <md-outlined-button disabled={syncUnavailable} onClick={() => void runSync("overwrite")}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
+          <md-filled-button disabled={syncReadDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
         </div>
       </section>
     </div>

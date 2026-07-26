@@ -47,6 +47,21 @@ function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession
   return "cloud_off";
 }
 
+function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
+  if (summary.status === "offline") {
+    if (summary.source === "custom") return "sync.detail.customOffline";
+    return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.detail.offline";
+  }
+  if (summary.status === "error") {
+    return summary.source === "custom" ? "sync.detail.customError" : "sync.detail.cloudError";
+  }
+  if (summary.status === "ready") {
+    return summary.source === "custom" ? "sync.detail.customReady" : "sync.detail.ready";
+  }
+  if (summary.status === "synced") return "sync.synced";
+  return "sync.detail.signedOut";
+}
+
 export function UserClient() {
   const searchParams = useSearchParams();
   const { t } = useI18n();
@@ -146,10 +161,18 @@ export function UserClient() {
     }
   }
 
-  const syncDisabled = !user || syncing || syncSummary?.status === "offline";
+  const canSync = Boolean(user) || syncSummary?.source === "custom";
+  const syncUnavailable = !canSync || syncing || syncSummary?.status === "offline";
+  const syncReadDisabled = syncUnavailable || syncSummary?.status === "error";
   const currentSyncIcon = syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
-  const summaryStatusKey: MessageKey = syncSummary?.status === "offline" ? "sync.offline" : syncSummary?.status === "error" ? "sync.error" : syncSummary?.status === "synced" ? "sync.synced" : syncSummary?.status === "ready" ? "sync.ready" : "sync.signedOut";
-  const currentSyncText = syncing && syncAction ? t(syncActionLabel[syncAction]) : syncSummary ? t(summaryStatusKey) : t("user.wrongbookSync.loading");
+  const currentSyncText = syncing && syncAction
+    ? t(syncActionLabel[syncAction])
+    : syncSummary
+      ? t(syncSummaryMessageKey(syncSummary), {
+          localCount: syncSummary.localCount,
+          cloudCount: syncSummary.cloudCount ?? 0
+        })
+      : t("user.wrongbookSync.loading");
   const currentSyncStatus = syncing ? "syncing" : syncSummary?.status ?? (user ? "ready" : "signed-out");
 
   return (
@@ -188,9 +211,9 @@ export function UserClient() {
           </span>
         </div>
         <div className="cluster">
-          <md-outlined-button disabled={syncDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
-          <md-outlined-button disabled={syncDisabled} onClick={() => void runSync("overwrite")}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
-          <md-filled-button disabled={syncDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
+          <md-outlined-button disabled={syncReadDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
+          <md-outlined-button disabled={syncUnavailable} onClick={() => void runSync("overwrite")}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
+          <md-filled-button disabled={syncReadDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
         </div>
       </section>
     </div>

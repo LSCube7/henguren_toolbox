@@ -101,7 +101,15 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         setSyncSummary(summary);
         if (summary.user || summary.status === "signed-out") setUser(summary.user);
       } catch {
-        if (active) setSyncSummary({ status: "error", user: null, localCount: 0, message: t("sync.readError") });
+        if (active) {
+          setSyncSummary({
+            status: "error",
+            source: "account",
+            unavailableReason: "source-unavailable",
+            user: null,
+            localCount: 0
+          });
+        }
       }
     }
 
@@ -117,7 +125,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
       window.removeEventListener("online", reloadSyncSummary);
       window.removeEventListener("offline", reloadSyncSummary);
     };
-  }, [t]);
+  }, []);
 
   const selectedTools = toolItems.filter((item) => item.edition === edition);
   const syncStatus = syncSummary?.status ?? (user ? "ready" : "signed-out");

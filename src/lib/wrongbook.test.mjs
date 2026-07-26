@@ -132,11 +132,13 @@ test("retains legacy deletion cutoffs for their originating clients", () => {
 test("merges legacy records with noncanonical ids by source and word", () => {
   const merged = mergeWrongBooks("user", snapshot({
     schemaVersion: 1,
+    updatedAt: "2026-01-03T00:00:00.000Z",
     records: [{
       ...word,
       id: "legacy-import-id",
       wrongCount: 1,
-      testNos: ["legacy-test"]
+      testNos: ["legacy-test"],
+      updatedAt: "2026-01-03T00:00:00.000Z"
     }]
   }), snapshot({
     updatedAt: "2026-01-02T00:00:00.000Z",
@@ -159,4 +161,72 @@ test("merges legacy records with noncanonical ids by source and word", () => {
     merged.records[0].wrongAttempts.map((attempt) => attempt.id).sort(),
     ["current-attempt", "legacy:legacy-import-id:legacy-test"]
   );
+});
+
+test("applies legacy-id tombstones to every alias in a merged record", () => {
+  const staleLegacySnapshot = snapshot({
+    records: [{
+      ...word,
+      id: "legacy-import-id",
+      wrongCount: 1,
+      wrongAttempts: [{
+        id: "deleted-legacy-attempt",
+        clientId: "legacy-client",
+        createdAt: "2026-01-01T00:00:00.000Z"
+      }]
+    }]
+  });
+  const merged = mergeWrongBooks("user", staleLegacySnapshot, snapshot({
+    records: [{
+      ...word,
+      wrongCount: 1,
+      wrongAttempts: [{
+        id: "current-attempt",
+        clientId: "current-client",
+        createdAt: "2026-01-02T00:00:00.000Z"
+      }],
+      updatedAt: "2026-01-02T00:00:00.000Z"
+    }],
+    deletedRecords: [{
+      id: "legacy-import-id",
+      clientId: "deleting-client",
+      deletedAt: "2026-01-03T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-legacy-attempt"]
+    }]
+  }));
+
+  assert.equal(merged.records.length, 1);
+  assert.equal(merged.records[0].id, word.id);
+  assert.deepEqual(merged.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
+  assert.equal(merged.deletedRecords.length, 1);
+  assert.equal(merged.deletedRecords[0].id, word.id);
+
+  const mergedAgain = mergeWrongBooks("user", merged, staleLegacySnapshot);
+  assert.deepEqual(mergedAgain.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
+});
+
+test("keeps delimiter-containing source and word pairs distinct", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [
+      {
+        ...word,
+        id: "first-record",
+        sourceName: "a::b",
+        word: "c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "first-attempt", clientId: "client-a", createdAt: word.createdAt }]
+      },
+      {
+        ...word,
+        id: "second-record",
+        sourceName: "a",
+        word: "b::c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "second-attempt", clientId: "client-b", createdAt: word.createdAt }]
+      }
+    ]
+  }));
+
+  assert.equal(merged.records.length, 2);
+  assert.deepEqual(merged.records.map((record) => record.word).sort(), ["b::c", "c"]);
 });

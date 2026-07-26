@@ -538,17 +538,17 @@ export function VocabClient() {
   }
 
   async function removeWrongBatch(testNo: string) {
-    let snapshot: WrongBookSnapshot;
     try {
-      snapshot = await deleteWrongBatch(testNo);
+      await deleteWrongBatch(testNo);
     } catch {
       showSnackbar(t("vocab.wrongbookDeleteError"), "error");
       return;
     }
 
     await refreshWrongBook();
-    const activeIds = new Set(snapshot.records.map((record) => record.id));
     try {
+      const latestSnapshot = await readLocalWrongBook(clientId);
+      const activeIds = new Set(latestSnapshot.records.map((record) => record.id));
       const mastery = await readMasteryMap();
       await Promise.all(Object.keys(mastery).filter((id) => !activeIds.has(id)).map(deleteMasteryRecord));
       setMasteryById((current) => Object.fromEntries(Object.entries(current).filter(([id]) => activeIds.has(id))));

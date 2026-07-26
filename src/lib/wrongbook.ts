@@ -1,11 +1,18 @@
 import type { WrongBookAttempt, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone } from "./types";
 
 function recordId(record: Partial<WrongBookRecord>) {
-  return String(record.id || `${record.sourceName ?? "custom"}:${record.word ?? "unknown"}`).toLowerCase();
+  return String(record.id || canonicalRecordId(record)).toLowerCase();
 }
 
-function recordKey(record: Pick<WrongBookRecord, "sourceName" | "word">) {
-  return `${record.sourceName}::${record.word}`.toLowerCase();
+function canonicalRecordId(record: Partial<Pick<WrongBookRecord, "sourceName" | "word">>) {
+  return `${record.sourceName ?? "custom"}:${record.word ?? "unknown"}`.toLowerCase();
+}
+
+function recordKey(record: Partial<Pick<WrongBookRecord, "sourceName" | "word">>) {
+  return JSON.stringify([
+    String(record.sourceName ?? "custom").toLowerCase(),
+    String(record.word ?? "unknown").toLowerCase()
+  ]);
 }
 
 function uniqueStrings(values: unknown) {
@@ -181,6 +188,7 @@ function mergeRecords(existing: WrongBookRecord, incoming: WrongBookRecord) {
   return {
     ...existing,
     ...newest,
+    id: canonicalRecordId(newest),
     definitions: Array.from(new Set([...(existing.definitions ?? []), ...(incoming.definitions ?? [])])),
     zhDefinitions: Array.from(new Set([...(existing.zhDefinitions ?? []), ...(incoming.zhDefinitions ?? [])])),
     wrongCount: wrongAttempts.length,
@@ -241,18 +249,52 @@ export function normalizeWrongBook(snapshot: Partial<WrongBookSnapshot>, userId:
 }
 
 export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSnapshot | null | undefined>): WrongBookSnapshot {
-  const normalized = snapshots.filter((snapshot): snapshot is WrongBookSnapshot => Boolean(snapshot)).map((snapshot) => normalizeWrongBook(snapshot, userId));
+  const presentSnapshots = snapshots.filter((snapshot): snapshot is WrongBookSnapshot => Boolean(snapshot));
+  const recordAliases = new Map<string, Set<string>>();
+  const canonicalRecordIds = new Map<string, string>();
+  presentSnapshots.flatMap((snapshot) => snapshot.records ?? []).forEach((record) => {
+    const key = recordKey(record);
+    const canonicalId = canonicalRecordId(record);
+    const aliases = recordAliases.get(key) ?? new Set<string>();
+    aliases.add(recordId(record));
+    aliases.add(canonicalId);
+    recordAliases.set(key, aliases);
+    canonicalRecordIds.set(key, canonicalId);
+  });
+
+  const normalized = presentSnapshots.map((snapshot) => normalizeWrongBook(snapshot, userId));
   const deletedRecords = mergeWrongBookTombstones(normalized.flatMap((snapshot) => snapshot.deletedRecords));
   const deletedBatches = mergeWrongBookTombstones(normalized.flatMap((snapshot) => snapshot.deletedBatches));
   const records = new Map<string, WrongBookRecord>();
 
   normalized.flatMap((snapshot) => snapshot.records).forEach((record) => {
     const key = recordKey(record);
+    const canonicalId = canonicalRecordId(record);
+    const aliases = recordAliases.get(key) ?? new Set<string>();
+    aliases.add(record.id);
+    aliases.add(canonicalId);
+    recordAliases.set(key, aliases);
+    canonicalRecordIds.set(key, canonicalId);
     const existing = records.get(key);
-    records.set(key, existing ? mergeRecords(existing, record) : record);
+    const canonicalRecord = { ...record, id: canonicalId };
+    records.set(key, existing ? mergeRecords(existing, canonicalRecord) : canonicalRecord);
   });
 
-  const activeRecords = applyTombstones(Array.from(records.values()), deletedRecords, deletedBatches);
+  const aliasTargets = new Map<string, Set<string>>();
+  recordAliases.forEach((aliases, key) => {
+    const canonicalId = canonicalRecordIds.get(key);
+    if (!canonicalId) return;
+    aliases.forEach((alias) => {
+      const targets = aliasTargets.get(alias) ?? new Set<string>();
+      targets.add(canonicalId);
+      aliasTargets.set(alias, targets);
+    });
+  });
+  const canonicalDeletedRecords = mergeWrongBookTombstones(deletedRecords.map((tombstone) => {
+    const targets = aliasTargets.get(tombstone.id);
+    return targets?.size === 1 ? { ...tombstone, id: Array.from(targets)[0] } : tombstone;
+  }));
+  const activeRecords = applyTombstones(Array.from(records.values()), canonicalDeletedRecords, deletedBatches);
 
   return {
     schemaVersion: 2,
@@ -260,7 +302,7 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     clientId: "server-merge",
     updatedAt: new Date().toISOString(),
     records: activeRecords.sort((left, right) => left.word.localeCompare(right.word)),
-    deletedRecords,
+    deletedRecords: canonicalDeletedRecords,
     deletedBatches
   };
 }

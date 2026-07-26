@@ -122,6 +122,7 @@ function applyTheme(theme: StoredTheme) {
   }
   const scheme = mode === "dark" ? materialTheme.schemes.dark : materialTheme.schemes.light;
   root.dataset.theme = mode;
+  root.style.colorScheme = mode;
   root.style.setProperty("--md-source-color", seed);
   schemeColorRoles.forEach((role) => setSchemeColor(root, role, readSchemeColor(scheme, role)));
 

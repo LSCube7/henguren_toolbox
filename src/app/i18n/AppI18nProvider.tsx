@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import {
   defaultLocale,
   isAppLocale,
@@ -10,6 +10,7 @@ import {
   type MessageValues
 } from "@/i18n/config";
 import { useClientSettings } from "@/lib/client-settings";
+import { defaultSettingsForLocale } from "@/lib/types";
 
 type I18nContextValue = {
   locale: AppLocale;
@@ -19,15 +20,11 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-export function AppI18nProvider({ children }: { children: React.ReactNode }) {
-  const settings = useClientSettings();
+export function AppI18nProvider({ children, initialLocale }: { children: React.ReactNode; initialLocale: AppLocale }) {
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(initialLocale), [initialLocale]);
+  const settings = useClientSettings(fallbackSettings);
   const locale = isAppLocale(settings.locale) ? settings.locale : defaultLocale;
   const showTranslationKeys = settings.developerMode === true && settings.showTranslationKeys === true;
-  const mounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false
-  );
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -39,8 +36,6 @@ export function AppI18nProvider({ children }: { children: React.ReactNode }) {
     [locale, showTranslationKeys]
   );
   const value = useMemo(() => ({ locale, showTranslationKeys, t }), [locale, showTranslationKeys, t]);
-
-  if (!mounted) return null;
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

@@ -10,6 +10,7 @@ import {
   type ToolboxBackup
 } from "@/lib/client-data-management";
 import { cacheTextLists, cacheVocabLists, clearOfflineCaches, readOfflineStorageSummary, type OfflineStorageSummary } from "@/lib/offline-cache";
+import type { ToolboxSettings } from "@/lib/types";
 import type { VocabListMeta } from "@/lib/vocab-data";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useSnackbar } from "../components/Snackbar";
@@ -23,7 +24,7 @@ function formatBytes(value: number | undefined, unavailable: string) {
   return `${(value / 1024 / 1024 / 1024).toFixed(1)} GB`;
 }
 
-export function DataManagement() {
+export function DataManagement({ fallbackSettings }: { fallbackSettings: ToolboxSettings }) {
   const importRef = useRef<HTMLInputElement>(null);
   const [offlineSummary, setOfflineSummary] = useState<OfflineStorageSummary | null>(null);
   const [pendingBackup, setPendingBackup] = useState<ToolboxBackup | null>(null);
@@ -51,7 +52,7 @@ export function DataManagement() {
     setBusy("export");
     clearSnackbar();
     try {
-      downloadToolboxBackup(await createToolboxBackup());
+      downloadToolboxBackup(await createToolboxBackup(fallbackSettings));
       showSnackbar(t("data.backup.exportSuccess"));
     } catch {
       showSnackbar(t("data.backup.exportError"), "error");
@@ -69,7 +70,7 @@ export function DataManagement() {
         showSnackbar(t("data.backup.tooLarge"), "error");
         return;
       }
-      setPendingBackup(parseToolboxBackup(await file.text()));
+      setPendingBackup(parseToolboxBackup(await file.text(), fallbackSettings));
       showSnackbar(t("data.backup.readSuccess"));
     } catch {
       setPendingBackup(null);
@@ -83,7 +84,7 @@ export function DataManagement() {
     if (!pendingBackup) return;
     setBusy("import");
     try {
-      const result = await importToolboxBackup(pendingBackup);
+      const result = await importToolboxBackup(pendingBackup, fallbackSettings);
       setPendingBackup(null);
       showSnackbar(t("data.backup.importSuccess", { wrongbookCount: result.wrongbookCount, masteryCount: result.masteryCount }));
     } catch {

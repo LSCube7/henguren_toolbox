@@ -1,5 +1,5 @@
-import { enUS } from "./locales/en-US";
-import { zhCN } from "./locales/zh-CN";
+import { enUS } from "./locales/en-US.ts";
+import { zhCN } from "./locales/zh-CN.ts";
 
 export const supportedLocales = ["zh-CN", "en-US"] as const;
 
@@ -7,7 +7,7 @@ export type AppLocale = (typeof supportedLocales)[number];
 export type MessageKey = keyof typeof zhCN;
 export type MessageValues = Record<string, string | number>;
 
-export const defaultLocale: AppLocale = "zh-CN";
+export const defaultLocale: AppLocale = "en-US";
 
 const dictionaries: Record<AppLocale, Record<MessageKey, string>> = {
   "zh-CN": zhCN,

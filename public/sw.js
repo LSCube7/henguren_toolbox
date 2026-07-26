@@ -1,6 +1,7 @@
 const CACHE_PREFIX = "henguren-v3-offline";
 // Increment shell and data versions independently so an app-shell update does
 // not discard vocabulary or text lists that users explicitly cached offline.
+// Only increment a version after its current value has shipped to users.
 const SHELL_VERSION = "v3";
 // Keep this value in sync with dataCacheVersion in src/lib/offline-cache.ts.
 const DATA_VERSION = "v2";

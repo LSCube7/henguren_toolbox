@@ -4,7 +4,7 @@ import { getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./clie
 import { readClientSettings, writeClientSettings } from "./client-settings";
 import { editionStorageKey, writeEdition, type Edition } from "./edition";
 import { onboardingChangeEvent, onboardingStorageKey, readOnboardingState, type OnboardingState } from "./onboarding";
-import { normalizeToolboxSettings, type ToolboxSettings, type WrongBookSnapshot } from "./types";
+import { defaultSettings, normalizeToolboxSettings, type ToolboxSettings, type WrongBookSnapshot } from "./types";
 
 const masteryDbName = "henguren-v3-mastery";
 const masteryStoreName = "records";
@@ -69,10 +69,10 @@ async function mergeMasteryRecords(records: BackupMasteryRecord[]) {
   });
 }
 
-export async function createToolboxBackup(): Promise<ToolboxBackup> {
+export async function createToolboxBackup(fallbackSettings = defaultSettings): Promise<ToolboxBackup> {
   const edition = localStorage.getItem(editionStorageKey) === "senior" ? "senior" : "junior";
   const [wrongbook, masteryRecords] = await Promise.all([readLocalWrongBook(getClientId()), readMasteryRecords()]);
-  const settings = readClientSettings();
+  const settings = readClientSettings(fallbackSettings);
   return {
     app: "henguren-toolbox-v3",
     schemaVersion: 1,
@@ -85,7 +85,7 @@ export async function createToolboxBackup(): Promise<ToolboxBackup> {
   };
 }
 
-export function parseToolboxBackup(raw: string): ToolboxBackup {
+export function parseToolboxBackup(raw: string, fallbackSettings = defaultSettings): ToolboxBackup {
   const parsed = JSON.parse(raw) as Partial<ToolboxBackup>;
   if (!parsed || parsed.app !== "henguren-toolbox-v3" || parsed.schemaVersion !== 1) {
     throw new Error("这不是受支持的恨古人工具箱备份文件。");
@@ -110,7 +110,7 @@ export function parseToolboxBackup(raw: string): ToolboxBackup {
     app: "henguren-toolbox-v3",
     schemaVersion: 1,
     exportedAt: String(parsed.exportedAt ?? new Date(0).toISOString()),
-    settings: normalizeToolboxSettings(parsed.settings),
+    settings: normalizeToolboxSettings(parsed.settings, fallbackSettings),
     edition: parsed.edition === "senior" ? "senior" : "junior",
     onboarding: {
       completed: Boolean(parsed.onboarding?.completed),
@@ -122,9 +122,9 @@ export function parseToolboxBackup(raw: string): ToolboxBackup {
   };
 }
 
-export async function importToolboxBackup(backup: ToolboxBackup) {
+export async function importToolboxBackup(backup: ToolboxBackup, fallbackSettings = defaultSettings) {
   await Promise.all([importWrongBookSnapshot(backup.wrongbook), mergeMasteryRecords(backup.masteryRecords)]);
-  const currentSettings = readClientSettings();
+  const currentSettings = readClientSettings(fallbackSettings);
   writeClientSettings({
     ...backup.settings,
     developerMode: currentSettings.developerMode,

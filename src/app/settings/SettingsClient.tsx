@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
+import { useMemo } from "react";
 import { SettingsSection } from "../components/SettingsSection";
 import { useSnackbar } from "../components/Snackbar";
 import { ThemePicker } from "../components/ThemePicker";
-import type { ToolboxSettings } from "@/lib/types";
+import { defaultSettingsForLocale, type ToolboxSettings } from "@/lib/types";
 import { useEdition, writeEdition } from "@/lib/edition";
 import { restartOnboarding } from "@/lib/onboarding";
 import { DataManagement } from "./DataManagement";
@@ -25,9 +26,10 @@ function checkedFrom(event: React.FormEvent<HTMLElement>) {
 
 export function SettingsClient() {
   const router = useRouter();
-  const settings = useClientSettings();
-  const edition = useEdition();
   const { locale, t } = useI18n();
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
+  const settings = useClientSettings(fallbackSettings);
+  const edition = useEdition();
   const { showSnackbar } = useSnackbar();
 
   function update(next: Partial<ToolboxSettings>) {
@@ -128,7 +130,7 @@ export function SettingsClient() {
         description="settings.onboarding.description"
         control={<md-outlined-button onClick={restartInitialGuide}>{t("settings.onboarding.action")}</md-outlined-button>}
       />
-      <DataManagement />
+      <DataManagement fallbackSettings={fallbackSettings} />
       <section className="settings-group" aria-labelledby="advanced-settings-title">
         <div className="settings-group__header">
           <p className="breadcrumb">Settings</p>

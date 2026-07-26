@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   clearDeveloperSyncSource,
   isDeveloperSyncSourceReady,
@@ -12,6 +12,7 @@ import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { SettingsSection } from "../components/SettingsSection";
 import { useSnackbar } from "../components/Snackbar";
+import { defaultSettingsForLocale } from "@/lib/types";
 
 function valueFrom(event: React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
@@ -23,9 +24,10 @@ function selectedFrom(event: React.FormEvent<HTMLElement>) {
 }
 
 export function DeveloperClient() {
-  const settings = useClientSettings();
   const [developerSource, setDeveloperSource] = useState<DeveloperSyncSource>(() => readDeveloperSyncSourceDraft());
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
+  const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
+  const settings = useClientSettings(fallbackSettings);
   const { showSnackbar } = useSnackbar();
 
   function updateSettings(showTranslationKeys: boolean) {

@@ -157,6 +157,16 @@ function getVisibleDefinitionLanguages(word: VocabWord | undefined, selected: Vo
   return fallback.length > 0 ? fallback : selected;
 }
 
+function loadWrongBookData(clientId: string) {
+  return Promise.allSettled([readLocalWrongBook(clientId), readMasteryMap()] as const);
+}
+
+function wrongBookLoadErrorKey(error: unknown): MessageKey {
+  return error instanceof Error && error.message.includes("IDB_UPGRADE_BLOCKED")
+    ? "vocab.wrongbookLoadBlocked"
+    : "vocab.wrongbookLoadError";
+}
+
 export function VocabClient() {
   const router = useRouter();
   const { locale, t } = useI18n();
@@ -206,25 +216,38 @@ export function VocabClient() {
   const definitionLanguageMode = getDefinitionLanguageMode(definitionLanguages);
   const visibleDefinitionLanguages = getVisibleDefinitionLanguages(currentWord, definitionLanguages);
 
+  const applyWrongBookData = useCallback((results: Awaited<ReturnType<typeof loadWrongBookData>>) => {
+    const [wrongBookResult, masteryResult] = results;
+    if (wrongBookResult.status === "fulfilled") {
+      setWrongBook(wrongBookResult.value);
+    } else {
+      showSnackbar(t(wrongBookLoadErrorKey(wrongBookResult.reason)), "error");
+    }
+
+    if (masteryResult.status === "fulfilled") {
+      setMasteryById(masteryResult.value);
+    } else {
+      if (wrongBookResult.status === "fulfilled") showSnackbar(t("vocab.masteryLoadError"), "error");
+    }
+    return wrongBookResult.status === "fulfilled" && masteryResult.status === "fulfilled";
+  }, [showSnackbar, t]);
+
   const refreshWrongBook = useCallback(async () => {
-    const [snapshot, mastery] = await Promise.all([readLocalWrongBook(clientId), readMasteryMap()]);
-    setWrongBook(snapshot);
-    setMasteryById(mastery);
-  }, [clientId]);
+    return applyWrongBookData(await loadWrongBookData(clientId));
+  }, [applyWrongBookData, clientId]);
 
   useEffect(() => {
     let active = true;
     async function loadWrongBook() {
-      const [snapshot, mastery] = await Promise.all([readLocalWrongBook(clientId), readMasteryMap()]);
+      const results = await loadWrongBookData(clientId);
       if (!active) return;
-      setWrongBook(snapshot);
-      setMasteryById(mastery);
+      applyWrongBookData(results);
     }
     void loadWrongBook();
     return () => {
       active = false;
     };
-  }, [clientId]);
+  }, [applyWrongBookData, clientId]);
 
   const selectedMetas = useMemo(() => list.filter((item) => selectedUnits.includes(item.name)) as VocabListMeta[], [selectedUnits]);
   const selectedCustomLists = useMemo(() => uploadedLists.filter((item) => selectedUploadedIds.includes(item.name)), [selectedUploadedIds, uploadedLists]);
@@ -536,8 +559,8 @@ export function VocabClient() {
     const file = event.target.files?.[0];
     if (!file) return;
     await importWrongBookSnapshot(JSON.parse(await file.text()) as Partial<WrongBookSnapshot>);
-    await refreshWrongBook();
-    showSnackbar(t("vocab.importSuccess"));
+    const refreshed = await refreshWrongBook();
+    if (refreshed) showSnackbar(t("vocab.importSuccess"));
     event.target.value = "";
   }
 
@@ -545,8 +568,8 @@ export function VocabClient() {
     setCloudAction("pull");
     try {
       await pullAndMergeWrongBook();
-      await refreshWrongBook();
-      showSnackbar(t("vocab.cloud.pullSuccess"));
+      const refreshed = await refreshWrongBook();
+      if (refreshed) showSnackbar(t("vocab.cloud.pullSuccess"));
     } catch {
       showSnackbar(t("vocab.cloud.pullError"), "error");
     } finally {
@@ -570,8 +593,8 @@ export function VocabClient() {
     setCloudAction("merge");
     try {
       await mergeUploadWrongBook();
-      await refreshWrongBook();
-      showSnackbar(t("vocab.cloud.mergeSuccess"));
+      const refreshed = await refreshWrongBook();
+      if (refreshed) showSnackbar(t("vocab.cloud.mergeSuccess"));
     } catch {
       showSnackbar(t("vocab.cloud.mergeError"), "error");
     } finally {

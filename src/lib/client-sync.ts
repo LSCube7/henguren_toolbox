@@ -7,13 +7,16 @@ import type { UserSession, WrongBookSnapshot } from "./types";
 import { emptyWrongBook, mergeWrongBooks, normalizeWrongBook } from "./wrongbook";
 
 export type SyncStatus = "signed-out" | "offline" | "ready" | "syncing" | "synced" | "error";
+export type SyncSource = "local" | "account" | "custom";
+export type SyncUnavailableReason = "browser-offline" | "server-unavailable" | "source-unavailable";
 
 export type WrongBookSyncSummary = {
   status: SyncStatus;
+  source: SyncSource;
+  unavailableReason?: SyncUnavailableReason;
   user: UserSession | null;
   localCount: number;
   cloudCount?: number;
-  message: string;
 };
 
 function loadDeveloperSyncSource() {
@@ -29,33 +32,35 @@ async function readUser() {
 export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> {
   const clientId = getClientId();
   const local = await readLocalWrongBook(clientId);
+  const developerSource = readDeveloperSyncSource();
   if (!isOnline()) {
     return {
       status: "offline",
+      source: developerSource ? "custom" : "local",
+      unavailableReason: "browser-offline",
       user: null,
-      localCount: local.records.length,
-      message: `当前离线，云端错题本不可用；本地错题本仍可使用（${local.records.length} 词）。`
+      localCount: local.records.length
     };
   }
 
-  const developerSource = readDeveloperSyncSource();
   if (developerSource) {
     try {
       const { readDeveloperWrongBook } = await loadDeveloperSyncSource();
       const cloud = await readDeveloperWrongBook(developerSource);
       return {
         status: "ready",
+        source: "custom",
         user: null,
         localCount: local.records.length,
-        cloudCount: cloud?.records.length ?? 0,
-        message: `使用自定义同步源：本地 ${local.records.length} 词，云端 ${cloud?.records.length ?? 0} 词。`
+        cloudCount: cloud?.records.length ?? 0
       };
     } catch {
       return {
         status: "error",
+        source: "custom",
+        unavailableReason: "source-unavailable",
         user: null,
-        localCount: local.records.length,
-        message: "自定义同步源暂时不可用，请检查 R2 配置与 CORS 设置。"
+        localCount: local.records.length
       };
     }
   }
@@ -66,18 +71,19 @@ export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> 
   } catch {
     return {
       status: "offline",
+      source: "account",
+      unavailableReason: "server-unavailable",
       user: null,
-      localCount: local.records.length,
-      message: `当前无法连接服务器；本地错题本仍可使用（${local.records.length} 词）。`
+      localCount: local.records.length
     };
   }
 
   if (!user) {
     return {
       status: "signed-out",
+      source: "local",
       user: null,
-      localCount: local.records.length,
-      message: "未登录，错题本仅保存在本地。"
+      localCount: local.records.length
     };
   }
 
@@ -87,28 +93,30 @@ export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> 
   } catch {
     return {
       status: "offline",
+      source: "account",
+      unavailableReason: "server-unavailable",
       user,
-      localCount: local.records.length,
-      message: `当前离线或网络不可用；本地错题本仍可使用（${local.records.length} 词）。`
+      localCount: local.records.length
     };
   }
 
   if (!response.ok) {
     return {
       status: "error",
+      source: "account",
+      unavailableReason: "source-unavailable",
       user,
-      localCount: local.records.length,
-      message: "云端错题本暂时不可用。"
+      localCount: local.records.length
     };
   }
 
   const cloud = (await response.json()) as WrongBookSnapshot;
   return {
     status: "ready",
+    source: "account",
     user,
     localCount: local.records.length,
-    cloudCount: cloud.records.length,
-    message: `本地 ${local.records.length} 词，云端 ${cloud.records.length} 词。`
+    cloudCount: cloud.records.length
   };
 }
 

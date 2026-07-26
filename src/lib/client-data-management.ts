@@ -1,11 +1,11 @@
 "use client";
 
 import { getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
+import { readClientSettings, writeClientSettings } from "./client-settings";
 import { editionStorageKey, writeEdition, type Edition } from "./edition";
 import { onboardingChangeEvent, onboardingStorageKey, readOnboardingState, type OnboardingState } from "./onboarding";
 import { normalizeToolboxSettings, type ToolboxSettings, type WrongBookSnapshot } from "./types";
 
-const settingsKey = "henguren-v3-settings";
 const masteryDbName = "henguren-v3-mastery";
 const masteryStoreName = "records";
 
@@ -69,19 +69,10 @@ async function mergeMasteryRecords(records: BackupMasteryRecord[]) {
   });
 }
 
-function readSettings() {
-  try {
-    const saved = localStorage.getItem(settingsKey);
-    return normalizeToolboxSettings(saved ? JSON.parse(saved) : null);
-  } catch {
-    return normalizeToolboxSettings(null);
-  }
-}
-
 export async function createToolboxBackup(): Promise<ToolboxBackup> {
   const edition = localStorage.getItem(editionStorageKey) === "senior" ? "senior" : "junior";
   const [wrongbook, masteryRecords] = await Promise.all([readLocalWrongBook(getClientId()), readMasteryRecords()]);
-  const settings = readSettings();
+  const settings = readClientSettings();
   return {
     app: "henguren-toolbox-v3",
     schemaVersion: 1,
@@ -133,11 +124,12 @@ export function parseToolboxBackup(raw: string): ToolboxBackup {
 
 export async function importToolboxBackup(backup: ToolboxBackup) {
   await Promise.all([importWrongBookSnapshot(backup.wrongbook), mergeMasteryRecords(backup.masteryRecords)]);
-  const currentSettings = readSettings();
-  localStorage.setItem(
-    settingsKey,
-    JSON.stringify(normalizeToolboxSettings({ ...backup.settings, developerMode: currentSettings.developerMode, updatedAt: new Date().toISOString() }))
-  );
+  const currentSettings = readClientSettings();
+  writeClientSettings({
+    ...backup.settings,
+    developerMode: currentSettings.developerMode,
+    updatedAt: new Date().toISOString()
+  });
   writeEdition(backup.edition);
   localStorage.setItem(onboardingStorageKey, JSON.stringify(backup.onboarding));
   window.dispatchEvent(new Event("henguren-theme-change"));

@@ -1,4 +1,4 @@
-import type { AppLocale } from "@/i18n/config";
+import { defaultLocale, type AppLocale } from "@/i18n/config";
 
 export type UserSession = {
   id: string;
@@ -90,7 +90,7 @@ export const defaultSettings: ToolboxSettings = {
   colorMode: "system",
   developerMode: false,
   showTranslationKeys: false,
-  locale: "zh-CN",
+  locale: defaultLocale,
   showHint: true,
   enableSlipDetection: false,
   defaultTestCount: 20,

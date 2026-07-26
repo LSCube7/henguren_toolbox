@@ -3,7 +3,7 @@
 import "../material-web";
 import { defaultThemeSeed, resolveThemeSeed } from "@/lib/theme-presets";
 import { argbFromHex, hexFromArgb, themeFromSourceColor, type Scheme } from "@material/material-color-utilities";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 type StoredTheme = {
   themePreset?: string;
@@ -141,11 +141,6 @@ function applyTheme(theme: StoredTheme) {
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeState, setThemeState] = useState<StoredTheme>(() => getStoredTheme());
-  const mounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false
-  );
 
   useEffect(() => {
     applyTheme(themeState);
@@ -172,10 +167,6 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
       media.removeEventListener("change", refreshTheme);
     };
   }, []);
-
-  if (!mounted) {
-    return null;
-  }
 
   return children;
 }

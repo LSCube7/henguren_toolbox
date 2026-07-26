@@ -8,12 +8,12 @@ import { defaultSettings, normalizeToolboxSettings, type ToolboxSettings } from 
 export const toolboxSettingsKey = "henguren-v3-settings";
 export const toolboxSettingsChangeEvent = "henguren-settings-change";
 
-function parseSettings(serialized: string | null): ToolboxSettings {
-  if (!serialized) return defaultSettings;
+function parseSettings(serialized: string | null, fallbackSettings = defaultSettings): ToolboxSettings {
+  if (!serialized) return fallbackSettings;
   try {
     return normalizeToolboxSettings(JSON.parse(serialized));
   } catch {
-    return defaultSettings;
+    return fallbackSettings;
   }
 }
 
@@ -39,7 +39,7 @@ export function writeClientSettings(settings: ToolboxSettings) {
   window.dispatchEvent(new Event(toolboxSettingsChangeEvent));
 }
 
-export function useClientSettings() {
+export function useClientSettings(fallbackSettings = defaultSettings) {
   const serialized = useSyncExternalStore(subscribeToSettings, getSettingsSnapshot, () => null);
-  return useMemo(() => parseSettings(serialized), [serialized]);
+  return useMemo(() => parseSettings(serialized, fallbackSettings), [fallbackSettings, serialized]);
 }

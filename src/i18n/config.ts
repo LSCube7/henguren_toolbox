@@ -7,7 +7,7 @@ export type AppLocale = (typeof supportedLocales)[number];
 export type MessageKey = keyof typeof zhCN;
 export type MessageValues = Record<string, string | number>;
 
-export const defaultLocale: AppLocale = "zh-CN";
+export const defaultLocale: AppLocale = "en-US";
 
 const dictionaries: Record<AppLocale, Record<MessageKey, string>> = {
   "zh-CN": zhCN,

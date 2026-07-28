@@ -363,6 +363,8 @@ export const zhCN = {
   "user.wrongbookSync.overwriteSuccess": "已用本地错题本上传覆盖云端。",
   "user.wrongbookSync.mergeSuccess": "已完成本地与云端合并上传。",
   "user.wrongbookSync.error": "错题本同步失败。",
+  "user.wrongbookSync.loadBlocked": "其他页面阻止了错题本升级。请关闭旧版工具箱标签页后刷新；错题数据仍保存在本机。调试信息：模块 wrongbook-storage，错误类型 IDB_UPGRADE_BLOCKED。",
+  "user.wrongbookSync.loadError": "本机错题本暂时无法读取，请刷新页面后重试。调试信息：模块 wrongbook-storage，错误类型 READ_FAILED。",
   "update.ready": "新版本已准备好，刷新页面即可更新。",
   "update.applying": "正在更新…",
   "update.action": "刷新更新",

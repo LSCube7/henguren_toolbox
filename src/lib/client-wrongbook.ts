@@ -211,7 +211,7 @@ export function importWrongBookSnapshot(snapshot: Partial<WrongBookSnapshot>) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const incoming = normalizeWrongBook(snapshot, snapshot.userId || "import");
-    await updateLocalWrongBook(clientId, (local) => {
+    return await updateLocalWrongBook(clientId, (local) => {
       const merged = mergeWrongBooks("local", local, incoming);
       return { ...merged, clientId, userId: "local" };
     });

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts, removeWrongBookRecord } from "./wrongbook.ts";
+import { mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryReconciliation, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts, removeWrongBookRecord } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",
@@ -663,6 +663,31 @@ test("plans mastery migration to the tuple record id", () => {
   assert.equal(migrations[0].legacyId, legacyMastery.id);
   assert.equal(migrations[0].canonicalId, record.id);
   assert.deepEqual(migrations[0].record, { ...legacyMastery, id: record.id });
+});
+
+test("reconciles legacy mastery ids and prunes inactive records", () => {
+  const legacyMastery = {
+    id: "legacy-import-id",
+    level: "reviewing",
+    correctStreak: 2,
+    reviewCount: 4,
+    lastReviewedAt: "2026-01-03T00:00:00.000Z",
+    nextReviewAt: "2026-01-06T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z"
+  };
+  const orphanedMastery = { ...legacyMastery, id: "deleted:word" };
+  const plan = planMasteryReconciliation(
+    [{ ...word, aliases: [legacyMastery.id] }],
+    {
+      [legacyMastery.id]: legacyMastery,
+      [orphanedMastery.id]: orphanedMastery
+    }
+  );
+
+  assert.deepEqual(Object.keys(plan.masteryById), [word.id]);
+  assert.deepEqual(plan.masteryById[word.id], { ...legacyMastery, id: word.id });
+  assert.deepEqual(plan.recordsToPut, [{ ...legacyMastery, id: word.id }]);
+  assert.deepEqual(new Set(plan.recordIdsToDelete), new Set([legacyMastery.id, orphanedMastery.id]));
 });
 
 test("keeps newer canonical mastery progress during id migration", () => {

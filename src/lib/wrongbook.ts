@@ -172,6 +172,36 @@ export function planMasteryRecordIdMigrations(
   });
 }
 
+export function planMasteryReconciliation(
+  records: WrongBookRecord[],
+  masteryById: Record<string, MasteryRecord>,
+  deletedRecords: WrongBookTombstone[] = []
+) {
+  const reconciled = { ...masteryById };
+  const recordsToPut = new Map<string, MasteryRecord>();
+  const recordIdsToDelete = new Set<string>();
+  planMasteryRecordIdMigrations(records, masteryById, deletedRecords).forEach(({ legacyId, canonicalId, record }) => {
+    recordsToPut.set(canonicalId, record);
+    recordIdsToDelete.add(legacyId);
+    delete reconciled[legacyId];
+    reconciled[canonicalId] = record;
+  });
+
+  const activeIds = new Set(records.map((record) => record.id));
+  Object.keys(reconciled).forEach((id) => {
+    if (activeIds.has(id)) return;
+    recordIdsToDelete.add(id);
+    recordsToPut.delete(id);
+    delete reconciled[id];
+  });
+
+  return {
+    masteryById: reconciled,
+    recordsToPut: Array.from(recordsToPut.values()),
+    recordIdsToDelete: Array.from(recordIdsToDelete)
+  };
+}
+
 function uniqueStrings(values: unknown) {
   return Array.isArray(values) ? Array.from(new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))) : [];
 }

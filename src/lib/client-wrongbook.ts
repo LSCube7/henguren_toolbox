@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { legacyWrongBookRecordId, mergeWrongBooks, mergeWrongBookTombstones, needsWrongBookCanonicalization, normalizeWrongBook, removeWrongBookBatchAttempts, wrongBookRecordId } from "./wrongbook";
+import { mergeWrongBooks, mergeWrongBookTombstones, needsWrongBookCanonicalization, normalizeWrongBook, removeWrongBookBatchAttempts, removeWrongBookRecord as removeWrongBookRecordData, wrongBookRecordId } from "./wrongbook";
 
 const DB_NAME = "henguren-v3";
 const STORE_NAME = "wrongbook";
@@ -222,31 +222,25 @@ export function deleteWrongRecord(id: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
+    let masteryRecordIds: string[] = [];
     await updateLocalWrongBook(clientId, (snapshot) => {
-      const deletedRecord = snapshot.records.find((record) => record.id === id);
-      const deletedAttemptIds = deletedRecord?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
-      const aliases = deletedRecord
-        ? Array.from(new Set([
-          deletedRecord.id,
-          ...(deletedRecord.aliases ?? []),
-          legacyWrongBookRecordId(deletedRecord),
-          wrongBookRecordId(deletedRecord)
-        ])).filter((alias) => alias !== id)
-        : [];
+      const deletion = removeWrongBookRecordData(snapshot.records, id);
+      masteryRecordIds = deletion.masteryRecordIds;
       return {
         ...snapshot,
         updatedAt: now,
-        records: snapshot.records.filter((record) => record.id !== id),
+        records: deletion.records,
         deletedRecords: upsertTombstone(snapshot.deletedRecords, {
-          id,
-          canonicalRecordId: deletedRecord && id === wrongBookRecordId(deletedRecord) ? id : undefined,
-          aliases: aliases.length > 0 ? aliases : undefined,
+          id: deletion.deletedRecordId,
+          canonicalRecordId: deletion.canonicalRecordId,
+          aliases: deletion.aliases.length > 0 ? deletion.aliases : undefined,
           clientId,
           deletedAt: now,
-          deletedAttemptIds
+          deletedAttemptIds: deletion.deletedAttemptIds
         })
       };
     });
+    return masteryRecordIds;
   });
 }
 

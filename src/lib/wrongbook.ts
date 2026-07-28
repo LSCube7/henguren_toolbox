@@ -406,6 +406,47 @@ export function removeWrongBookBatchAttempts(records: WrongBookRecord[], testNo:
   return { records: remainingRecords, removedRecordIds, deletedAttemptIds };
 }
 
+export function removeWrongBookRecord(records: WrongBookRecord[], id: string) {
+  const requestedId = id.toLowerCase();
+  const exactRecord = records.find((record) => recordId(record) === requestedId);
+  const candidates = exactRecord
+    ? [exactRecord]
+    : records.filter((record) => recordIdAliases(record).includes(requestedId));
+  const candidateKeys = new Set(candidates.map(recordKey));
+
+  if (candidateKeys.size !== 1) {
+    return {
+      records,
+      deletedRecordId: requestedId,
+      canonicalRecordId: undefined,
+      aliases: [] as string[],
+      deletedAttemptIds: [] as string[],
+      removedRecordIds: [] as string[],
+      masteryRecordIds: [] as string[]
+    };
+  }
+
+  const [targetKey] = candidateKeys;
+  const deletedRecords = records.filter((record) => recordKey(record) === targetKey);
+  const remainingRecords = records.filter((record) => recordKey(record) !== targetKey);
+  const canonicalRecordId = wrongBookRecordId(deletedRecords[0]);
+  const deletedAliases = Array.from(new Set(deletedRecords.flatMap(recordIdAliases)));
+  const remainingAliases = new Set(remainingRecords.flatMap(recordIdAliases));
+  const removedRecordIds = Array.from(new Set(deletedRecords.map(recordId)));
+
+  return {
+    records: remainingRecords,
+    deletedRecordId: canonicalRecordId,
+    canonicalRecordId,
+    aliases: deletedAliases.filter((alias) => alias !== canonicalRecordId),
+    deletedAttemptIds: uniqueStrings(deletedRecords.flatMap((record) => (
+      (record.wrongAttempts ?? []).map((attempt) => attempt.id)
+    ))),
+    removedRecordIds,
+    masteryRecordIds: removedRecordIds.filter((recordId) => !remainingAliases.has(recordId))
+  };
+}
+
 export function emptyWrongBook(userId: string, clientId = "server"): WrongBookSnapshot {
   return {
     schemaVersion: 2,

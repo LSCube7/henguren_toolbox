@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts } from "./wrongbook.ts";
+import { mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts, removeWrongBookRecord } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",
@@ -339,6 +339,98 @@ test("reports only records fully removed by a batch deletion", () => {
   assert.deepEqual(result.records.map((record) => record.id), [retained.id, unrelated.id]);
   assert.deepEqual(result.records[0].wrongAttempts.map((attempt) => attempt.id), ["other-attempt"]);
   assert.equal(result.records[1], unrelated);
+});
+
+test("deletes every physical record for one logical wrongbook entry", () => {
+  const canonicalId = 'tuple-v1:["a:b","c"]';
+  const legacyId = "a:b:c";
+  const collisionId = 'tuple-v1:["a","b:c"]';
+  const result = removeWrongBookRecord([
+    {
+      ...word,
+      id: canonicalId,
+      sourceName: "a:b",
+      word: "c",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "canonical-attempt", clientId: "current", createdAt: word.createdAt }]
+    },
+    {
+      ...word,
+      id: legacyId,
+      sourceName: "a:b",
+      word: "c",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "legacy-attempt", clientId: "old-tab", createdAt: word.createdAt }]
+    },
+    {
+      ...word,
+      id: collisionId,
+      aliases: [legacyId],
+      sourceName: "a",
+      word: "b:c",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "collision-attempt", clientId: "other", createdAt: word.createdAt }]
+    }
+  ], canonicalId);
+
+  assert.deepEqual(result.records.map((record) => record.id), [collisionId]);
+  assert.equal(result.deletedRecordId, canonicalId);
+  assert.equal(result.canonicalRecordId, canonicalId);
+  assert.deepEqual(result.aliases, [legacyId]);
+  assert.deepEqual(result.deletedAttemptIds.sort(), ["canonical-attempt", "legacy-attempt"]);
+  assert.deepEqual(result.removedRecordIds, [canonicalId, legacyId]);
+  assert.deepEqual(result.masteryRecordIds, [canonicalId]);
+
+  const mergedAfterDeletion = mergeWrongBooks("user", snapshot({
+    records: result.records,
+    deletedRecords: [{
+      id: result.deletedRecordId,
+      canonicalRecordId: result.canonicalRecordId,
+      aliases: result.aliases,
+      clientId: "deleting-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: result.deletedAttemptIds
+    }]
+  }), snapshot({
+    records: [{
+      ...word,
+      id: legacyId,
+      sourceName: "a:b",
+      word: "c",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "legacy-attempt", clientId: "old-tab", createdAt: word.createdAt }]
+    }]
+  }));
+
+  assert.deepEqual(mergedAfterDeletion.records.map((record) => record.id), [collisionId]);
+});
+
+test("deletes a logical record through a unique retained alias", () => {
+  const result = removeWrongBookRecord([{
+    ...word,
+    aliases: ["stale-import-id"],
+    wrongCount: 1,
+    wrongAttempts: [{ id: "attempt", clientId: "client", createdAt: word.createdAt }]
+  }], "stale-import-id");
+
+  assert.deepEqual(result.records, []);
+  assert.equal(result.deletedRecordId, word.id);
+  assert.deepEqual(result.aliases, ["stale-import-id"]);
+  assert.deepEqual(result.masteryRecordIds, [word.id]);
+});
+
+test("does not delete records through an ambiguous retained alias", () => {
+  const records = [
+    { ...word, id: "first", aliases: ["shared-id"], sourceName: "first" },
+    { ...word, id: "second", aliases: ["shared-id"], sourceName: "second" }
+  ];
+  const result = removeWrongBookRecord(records, "shared-id");
+
+  assert.equal(result.records, records);
+  assert.equal(result.deletedRecordId, "shared-id");
+  assert.equal(result.canonicalRecordId, undefined);
+  assert.deepEqual(result.deletedAttemptIds, []);
+  assert.deepEqual(result.masteryRecordIds, []);
 });
 
 test("applies legacy-id tombstones to every alias in a merged record", () => {

@@ -531,8 +531,9 @@ export function VocabClient() {
   }
 
   async function removeWrongRecord(id: string) {
+    let removedMasteryRecordIds: string[];
     try {
-      await deleteWrongRecord(id);
+      removedMasteryRecordIds = await deleteWrongRecord(id);
     } catch {
       showSnackbar(t("vocab.wrongbookDeleteError"), "error");
       return;
@@ -540,7 +541,7 @@ export function VocabClient() {
 
     await refreshWrongBook();
     try {
-      await cleanupInactiveMasteryRecords([id]);
+      await cleanupInactiveMasteryRecords(removedMasteryRecordIds);
     } catch {
       showSnackbar(t("vocab.masteryCleanupError"), "error");
     }

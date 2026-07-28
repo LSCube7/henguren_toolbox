@@ -120,6 +120,7 @@ Known localStorage/sessionStorage keys:
 - `henguren-v3-edition`: `"junior" | "senior"`.
 - `henguren-v3-onboarding`: onboarding completion state.
 - `henguren-v3-onboarding-step`: current onboarding step.
+- `henguren-v3-onboarding-cloud-choice`: session-only pre-cloud settings and choice used to restore local preferences if onboarding reloads.
 - `henguren-v3-dev-sync-source`: developer-mode custom R2 sync source; contains browser-stored credentials and must never be uploaded to cloud settings.
 
 Settings are local-first. Upload to cloud only through explicit settings sync.

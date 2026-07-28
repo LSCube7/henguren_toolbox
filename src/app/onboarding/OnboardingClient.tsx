@@ -5,7 +5,14 @@ import type { Route } from "next";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { ThemePicker } from "../components/ThemePicker";
-import { completeOnboarding, onboardingLoginDecisionStorageKey, onboardingStepStorageKey } from "@/lib/onboarding";
+import {
+  clearOnboardingCloudChoice,
+  completeOnboarding,
+  onboardingLoginDecisionStorageKey,
+  onboardingStepStorageKey,
+  readOnboardingCloudChoice,
+  writeOnboardingCloudChoice
+} from "@/lib/onboarding";
 import { readEdition, writeEdition, type Edition } from "@/lib/edition";
 import { defaultSettingsForLocale, normalizeToolboxSettings, type ToolboxSettings, type UserSession } from "@/lib/types";
 import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
@@ -91,14 +98,15 @@ export function OnboardingClient() {
   const authMessageKey = authMessages[authStatus];
   const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());
   const [settings, setSettings] = useState<ToolboxSettings>(() => readClientSettings(requestFallbackSettings));
-  const [localSettingsBeforeCloud] = useState<ToolboxSettings>(settings);
+  const [savedCloudChoice] = useState(() => readOnboardingCloudChoice(requestFallbackSettings));
+  const [localSettingsBeforeCloud, setLocalSettingsBeforeCloud] = useState<ToolboxSettings>(() => savedCloudChoice?.localSettings ?? settings);
   const [edition, setEdition] = useState<Edition>(() => readEdition());
   const [user, setUser] = useState<UserSession | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [loginSkipped, setLoginSkipped] = useState(() => readLoginSkipped());
   const [cloudStatus, setCloudStatus] = useState<CloudStatus>(() => (readLoginSkipped() ? "skipped" : "idle"));
   const [cloudSettings, setCloudSettings] = useState<ToolboxSettings | null>(null);
-  const [cloudDecision, setCloudDecision] = useState<CloudDecision>(null);
+  const [cloudDecision, setCloudDecision] = useState<CloudDecision>(() => savedCloudChoice?.decision ?? null);
   const [cloudErrorStatus, setCloudErrorStatus] = useState("");
   const [cloudCheckVersion, setCloudCheckVersion] = useState(0);
   const step = steps[stepIndex];
@@ -151,12 +159,25 @@ export function OnboardingClient() {
 
   useEffect(() => {
     if (!user) return;
+    const userId = user.id;
 
     let active = true;
     async function loadCloudSettings() {
       setCloudStatus("loading");
-      setCloudDecision(null);
       setCloudErrorStatus("");
+      const savedChoice = readOnboardingCloudChoice(requestFallbackSettings);
+      if (savedChoice?.userId === userId) {
+        setLocalSettingsBeforeCloud(savedChoice.localSettings);
+        setCloudDecision(savedChoice.decision);
+      } else {
+        if (savedChoice) {
+          setSettings(savedChoice.localSettings);
+          setLocalSettingsBeforeCloud(savedChoice.localSettings);
+          writeSettings(savedChoice.localSettings);
+          clearOnboardingCloudChoice();
+        }
+        setCloudDecision(null);
+      }
       try {
         const response = await fetch("/api/settings?availability=1", { cache: "no-store" });
         if (!response.ok) {
@@ -224,13 +245,27 @@ export function OnboardingClient() {
   }
 
   function skipLogin() {
+    const savedChoice = readOnboardingCloudChoice(requestFallbackSettings);
+    if (savedChoice) {
+      setSettings(savedChoice.localSettings);
+      setLocalSettingsBeforeCloud(savedChoice.localSettings);
+      writeSettings(savedChoice.localSettings);
+      clearOnboardingCloudChoice();
+    }
+    setCloudDecision(null);
     sessionStorage.setItem(onboardingLoginDecisionStorageKey, "skipped");
     setLoginSkipped(true);
     setCloudStatus("skipped");
   }
 
   function applyCloudSettings() {
-    if (!cloudSettings) return;
+    if (!cloudSettings || !user) return;
+    writeOnboardingCloudChoice({
+      version: 1,
+      userId: user.id,
+      decision: "cloud",
+      localSettings: localSettingsBeforeCloud
+    });
     setSettings(cloudSettings);
     writeSettings(cloudSettings);
     setCloudDecision("cloud");
@@ -240,6 +275,14 @@ export function OnboardingClient() {
     if (cloudDecision === "cloud") {
       setSettings(localSettingsBeforeCloud);
       writeSettings(localSettingsBeforeCloud);
+    }
+    if (user) {
+      writeOnboardingCloudChoice({
+        version: 1,
+        userId: user.id,
+        decision: "local",
+        localSettings: localSettingsBeforeCloud
+      });
     }
     setCloudDecision("local");
   }

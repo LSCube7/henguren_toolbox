@@ -15,6 +15,14 @@ function subscribeToOnboarding(onStoreChange: () => void) {
   };
 }
 
+function getOnboardingCompleted() {
+  return readOnboardingState().completed;
+}
+
+function getServerOnboardingCompleted() {
+  return true;
+}
+
 function encodeReturnPath(pathname: string, searchParams: URLSearchParams) {
   const query = searchParams.toString();
   return `${pathname}${query ? `?${query}` : ""}`;
@@ -24,18 +32,15 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const completed = useSyncExternalStore(
-    subscribeToOnboarding,
-    () => readOnboardingState().completed,
-    () => false
-  );
+  const completed = useSyncExternalStore(subscribeToOnboarding, getOnboardingCompleted, getServerOnboardingCompleted);
   const { t } = useI18n();
+  const returnPath = encodeReturnPath(pathname, searchParams);
 
   useEffect(() => {
     if (completed || pathname === "/onboarding") return;
-    const returnTo = encodeURIComponent(encodeReturnPath(pathname, searchParams));
+    const returnTo = encodeURIComponent(returnPath);
     router.replace(`/onboarding?returnTo=${returnTo}` as Route);
-  }, [completed, pathname, router, searchParams]);
+  }, [completed, pathname, returnPath, router]);
 
   return (
     <>

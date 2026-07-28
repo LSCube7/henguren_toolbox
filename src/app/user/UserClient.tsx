@@ -53,6 +53,7 @@ function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
     return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.detail.offline";
   }
   if (summary.status === "error") {
+    if (summary.source === "local") return "user.wrongbookSync.loadError";
     return summary.source === "custom" ? "sync.detail.customError" : "sync.detail.cloudError";
   }
   if (summary.status === "ready") {
@@ -60,6 +61,29 @@ function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
   }
   if (summary.status === "synced") return "sync.synced";
   return "sync.detail.signedOut";
+}
+
+function syncSummaryLoadErrorKey(error: unknown): MessageKey {
+  return error instanceof Error && error.message.includes("IDB_UPGRADE_BLOCKED")
+    ? "user.wrongbookSync.loadBlocked"
+    : "user.wrongbookSync.loadError";
+}
+
+async function readSyncSummarySafely() {
+  try {
+    return { summary: await readWrongBookSyncSummary(), error: null };
+  } catch (error) {
+    return {
+      summary: {
+        status: "error",
+        source: "local",
+        unavailableReason: "source-unavailable",
+        user: null,
+        localCount: 0
+      } satisfies WrongBookSyncSummary,
+      error
+    };
+  }
 }
 
 export function UserClient() {
@@ -80,7 +104,8 @@ export function UserClient() {
 
   const refresh = useCallback(async (markLoading = false) => {
     if (markLoading) setLoading(true);
-    const summary = await readWrongBookSyncSummary();
+    const { summary, error } = await readSyncSummarySafely();
+    if (error) showSnackbar(t(syncSummaryLoadErrorKey(error)), "error");
     if (isOnline()) {
       try {
         const meResponse = await fetch("/api/me");
@@ -92,12 +117,12 @@ export function UserClient() {
     }
     setSyncSummary(summary);
     setLoading(false);
-  }, []);
+  }, [showSnackbar, t]);
 
   useEffect(() => {
     let active = true;
     async function load() {
-      const summary = await readWrongBookSyncSummary();
+      const { summary, error } = await readSyncSummarySafely();
       let nextUser = summary.user;
       if (isOnline()) {
         try {
@@ -109,6 +134,7 @@ export function UserClient() {
         }
       }
       if (!active) return;
+      if (error) showSnackbar(t(syncSummaryLoadErrorKey(error)), "error");
       setUser(nextUser);
       setSyncSummary(summary);
       setLoading(false);
@@ -125,7 +151,7 @@ export function UserClient() {
       window.removeEventListener("online", reload);
       window.removeEventListener("offline", reload);
     };
-  }, []);
+  }, [showSnackbar, t]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });

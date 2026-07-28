@@ -365,6 +365,8 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "user.wrongbookSync.overwriteSuccess": "Overwrote the cloud wrongbook with the local copy.",
   "user.wrongbookSync.mergeSuccess": "Merged local and cloud wrongbooks and uploaded the result.",
   "user.wrongbookSync.error": "Wrongbook sync failed.",
+  "user.wrongbookSync.loadBlocked": "Another page blocked the wrongbook upgrade. Close older toolbox tabs, then refresh; your wrongbook remains stored on this device. Debug: module wrongbook-storage, error IDB_UPGRADE_BLOCKED.",
+  "user.wrongbookSync.loadError": "The local wrongbook could not be read. Refresh the page and try again. Debug: module wrongbook-storage, error READ_FAILED.",
   "update.ready": "A new version is ready. Refresh the page to update.",
   "update.applying": "Updating…",
   "update.action": "Refresh and update",

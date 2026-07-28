@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { readJsonFromR2, writeJsonToR2, wrongBookBackupKey, wrongBookKey } from "@/lib/r2";
-import { emptyWrongBook, normalizeWrongBook } from "@/lib/wrongbook";
+import { emptyWrongBook, mergeWrongBooks, normalizeWrongBook } from "@/lib/wrongbook";
 import type { WrongBookSnapshot } from "@/lib/types";
 
 export async function GET() {
@@ -17,7 +17,8 @@ export async function PUT(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = (await request.json()) as Partial<WrongBookSnapshot>;
-  const snapshot = normalizeWrongBook({ ...body, updatedAt: new Date().toISOString() }, user.id);
+  const normalized = normalizeWrongBook({ ...body, updatedAt: new Date().toISOString() }, user.id);
+  const snapshot = mergeWrongBooks(user.id, normalized);
   await writeJsonToR2(wrongBookKey(user.id), snapshot);
   await writeJsonToR2(wrongBookBackupKey(user.id, snapshot.updatedAt.replaceAll(":", "-")), snapshot);
 

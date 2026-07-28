@@ -1,6 +1,8 @@
 "use client";
 
 import { nextMasteryRecord, type MasteryRecord } from "./mastery";
+import type { WrongBookRecord, WrongBookTombstone } from "./types";
+import { planMasteryRecordIdMigrations } from "./wrongbook";
 
 const DB_NAME = "henguren-v3-mastery";
 const DB_VERSION = 1;
@@ -31,6 +33,39 @@ export async function readMasteryRecords(): Promise<MasteryRecord[]> {
 export async function readMasteryMap() {
   const records = await readMasteryRecords();
   return Object.fromEntries(records.map((record) => [record.id, record]));
+}
+
+export async function migrateMasteryRecordIds(
+  records: WrongBookRecord[],
+  masteryById: Record<string, MasteryRecord>,
+  deletedRecords: WrongBookTombstone[] = []
+) {
+  if (planMasteryRecordIdMigrations(records, masteryById, deletedRecords).length === 0) return masteryById;
+  const db = await openDb();
+  return await new Promise<Record<string, MasteryRecord>>((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+    let migrated = masteryById;
+    request.onsuccess = () => {
+      const current = Object.fromEntries((request.result as MasteryRecord[]).map((record) => [record.id, record]));
+      migrated = { ...current };
+      planMasteryRecordIdMigrations(records, current, deletedRecords).forEach(({ legacyId, canonicalId, record }) => {
+        store.put(record);
+        store.delete(legacyId);
+        delete migrated[legacyId];
+        migrated[canonicalId] = record;
+      });
+    };
+    transaction.oncomplete = () => {
+      db.close();
+      resolve(migrated);
+    };
+    transaction.onabort = () => {
+      db.close();
+      reject(transaction.error ?? new Error("掌握度记录迁移事务已中止。"));
+    };
+  });
 }
 
 export async function recordMasteryResult(id: string, correct: boolean) {

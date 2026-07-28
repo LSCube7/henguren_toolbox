@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook } from "./wrongbook";
+import { mergeWrongBooks, mergeWrongBookTombstones, needsWrongBookCanonicalization, normalizeWrongBook, removeWrongBookBatchAttempts, removeWrongBookRecord as removeWrongBookRecordData, wrongBookRecordId } from "./wrongbook";
 
 const DB_NAME = "henguren-v3";
 const STORE_NAME = "wrongbook";
@@ -160,10 +160,21 @@ export async function readLocalWrongBook(clientId: string): Promise<WrongBookSna
   });
 }
 
+export async function canonicalizeLocalWrongBookRecordIds(clientId: string): Promise<WrongBookSnapshot> {
+  const current = await readLocalWrongBook(clientId);
+  if (!needsWrongBookCanonicalization(current)) return current;
+
+  return await withWrongBookWrite(async () => updateLocalWrongBook(clientId, (latest) => {
+    if (!needsWrongBookCanonicalization(latest)) return latest;
+    const canonical = mergeWrongBooks(latest.userId, latest);
+    return { ...canonical, clientId: latest.clientId };
+  }));
+}
+
 export function addWrongWord(word: VocabWord, testNo: string, batchName?: string, existingRecordId?: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
-    const id = existingRecordId ?? `${word.sourceName ?? "custom"}:${word.word}`.toLowerCase();
+    const id = existingRecordId ?? wrongBookRecordId(word);
     const now = new Date().toISOString();
     const attemptId = `${clientId}:${crypto.randomUUID()}`;
     await updateLocalWrongBook(clientId, (snapshot) => {
@@ -174,6 +185,7 @@ export function addWrongWord(word: VocabWord, testNo: string, batchName?: string
       ];
       const next: WrongBookRecord = {
         id,
+        aliases: existing?.aliases,
         word: word.word,
         sourceName: word.sourceName ?? "custom",
         sourceTitle: word.sourceTitle,
@@ -210,17 +222,25 @@ export function deleteWrongRecord(id: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
+    let masteryRecordIds: string[] = [];
     await updateLocalWrongBook(clientId, (snapshot) => {
-      const deletedAttemptIds = snapshot.records
-        .find((record) => record.id === id)
-        ?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
+      const deletion = removeWrongBookRecordData(snapshot.records, id);
+      masteryRecordIds = deletion.masteryRecordIds;
       return {
         ...snapshot,
         updatedAt: now,
-        records: snapshot.records.filter((record) => record.id !== id),
-        deletedRecords: upsertTombstone(snapshot.deletedRecords, { id, clientId, deletedAt: now, deletedAttemptIds })
+        records: deletion.records,
+        deletedRecords: upsertTombstone(snapshot.deletedRecords, {
+          id: deletion.deletedRecordId,
+          canonicalRecordId: deletion.canonicalRecordId,
+          aliases: deletion.aliases.length > 0 ? deletion.aliases : undefined,
+          clientId,
+          deletedAt: now,
+          deletedAttemptIds: deletion.deletedAttemptIds
+        })
       };
     });
+    return masteryRecordIds;
   });
 }
 
@@ -228,30 +248,23 @@ export function deleteWrongBatch(testNo: string) {
   return withWrongBookWrite(async () => {
     const clientId = getClientId();
     const now = new Date().toISOString();
+    let removedRecordIds: string[] = [];
     await updateLocalWrongBook(clientId, (snapshot) => {
-      const deletedAttemptIds = snapshot.records.flatMap((record) =>
-        (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo === testNo).map((attempt) => attempt.id)
-      );
-      const records = snapshot.records.flatMap((record) => {
-        const wrongAttempts = (record.wrongAttempts ?? []).filter((attempt) => attempt.testNo !== testNo);
-        if (wrongAttempts.length === 0) return [];
-        if (wrongAttempts.length === record.wrongAttempts?.length) return [record];
-        return [{
-          ...record,
-          wrongCount: wrongAttempts.length,
-          wrongAttempts,
-          testNos: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.testNo ? [attempt.testNo] : [])))),
-          batchNames: Array.from(new Set(wrongAttempts.flatMap((attempt) => (attempt.batchName ? [attempt.batchName] : [])))),
-          updatedAt: now
-        }];
-      });
+      const deletion = removeWrongBookBatchAttempts(snapshot.records, testNo, now);
+      removedRecordIds = deletion.removedRecordIds;
       return {
         ...snapshot,
         updatedAt: now,
-        records,
-        deletedBatches: upsertTombstone(snapshot.deletedBatches, { id: testNo, clientId, deletedAt: now, deletedAttemptIds })
+        records: deletion.records,
+        deletedBatches: upsertTombstone(snapshot.deletedBatches, {
+          id: testNo,
+          clientId,
+          deletedAt: now,
+          deletedAttemptIds: deletion.deletedAttemptIds
+        })
       };
     });
+    return removedRecordIds;
   });
 }
 

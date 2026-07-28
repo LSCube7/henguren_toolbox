@@ -1,6 +1,6 @@
 "use client";
 
-import { getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
+import { canonicalizeLocalWrongBookRecordIds, getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
 import { readDeveloperSyncSource } from "./developer-sync-config";
 import { isOnline } from "./offline-cache";
 import type { UserSession, WrongBookSnapshot } from "./types";
@@ -136,17 +136,18 @@ export async function pullAndMergeWrongBook() {
 
 export async function overwriteCloudWrongBook() {
   if (!isOnline()) throw new Error("当前离线，无法上传错题本；本地错题本仍可使用。");
+  const local = await canonicalizeLocalWrongBookRecordIds(getClientId());
   const developerSource = readDeveloperSyncSource();
   if (developerSource) {
     const { writeDeveloperWrongBook } = await loadDeveloperSyncSource();
-    const snapshot = normalizeWrongBook(await readLocalWrongBook(getClientId()), developerSource.profileId);
+    const snapshot = normalizeWrongBook(local, developerSource.profileId);
     await writeDeveloperWrongBook(developerSource, snapshot);
     return snapshot;
   }
   const response = await fetch("/api/wrongbook", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(await readLocalWrongBook(getClientId()))
+    body: JSON.stringify(local)
   });
   if (!response.ok) throw new Error("需要登录后才能上传错题本。");
   return (await response.json()) as WrongBookSnapshot;

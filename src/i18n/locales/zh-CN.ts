@@ -491,6 +491,8 @@ export const zhCN = {
   "vocab.masteryUpdateError": "{message}；掌握度更新失败，请稍后重试。",
   "vocab.masterySaveError": "{message}；掌握度更新失败，错题仍已保存。",
   "vocab.wrongbookSaveError": "{message}；错题本保存失败，请在结果页下载错误 JSON 留存。",
+  "vocab.wrongbookDeleteError": "错题删除失败，请稍后重试。调试信息：模块 wrongbook-storage，错误类型 DELETE_FAILED。",
+  "vocab.masteryCleanupError": "错题已删除，但掌握度记录清理失败；这不会影响错题本，请稍后重试。调试信息：模块 mastery-storage，错误类型 DELETE_FAILED。",
   "vocab.answer.correct": "正确",
   "vocab.answer.wrong": "错误，答案是 {word}",
   "vocab.answer.slip": "疑似手滑，已暂按正确处理：{word}",

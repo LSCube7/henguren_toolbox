@@ -493,6 +493,8 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "vocab.masteryUpdateError": "{message}; could not update mastery. Try again later.",
   "vocab.masterySaveError": "{message}; could not update mastery, but the mistake was saved.",
   "vocab.wrongbookSaveError": "{message}; could not save the wrongbook. Download the error JSON from the results page.",
+  "vocab.wrongbookDeleteError": "Could not delete the wrongbook entry. Try again later. Debug: module wrongbook-storage, error DELETE_FAILED.",
+  "vocab.masteryCleanupError": "The wrongbook entry was deleted, but its mastery record could not be cleaned up. This does not affect the wrongbook; try again later. Debug: module mastery-storage, error DELETE_FAILED.",
   "vocab.answer.correct": "Correct",
   "vocab.answer.wrong": "Incorrect. The answer is {word}",
   "vocab.answer.slip": "Possible typo; temporarily counted as correct: {word}",

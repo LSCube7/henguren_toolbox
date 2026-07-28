@@ -723,3 +723,60 @@ test("applies standalone arbitrary-id tombstones through retained record aliases
   assert.deepEqual(merged.deletedRecords[0].aliases, ["legacy-import-id"]);
   assert.deepEqual(merged.records[0].aliases, ["legacy-import-id"]);
 });
+
+test("resolves tombstones through every retained historical alias", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "older-alias",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "deleted-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+    }]
+  }), snapshot({
+    deletedRecords: [{
+      id: "newer-alias",
+      aliases: ["older-alias"],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }));
+
+  assert.deepEqual(merged.records, []);
+  assert.equal(merged.deletedRecords[0].id, word.id);
+  assert.deepEqual(new Set(merged.deletedRecords[0].aliases), new Set(["older-alias", "newer-alias"]));
+});
+
+test("does not resolve tombstones whose retained aliases target different records", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [
+      {
+        ...word,
+        id: "first-alias",
+        sourceName: "first",
+        word: "entry",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "first-attempt", clientId: "first-client", createdAt: word.createdAt }]
+      },
+      {
+        ...word,
+        id: "second-alias",
+        sourceName: "second",
+        word: "entry",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "second-attempt", clientId: "second-client", createdAt: word.createdAt }]
+      }
+    ]
+  }), snapshot({
+    deletedRecords: [{
+      id: "unknown-alias",
+      aliases: ["first-alias", "second-alias"],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["first-attempt", "second-attempt"]
+    }]
+  }));
+
+  assert.deepEqual(merged.records.map((record) => record.id), ["first:entry", "second:entry"]);
+  assert.equal(merged.deletedRecords[0].id, "unknown-alias");
+});

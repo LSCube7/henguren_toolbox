@@ -468,8 +468,10 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     });
   });
   const canonicalDeletedRecords = mergeWrongBookTombstones(deletedRecords.map((tombstone) => {
-    const targets = aliasTargets.get(tombstone.id);
-    if (targets?.size !== 1) return tombstone;
+    const targets = new Set(tombstoneIdAliases(tombstone).flatMap((alias) => (
+      Array.from(aliasTargets.get(alias) ?? [])
+    )));
+    if (targets.size !== 1) return tombstone;
     const canonicalId = Array.from(targets)[0];
     if (canonicalId === tombstone.id) return tombstone;
     const aliases = Array.from(new Set([...(tombstone.aliases ?? []), tombstone.id]))

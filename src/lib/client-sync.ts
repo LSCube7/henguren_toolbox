@@ -1,6 +1,7 @@
 "use client";
 
 import { canonicalizeLocalWrongBookRecordIds, getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
+import { reconcileMasteryRecords } from "./client-mastery";
 import { readDeveloperSyncSource } from "./developer-sync-config";
 import { isOnline } from "./offline-cache";
 import type { UserSession, WrongBookSnapshot } from "./types";
@@ -27,6 +28,12 @@ async function readUser() {
   const response = await fetch("/api/me");
   const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
   return data.user;
+}
+
+async function importSyncedWrongBook(snapshot: Partial<WrongBookSnapshot>) {
+  const local = await importWrongBookSnapshot(snapshot);
+  await reconcileMasteryRecords(local.records, local.deletedRecords);
+  return local;
 }
 
 export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> {
@@ -126,12 +133,12 @@ export async function pullAndMergeWrongBook() {
   if (developerSource) {
     const { readDeveloperWrongBook } = await loadDeveloperSyncSource();
     const cloud = (await readDeveloperWrongBook(developerSource)) ?? emptyWrongBook(developerSource.profileId, getClientId());
-    await importWrongBookSnapshot(cloud);
+    await importSyncedWrongBook(cloud);
     return;
   }
   const response = await fetch("/api/wrongbook");
   if (!response.ok) throw new Error("需要登录后才能拉取云端错题本。");
-  await importWrongBookSnapshot((await response.json()) as WrongBookSnapshot);
+  await importSyncedWrongBook((await response.json()) as WrongBookSnapshot);
 }
 
 export async function overwriteCloudWrongBook() {
@@ -162,7 +169,7 @@ export async function mergeUploadWrongBook() {
     const local = normalizeWrongBook(await readLocalWrongBook(getClientId()), developerSource.profileId);
     const merged = mergeWrongBooks(developerSource.profileId, cloud, local);
     await writeDeveloperWrongBook(developerSource, merged);
-    await importWrongBookSnapshot(merged);
+    await importSyncedWrongBook(merged);
     return merged;
   }
   const response = await fetch("/api/wrongbook/merge", {
@@ -172,6 +179,6 @@ export async function mergeUploadWrongBook() {
   });
   if (!response.ok) throw new Error("需要登录后才能合并上传错题本。");
   const merged = (await response.json()) as WrongBookSnapshot;
-  await importWrongBookSnapshot(merged);
+  await importSyncedWrongBook(merged);
   return merged;
 }

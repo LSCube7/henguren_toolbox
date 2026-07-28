@@ -1,23 +1,14 @@
 "use client";
 
 import { getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
+import { mergeMasteryRecords, readMasteryRecords, reconcileMasteryRecords } from "./client-mastery";
 import { readClientSettings, writeClientSettings } from "./client-settings";
 import { editionStorageKey, writeEdition, type Edition } from "./edition";
+import type { MasteryRecord } from "./mastery";
 import { onboardingChangeEvent, onboardingStorageKey, readOnboardingState, type OnboardingState } from "./onboarding";
 import { defaultSettings, normalizeToolboxSettings, type ToolboxSettings, type WrongBookSnapshot } from "./types";
 
-const masteryDbName = "henguren-v3-mastery";
-const masteryStoreName = "records";
-
-export type BackupMasteryRecord = {
-  id: string;
-  level: "learning" | "reviewing" | "mastered";
-  correctStreak: number;
-  reviewCount: number;
-  lastReviewedAt: string;
-  nextReviewAt: string;
-  updatedAt: string;
-};
+export type BackupMasteryRecord = MasteryRecord;
 
 export type ToolboxBackup = {
   app: "henguren-toolbox-v3";
@@ -29,45 +20,6 @@ export type ToolboxBackup = {
   wrongbook: WrongBookSnapshot;
   masteryRecords: BackupMasteryRecord[];
 };
-
-function openMasteryDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(masteryDbName, 1);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(masteryStoreName)) db.createObjectStore(masteryStoreName, { keyPath: "id" });
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function readMasteryRecords(): Promise<BackupMasteryRecord[]> {
-  const db = await openMasteryDb();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(masteryStoreName, "readonly");
-    const request = transaction.objectStore(masteryStoreName).getAll();
-    request.onsuccess = () => resolve(request.result as BackupMasteryRecord[]);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function mergeMasteryRecords(records: BackupMasteryRecord[]) {
-  if (records.length === 0) return;
-  const db = await openMasteryDb();
-  const existing = await readMasteryRecords();
-  const existingById = new Map(existing.map((record) => [record.id, record]));
-  await new Promise<void>((resolve, reject) => {
-    const transaction = db.transaction(masteryStoreName, "readwrite");
-    const store = transaction.objectStore(masteryStoreName);
-    records.forEach((record) => {
-      const current = existingById.get(record.id);
-      if (!current || current.updatedAt < record.updatedAt) store.put(record);
-    });
-    transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
-  });
-}
 
 export async function createToolboxBackup(fallbackSettings = defaultSettings): Promise<ToolboxBackup> {
   const edition = localStorage.getItem(editionStorageKey) === "senior" ? "senior" : "junior";
@@ -123,7 +75,8 @@ export function parseToolboxBackup(raw: string, fallbackSettings = defaultSettin
 }
 
 export async function importToolboxBackup(backup: ToolboxBackup, fallbackSettings = defaultSettings) {
-  await Promise.all([importWrongBookSnapshot(backup.wrongbook), mergeMasteryRecords(backup.masteryRecords)]);
+  const [wrongbook] = await Promise.all([importWrongBookSnapshot(backup.wrongbook), mergeMasteryRecords(backup.masteryRecords)]);
+  await reconcileMasteryRecords(wrongbook.records, wrongbook.deletedRecords);
   const currentSettings = readClientSettings(fallbackSettings);
   writeClientSettings({
     ...backup.settings,

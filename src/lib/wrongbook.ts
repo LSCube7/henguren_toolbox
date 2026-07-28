@@ -50,6 +50,13 @@ function tupleRecordIdentity(id: string): WrongBookIdentity | null {
   }
 }
 
+function storedCanonicalRecordId(tombstone: WrongBookTombstone) {
+  if (tombstone.canonicalRecordId === tombstone.id) return tombstone.id;
+  const identity = tupleRecordIdentity(tombstone.id);
+  if (identity) return wrongBookRecordId(identity);
+  return null;
+}
+
 function tombstoneIdAliases(tombstone: WrongBookTombstone) {
   const identity = tupleRecordIdentity(tombstone.id);
   return Array.from(new Set([
@@ -114,8 +121,7 @@ export function planMasteryRecordIdMigrations(
     recordIdAliases(record).forEach((alias) => addAliasTarget(alias, canonicalId));
   });
   deletedRecords.forEach((tombstone) => {
-    const identity = tupleRecordIdentity(tombstone.id);
-    const canonicalId = identity ? wrongBookRecordId(identity) : tombstone.id;
+    const canonicalId = storedCanonicalRecordId(tombstone) ?? tombstone.id;
     tombstoneIdAliases(tombstone).forEach((alias) => addAliasTarget(alias, canonicalId));
   });
 
@@ -192,6 +198,7 @@ export function mergeWrongBookTombstones(values: WrongBookTombstone[]) {
       .filter((alias) => alias !== newest.id);
     tombstones.set(value.id, {
       ...newest,
+      canonicalRecordId: newest.canonicalRecordId ?? existing.canonicalRecordId ?? value.canonicalRecordId,
       aliases: aliases.length > 0 ? aliases : undefined,
       deletedAttemptIds: hasObservedAttempts
         ? uniqueStrings([...(existing.deletedAttemptIds ?? []), ...(value.deletedAttemptIds ?? [])])
@@ -213,8 +220,12 @@ function normalizeTombstones(values: unknown, normalizeId: (id: string) => strin
         const deletedAt = String(value.deletedAt ?? new Date(0).toISOString());
         const hasObservedAttempts = Array.isArray(value.deletedAttemptIds);
         const aliases = uniqueStrings(value.aliases).map(normalizeId).filter((alias) => alias !== id);
+        const canonicalRecordId = value.canonicalRecordId
+          ? normalizeId(String(value.canonicalRecordId))
+          : undefined;
         return {
           id,
+          canonicalRecordId: canonicalRecordId === id ? canonicalRecordId : undefined,
           aliases: aliases.length > 0 ? aliases : undefined,
           clientId: String(value.clientId ?? "legacy"),
           deletedAt,
@@ -422,6 +433,33 @@ export function normalizeWrongBook(snapshot: Partial<WrongBookSnapshot>, userId:
   };
 }
 
+export function needsWrongBookCanonicalization(snapshot: WrongBookSnapshot) {
+  if (snapshot.records.some((record) => record.id !== wrongBookRecordId(record))) return true;
+
+  const aliasTargets = new Map<string, Set<string>>();
+  const addAliasTarget = (alias: string, canonicalId: string) => {
+    const targets = aliasTargets.get(alias) ?? new Set<string>();
+    targets.add(canonicalId);
+    aliasTargets.set(alias, targets);
+  };
+  snapshot.records.forEach((record) => {
+    const canonicalId = wrongBookRecordId(record);
+    recordIdAliases(record).forEach((alias) => addAliasTarget(alias, canonicalId));
+  });
+  snapshot.deletedRecords.forEach((tombstone) => {
+    const canonicalId = storedCanonicalRecordId(tombstone);
+    if (!canonicalId) return;
+    tombstoneIdAliases(tombstone).forEach((alias) => addAliasTarget(alias, canonicalId));
+  });
+
+  return snapshot.deletedRecords.some((tombstone) => {
+    const targets = new Set(tombstoneIdAliases(tombstone).flatMap((alias) => (
+      Array.from(aliasTargets.get(alias) ?? [])
+    )));
+    return targets.size === 1 && !targets.has(tombstone.id);
+  });
+}
+
 export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSnapshot | null | undefined>): WrongBookSnapshot {
   const presentSnapshots = snapshots.filter((snapshot): snapshot is WrongBookSnapshot => Boolean(snapshot));
   const recordAliases = new Map<string, Set<string>>();
@@ -458,25 +496,39 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
   });
 
   const aliasTargets = new Map<string, Set<string>>();
+  const addAliasTarget = (alias: string, canonicalId: string) => {
+    const targets = aliasTargets.get(alias) ?? new Set<string>();
+    targets.add(canonicalId);
+    aliasTargets.set(alias, targets);
+  };
   recordAliases.forEach((aliases, key) => {
     const canonicalId = canonicalRecordIds.get(key);
     if (!canonicalId) return;
-    aliases.forEach((alias) => {
-      const targets = aliasTargets.get(alias) ?? new Set<string>();
-      targets.add(canonicalId);
-      aliasTargets.set(alias, targets);
-    });
+    aliases.forEach((alias) => addAliasTarget(alias, canonicalId));
+  });
+  deletedRecords.forEach((tombstone) => {
+    const canonicalId = storedCanonicalRecordId(tombstone);
+    if (!canonicalId) return;
+    tombstoneIdAliases(tombstone).forEach((alias) => addAliasTarget(alias, canonicalId));
   });
   const canonicalDeletedRecords = mergeWrongBookTombstones(deletedRecords.map((tombstone) => {
     const targets = new Set(tombstoneIdAliases(tombstone).flatMap((alias) => (
       Array.from(aliasTargets.get(alias) ?? [])
     )));
-    if (targets.size !== 1) return tombstone;
+    if (targets.size !== 1) {
+      const canonicalId = storedCanonicalRecordId(tombstone);
+      return canonicalId ? { ...tombstone, canonicalRecordId: canonicalId } : tombstone;
+    }
     const canonicalId = Array.from(targets)[0];
-    if (canonicalId === tombstone.id) return tombstone;
+    if (canonicalId === tombstone.id) return { ...tombstone, canonicalRecordId: canonicalId };
     const aliases = Array.from(new Set([...(tombstone.aliases ?? []), tombstone.id]))
       .filter((alias) => alias !== canonicalId);
-    return { ...tombstone, id: canonicalId, aliases: aliases.length > 0 ? aliases : undefined };
+    return {
+      ...tombstone,
+      id: canonicalId,
+      canonicalRecordId: canonicalId,
+      aliases: aliases.length > 0 ? aliases : undefined
+    };
   }));
   const activeRecords = applyTombstones(Array.from(records.values()), canonicalDeletedRecords, deletedBatches);
 

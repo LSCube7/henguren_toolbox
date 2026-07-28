@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { legacyWrongBookRecordId, mergeWrongBooks, mergeWrongBookTombstones, normalizeWrongBook, removeWrongBookBatchAttempts, wrongBookRecordId } from "./wrongbook";
+import { legacyWrongBookRecordId, mergeWrongBooks, mergeWrongBookTombstones, needsWrongBookCanonicalization, normalizeWrongBook, removeWrongBookBatchAttempts, wrongBookRecordId } from "./wrongbook";
 
 const DB_NAME = "henguren-v3";
 const STORE_NAME = "wrongbook";
@@ -162,21 +162,10 @@ export async function readLocalWrongBook(clientId: string): Promise<WrongBookSna
 
 export async function canonicalizeLocalWrongBookRecordIds(clientId: string): Promise<WrongBookSnapshot> {
   const current = await readLocalWrongBook(clientId);
-  const needsCanonicalization = (snapshot: WrongBookSnapshot) => {
-    if (snapshot.records.some((record) => record.id !== wrongBookRecordId(record))) return true;
-    return snapshot.deletedRecords.some((tombstone) => {
-      const targets = new Set(snapshot.records.flatMap((record) => {
-        const canonicalId = wrongBookRecordId(record);
-        const ids = new Set([record.id, legacyWrongBookRecordId(record), canonicalId, ...(record.aliases ?? [])]);
-        return ids.has(tombstone.id) ? [canonicalId] : [];
-      }));
-      return targets.size === 1 && !targets.has(tombstone.id);
-    });
-  };
-  if (!needsCanonicalization(current)) return current;
+  if (!needsWrongBookCanonicalization(current)) return current;
 
   return await withWrongBookWrite(async () => updateLocalWrongBook(clientId, (latest) => {
-    if (!needsCanonicalization(latest)) return latest;
+    if (!needsWrongBookCanonicalization(latest)) return latest;
     const canonical = mergeWrongBooks(latest.userId, latest);
     return { ...canonical, clientId: latest.clientId };
   }));
@@ -250,6 +239,7 @@ export function deleteWrongRecord(id: string) {
         records: snapshot.records.filter((record) => record.id !== id),
         deletedRecords: upsertTombstone(snapshot.deletedRecords, {
           id,
+          canonicalRecordId: deletedRecord && id === wrongBookRecordId(deletedRecord) ? id : undefined,
           aliases: aliases.length > 0 ? aliases : undefined,
           clientId,
           deletedAt: now,

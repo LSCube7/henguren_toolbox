@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, normalizeWrongBook, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts } from "./wrongbook.ts";
+import { mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",
@@ -634,9 +634,14 @@ test("does not migrate mastery from an alias shared with a deleted record", () =
     { [legacyMastery.id]: legacyMastery },
     merged.deletedRecords
   );
+  const mergedAgain = mergeWrongBooks("user", merged);
 
   assert.deepEqual(merged.records.map((record) => record.id), ['tuple-v1:["a","b:c"]']);
   assert.deepEqual(migrations, []);
+  assert.deepEqual(mergedAgain.records.map((record) => record.id), ['tuple-v1:["a","b:c"]']);
+  assert.equal(mergedAgain.deletedRecords[0].id, deletedRecordId);
+  assert.equal(mergedAgain.deletedRecords[0].canonicalRecordId, deletedRecordId);
+  assert.equal(needsWrongBookCanonicalization(mergedAgain), false);
 });
 
 test("does not migrate mastery from an arbitrary alias retained by a tombstone", () => {
@@ -663,6 +668,33 @@ test("does not migrate mastery from an arbitrary alias retained by a tombstone",
   );
 
   assert.deepEqual(migrations, []);
+});
+
+test("preserves simple canonical tombstone ownership for shared arbitrary aliases", () => {
+  const sharedAlias = "shared-import-id";
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "other:entry",
+      aliases: [sharedAlias],
+      sourceName: "other",
+      word: "entry",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "retained-attempt", clientId: "retained-client", createdAt: word.createdAt }]
+    }],
+    deletedRecords: [{
+      id: word.id,
+      canonicalRecordId: word.id,
+      aliases: [sharedAlias],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }));
+
+  assert.deepEqual(merged.records.map((record) => record.id), ["other:entry"]);
+  assert.equal(merged.deletedRecords[0].id, word.id);
+  assert.equal(merged.deletedRecords[0].canonicalRecordId, word.id);
 });
 
 test("keeps canonical tombstones scoped when the id is another record's alias", () => {
@@ -745,6 +777,50 @@ test("resolves tombstones through every retained historical alias", () => {
   assert.deepEqual(merged.records, []);
   assert.equal(merged.deletedRecords[0].id, word.id);
   assert.deepEqual(new Set(merged.deletedRecords[0].aliases), new Set(["older-alias", "newer-alias"]));
+});
+
+test("resolves noncanonical delimiter ids through retained tombstone aliases", () => {
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: "older-alias",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "deleted-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+    }]
+  }), snapshot({
+    deletedRecords: [{
+      id: "newer:alias",
+      aliases: ["older-alias"],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }));
+
+  assert.deepEqual(merged.records, []);
+  assert.equal(merged.deletedRecords[0].id, word.id);
+  assert.equal(merged.deletedRecords[0].canonicalRecordId, word.id);
+});
+
+test("detects local canonicalization through retained tombstone aliases", () => {
+  const local = normalizeWrongBook(snapshot({
+    records: [{
+      ...word,
+      aliases: ["older-alias"],
+      wrongCount: 1,
+      wrongAttempts: [{ id: "deleted-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+    }],
+    deletedRecords: [{
+      id: "newer-alias",
+      aliases: ["older-alias"],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-04T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }), "user");
+
+  assert.equal(needsWrongBookCanonicalization(local), true);
+  assert.deepEqual(mergeWrongBooks("user", local).records, []);
 });
 
 test("does not resolve tombstones whose retained aliases target different records", () => {

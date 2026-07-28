@@ -419,6 +419,23 @@ test("deletes a logical record through a unique retained alias", () => {
   assert.deepEqual(result.masteryRecordIds, [word.id]);
 });
 
+test("includes the canonical mastery id when only a legacy record is stored", () => {
+  const canonicalId = 'tuple-v1:["a:b","c"]';
+  const legacyId = "a:b:c";
+  const result = removeWrongBookRecord([{
+    ...word,
+    id: legacyId,
+    sourceName: "a:b",
+    word: "c",
+    wrongCount: 1,
+    wrongAttempts: [{ id: "legacy-attempt", clientId: "old-tab", createdAt: word.createdAt }]
+  }], canonicalId);
+
+  assert.deepEqual(result.records, []);
+  assert.equal(result.deletedRecordId, canonicalId);
+  assert.deepEqual(new Set(result.masteryRecordIds), new Set([canonicalId, legacyId]));
+});
+
 test("does not delete records through an ambiguous retained alias", () => {
   const records = [
     { ...word, id: "first", aliases: ["shared-id"], sourceName: "first" },
@@ -473,6 +490,95 @@ test("applies legacy-id tombstones to every alias in a merged record", () => {
 
   const mergedAgain = mergeWrongBooks("user", merged, staleLegacySnapshot);
   assert.deepEqual(mergedAgain.records[0].wrongAttempts.map((attempt) => attempt.id), ["current-attempt"]);
+});
+
+test("preserves tombstone ownership established inside one snapshot", () => {
+  const legacyId = "a:b:c";
+  const deletedRecordId = 'tuple-v1:["a:b","c"]';
+  const retainedRecordId = 'tuple-v1:["a","b:c"]';
+  const merged = mergeWrongBooks("user", snapshot({
+    records: [{
+      ...word,
+      id: legacyId,
+      sourceName: "a:b",
+      word: "c",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "deleted-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+    }],
+    deletedRecords: [{
+      id: legacyId,
+      clientId: "deleting-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }), snapshot({
+    records: [
+      {
+        ...word,
+        id: deletedRecordId,
+        aliases: [legacyId],
+        sourceName: "a:b",
+        word: "c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "deleted-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+      },
+      {
+        ...word,
+        id: retainedRecordId,
+        aliases: [legacyId],
+        sourceName: "a",
+        word: "b:c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "retained-attempt", clientId: "other-client", createdAt: word.createdAt }]
+      }
+    ]
+  }));
+
+  assert.deepEqual(merged.records.map((record) => record.id), [retainedRecordId]);
+  assert.equal(merged.deletedRecords[0].id, deletedRecordId);
+  assert.equal(merged.deletedRecords[0].canonicalRecordId, deletedRecordId);
+});
+
+test("prefers a retained physical id when snapshot aliases collide", () => {
+  const legacyId = "a:b:c";
+  const deletedRecordId = 'tuple-v1:["a:b","c"]';
+  const retainedRecordId = 'tuple-v1:["a","b:c"]';
+  const normalized = normalizeWrongBook(snapshot({
+    records: [
+      {
+        ...word,
+        id: legacyId,
+        sourceName: "a:b",
+        word: "c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "deleted-attempt", clientId: "legacy-client", createdAt: word.createdAt }]
+      },
+      {
+        ...word,
+        id: retainedRecordId,
+        aliases: [legacyId],
+        sourceName: "a",
+        word: "b:c",
+        wrongCount: 1,
+        wrongAttempts: [{ id: "retained-attempt", clientId: "other-client", createdAt: word.createdAt }]
+      }
+    ],
+    deletedRecords: [{
+      id: "newer-alias",
+      aliases: [legacyId],
+      clientId: "deleting-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: ["deleted-attempt"]
+    }]
+  }), "user");
+
+  assert.deepEqual(normalized.records.map((record) => record.id), [retainedRecordId]);
+  assert.equal(normalized.deletedRecords[0].id, deletedRecordId);
+  assert.equal(normalized.deletedRecords[0].canonicalRecordId, deletedRecordId);
+
+  const normalizedAgain = normalizeWrongBook(normalized, "user");
+  assert.deepEqual(normalizedAgain.records, normalized.records);
+  assert.deepEqual(normalizedAgain.deletedRecords, normalized.deletedRecords);
 });
 
 test("uses distinct record ids for delimiter-containing source and word pairs", () => {
@@ -820,6 +926,29 @@ test("keeps canonical tombstones scoped when the id is another record's alias", 
   assert.equal(merged.deletedRecords[0].id, word.id);
 });
 
+test("does not apply an owned tombstone to another record using its canonical id", () => {
+  const normalized = normalizeWrongBook(snapshot({
+    records: [{
+      ...word,
+      id: word.id,
+      sourceName: "other",
+      word: "entry",
+      wrongCount: 1,
+      wrongAttempts: [{ id: "other-attempt", clientId: "other-client", createdAt: word.createdAt }]
+    }],
+    deletedRecords: [{
+      id: word.id,
+      canonicalRecordId: word.id,
+      clientId: "deleting-client",
+      deletedAt: "2026-01-02T00:00:00.000Z",
+      deletedAttemptIds: ["other-attempt"]
+    }]
+  }), "user");
+
+  assert.deepEqual(normalized.records.map((record) => record.id), [word.id]);
+  assert.deepEqual(normalized.records[0].wrongAttempts.map((attempt) => attempt.id), ["other-attempt"]);
+});
+
 test("applies standalone arbitrary-id tombstones through retained record aliases", () => {
   const canonicalSnapshot = mergeWrongBooks("user", snapshot({
     records: [{
@@ -894,7 +1023,7 @@ test("resolves noncanonical delimiter ids through retained tombstone aliases", (
   assert.equal(merged.deletedRecords[0].canonicalRecordId, word.id);
 });
 
-test("detects local canonicalization through retained tombstone aliases", () => {
+test("canonicalizes retained tombstone aliases while normalizing one snapshot", () => {
   const local = normalizeWrongBook(snapshot({
     records: [{
       ...word,
@@ -911,8 +1040,10 @@ test("detects local canonicalization through retained tombstone aliases", () => 
     }]
   }), "user");
 
-  assert.equal(needsWrongBookCanonicalization(local), true);
-  assert.deepEqual(mergeWrongBooks("user", local).records, []);
+  assert.deepEqual(local.records, []);
+  assert.equal(local.deletedRecords[0].id, word.id);
+  assert.equal(local.deletedRecords[0].canonicalRecordId, word.id);
+  assert.equal(needsWrongBookCanonicalization(local), false);
 });
 
 test("does not resolve tombstones whose retained aliases target different records", () => {

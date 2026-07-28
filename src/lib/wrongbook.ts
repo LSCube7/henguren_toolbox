@@ -66,6 +66,34 @@ function tombstoneIdAliases(tombstone: WrongBookTombstone) {
   ].map((alias) => alias.toLowerCase()).filter(Boolean)));
 }
 
+function canonicalizeTombstoneOwner(tombstone: WrongBookTombstone, records: WrongBookRecord[]) {
+  const storedCanonicalId = storedCanonicalRecordId(tombstone);
+  if (storedCanonicalId) return { ...tombstone, canonicalRecordId: storedCanonicalId };
+
+  const tombstoneAliases = tombstoneIdAliases(tombstone);
+  const targetsFor = (matches: (record: WrongBookRecord) => boolean) => new Set(
+    records.filter(matches).map(wrongBookRecordId)
+  );
+  const idTargets = targetsFor((record) => recordId(record) === tombstone.id);
+  const retainedIdTargets = idTargets.size > 0
+    ? idTargets
+    : targetsFor((record) => tombstoneAliases.includes(recordId(record)));
+  const targets = retainedIdTargets.size > 0
+    ? retainedIdTargets
+    : targetsFor((record) => recordIdAliases(record).some((alias) => tombstoneAliases.includes(alias)));
+  if (targets.size !== 1) return tombstone;
+
+  const [canonicalId] = targets;
+  const aliases = Array.from(new Set([...(tombstone.aliases ?? []), tombstone.id]))
+    .filter((alias) => alias !== canonicalId);
+  return {
+    ...tombstone,
+    id: canonicalId,
+    canonicalRecordId: canonicalId,
+    aliases: aliases.length > 0 ? aliases : undefined
+  };
+}
+
 function encodedSynthesizedAttemptId(recordId: string, identity: SynthesizedAttemptIdentity) {
   return `legacy-v2:${JSON.stringify([recordId, ...identity])}`;
 }
@@ -361,11 +389,22 @@ function mergeRecords(existing: WrongBookRecord, incoming: WrongBookRecord) {
 }
 
 function applyTombstones(records: WrongBookRecord[], deletedRecords: WrongBookTombstone[], deletedBatches: WrongBookTombstone[]) {
-  const recordDeletes = new Map(deletedRecords.map((tombstone) => [tombstone.id, tombstone]));
+  const canonicalRecordDeletes = new Map<string, WrongBookTombstone>();
+  const unresolvedRecordDeletes = new Map<string, WrongBookTombstone>();
+  deletedRecords.forEach((tombstone) => {
+    const canonicalId = storedCanonicalRecordId(tombstone);
+    if (canonicalId) canonicalRecordDeletes.set(canonicalId, tombstone);
+    else unresolvedRecordDeletes.set(tombstone.id, tombstone);
+  });
   const batchDeletes = new Map(deletedBatches.map((tombstone) => [tombstone.id, tombstone]));
   return records.flatMap((record) => {
-    const recordDelete = recordDeletes.get(record.id);
-    const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => !isAttemptDeleted(attempt, recordDelete, record));
+    const recordDeletes = [
+      canonicalRecordDeletes.get(wrongBookRecordId(record)),
+      unresolvedRecordDeletes.get(record.id)
+    ].filter((tombstone): tombstone is WrongBookTombstone => Boolean(tombstone));
+    const attemptsAfterRecordDelete = (record.wrongAttempts ?? []).filter((attempt) => (
+      !recordDeletes.some((tombstone) => isAttemptDeleted(attempt, tombstone, record))
+    ));
     const wrongAttempts = attemptsAfterRecordDelete.filter((attempt) => {
       if (!attempt.testNo) return true;
       return !isAttemptDeleted(attempt, batchDeletes.get(attempt.testNo), record);
@@ -433,6 +472,7 @@ export function removeWrongBookRecord(records: WrongBookRecord[], id: string) {
   const deletedAliases = Array.from(new Set(deletedRecords.flatMap(recordIdAliases)));
   const remainingAliases = new Set(remainingRecords.flatMap(recordIdAliases));
   const removedRecordIds = Array.from(new Set(deletedRecords.map(recordId)));
+  const masteryCandidateIds = Array.from(new Set([canonicalRecordId, ...removedRecordIds]));
 
   return {
     records: remainingRecords,
@@ -443,7 +483,7 @@ export function removeWrongBookRecord(records: WrongBookRecord[], id: string) {
       (record.wrongAttempts ?? []).map((attempt) => attempt.id)
     ))),
     removedRecordIds,
-    masteryRecordIds: removedRecordIds.filter((recordId) => !remainingAliases.has(recordId))
+    masteryRecordIds: masteryCandidateIds.filter((recordId) => !remainingAliases.has(recordId))
   };
 }
 
@@ -463,13 +503,16 @@ export function normalizeWrongBook(snapshot: Partial<WrongBookSnapshot>, userId:
   const deletedRecords = normalizeTombstones(snapshot.deletedRecords, (id) => id.toLowerCase());
   const deletedBatches = normalizeTombstones(snapshot.deletedBatches, (id) => id);
   const records = Array.isArray(snapshot.records) ? snapshot.records.map(normalizeRecord).filter((record) => record.word.length > 0) : [];
+  const canonicalDeletedRecords = mergeWrongBookTombstones(
+    deletedRecords.map((tombstone) => canonicalizeTombstoneOwner(tombstone, records))
+  );
   return {
     schemaVersion: 2,
     userId,
     clientId: snapshot.clientId || "unknown",
     updatedAt: snapshot.updatedAt || new Date().toISOString(),
-    records: applyTombstones(records, deletedRecords, deletedBatches),
-    deletedRecords,
+    records: applyTombstones(records, canonicalDeletedRecords, deletedBatches),
+    deletedRecords: canonicalDeletedRecords,
     deletedBatches
   };
 }

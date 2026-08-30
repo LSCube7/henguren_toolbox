@@ -2349,6 +2349,39 @@ md-outlined-text-field.cloze-blank {
   font-weight: 800;
 }
 
+.wenchang-filter-button {
+  display: inline-flex;
+  max-width: 100%;
+  min-height: 40px;
+  align-items: center;
+  padding: 6px 8px;
+  margin: -6px -8px;
+  overflow: hidden;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-small);
+  cursor: pointer;
+}
+
+.wenchang-filter-button:hover {
+  background: color-mix(in srgb, var(--md-sys-color-secondary-container) 68%, transparent);
+}
+
+.wenchang-filter-button[aria-pressed="true"] {
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+}
+
+.wenchang-filter-button:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
 .md-table tr:last-child td {
   border-bottom: 0;
 }

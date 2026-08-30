@@ -13,6 +13,7 @@ import { useI18n } from "../i18n/AppI18nProvider";
 import { SettingsSection } from "../components/SettingsSection";
 import { useSnackbar } from "../components/Snackbar";
 import { defaultSettingsForLocale } from "@/lib/types";
+import { localizePath } from "@/lib/localized-routing";
 
 function valueFrom(event: React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
@@ -64,7 +65,7 @@ export function DeveloperClient() {
           <p className="helper-text">{t("developer.disabled.description")}</p>
         </div>
         <div>
-          <md-filled-button href="/settings">{t("developer.disabled.action")}</md-filled-button>
+          <md-filled-button href={localizePath(locale, "/settings")}>{t("developer.disabled.action")}</md-filled-button>
         </div>
       </section>
     );

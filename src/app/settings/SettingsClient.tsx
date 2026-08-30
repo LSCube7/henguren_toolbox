@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { useMemo } from "react";
 import { SettingsSection } from "../components/SettingsSection";
@@ -14,6 +14,7 @@ import { readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { isAppLocale } from "@/i18n/config";
 import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
+import { localizePath, stripLocalePrefix } from "@/lib/localized-routing";
 
 function valueFrom(event: React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
@@ -26,6 +27,7 @@ function checkedFrom(event: React.FormEvent<HTMLElement>) {
 
 export function SettingsClient() {
   const router = useRouter();
+  const pathname = usePathname();
   const { locale, t } = useI18n();
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const settings = useClientSettings(fallbackSettings);
@@ -36,6 +38,10 @@ export function SettingsClient() {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };
     writeClientSettings(value);
     window.dispatchEvent(new Event("henguren-theme-change"));
+    if (next.locale && isAppLocale(next.locale) && next.locale !== locale) {
+      const currentUrl = `${stripLocalePrefix(pathname)}${window.location.search}${window.location.hash}`;
+      router.replace(localizePath(next.locale, currentUrl) as Route);
+    }
   }
 
   async function syncSettings() {
@@ -60,7 +66,8 @@ export function SettingsClient() {
 
   function restartInitialGuide() {
     restartOnboarding();
-    router.push("/onboarding?returnTo=/settings&restart=1" as Route);
+    const returnTo = localizePath(locale, "/settings");
+    router.push(localizePath(locale, `/onboarding?returnTo=${encodeURIComponent(returnTo)}&restart=1`) as Route);
   }
 
   return (
@@ -89,7 +96,7 @@ export function SettingsClient() {
         control={
           <md-filled-select
             key={`${locale}-interface-language`}
-            value={settings.locale}
+            value={locale}
             onInput={(event) => {
               const locale = valueFrom(event);
               if (isAppLocale(locale)) update({ locale });

@@ -23,7 +23,10 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 export function AppI18nProvider({ children, initialLocale }: { children: React.ReactNode; initialLocale: AppLocale }) {
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(initialLocale), [initialLocale]);
   const settings = useClientSettings(fallbackSettings);
-  const locale = isAppLocale(settings.locale) ? settings.locale : defaultLocale;
+  // The locale prefix is authoritative for the current visit. A direct link
+  // such as /zh-CN/settings must not silently overwrite the user's saved
+  // preference; changing that preference is handled explicitly by Settings.
+  const locale = isAppLocale(initialLocale) ? initialLocale : defaultLocale;
   const showTranslationKeys = settings.developerMode === true && settings.showTranslationKeys === true;
 
   useEffect(() => {

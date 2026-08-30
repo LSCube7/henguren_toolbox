@@ -13,7 +13,7 @@
     "prebuild": "pnpm run fonts:check",
     "build": "next build",
     "start": "next start",
-    "test": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/i18n/locale-detection.test.mjs src/lib/session-token.test.mjs src/lib/oauth-profile.test.mjs src/lib/service-worker-cache.test.mjs src/lib/settings.test.mjs src/lib/wrongbook.test.mjs",
+    "test": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/i18n/locale-detection.test.mjs src/lib/localized-routing.test.mjs src/lib/session-token.test.mjs src/lib/oauth-profile.test.mjs src/lib/service-worker-cache.test.mjs src/lib/settings.test.mjs src/lib/wrongbook.test.mjs",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "typecheck": "tsc --noEmit"
   },

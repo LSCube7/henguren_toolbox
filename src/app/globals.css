@@ -375,6 +375,23 @@ md-outlined-select {
   opacity: 1;
 }
 
+/* Keep navigation responsive while a prefetched or dynamic segment commits. */
+.app-nav__item[data-pending="true"] {
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.app-nav__item[data-pending="true"] .app-nav__icon-state::before {
+  background: var(--md-sys-color-secondary-container);
+  opacity: 0.42;
+  transform: scaleX(1);
+}
+
+.app-nav__item[data-pending-slow="true"] .app-nav__icon .material-symbols-rounded,
+.rail-action[data-pending-slow="true"] .material-symbols-rounded,
+.user-nav-card[data-pending-slow="true"] .material-symbols-rounded {
+  animation: rail-navigation-spin 900ms linear infinite;
+}
+
 .app-drawer__footer {
   display: flex;
   flex-direction: column;
@@ -454,6 +471,18 @@ md-outlined-select {
   color: var(--md-sys-color-on-surface-variant);
   background: var(--md-sys-color-outline-variant);
   border-color: var(--md-sys-color-outline-variant);
+}
+
+.rail-action[data-pending="true"],
+.user-nav-card[data-pending="true"] {
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  border-color: transparent;
+}
+
+.rail-action[data-pending="true"]::before,
+.user-nav-card[data-pending="true"]::before {
+  opacity: 0.34;
 }
 
 .user-nav-card {
@@ -1013,6 +1042,48 @@ md-outlined-select {
   right: var(--md-sys-spacing-space200);
   left: var(--md-sys-spacing-space200);
   width: min(560px, calc(100% - var(--md-sys-spacing-space200) - var(--md-sys-spacing-space200)));
+}
+
+.locale-redirect {
+  display: grid;
+  min-height: 100vh;
+  padding: var(--md-sys-spacing-space300);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  place-items: center;
+}
+
+.locale-redirect__card {
+  display: grid;
+  gap: var(--md-sys-spacing-space150);
+  width: min(420px, 100%);
+  padding: var(--md-sys-spacing-space300);
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--app-elevation-level1);
+}
+
+.locale-redirect__card h1,
+.locale-redirect__card p {
+  margin: 0;
+}
+
+.locale-redirect__card nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-space100);
+}
+
+.locale-redirect__card a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 0 var(--md-sys-spacing-space150);
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
+  border-radius: 999px;
+  font-weight: 700;
 }
 
 .onboarding-route-main {
@@ -2664,6 +2735,16 @@ md-outlined-text-field.cloze-blank {
   to {
     opacity: 1;
     transform: scaleX(1);
+  }
+}
+
+@keyframes rail-navigation-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
 

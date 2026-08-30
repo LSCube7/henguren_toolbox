@@ -29,6 +29,7 @@ import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { wrongBookRecordId } from "@/lib/wrongbook";
+import { localizePath } from "@/lib/localized-routing";
 
 type UploadedList = VocabListMeta & { words: VocabWord[] };
 type TestWord = VocabWord & { wrongRecordId?: string };
@@ -658,7 +659,7 @@ export function VocabClient() {
           sources: selectedSources
         })
       );
-      router.push("/vocab/print" as Route);
+      router.push(localizePath(locale, "/vocab/print") as Route);
     } catch {
       showSnackbar(!online ? t("vocab.printOfflineMissing") : t("vocab.printError"), "error");
     } finally {

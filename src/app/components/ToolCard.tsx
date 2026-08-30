@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { MessageKey } from "@/i18n/config";
 import { useI18n } from "../i18n/AppI18nProvider";
+import { localizePath } from "@/lib/localized-routing";
 
 type ToolHref = "/" | "/shici" | "/wenchang" | "/vocab" | "/text" | "/settings" | "/user" | "/license" | "/changelog";
 
@@ -20,9 +21,9 @@ export function ToolCard({
   status: MessageKey;
   icon: React.ReactNode;
 }) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   return (
-    <Link href={href as Route} className="md-card md-card--interactive">
+    <Link href={localizePath(locale, href) as Route} className="md-card md-card--interactive">
       <div className="spread">
         <span className="app-nav__icon" aria-hidden="true">
           {icon}

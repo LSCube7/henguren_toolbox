@@ -3,6 +3,7 @@
 import contents from "@/assets/js/wenchang/contents.json";
 import { useMemo, useState } from "react";
 import { useI18n } from "../i18n/AppI18nProvider";
+import { filterByField, toggleFieldFilter, type FieldFilter } from "@/lib/wenchang-filter";
 
 type Item = {
   name: string;
@@ -19,18 +20,18 @@ const groups = [
 
 export function WenchangClient() {
   const { t } = useI18n();
-  const [filter, setFilter] = useState<{ field: keyof Item; value: string } | null>(null);
+  const [filter, setFilter] = useState<FieldFilter<Item> | null>(null);
   const filteredGroups = useMemo(
     () =>
       groups.map((group) => ({
         ...group,
-        items: filter ? group.items.filter((item) => String(item[filter.field] ?? "") === filter.value) : group.items
+        items: filterByField(group.items, filter)
       })),
     [filter]
   );
 
   function toggleFilter(field: keyof Item, value: string) {
-    setFilter((current) => (current?.field === field && current.value === value ? null : { field, value }));
+    setFilter((current) => toggleFieldFilter(current, field, value));
   }
 
   return (
@@ -61,16 +62,44 @@ export function WenchangClient() {
                 {group.items.map((item) => (
                   <tr key={`${group.title}-${item.name}`}>
                     <td>
-                      <md-text-button onClick={() => toggleFilter("name", item.name)}>{item.name}</md-text-button>
+                      <button
+                        className="wenchang-filter-button"
+                        type="button"
+                        aria-pressed={filter?.field === "name" && filter.value === item.name}
+                        onClick={() => toggleFilter("name", item.name)}
+                      >
+                        {item.name}
+                      </button>
                     </td>
                     <td>
-                      <md-text-button onClick={() => toggleFilter("author", item.author)}>{item.author}</md-text-button>
+                      <button
+                        className="wenchang-filter-button"
+                        type="button"
+                        aria-pressed={filter?.field === "author" && filter.value === item.author}
+                        onClick={() => toggleFilter("author", item.author)}
+                      >
+                        {item.author}
+                      </button>
                     </td>
                     <td>
-                      <md-text-button onClick={() => toggleFilter("origin", item.origin)}>{item.origin}</md-text-button>
+                      <button
+                        className="wenchang-filter-button"
+                        type="button"
+                        aria-pressed={filter?.field === "origin" && filter.value === item.origin}
+                        onClick={() => toggleFilter("origin", item.origin)}
+                      >
+                        {item.origin}
+                      </button>
                     </td>
                     <td>
-                      <md-text-button onClick={() => toggleFilter("grade", item.grade)}>{item.grade}</md-text-button>
+                      <button
+                        className="wenchang-filter-button"
+                        type="button"
+                        aria-pressed={filter?.field === "grade" && filter.value === item.grade}
+                        onClick={() => toggleFilter("grade", item.grade)}
+                      >
+                        {item.grade}
+                      </button>
                     </td>
                     <td>{item.style || ""}</td>
                   </tr>

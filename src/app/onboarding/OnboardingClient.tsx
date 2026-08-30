@@ -19,6 +19,8 @@ import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { useSnackbar } from "../components/Snackbar";
+import { localizePath, stripLocalePrefix } from "@/lib/localized-routing";
+import type { AppLocale } from "@/i18n/config";
 
 type StepId = "login" | "cloud" | "edition" | "theme" | "done";
 type CloudStatus = "idle" | "loading" | "available" | "empty" | "error" | "skipped";
@@ -80,10 +82,13 @@ function stepIndexFromStorage() {
   return index >= 0 ? index : 0;
 }
 
-function safeReturnTo(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
-  if (value.startsWith("/api/") || value.startsWith("/onboarding")) return "/";
-  return value;
+function safeReturnTo(value: string | null, locale: AppLocale) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return localizePath(locale, "/");
+  const logicalPath = stripLocalePrefix(value);
+  if (logicalPath.startsWith("/api/") || logicalPath === "/onboarding" || logicalPath.startsWith("/onboarding?")) {
+    return localizePath(locale, "/");
+  }
+  return localizePath(locale, value);
 }
 
 export function OnboardingClient() {
@@ -93,7 +98,7 @@ export function OnboardingClient() {
   const { locale, t } = useI18n();
   const [requestFallbackSettings] = useState(() => defaultSettingsForLocale(locale));
   const { showSnackbar } = useSnackbar();
-  const returnTo = safeReturnTo(searchParams.get("returnTo"));
+  const returnTo = safeReturnTo(searchParams.get("returnTo"), locale);
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
   const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());
@@ -240,7 +245,7 @@ export function OnboardingClient() {
   function startLogin() {
     sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
     sessionStorage.setItem(onboardingStepStorageKey, `${onboardingFlowVersion}:login`);
-    const target = `/onboarding?returnTo=${encodeURIComponent(returnTo)}`;
+    const target = localizePath(locale, `/onboarding?returnTo=${encodeURIComponent(returnTo)}`);
     window.location.href = `/api/auth/login?returnTo=${encodeURIComponent(target)}`;
   }
 

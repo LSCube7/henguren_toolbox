@@ -11,7 +11,12 @@ const DATA_CACHE = `${CACHE_PREFIX}-${DATA_VERSION}-data`;
 const CURRENT_CACHES = new Set([APP_CACHE, STATIC_CACHE, DATA_CACHE]);
 const LEGACY_DATA_CACHES = [`${CACHE_PREFIX}-v1-data`];
 
-const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/settings", "/developer", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms", "/offline.html"];
+const APP_SHELL_PATHS = ["/", "/shici", "/wenchang", "/vocab", "/vocab/print", "/text", "/settings", "/developer", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms"];
+const APP_SHELL_ROUTES = [
+  ...APP_SHELL_PATHS,
+  ...["zh-CN", "en-US"].flatMap((locale) => APP_SHELL_PATHS.map((path) => `/${locale}${path === "/" ? "" : path}`)),
+  "/offline.html"
+];
 const NEVER_CACHE_PREFIXES = ["/api/auth/", "/api/me", "/api/wrongbook"];
 
 self.addEventListener("install", (event) => {
@@ -153,7 +158,9 @@ async function networkFirstPage(request) {
     if (response.ok) await cache.put(request, response.clone());
     return response;
   } catch {
-    const cached = await cache.match(request);
+    const pathnameUrl = new URL(request.url);
+    pathnameUrl.search = "";
+    const cached = (await cache.match(request)) ?? (await cache.match(pathnameUrl.href));
     return cached ?? (await cache.match("/offline.html")) ?? Response.error();
   }
 }

@@ -38,7 +38,7 @@ class MemoryCache {
   }
 }
 
-async function loadServiceWorker() {
+async function loadServiceWorker(networkFetch) {
   const listeners = new Map();
   let claimed = false;
 
@@ -50,6 +50,8 @@ async function loadServiceWorker() {
       headers: { "Content-Type": "text/html" }
     });
   }
+
+  const network = networkFetch ?? fetchResponse;
 
   const cachesByName = new Map([
     ["henguren-v3-offline-v1-data", new MemoryCache(fetchResponse, [["/api/data/vocab/sample", new Response("cached lesson")]])],
@@ -80,7 +82,7 @@ async function loadServiceWorker() {
     location: new URL(origin),
     skipWaiting: async () => undefined
   };
-  const context = vm.createContext({ caches: cacheStorage, console, Request, Response, self: serviceWorkerGlobal, Set, URL });
+  const context = vm.createContext({ caches: cacheStorage, console, fetch: network, Request, Response, self: serviceWorkerGlobal, Set, URL });
   const source = await readFile(new URL("../../public/sw.js", import.meta.url), "utf8");
   vm.runInContext(source, context);
 
@@ -93,10 +95,25 @@ function runExtendableEvent(listener) {
   return promise;
 }
 
+function runFetchEvent(listener, request) {
+  let responsePromise;
+  listener({
+    request,
+    respondWith(value) {
+      responsePromise = value;
+    }
+  });
+  return responsePromise;
+}
+
 test("precaches current shell assets and migrates legacy learning data", async () => {
   const worker = await loadServiceWorker();
 
   await runExtendableEvent(worker.listeners.get("install"));
+  const appCache = worker.cachesByName.get("henguren-v3-offline-v3-app");
+  assert.ok(await appCache.match("/zh-CN"));
+  assert.ok(await appCache.match("/en-US/settings"));
+  assert.ok(await appCache.match("/vocab"));
   const staticCache = worker.cachesByName.get("henguren-v3-offline-v3-static");
   assert.ok(await staticCache.match("/_next/static/app.js"));
   assert.ok(await staticCache.match("/_next/static/app.css"));
@@ -109,4 +126,21 @@ test("precaches current shell assets and migrates legacy learning data", async (
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-app"), false);
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-static"), false);
   assert.equal(worker.wasClaimed(), true);
+});
+
+test("serves a cached pathname for an offline query navigation", async () => {
+  const worker = await loadServiceWorker(async () => {
+    throw new Error("offline");
+  });
+
+  await runExtendableEvent(worker.listeners.get("install"));
+  const response = await runFetchEvent(worker.listeners.get("fetch"), {
+    method: "GET",
+    mode: "navigate",
+    destination: "document",
+    url: `${origin}/zh-CN/settings?tab=theme#colors`
+  });
+
+  assert.ok(response);
+  assert.equal(response.ok, true);
 });

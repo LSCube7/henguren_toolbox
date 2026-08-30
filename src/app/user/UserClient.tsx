@@ -10,6 +10,7 @@ import { isOnline } from "@/lib/offline-cache";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
+import { localizePath } from "@/lib/localized-routing";
 
 const authMessages: Record<string, MessageKey> = {
   ok: "auth.ok",
@@ -88,7 +89,7 @@ async function readSyncSummarySafely() {
 
 export function UserClient() {
   const searchParams = useSearchParams();
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const { clearSnackbar, showSnackbar } = useSnackbar();
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
@@ -200,6 +201,7 @@ export function UserClient() {
         })
       : t("user.wrongbookSync.loading");
   const currentSyncStatus = syncing ? "syncing" : syncSummary?.status ?? (user ? "ready" : "signed-out");
+  const loginHref = `/api/auth/login?returnTo=${encodeURIComponent(localizePath(locale, "/user"))}`;
 
   return (
     <div className="stack">
@@ -223,7 +225,7 @@ export function UserClient() {
           {user ? (
             <md-outlined-button onClick={() => void logout()}>{t("user.logout")}</md-outlined-button>
           ) : (
-            <md-filled-button href="/api/auth/login">{t("user.login")}</md-filled-button>
+            <md-filled-button href={loginHref}>{t("user.login")}</md-filled-button>
           )}
         </div>
       </section>

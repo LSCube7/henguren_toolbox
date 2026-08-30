@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { MaterialIcon } from "./MaterialIcon";
+import { stripLocalePrefix } from "@/lib/localized-routing";
 
 export type SnackbarTone = "info" | "error";
 
@@ -46,6 +47,7 @@ async function copyText(text: string) {
 function SnackbarSurface({ notice, onDismiss }: { notice: SnackbarNotice; onDismiss: (id: number) => void }) {
   const { t } = useI18n();
   const pathname = usePathname();
+  const shellless = stripLocalePrefix(pathname) === "/onboarding";
   const [closing, setClosing] = useState(false);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const dismissTimerRef = useRef<number | null>(null);
@@ -80,7 +82,7 @@ function SnackbarSurface({ notice, onDismiss }: { notice: SnackbarNotice; onDism
 
   return (
     <div
-      className={`app-snackbar${pathname === "/onboarding" ? " app-snackbar--shellless" : ""}`}
+      className={`app-snackbar${shellless ? " app-snackbar--shellless" : ""}`}
       data-closing={closing}
       data-tone={notice.tone}
       role={notice.tone === "error" ? "alert" : "status"}

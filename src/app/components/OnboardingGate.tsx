@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { useEffect, useSyncExternalStore } from "react";
 import { onboardingChangeEvent, readOnboardingState } from "@/lib/onboarding";
 import { useI18n } from "../i18n/AppI18nProvider";
+import { localizePath, stripLocalePrefix } from "@/lib/localized-routing";
 
 function subscribeToOnboarding(onStoreChange: () => void) {
   window.addEventListener("storage", onStoreChange);
@@ -33,14 +34,15 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const completed = useSyncExternalStore(subscribeToOnboarding, getOnboardingCompleted, getServerOnboardingCompleted);
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const returnPath = encodeReturnPath(pathname, searchParams);
+  const logicalPath = stripLocalePrefix(pathname);
 
   useEffect(() => {
-    if (completed || pathname === "/onboarding") return;
+    if (completed || logicalPath === "/onboarding") return;
     const returnTo = encodeURIComponent(returnPath);
-    router.replace(`/onboarding?returnTo=${returnTo}` as Route);
-  }, [completed, pathname, returnPath, router]);
+    router.replace(localizePath(locale, `/onboarding?returnTo=${returnTo}`) as Route);
+  }, [completed, logicalPath, locale, returnPath, router]);
 
   return (
     <>

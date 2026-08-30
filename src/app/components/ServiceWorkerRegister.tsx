@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useI18n } from "../i18n/AppI18nProvider";
+import { stripLocalePrefix } from "@/lib/localized-routing";
 
 const cachePrefix = "henguren-v3-offline";
 
@@ -21,6 +22,7 @@ async function disableDevelopmentServiceWorker() {
 export function ServiceWorkerRegister() {
   const { t } = useI18n();
   const pathname = usePathname();
+  const shellless = stripLocalePrefix(pathname) === "/onboarding";
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [applyingUpdate, setApplyingUpdate] = useState(false);
 
@@ -110,7 +112,7 @@ export function ServiceWorkerRegister() {
 
   return (
     <div
-      className={`service-worker-snackbar${pathname === "/onboarding" ? " service-worker-snackbar--shellless" : ""}`}
+      className={`service-worker-snackbar${shellless ? " service-worker-snackbar--shellless" : ""}`}
       role="status"
       aria-live="polite"
       aria-atomic="true"

@@ -2,8 +2,10 @@
 
 import type { VocabWord } from "@/lib/types";
 import Link from "next/link";
+import type { Route } from "next";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useI18n } from "../../i18n/AppI18nProvider";
+import { localizePath } from "@/lib/localized-routing";
 
 type PrintableSource = {
   title: string;
@@ -88,7 +90,7 @@ export function VocabPrintClient() {
         <h2 className="section-title">{t("print.emptyTitle")}</h2>
         <p className="helper-text">{t("print.emptyDescription")}</p>
         <div>
-          <Link href="/vocab">
+          <Link href={localizePath(locale, "/vocab") as Route}>
             <md-filled-button>{t("print.backVocab")}</md-filled-button>
           </Link>
         </div>
@@ -105,7 +107,7 @@ export function VocabPrintClient() {
             <p className="helper-text">{t("print.settingsDescription", { count: words.length })}</p>
           </div>
           <div className="cluster">
-            <Link href="/vocab">
+            <Link href={localizePath(locale, "/vocab") as Route}>
               <md-outlined-button>{t("print.back")}</md-outlined-button>
             </Link>
             <md-filled-button onClick={() => window.print()}>{t("print.action")}</md-filled-button>

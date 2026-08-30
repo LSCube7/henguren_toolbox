@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import { defaultSettingsForLocale, type UserSession } from "@/lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
@@ -13,6 +13,7 @@ import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { useClientSettings } from "@/lib/client-settings";
+import { localizePath, pathWithoutLocale, stripLocalePrefix } from "@/lib/localized-routing";
 
 const toolItems = [
   { edition: "junior", href: "/shici", label: "nav.shici", icon: "search" },
@@ -67,7 +68,24 @@ const footerColumns = [
   }
 ] as const;
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+type NavigationRequest = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
+type PendingNavigation = { path: string; originPath: string };
+
+function navigationKey(href: string) {
+  return stripLocalePrefix(pathWithoutLocale(href));
+}
+
+function NavList({
+  onNavigate,
+  pendingPath,
+  pendingSlowPath,
+  onNavigationRequest
+}: {
+  onNavigate?: () => void;
+  pendingPath: string | null;
+  pendingSlowPath: string | null;
+  onNavigationRequest: NavigationRequest;
+}) {
   const pathname = usePathname();
   const [user, setUser] = useState<UserSession | null>(null);
   const edition = useEdition();
@@ -75,6 +93,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const { locale, t } = useI18n();
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const settings = useClientSettings(fallbackSettings);
+  const currentPath = stripLocalePrefix(pathname);
 
   useEffect(() => {
     let active = true;
@@ -143,14 +162,24 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
     );
   }
 
+  function handleClick(href: string, event: React.MouseEvent<HTMLAnchorElement>) {
+    onNavigationRequest(href, event);
+    onNavigate?.();
+  }
+
+  const overviewHref = localizePath(locale, overviewItem.href);
+
   return (
     <div className="app-drawer__panel">
-      <nav className="app-nav" aria-label={t("nav.toolsAria")}>
+      <nav className="app-nav" aria-label={t("nav.toolsAria")} aria-busy={Boolean(pendingPath)}>
         <Link
-          href={overviewItem.href as Route}
+          href={overviewHref as Route}
           className="app-nav__item"
-          aria-current={pathname === overviewItem.href ? "page" : undefined}
-          onClick={onNavigate}
+          aria-current={currentPath === overviewItem.href ? "page" : undefined}
+          data-pending={pendingPath === overviewItem.href ? "true" : undefined}
+          data-pending-slow={pendingSlowPath === overviewItem.href ? "true" : undefined}
+          aria-busy={pendingPath === overviewItem.href ? true : undefined}
+          onClick={(event) => handleClick(overviewHref, event)}
         >
           {renderNavIcon(overviewItem.icon)}
           <span className="app-nav__label">{t(overviewItem.label)}</span>
@@ -158,14 +187,19 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         <div className="app-nav__group">
           <div className="app-nav__group-title">{t("nav.learningTools")}</div>
           {selectedTools.map((item) => {
-            const selected = pathname.startsWith(item.href);
+            const href = localizePath(locale, item.href);
+            const selected = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+            const pending = pendingPath === item.href;
             return (
               <Link
-                href={item.href as Route}
+                href={href as Route}
                 className="app-nav__item"
                 aria-current={selected ? "page" : undefined}
+                data-pending={pending ? "true" : undefined}
+                data-pending-slow={pendingSlowPath === item.href ? "true" : undefined}
+                aria-busy={pending ? true : undefined}
                 key={item.href}
-                onClick={onNavigate}
+                onClick={(event) => handleClick(href, event)}
               >
                 {renderNavIcon(item.icon)}
                 <span className="app-nav__label">{t(item.label)}</span>
@@ -175,58 +209,100 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </nav>
       <div className="app-drawer__footer" aria-label={t("nav.personalAria")}>
-        <Link href="/user#wrongbook-sync" className="rail-action" data-status={syncStatus} aria-label={t(syncStatusLabel[syncStatus])} title={syncTitle} onClick={onNavigate}>
-          <MaterialIcon name={syncStatusIcon[syncStatus]} />
-        </Link>
-        {personalItems.map((item) => (
-          <Link
-            href={item.href as Route}
-            className="rail-action"
-            aria-current={pathname.startsWith(item.href) ? "page" : undefined}
-            aria-label={t(item.label)}
-            title={t(item.label)}
-            key={item.href}
-            onClick={onNavigate}
-          >
-            <MaterialIcon name={item.icon} />
-          </Link>
-        ))}
+        {(() => {
+          const href = localizePath(locale, "/user#wrongbook-sync");
+          const pending = pendingPath === "/user";
+          return (
+            <Link
+              href={href as Route}
+              className="rail-action"
+              data-status={syncStatus}
+              data-pending={pending ? "true" : undefined}
+              data-pending-slow={pendingSlowPath === "/user" ? "true" : undefined}
+              aria-busy={pending ? true : undefined}
+              aria-label={t(syncStatusLabel[syncStatus])}
+              title={syncTitle}
+              onClick={(event) => handleClick(href, event)}
+            >
+              <MaterialIcon name={syncStatusIcon[syncStatus]} />
+            </Link>
+          );
+        })()}
+        {personalItems.map((item) => {
+          const href = localizePath(locale, item.href);
+          const selected = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+          const pending = pendingPath === item.href;
+          return (
+            <Link
+              href={href as Route}
+              className="rail-action"
+              aria-current={selected ? "page" : undefined}
+              data-pending={pending ? "true" : undefined}
+              data-pending-slow={pendingSlowPath === item.href ? "true" : undefined}
+              aria-busy={pending ? true : undefined}
+              aria-label={t(item.label)}
+              title={t(item.label)}
+              key={item.href}
+              onClick={(event) => handleClick(href, event)}
+            >
+              <MaterialIcon name={item.icon} />
+            </Link>
+          );
+        })}
         {settings.developerMode ? (
-          <Link
-            href={"/developer" as Route}
-            className="rail-action"
-            aria-current={pathname.startsWith("/developer") ? "page" : undefined}
-            aria-label={t("nav.developer")}
-            title={t("nav.developer")}
-            onClick={onNavigate}
-          >
-            <MaterialIcon name="code" />
-          </Link>
+          (() => {
+            const href = localizePath(locale, "/developer");
+            const pending = pendingPath === "/developer";
+            return (
+              <Link
+                href={href as Route}
+                className="rail-action"
+                aria-current={currentPath.startsWith("/developer") ? "page" : undefined}
+                data-pending={pending ? "true" : undefined}
+                data-pending-slow={pendingSlowPath === "/developer" ? "true" : undefined}
+                aria-busy={pending ? true : undefined}
+                aria-label={t("nav.developer")}
+                title={t("nav.developer")}
+                onClick={(event) => handleClick(href, event)}
+              >
+                <MaterialIcon name="code" />
+              </Link>
+            );
+          })()
         ) : null}
-        <Link
-          href="/user"
-          className="user-nav-card"
-          aria-current={pathname.startsWith("/user") ? "page" : undefined}
-          aria-label={user ? t("user.aria", { name: user.name }) : t("user.signedOut")}
-          title={userTitle}
-          onClick={onNavigate}
-        >
-          {user?.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
-          ) : (
-            <span className="user-nav-icon" aria-hidden="true">
-              <MaterialIcon name={user ? "account_circle" : "person"} />
-            </span>
-          )}
-        </Link>
+        {(() => {
+          const href = localizePath(locale, "/user");
+          const pending = pendingPath === "/user";
+          return (
+            <Link
+              href={href as Route}
+              className="user-nav-card"
+              aria-current={currentPath.startsWith("/user") ? "page" : undefined}
+              data-pending={pending ? "true" : undefined}
+              data-pending-slow={pendingSlowPath === "/user" ? "true" : undefined}
+              aria-busy={pending ? true : undefined}
+              aria-label={user ? t("user.aria", { name: user.name }) : t("user.signedOut")}
+              title={userTitle}
+              onClick={(event) => handleClick(href, event)}
+            >
+              {user?.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
+              ) : (
+                <span className="user-nav-icon" aria-hidden="true">
+                  <MaterialIcon name={user ? "account_circle" : "person"} />
+                </span>
+              )}
+            </Link>
+          );
+        })()}
       </div>
     </div>
   );
 }
 
 function FooterLink({ href, label, external = false }: { href: string; label: MessageKey | "GitHub" | "LSCube"; external?: boolean }) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const content = label === "GitHub" || label === "LSCube" ? label : t(label);
   if (external) {
     return (
@@ -236,7 +312,7 @@ function FooterLink({ href, label, external = false }: { href: string; label: Me
     );
   }
 
-  return <Link href={href as Route}>{content}</Link>;
+  return <Link href={localizePath(locale, href) as Route}>{content}</Link>;
 }
 
 function AppFooter() {
@@ -284,10 +360,65 @@ function AppFooter() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
+  const [pendingSlowNavigation, setPendingSlowNavigation] = useState<PendingNavigation | null>(null);
   const pathname = usePathname();
   const { t } = useI18n();
+  const slowTimerRef = useRef<number | null>(null);
+  const clearTimerRef = useRef<number | null>(null);
+  const currentPath = stripLocalePrefix(pathname);
+  const pendingPath = pendingNavigation?.originPath === pathname ? pendingNavigation.path : null;
+  const pendingSlowPath = pendingSlowNavigation?.originPath === pathname ? pendingSlowNavigation.path : null;
 
-  if (pathname === "/onboarding") {
+  useEffect(() => {
+    if (slowTimerRef.current !== null) window.clearTimeout(slowTimerRef.current);
+    if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+    slowTimerRef.current = null;
+    clearTimerRef.current = null;
+  }, [pathname]);
+
+  useEffect(
+    () => {
+      function cancelNavigation() {
+        setPendingNavigation(null);
+        setPendingSlowNavigation(null);
+        if (slowTimerRef.current !== null) window.clearTimeout(slowTimerRef.current);
+        if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+        slowTimerRef.current = null;
+        clearTimerRef.current = null;
+      }
+
+      window.addEventListener("popstate", cancelNavigation);
+      return () => {
+        window.removeEventListener("popstate", cancelNavigation);
+        if (slowTimerRef.current !== null) window.clearTimeout(slowTimerRef.current);
+        if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+      };
+    },
+    []
+  );
+
+  function requestNavigation(href: string, event: React.MouseEvent<HTMLAnchorElement>) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const targetPath = navigationKey(href);
+    if (targetPath === currentPath) return;
+
+    if (slowTimerRef.current !== null) window.clearTimeout(slowTimerRef.current);
+    if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+    setPendingNavigation({ path: targetPath, originPath: pathname });
+    setPendingSlowNavigation(null);
+    slowTimerRef.current = window.setTimeout(() => {
+      setPendingSlowNavigation({ path: targetPath, originPath: pathname });
+    }, 150);
+    clearTimerRef.current = window.setTimeout(() => {
+      setPendingNavigation(null);
+      setPendingSlowNavigation(null);
+      slowTimerRef.current = null;
+      clearTimerRef.current = null;
+    }, 10000);
+  }
+
+  if (currentPath === "/onboarding") {
     return <main className="onboarding-route-main">{children}</main>;
   }
 
@@ -299,7 +430,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </button>
         <button className="drawer-scrim" data-open={mobileOpen} aria-label={t("nav.close")} onClick={() => setMobileOpen(false)} />
         <aside className="app-drawer" data-open={mobileOpen} aria-label={t("nav.sidebar")}>
-          <NavList onNavigate={() => setMobileOpen(false)} />
+          <NavList
+            onNavigate={() => setMobileOpen(false)}
+            pendingPath={pendingPath}
+            pendingSlowPath={pendingSlowPath}
+            onNavigationRequest={requestNavigation}
+          />
         </aside>
         <main className="app-main">
           <div className="app-content">{children}</div>

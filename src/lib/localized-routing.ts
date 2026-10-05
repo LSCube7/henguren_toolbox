@@ -58,3 +58,22 @@ export function pathWithoutLocale(path: string): string {
   const splitAt = normalized.search(/[?#]/);
   return splitAt >= 0 ? normalized.slice(0, splitAt) : normalized;
 }
+
+/** Return a localized learning page, never the guide itself or an API route. */
+export function safeOnboardingReturnTo(value: string | null, locale: AppLocale): string {
+  const fallback = localizePath(locale, "/");
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+  try {
+    const baseUrl = "https://toolbox.invalid";
+    const target = new URL(value, baseUrl);
+    // Decode and normalize the pathname for validation, leaving query and hash
+    // untouched. Encoded names and dot segments must not bypass route checks.
+    const decodedTarget = new URL(decodeURIComponent(target.pathname), baseUrl);
+    if (target.origin !== baseUrl || decodedTarget.origin !== baseUrl) return fallback;
+    const logicalPath = stripLocalePrefix(decodedTarget.pathname);
+    if (/^\/(?:api|onboarding)(?:\/|$)/.test(logicalPath)) return fallback;
+    return localizePath(locale, `${target.pathname}${target.search}${target.hash}`);
+  } catch {
+    return fallback;
+  }
+}

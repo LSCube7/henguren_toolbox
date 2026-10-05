@@ -19,8 +19,7 @@ import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { useSnackbar } from "../components/Snackbar";
-import { getLocaleFromPathname, localizePath, stripLocalePrefix } from "@/lib/localized-routing";
-import type { AppLocale } from "@/i18n/config";
+import { getLocaleFromPathname, localizePath, safeOnboardingReturnTo } from "@/lib/localized-routing";
 
 type StepId = "login" | "cloud" | "edition" | "theme" | "done";
 type CloudStatus = "idle" | "loading" | "available" | "empty" | "error" | "skipped";
@@ -82,15 +81,6 @@ function stepIndexFromStorage() {
   return index >= 0 ? index : 0;
 }
 
-function safeReturnTo(value: string | null, locale: AppLocale) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return localizePath(locale, "/");
-  const logicalPath = stripLocalePrefix(value);
-  if (logicalPath.startsWith("/api/") || logicalPath === "/onboarding" || logicalPath.startsWith("/onboarding?")) {
-    return localizePath(locale, "/");
-  }
-  return localizePath(locale, value);
-}
-
 export function OnboardingClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -98,7 +88,7 @@ export function OnboardingClient() {
   const { locale, t } = useI18n();
   const [requestFallbackSettings] = useState(() => defaultSettingsForLocale(locale));
   const { showSnackbar } = useSnackbar();
-  const returnTo = safeReturnTo(searchParams.get("returnTo"), locale);
+  const returnTo = safeOnboardingReturnTo(searchParams.get("returnTo"), locale);
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
   const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());

@@ -5,7 +5,7 @@ import { defaultLocale, isAppLocale, type AppLocale } from "../i18n/config.ts";
  * legacy/unprefixed route.
  */
 export function getLocaleFromPathname(pathname: string): AppLocale | null {
-  const match = pathname.match(/^\/([^/?#]+)(?=\/|$)/);
+  const match = pathname.match(/^\/([^/?#]+)(?=\/|[?#]|$)/);
   return match && isAppLocale(match[1]) ? match[1] : null;
 }
 

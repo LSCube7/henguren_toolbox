@@ -1,5 +1,5 @@
-import { LegacyLocaleRedirectPage } from "@/app/components/LocaleRedirect";
+import { LegacyLocaleRedirectPage, type LegacySearchParams } from "@/app/components/LegacyLocaleRedirectPage";
 
-export default function LegacyLicensePage() {
-  return <LegacyLocaleRedirectPage logicalPath="/license" />;
+export default function LegacyLicensePage({ searchParams }: { searchParams: Promise<LegacySearchParams> }) {
+  return <LegacyLocaleRedirectPage logicalPath="/license" searchParams={searchParams} />;
 }

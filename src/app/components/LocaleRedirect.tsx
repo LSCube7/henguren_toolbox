@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { localizePath, resolveClientLocale } from "@/lib/localized-routing";
+import { useEffect } from "react";
+import { legacyLocaleChoiceParam, localizePath, resolveClientLocale } from "@/lib/localized-routing";
 import { toolboxSettingsKey } from "@/lib/client-settings";
 import { isAppLocale, supportedLocales, type AppLocale } from "@/i18n/config";
 
@@ -21,12 +21,7 @@ function browserLanguages() {
   return Array.from(new Set([...(navigator.languages ?? []), navigator.language].filter(Boolean)));
 }
 
-export function LocaleRedirect({ logicalPath }: { logicalPath: string }) {
-  const fallbackLinks = useMemo(
-    () => supportedLocales.map((locale) => ({ locale, href: localizePath(locale, logicalPath) })),
-    [logicalPath]
-  );
-
+export function LocaleRedirect({ logicalPath, queryEntries }: { logicalPath: string; queryEntries: Array<[string, string]> }) {
   useEffect(() => {
     const locale = readSavedLocale() ?? resolveClientLocale(null, browserLanguages());
     const target = localizePath(locale, `${logicalPath}${window.location.search}${window.location.hash}`);
@@ -41,17 +36,16 @@ export function LocaleRedirect({ logicalPath }: { logicalPath: string }) {
         <h1 id="locale-redirect-title">Henguren Toolbox</h1>
         <p>Choose a language / 请选择语言</p>
         <nav aria-label="Language / 语言">
-          {fallbackLinks.map(({ locale, href }) => (
-            <a href={href} key={locale}>
-              {locale === "zh-CN" ? "简体中文" : "English"}
-            </a>
-          ))}
+          <form method="get">
+            {queryEntries.map(([name, value], index) => <input type="hidden" name={name} value={value} key={index} />)}
+            {supportedLocales.map((locale) => (
+              <button type="submit" name={legacyLocaleChoiceParam} value={locale} key={locale}>
+                {locale === "zh-CN" ? "简体中文" : "English"}
+              </button>
+            ))}
+          </form>
         </nav>
       </div>
     </main>
   );
-}
-
-export function LegacyLocaleRedirectPage({ logicalPath }: { logicalPath: string }) {
-  return <LocaleRedirect logicalPath={logicalPath} />;
 }

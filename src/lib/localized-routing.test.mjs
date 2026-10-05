@@ -4,6 +4,7 @@ import {
   getLocaleFromPathname,
   localizePath,
   resolveClientLocale,
+  safeOnboardingReturnTo,
   stripLocalePrefix
 } from "./localized-routing.ts";
 
@@ -43,4 +44,27 @@ test("onboarding settings choices preserve session URL context and use the final
   assert.equal(localizePath("en-US", cloudUrl), currentUrl);
   const returnTo = new URL(cloudUrl, "https://toolbox.example").searchParams.get("returnTo");
   assert.equal(localizePath("zh-CN", returnTo), "/zh-CN/vocab?list=unit1#words");
+});
+
+test("rejects onboarding returns at every path boundary", () => {
+  for (const path of [
+    "/onboarding", "/onboarding#cloud", "/onboarding?auth=ok#cloud", "/onboarding/", "/onboarding/step",
+    "/zh-CN/onboarding#cloud", "/en-US/onboarding/?restart=1#cloud", "/zh-CN/onboarding/step",
+    "/zh-CN/settings/../onboarding#cloud", "/en-US/%6fnboarding#cloud", "/zh-CN/settings/%2e%2e/onboarding"
+  ]) {
+    assert.equal(safeOnboardingReturnTo(path, "zh-CN"), "/zh-CN", path);
+  }
+});
+
+test("rejects invalid and API onboarding returns", () => {
+  for (const path of [null, "", "https://example.test/", "//example.test/", "/\\example.test/", "/%", "/api", "/api/me#status", "/zh-CN/api/auth/login", "/en-US/%61pi/me"]) {
+    assert.equal(safeOnboardingReturnTo(path, "en-US"), "/en-US", path);
+  }
+});
+
+test("preserves valid onboarding return queries and fragments", () => {
+  assert.equal(safeOnboardingReturnTo("/zh-CN/vocab?list=unit1#words", "en-US"), "/en-US/vocab?list=unit1#words");
+  assert.equal(safeOnboardingReturnTo("/zh-CN?source=home#section", "zh-CN"), "/zh-CN?source=home#section");
+  assert.equal(safeOnboardingReturnTo("/settings?returnTo=%2Fonboarding%23cloud#theme", "en-US"), "/en-US/settings?returnTo=%2Fonboarding%23cloud#theme");
+  assert.equal(safeOnboardingReturnTo("/onboarding-help#intro", "en-US"), "/en-US/onboarding-help#intro");
 });

@@ -1,4 +1,4 @@
-import { defaultLocale, type AppLocale } from "../i18n/config.ts";
+import { defaultLocale, isAppLocale, type AppLocale } from "../i18n/config.ts";
 
 export type UserSession = {
   id: string;
@@ -120,6 +120,7 @@ export function normalizeToolboxSettings(value: unknown, fallbackSettings = defa
   return {
     ...fallbackSettings,
     ...saved,
+    locale: isAppLocale(saved.locale) ? saved.locale : fallbackSettings.locale,
     schemaVersion: 1,
     syncStrategy: "manual"
   };

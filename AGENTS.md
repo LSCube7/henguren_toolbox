@@ -11,7 +11,7 @@ Core goals:
 - Keep Chinese and English learning tools usable locally.
 - Use Material Design 3 via Material Web and local Material icon fonts.
 - Keep wrongbook data local-first, with explicit cloud sync after login.
-- Use LSCube OAuth for login and Cloudflare R2 for JSON snapshot storage.
+- Use CubeID for login and Cloudflare R2 for JSON snapshot storage.
 
 ## Do Not Read
 

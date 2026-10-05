@@ -26,5 +26,5 @@ test("uses the provider id and nickname fallbacks", () => {
     email: undefined,
     avatarUrl: undefined
   });
-  assert.equal(userSessionFromOAuthProfile({ sub: "subject-only" })?.name, "LSCube OAuth");
+  assert.equal(userSessionFromOAuthProfile({ sub: "subject-only" })?.name, "CubeID");
 });

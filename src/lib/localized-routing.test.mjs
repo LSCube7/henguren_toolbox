@@ -68,3 +68,8 @@ test("preserves valid onboarding return queries and fragments", () => {
   assert.equal(safeOnboardingReturnTo("/settings?returnTo=%2Fonboarding%23cloud#theme", "en-US"), "/en-US/settings?returnTo=%2Fonboarding%23cloud#theme");
   assert.equal(safeOnboardingReturnTo("/onboarding-help#intro", "en-US"), "/en-US/onboarding-help#intro");
 });
+
+test("manual legacy language choices preserve repeated query values", async () => {
+  const { legacyQueryEntries } = await import("./localized-routing.ts");
+  assert.deepEqual(legacyQueryEntries({ returnTo: "/vocab", tag: ["one", "two"], empty: "", omitted: undefined, __henguren_locale: "zh-CN" }), [["returnTo", "/vocab"], ["tag", "one"], ["tag", "two"], ["empty", ""]]);
+});

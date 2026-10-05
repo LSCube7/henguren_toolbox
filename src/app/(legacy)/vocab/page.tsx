@@ -1,5 +1,5 @@
-import { LegacyLocaleRedirectPage } from "@/app/components/LocaleRedirect";
+import { LegacyLocaleRedirectPage, type LegacySearchParams } from "@/app/components/LegacyLocaleRedirectPage";
 
-export default function LegacyVocabPage() {
-  return <LegacyLocaleRedirectPage logicalPath="/vocab" />;
+export default function LegacyVocabPage({ searchParams }: { searchParams: Promise<LegacySearchParams> }) {
+  return <LegacyLocaleRedirectPage logicalPath="/vocab" searchParams={searchParams} />;
 }

@@ -1,5 +1,5 @@
-import { LegacyLocaleRedirectPage } from "@/app/components/LocaleRedirect";
+import { LegacyLocaleRedirectPage, type LegacySearchParams } from "@/app/components/LegacyLocaleRedirectPage";
 
-export default function LegacyOnboardingPage() {
-  return <LegacyLocaleRedirectPage logicalPath="/onboarding" />;
+export default function LegacyOnboardingPage({ searchParams }: { searchParams: Promise<LegacySearchParams> }) {
+  return <LegacyLocaleRedirectPage logicalPath="/onboarding" searchParams={searchParams} />;
 }

@@ -77,3 +77,12 @@ export function safeOnboardingReturnTo(value: string | null, locale: AppLocale):
     return fallback;
   }
 }
+
+export const legacyLocaleChoiceParam = "__henguren_locale";
+
+export function legacyQueryEntries(query: Record<string, string | string[] | undefined>): Array<[string, string]> {
+  return Object.entries(query).flatMap(([name, value]): Array<[string, string]> => {
+    if (name === legacyLocaleChoiceParam || value === undefined) return [];
+    return (Array.isArray(value) ? value : [value]).map((item) => [name, item]);
+  });
+}

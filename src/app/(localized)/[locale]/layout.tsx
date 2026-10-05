@@ -7,7 +7,6 @@ import { AppI18nProvider } from "@/app/i18n/AppI18nProvider";
 import { SnackbarProvider } from "@/app/components/Snackbar";
 import { themeBootstrapScript } from "@/app/theme/theme-bootstrap";
 import { isAppLocale, supportedLocales, translate, type AppLocale } from "@/i18n/config";
-import { Suspense } from "react";
 import "@/generated/material-symbols.css";
 import "@/app/globals.css";
 
@@ -63,9 +62,7 @@ export default async function LocaleRootLayout({
           <AppI18nProvider initialLocale={locale}>
             <SnackbarProvider>
               <ServiceWorkerRegister />
-              <Suspense fallback={null}>
-                <AppShell>{children}</AppShell>
-              </Suspense>
+              <AppShell>{children}</AppShell>
             </SnackbarProvider>
           </AppI18nProvider>
         </AppThemeProvider>

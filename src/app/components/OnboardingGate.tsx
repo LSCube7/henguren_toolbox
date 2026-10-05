@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { useEffect, useSyncExternalStore } from "react";
 import { onboardingChangeEvent, readOnboardingState } from "@/lib/onboarding";
@@ -24,25 +24,18 @@ function getServerOnboardingCompleted() {
   return true;
 }
 
-function encodeReturnPath(pathname: string, searchParams: URLSearchParams) {
-  const query = searchParams.toString();
-  return `${pathname}${query ? `?${query}` : ""}`;
-}
-
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const completed = useSyncExternalStore(subscribeToOnboarding, getOnboardingCompleted, getServerOnboardingCompleted);
   const { locale, t } = useI18n();
-  const returnPath = encodeReturnPath(pathname, searchParams);
   const logicalPath = stripLocalePrefix(pathname);
 
   useEffect(() => {
     if (completed || logicalPath === "/onboarding") return;
-    const returnTo = encodeURIComponent(returnPath);
+    const returnTo = encodeURIComponent(`${pathname}${window.location.search}${window.location.hash}`);
     router.replace(localizePath(locale, `/onboarding?returnTo=${returnTo}`) as Route);
-  }, [completed, logicalPath, locale, returnPath, router]);
+  }, [completed, logicalPath, locale, pathname, router]);
 
   return (
     <>

@@ -363,10 +363,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const [pendingSlowNavigation, setPendingSlowNavigation] = useState<PendingNavigation | null>(null);
   const pathname = usePathname();
+  const [navigationPathname, setNavigationPathname] = useState(pathname);
   const { t } = useI18n();
   const slowTimerRef = useRef<number | null>(null);
   const clearTimerRef = useRef<number | null>(null);
   const currentPath = stripLocalePrefix(pathname);
+  // Clear state as well as timers so revisiting an origin cannot revive it.
+  if (navigationPathname !== pathname) {
+    setNavigationPathname(pathname);
+    setPendingNavigation(null);
+    setPendingSlowNavigation(null);
+  }
   const pendingPath = pendingNavigation?.originPath === pathname ? pendingNavigation.path : null;
   const pendingSlowPath = pendingSlowNavigation?.originPath === pathname ? pendingSlowNavigation.path : null;
 

@@ -56,7 +56,9 @@ async function loadServiceWorker(networkFetch) {
   const cachesByName = new Map([
     ["henguren-v3-offline-v1-data", new MemoryCache(fetchResponse, [["/api/data/vocab/sample", new Response("cached lesson")]])],
     ["henguren-v3-offline-v2-app", new MemoryCache(fetchResponse)],
-    ["henguren-v3-offline-v2-static", new MemoryCache(fetchResponse)]
+    ["henguren-v3-offline-v2-static", new MemoryCache(fetchResponse)],
+    ["henguren-v3-offline-v3-app", new MemoryCache(fetchResponse, [["/", new Response("previous shell")]])],
+    ["henguren-v3-offline-v3-static", new MemoryCache(fetchResponse)]
   ]);
   const cacheStorage = {
     async keys() {
@@ -110,21 +112,24 @@ test("precaches current shell assets and migrates legacy learning data", async (
   const worker = await loadServiceWorker();
 
   await runExtendableEvent(worker.listeners.get("install"));
-  const appCache = worker.cachesByName.get("henguren-v3-offline-v3-app");
+  const appCache = worker.cachesByName.get("henguren-v3-offline-v4-app");
   assert.ok(await appCache.match("/zh-CN"));
   assert.ok(await appCache.match("/en-US/settings"));
   assert.ok(await appCache.match("/vocab"));
-  const staticCache = worker.cachesByName.get("henguren-v3-offline-v3-static");
+  const staticCache = worker.cachesByName.get("henguren-v3-offline-v4-static");
   assert.ok(await staticCache.match("/_next/static/app.js"));
   assert.ok(await staticCache.match("/_next/static/app.css"));
   assert.ok(await staticCache.match("/fonts/icons.woff2"));
 
+  assert.equal(await (await worker.cachesByName.get("henguren-v3-offline-v3-app").match("/")).text(), "previous shell");
   await runExtendableEvent(worker.listeners.get("activate"));
   const dataCache = worker.cachesByName.get("henguren-v3-offline-v2-data");
   assert.equal(await (await dataCache.match("/api/data/vocab/sample")).text(), "cached lesson");
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v1-data"), false);
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-app"), false);
   assert.equal(worker.cachesByName.has("henguren-v3-offline-v2-static"), false);
+  assert.equal(worker.cachesByName.has("henguren-v3-offline-v3-app"), false);
+  assert.equal(worker.cachesByName.has("henguren-v3-offline-v3-static"), false);
   assert.equal(worker.wasClaimed(), true);
 });
 
@@ -143,4 +148,11 @@ test("serves a cached pathname for an offline query navigation", async () => {
 
   assert.ok(response);
   assert.equal(response.ok, true);
+});
+
+test("localized manifests share the legacy application identity", async () => {
+  for (const name of ["manifest", "manifest.en-US", "manifest.zh-CN"]) {
+    const manifest = JSON.parse(await readFile(new URL(`../../public/${name}.webmanifest`, import.meta.url), "utf8"));
+    assert.equal(manifest.id, "/");
+  }
 });

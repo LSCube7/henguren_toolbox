@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { ThemePicker } from "../components/ThemePicker";
 import {
@@ -19,7 +19,7 @@ import { readClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { useSnackbar } from "../components/Snackbar";
-import { localizePath, stripLocalePrefix } from "@/lib/localized-routing";
+import { getLocaleFromPathname, localizePath, stripLocalePrefix } from "@/lib/localized-routing";
 import type { AppLocale } from "@/i18n/config";
 
 type StepId = "login" | "cloud" | "edition" | "theme" | "done";
@@ -114,6 +114,16 @@ export function OnboardingClient() {
   const [cloudDecision, setCloudDecision] = useState<CloudDecision>(() => savedCloudChoice?.decision ?? null);
   const [cloudErrorStatus, setCloudErrorStatus] = useState("");
   const [cloudCheckVersion, setCloudCheckVersion] = useState(0);
+  const applySettings = useCallback((nextSettings: ToolboxSettings) => {
+    setSettings(nextSettings);
+    writeSettings(nextSettings);
+    // Only an explicit settings choice (or its restoration) changes the visit's
+    // language. Persist the choice before navigating so a remount can restore it.
+    if (getLocaleFromPathname(window.location.pathname) !== nextSettings.locale) {
+      const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      router.replace(localizePath(nextSettings.locale, currentUrl) as Route);
+    }
+  }, [router]);
   const step = steps[stepIndex];
   const canGoNext =
     step.id === "login"
@@ -176,10 +186,9 @@ export function OnboardingClient() {
         setCloudDecision(savedChoice.decision);
       } else {
         if (savedChoice) {
-          setSettings(savedChoice.localSettings);
           setLocalSettingsBeforeCloud(savedChoice.localSettings);
-          writeSettings(savedChoice.localSettings);
           clearOnboardingCloudChoice();
+          applySettings(savedChoice.localSettings);
         }
         setCloudDecision(null);
       }
@@ -215,7 +224,7 @@ export function OnboardingClient() {
     return () => {
       active = false;
     };
-  }, [cloudCheckVersion, requestFallbackSettings, user]);
+  }, [applySettings, cloudCheckVersion, requestFallbackSettings, user]);
 
   function updateSettings(next: Partial<ToolboxSettings>) {
     const value = { ...settings, ...next, updatedAt: new Date().toISOString() };
@@ -235,7 +244,7 @@ export function OnboardingClient() {
       return;
     }
     completeOnboarding();
-    router.replace(returnTo as Route);
+    router.replace(localizePath(settings.locale, returnTo) as Route);
   }
 
   function goBack() {
@@ -252,10 +261,9 @@ export function OnboardingClient() {
   function skipLogin() {
     const savedChoice = readOnboardingCloudChoice(requestFallbackSettings);
     if (savedChoice) {
-      setSettings(savedChoice.localSettings);
       setLocalSettingsBeforeCloud(savedChoice.localSettings);
-      writeSettings(savedChoice.localSettings);
       clearOnboardingCloudChoice();
+      applySettings(savedChoice.localSettings);
     }
     setCloudDecision(null);
     sessionStorage.setItem(onboardingLoginDecisionStorageKey, "skipped");
@@ -271,16 +279,11 @@ export function OnboardingClient() {
       decision: "cloud",
       localSettings: localSettingsBeforeCloud
     });
-    setSettings(cloudSettings);
-    writeSettings(cloudSettings);
     setCloudDecision("cloud");
+    applySettings(cloudSettings);
   }
 
   function keepLocalSettings() {
-    if (cloudDecision === "cloud") {
-      setSettings(localSettingsBeforeCloud);
-      writeSettings(localSettingsBeforeCloud);
-    }
     if (user) {
       writeOnboardingCloudChoice({
         version: 1,
@@ -290,6 +293,7 @@ export function OnboardingClient() {
       });
     }
     setCloudDecision("local");
+    applySettings(cloudDecision === "cloud" ? localSettingsBeforeCloud : settings);
   }
 
   function retryCloudSettings() {

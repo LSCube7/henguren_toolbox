@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { setSessionCookie } from "@/lib/session";
 import { userSessionFromOAuthProfile } from "@/lib/oauth-profile";
-import { defaultLocale, isAppLocale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
 import { getLocaleFromPathname, localizePath } from "@/lib/localized-routing";
 
 type TokenResponse = {
@@ -40,8 +40,7 @@ function safeReturnTo(value: string | undefined) {
     const decoded = decodeURIComponent(value);
     if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/api/")) return fallback;
     const locale = getLocaleFromPathname(decoded) ?? defaultLocale;
-    const logicalPath = decoded.replace(/^\/[^/?#]+(?=\/|$)/, (segment) => (isAppLocale(segment.slice(1)) ? "" : segment));
-    return localizePath(locale, logicalPath);
+    return localizePath(locale, decoded);
   } catch {
     return fallback;
   }

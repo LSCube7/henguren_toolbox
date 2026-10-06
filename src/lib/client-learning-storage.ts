@@ -236,6 +236,7 @@ export async function adoptGuestLearning(userId: string) {
     };
     [guest, target, state].forEach((request) => { request.onsuccess = apply; });
     await done;
+    announceLearningChange();
   } finally { db.close(); }
 }
 

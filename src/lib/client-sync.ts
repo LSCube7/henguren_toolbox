@@ -185,6 +185,7 @@ export function mergeUploadWrongBook() { return manualSync("merge"); }
 let summaryCache: { value: WrongBookSyncSummary; at: number; identity: string } | undefined;
 let summaryRequest: Promise<WrongBookSyncSummary> | undefined;
 let summaryRequestIdentity: string | undefined;
+let summaryRevision = 0;
 const summaryListeners = new Set<() => void>();
 export function subscribeSyncSummary(listener: () => void) { summaryListeners.add(listener); return () => { summaryListeners.delete(listener); }; }
 function expireSyncSession() {
@@ -193,10 +194,10 @@ function expireSyncSession() {
   summaryListeners.forEach((listener) => listener());
 }
 export function cachedSyncSummary() { return summaryCache?.value ?? null; }
-export function invalidateSyncSummary() { summaryCache = undefined; }
+export function invalidateSyncSummary() { summaryCache = undefined; summaryRevision++; }
 function syncSummaryIdentity() {
   const source = readDeveloperSyncSource();
-  return currentLearningOwner() + ":" + (source ? developerSyncSourceIdentity(source) : "account") + ":" + isOnline();
+  return currentLearningOwner() + ":" + (source ? developerSyncSourceIdentity(source) : "account") + ":" + isOnline() + ":" + summaryRevision;
 }
 export function readWrongBookSyncSummary(options: { force?: boolean } = {}): Promise<WrongBookSyncSummary> {
   const identity = syncSummaryIdentity();

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { initializeLearningStorage, learningOwnerEventKey, observeAuthenticatedLearningUser } from "@/lib/client-learning-storage";
+import { startLearningAutoSync } from "@/lib/client-auto-sync";
 import { isOnline } from "@/lib/offline-cache";
 import { useI18n } from "../i18n/AppI18nProvider";
 
@@ -41,6 +42,7 @@ export function LearningOwnerProvider({ children }: { children: React.ReactNode 
     void initialize();
     return () => { active = false; window.removeEventListener("storage", storageChanged); window.removeEventListener(learningOwnerEventKey, reload); };
   }, []);
+  useEffect(() => { if (status === "ready") return startLearningAutoSync(); }, [status]);
   return <LearningOwnerContext.Provider value={status}>{children}</LearningOwnerContext.Provider>;
 }
 

@@ -14,6 +14,8 @@ import {
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
+import { useLearningSync } from "@/lib/client-auto-sync";
+import { LearningAutoSyncControls } from "../components/LearningAutoSyncControls";
 import { developerSyncSourceIdentity, readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { deleteMasteryRecord, readMasteryMap, reconcileMasteryRecords, recordMasteryResult } from "@/lib/client-mastery";
 import { isMasteryDue, isMasteryLearning, type MasteryRecord } from "@/lib/mastery";
@@ -92,7 +94,7 @@ function cloudSyncIcon(summary: WrongBookSyncSummary | null, syncing: boolean): 
 }
 
 function getOverwriteTarget(summary: WrongBookSyncSummary | null): OverwriteTarget | null {
-  if (summary?.status !== "ready") return null;
+  if (summary?.status !== "ready" && summary?.status !== "synced") return null;
   if (summary.source === "custom") {
     const source = readDeveloperSyncSource();
     return source ? { identity: developerSyncSourceIdentity(source), source: "custom", profileId: source.profileId, version: summary.cloudVersion } : null;
@@ -221,6 +223,8 @@ export function VocabClient() {
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const { clearSnackbar, showSnackbar } = useSnackbar();
   const online = useOnlineStatus();
+  const sync = useLearningSync();
+  const cloudSummary = sync.summary;
   const [screen, setScreen] = useState<Screen>("select");
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
   const [uploadedLists, setUploadedLists] = useState<UploadedList[]>([]);
@@ -251,7 +255,6 @@ export function VocabClient() {
   const [testSource, setTestSource] = useState<"selection" | "wrongbook">("selection");
   const [loading, setLoading] = useState(false);
   const [cloudAction, setCloudAction] = useState<CloudAction | null>(null);
-  const [cloudSummary, setCloudSummary] = useState<WrongBookSyncSummary | null>(null);
   const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false);
   const [overwriteTarget, setOverwriteTarget] = useState<OverwriteTarget | null>(null);
   const [cacheBusy, setCacheBusy] = useState(false);
@@ -288,23 +291,7 @@ export function VocabClient() {
     return applyWrongBookData(await loadWrongBookData(clientId));
   }, [applyWrongBookData, clientId]);
 
-  const refreshCloudSummary = useCallback(async () => {
-    try {
-      const summary = await readWrongBookSyncSummary();
-      return summary;
-    } catch {
-      const summary: WrongBookSyncSummary = {
-        status: "error",
-        source: "local",
-        unavailableReason: "source-unavailable",
-        user: null,
-        localCount: 0,
-        localMasteryCount: 0,
-        cloudMasteryCount: 0
-      };
-      return summary;
-    }
-  }, []);
+  const reloadLearning = useCallback(() => refreshWrongBook(), [refreshWrongBook]);
 
   useEffect(() => {
     let active = true;
@@ -320,18 +307,10 @@ export function VocabClient() {
   }, [applyWrongBookData, clientId]);
 
   useEffect(() => {
-    let active = true;
-    async function loadSummary() {
-      if (screen !== "wrongbook") return;
-      const summary = await refreshCloudSummary();
-      if (!active) return;
-      setCloudSummary(summary);
-    }
-    void loadSummary();
-    return () => {
-      active = false;
-    };
-  }, [online, refreshCloudSummary, screen]);
+    const reload = () => { void reloadLearning(); };
+    window.addEventListener("henguren-v3-learning-change", reload);
+    return () => window.removeEventListener("henguren-v3-learning-change", reload);
+  }, [reloadLearning]);
 
   const selectedMetas = useMemo(() => list.filter((item) => selectedUnits.includes(item.name)) as VocabListMeta[], [selectedUnits]);
   const selectedCustomLists = useMemo(() => uploadedLists.filter((item) => selectedUploadedIds.includes(item.name)), [selectedUploadedIds, uploadedLists]);
@@ -680,12 +659,12 @@ export function VocabClient() {
   }
 
   async function pullCloud() {
-    if (cloudSummary?.status !== "ready" || !online) return;
+    if ((cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || !online || sync.busy) return;
     setCloudAction("pull");
     try {
       await pullAndMergeWrongBook();
       const refreshed = await refreshWrongBook();
-      setCloudSummary(await refreshCloudSummary());
+
       if (refreshed) showSnackbar(t("user.wrongbookSync.pullSuccess"));
     } catch (error) {
       showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
@@ -695,11 +674,11 @@ export function VocabClient() {
   }
 
   async function overwriteCloud(expectedTarget?: string, expectedVersion?: string) {
-    if (cloudSummary?.status !== "ready" || !online) return;
+    if ((cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || !online || sync.busy) return;
     setCloudAction("overwrite");
     try {
       await overwriteCloudWrongBook(expectedTarget, expectedVersion);
-      setCloudSummary(await refreshCloudSummary());
+
       showSnackbar(t("user.wrongbookSync.overwriteSuccess"));
     } catch (error) {
       showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
@@ -721,14 +700,12 @@ export function VocabClient() {
       return;
     }
     try {
-      const currentSummary = await readWrongBookSyncSummary();
+      const currentSummary = await readWrongBookSyncSummary({ force: true });
       const currentTarget = getOverwriteTarget(currentSummary);
       if (currentTarget?.identity !== expectedTarget.identity) {
-        setCloudSummary(currentSummary);
         showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
         return;
       }
-      setCloudSummary(currentSummary);
       if (currentTarget.version !== expectedTarget.version) {
         showSnackbar(t("user.wrongbookSync.conflict"), "error");
         return;
@@ -740,12 +717,12 @@ export function VocabClient() {
   }
 
   async function mergeCloud() {
-    if (cloudSummary?.status !== "ready" || !online) return;
+    if ((cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || !online || sync.busy) return;
     setCloudAction("merge");
     try {
       await mergeUploadWrongBook();
       const refreshed = await refreshWrongBook();
-      setCloudSummary(await refreshCloudSummary());
+
       if (refreshed) showSnackbar(t("user.wrongbookSync.mergeSuccess"));
     } catch (error) {
       showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
@@ -1037,11 +1014,17 @@ export function VocabClient() {
           <div>
             <h2 className="section-title">{t("vocab.cloudTitle")}</h2>
             <p className="helper-text">{t("vocab.cloudDescription")}</p>
-            <span className="sync-status-chip" data-status={cloudAction ? "syncing" : cloudSummary?.status ?? "signed-out"}>
-              <MaterialIcon name={cloudAction ? cloudActionIcon[cloudAction] : cloudSyncIcon(cloudSummary, false)} />
+            <span className="sync-status-chip" data-status={cloudAction || sync.busy ? "syncing" : sync.status === "idle" ? cloudSummary?.status ?? "signed-out" : sync.status}>
+              <MaterialIcon name={cloudAction ? cloudActionIcon[cloudAction] : cloudSyncIcon(cloudSummary, sync.busy)} />
               <span>{cloudAction
                 ? t(cloudActionLabel[cloudAction])
-                : cloudSummary
+                : sync.status === "pending"
+                  ? t("sync.pending")
+                  : sync.status === "syncing"
+                    ? t("sync.syncing")
+                    : sync.status === "synced"
+                      ? t("sync.synced")
+                      : cloudSummary
                   ? t(cloudSyncMessageKey(cloudSummary), {
                       localCount: cloudSummary.localCount,
                       cloudCount: cloudSummary.cloudCount ?? 0,
@@ -1051,11 +1034,12 @@ export function VocabClient() {
                   : t("user.wrongbookSync.loading")}</span>
             </span>
             <p className="helper-text">{t("user.wrongbookSync.masteryMergeNote")}</p>
+            <LearningAutoSyncControls />
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={!online || cloudSummary?.status !== "ready" || Boolean(cloudAction)} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</md-outlined-button>
-            <md-outlined-button disabled={!online || cloudSummary?.status !== "ready" || Boolean(cloudAction)} onClick={openOverwriteDialog}>{t("vocab.cloudOverwrite")}</md-outlined-button>
-            <md-filled-button disabled={!online || cloudSummary?.status !== "ready" || Boolean(cloudAction)} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
+            <md-outlined-button disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</md-outlined-button>
+            <md-outlined-button disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={openOverwriteDialog}>{t("vocab.cloudOverwrite")}</md-outlined-button>
+            <md-filled-button disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
           </div>
         </section>
         <md-dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>

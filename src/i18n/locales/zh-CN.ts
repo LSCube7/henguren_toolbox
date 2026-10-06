@@ -634,4 +634,13 @@ export const zhCN = {
   "user.localOwner.adoptAction": "确认转入",
   "user.localOwner.logoutOffline": "当前离线，暂时无法退出登录；本机学习数据已保留。",
   "user.localOwner.logoutFailed": "退出或本机数据切换未完成，请刷新后重试；未上传数据会保留。调试信息：模块 learning-owner，错误类型 LOGOUT_FAILED。",
+  "nav.syncSettings": "同步设置",
+  "account.signIn": "登录",
+  "account.menu": "账户菜单",
+  "account.details": "账户信息",
+  "account.loading": "正在检查登录状态",
+  "account.expired": "登录已过期",
+  "account.signInAgain": "重新登录",
+  "account.offline": "当前离线，联网后可登录或退出",
+  "account.signingOut": "正在退出",
 } as const;

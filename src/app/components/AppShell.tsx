@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import { defaultSettingsForLocale } from "@/lib/types";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AccountMenu } from "./AccountMenu";
 import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
@@ -93,7 +94,6 @@ function NavList({
   const edition = useEdition();
   const sync = useLearningSync();
   const syncSummary = sync.summary;
-  const user = syncSummary?.user ?? null;
   const { locale, t } = useI18n();
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const settings = useClientSettings(fallbackSettings);
@@ -103,8 +103,7 @@ function NavList({
   const syncStatus: SyncStatus | "pending" = sync.status === "idle"
     ? syncSummary?.status ?? "signed-out"
     : sync.status;
-  const syncTitle = t(syncStatusLabel[syncStatus]);
-  const userTitle = user ? `${user.name}${user.email ? ` · ${user.email}` : ""}` : t("user.signedOut");
+  const syncTitle = t("nav.syncSettings") + " · " + t(syncStatusLabel[syncStatus]);
 
   function renderNavIcon(icon: MaterialSymbolName) {
     return (
@@ -174,7 +173,7 @@ function NavList({
               data-pending={pending ? "true" : undefined}
               data-pending-slow={pendingSlowPath === "/user" ? "true" : undefined}
               aria-busy={pending ? true : undefined}
-              aria-label={t(syncStatusLabel[syncStatus])}
+              aria-label={syncTitle}
               title={syncTitle}
               onClick={(event) => handleClick(href, event)}
             >
@@ -224,32 +223,7 @@ function NavList({
             );
           })()
         ) : null}
-        {(() => {
-          const href = localizePath(locale, "/user");
-          const pending = pendingPath === "/user";
-          return (
-            <Link
-              href={href as Route}
-              className="user-nav-card"
-              aria-current={currentPath.startsWith("/user") ? "page" : undefined}
-              data-pending={pending ? "true" : undefined}
-              data-pending-slow={pendingSlowPath === "/user" ? "true" : undefined}
-              aria-busy={pending ? true : undefined}
-              aria-label={user ? t("user.aria", { name: user.name }) : t("user.signedOut")}
-              title={userTitle}
-              onClick={(event) => handleClick(href, event)}
-            >
-              {user?.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
-              ) : (
-                <span className="user-nav-icon" aria-hidden="true">
-                  <MaterialIcon name={user ? "account_circle" : "person"} />
-                </span>
-              )}
-            </Link>
-          );
-        })()}
+        <AccountMenu onNavigate={onNavigate} />
       </div>
     </div>
   );

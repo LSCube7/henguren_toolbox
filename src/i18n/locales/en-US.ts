@@ -636,4 +636,13 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "user.localOwner.adoptAction": "Confirm move",
   "user.localOwner.logoutOffline": "You are offline and cannot sign out right now. Local learning data has been kept.",
   "user.localOwner.logoutFailed": "Sign-out or local account switching did not finish. Refresh and try again; unsynced data is kept. Debug: learning-owner, LOGOUT_FAILED.",
+  "nav.syncSettings": "Sync settings",
+  "account.signIn": "Sign in",
+  "account.menu": "Account menu",
+  "account.details": "Account details",
+  "account.loading": "Checking sign-in status",
+  "account.expired": "Your session has expired",
+  "account.signInAgain": "Sign in again",
+  "account.offline": "Offline. Connect to sign in or out.",
+  "account.signingOut": "Signing out",
 };

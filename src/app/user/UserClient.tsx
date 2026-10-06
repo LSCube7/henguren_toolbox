@@ -6,11 +6,12 @@ import { MaterialIcon } from "../components/MaterialIcon";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
-import { resumeLearningSync, stopLearningSync, useLearningSync } from "@/lib/client-auto-sync";
+import { useLearningSync } from "@/lib/client-auto-sync";
+import { logoutAccount } from "@/lib/client-account";
 import { LearningAutoSyncControls } from "../components/LearningAutoSyncControls";
 import { developerSyncSourceIdentity, readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { isOnline } from "@/lib/offline-cache";
-import { adoptGuestLearning, changeLearningOwner, currentLearningOwner, readLearningPartition } from "@/lib/client-learning-storage";
+import { adoptGuestLearning, currentLearningOwner, readLearningPartition } from "@/lib/client-learning-storage";
 import { accountLearningOwner, guestLearningOwner } from "@/lib/learning-ownership";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -150,17 +151,9 @@ export function UserClient() {
   async function logout() {
     if (!isOnline()) { showSnackbar(t("user.localOwner.logoutOffline"), "error"); return; }
     setAccountChanging(true);
-    stopLearningSync();
     try {
-      const owner = currentLearningOwner();
-      const ownerUserId: unknown = owner.startsWith("account:") ? JSON.parse(owner.slice("account:".length)) : undefined;
-      const expectedUserId = typeof ownerUserId === "string" ? ownerUserId : user?.id;
-      const response = await fetch("/api/auth/logout", { method: "POST", cache: "no-store", headers: expectedUserId ? { "X-Sync-User": expectedUserId } : {} });
-      if (!response.ok) throw new Error("LOGOUT_FAILED");
-      await changeLearningOwner(guestLearningOwner, true);
-      window.location.reload();
+      await logoutAccount(user?.id);
     } catch {
-      resumeLearningSync();
       showSnackbar(t("user.localOwner.logoutFailed"), "error");
     }
     finally { setAccountChanging(false); }

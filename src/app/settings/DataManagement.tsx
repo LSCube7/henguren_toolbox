@@ -1,5 +1,8 @@
 "use client";
 
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
+import { localizePath } from "@/lib/localized-routing";
 import textLists from "@/assets/js/text/list.json";
 import vocabLists from "@/assets/js/vocabulary/list.json";
 import {
@@ -25,6 +28,7 @@ function formatBytes(value: number | undefined, unavailable: string) {
 }
 
 export function DataManagement({ fallbackSettings }: { fallbackSettings: ToolboxSettings }) {
+  const router = useRouter();
   const importRef = useRef<HTMLInputElement>(null);
   const [offlineSummary, setOfflineSummary] = useState<OfflineStorageSummary | null>(null);
   const [pendingBackup, setPendingBackup] = useState<ToolboxBackup | null>(null);
@@ -87,6 +91,10 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
       const result = await importToolboxBackup(pendingBackup, fallbackSettings);
       setPendingBackup(null);
       showSnackbar(t("data.backup.importSuccess", { wrongbookCount: result.wrongbookCount, masteryCount: result.masteryCount }));
+      if (result.locale !== locale) {
+        const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        router.replace(localizePath(result.locale, currentUrl) as Route);
+      }
     } catch {
       showSnackbar(t("data.backup.importPartial"), "error");
     } finally {

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { resolveRequestLocale } from "@/i18n/locale-detection";
+import { resolveSettingsLocale } from "@/i18n/locale-detection";
 import { getCurrentUser } from "@/lib/session";
 import { readJsonFromR2, settingsKey, writeJsonToR2 } from "@/lib/r2";
 import { defaultSettingsForLocale, normalizeToolboxSettings } from "@/lib/types";
 
 function requestFallbackSettings(request: Request) {
-  return defaultSettingsForLocale(resolveRequestLocale(request.headers.get("accept-language")));
+  return defaultSettingsForLocale(resolveSettingsLocale(new URL(request.url).searchParams.get("locale"), request.headers.get("accept-language")));
 }
 
 export async function GET(request: Request) {

@@ -184,6 +184,7 @@ export function mergeUploadWrongBook() { return manualSync("merge"); }
 
 let summaryCache: { value: WrongBookSyncSummary; at: number; identity: string } | undefined;
 let summaryRequest: Promise<WrongBookSyncSummary> | undefined;
+let summaryRequestIdentity: string | undefined;
 const summaryListeners = new Set<() => void>();
 export function subscribeSyncSummary(listener: () => void) { summaryListeners.add(listener); return () => { summaryListeners.delete(listener); }; }
 function expireSyncSession() {
@@ -193,12 +194,26 @@ function expireSyncSession() {
 }
 export function cachedSyncSummary() { return summaryCache?.value ?? null; }
 export function invalidateSyncSummary() { summaryCache = undefined; }
+function syncSummaryIdentity() {
+  const source = readDeveloperSyncSource();
+  return currentLearningOwner() + ":" + (source ? developerSyncSourceIdentity(source) : "account") + ":" + isOnline();
+}
 export function readWrongBookSyncSummary(options: { force?: boolean } = {}): Promise<WrongBookSyncSummary> {
-  const identity = currentLearningOwner() + ":" + (readDeveloperSyncSource() ? developerSyncSourceIdentity(readDeveloperSyncSource()!) : "account") + ":" + isOnline();
-  if (summaryRequest) return summaryRequest;
+  const identity = syncSummaryIdentity();
+  if (summaryRequest) {
+    const requestIdentity = summaryRequestIdentity;
+    return summaryRequest.then((value) => requestIdentity === syncSummaryIdentity() ? value : readWrongBookSyncSummary(options));
+  }
   if (!options.force && summaryCache?.identity === identity && Date.now() - summaryCache.at < 60000) return Promise.resolve(summaryCache.value);
-  summaryRequest = loadWrongBookSyncSummary().then((value) => { summaryCache = { value, at: Date.now(), identity }; summaryListeners.forEach((listener) => listener()); return value; }).finally(() => { summaryRequest = undefined; });
-  return summaryRequest;
+  summaryRequestIdentity = identity;
+  summaryRequest = loadWrongBookSyncSummary().then((value) => {
+    if (identity === syncSummaryIdentity()) {
+      summaryCache = { value, at: Date.now(), identity };
+      summaryListeners.forEach((listener) => listener());
+    }
+    return value;
+  }).finally(() => { summaryRequest = undefined; summaryRequestIdentity = undefined; });
+  return summaryRequest.then((value) => identity === syncSummaryIdentity() ? value : readWrongBookSyncSummary(options));
 }
 export async function automaticLearningSync(options: { force?: boolean } = {}) {
   return withLearningSyncLock(async () => {

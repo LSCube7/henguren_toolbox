@@ -14,6 +14,7 @@ import {
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
+import { learningChangeEventKey } from "@/lib/client-learning-storage";
 import { useLearningSync } from "@/lib/client-auto-sync";
 import { LearningAutoSyncControls } from "../components/LearningAutoSyncControls";
 import { developerSyncSourceIdentity, readDeveloperSyncSource } from "@/lib/developer-sync-config";
@@ -308,8 +309,10 @@ export function VocabClient() {
 
   useEffect(() => {
     const reload = () => { void reloadLearning(); };
-    window.addEventListener("henguren-v3-learning-change", reload);
-    return () => window.removeEventListener("henguren-v3-learning-change", reload);
+    const stored = (event: StorageEvent) => { if (event.key === learningChangeEventKey) reload(); };
+    window.addEventListener(learningChangeEventKey, reload);
+    window.addEventListener("storage", stored);
+    return () => { window.removeEventListener(learningChangeEventKey, reload); window.removeEventListener("storage", stored); };
   }, [reloadLearning]);
 
   const selectedMetas = useMemo(() => list.filter((item) => selectedUnits.includes(item.name)) as VocabListMeta[], [selectedUnits]);

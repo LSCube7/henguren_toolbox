@@ -13,7 +13,7 @@ export { SyncOperationError } from "./vocab-sync";
 
 export type SyncStatus = "signed-out" | "offline" | "ready" | "syncing" | "synced" | "error";
 export type SyncSource = "local" | "account" | "custom";
-export type SyncUnavailableReason = "browser-offline" | "server-unavailable" | "source-unavailable";
+export type SyncUnavailableReason = "browser-offline" | "server-unavailable" | "source-unavailable" | "session-expired";
 export type WrongBookSyncSummary = {
   status: SyncStatus;
   source: SyncSource;
@@ -35,6 +35,7 @@ async function syncFetch(url: string, init?: RequestInit) {
   try { response = await fetch(url, { ...init, cache: "no-store", signal: AbortSignal.any([AbortSignal.timeout(30000), requestController.signal]) }); }
   catch { throw new SyncOperationError("NETWORK_ERROR", 503); }
   if (!response.ok) {
+    if (response.status === 401) expireSyncSession();
     const codes: Record<number, string> = { 401: "UNAUTHORIZED", 400: "INVALID_SNAPSHOT", 409: "SYNC_CONFLICT", 413: "SNAPSHOT_TOO_LARGE", 503: "CLOUD_UNAVAILABLE" };
     let code = codes[response.status] ?? "SERVER_ERROR";
     try {
@@ -80,7 +81,7 @@ async function loadWrongBookSyncSummary(): Promise<WrongBookSyncSummary> {
   let authenticatedUser: UserSession | null | undefined;
   if (isOnline()) {
     try { authenticatedUser = await readUser(); }
-    catch { authenticatedUser = undefined; }
+    catch (error) { authenticatedUser = error instanceof SyncOperationError && error.code === "UNAUTHORIZED" ? null : undefined; }
     if (authenticatedUser) await observeAuthenticatedLearningUser(authenticatedUser.id);
   }
   const local = await readLocalSnapshot();
@@ -106,7 +107,7 @@ async function loadWrongBookSyncSummary(): Promise<WrongBookSyncSummary> {
     const cloud = parseVocabSnapshot(await response.json(), user.id);
     return { ...base, user, status: "ready", source: "account", cloudCount: cloud.records.length, cloudMasteryCount: cloud.masteryRecords.length, cloudVersion };
   } catch (error) {
-    if (error instanceof SyncOperationError && error.code === "UNAUTHORIZED") return { ...base, status: "signed-out", source: "local" };
+    if (error instanceof SyncOperationError && error.code === "UNAUTHORIZED") return { ...base, user: null, status: "signed-out", source: "local", unavailableReason: "session-expired" };
     return { ...base, user, status: "error", source: "account", unavailableReason: "source-unavailable" };
   }
 }
@@ -185,6 +186,11 @@ let summaryCache: { value: WrongBookSyncSummary; at: number; identity: string } 
 let summaryRequest: Promise<WrongBookSyncSummary> | undefined;
 const summaryListeners = new Set<() => void>();
 export function subscribeSyncSummary(listener: () => void) { summaryListeners.add(listener); return () => { summaryListeners.delete(listener); }; }
+function expireSyncSession() {
+  if (!summaryCache) return;
+  summaryCache = { ...summaryCache, at: Date.now(), value: { ...summaryCache.value, user: null, status: "signed-out", source: "local", unavailableReason: "session-expired", cloudCount: undefined, cloudMasteryCount: undefined, cloudVersion: undefined } };
+  summaryListeners.forEach((listener) => listener());
+}
 export function cachedSyncSummary() { return summaryCache?.value ?? null; }
 export function invalidateSyncSummary() { summaryCache = undefined; }
 export function readWrongBookSyncSummary(options: { force?: boolean } = {}): Promise<WrongBookSyncSummary> {

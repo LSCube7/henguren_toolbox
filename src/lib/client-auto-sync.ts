@@ -102,7 +102,13 @@ export function startLearningAutoSync() {
   const availability = () => { clearTimeout(timer); if (!isOnline()) { publish({ status: "offline" }); return; } void inspect().then(() => execute(true)).catch(fail); };
   const owner = () => stopLearningSync();
   const activity = (event: Event) => { manualBusy = (event as CustomEvent<boolean>).detail; void reschedule().catch(fail); };
-  const unsubscribe = subscribeSyncSummary(() => publish({ summary: cachedSyncSummary() }));
+  const unsubscribe = subscribeSyncSummary(() => {
+    const summary = cachedSyncSummary();
+    if (summary?.unavailableReason === "session-expired") {
+      halted = true; clearTimeout(timer);
+      publish({ summary, error: "UNAUTHORIZED", status: "signed-out" });
+    } else publish({ summary });
+  });
   window.addEventListener(learningChangeEventKey, changed); window.addEventListener("storage", storage);
   window.addEventListener("online", availability); window.addEventListener("offline", availability);
   window.addEventListener(learningOwnerEventKey, owner); window.addEventListener("henguren-v3-sync-activity", activity);

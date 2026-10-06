@@ -5,12 +5,11 @@ import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import { defaultSettingsForLocale } from "@/lib/types";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { SyncMenu } from "./SyncMenu";
 import { AccountMenu } from "./AccountMenu";
 import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
-import type { SyncStatus } from "@/lib/client-sync";
-import { useLearningSync } from "@/lib/client-auto-sync";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
@@ -30,26 +29,6 @@ const personalItems = [
   { href: "/changelog", label: "nav.changelog", icon: "history" },
   { href: "/settings", label: "nav.settings", icon: "settings" }
 ] as const;
-
-const syncStatusLabel: Record<SyncStatus | "pending", MessageKey> = {
-  "signed-out": "sync.signedOut",
-  offline: "sync.offline",
-  ready: "sync.ready",
-  pending: "sync.pending",
-  syncing: "sync.syncing",
-  synced: "sync.synced",
-  error: "sync.error"
-};
-
-const syncStatusIcon: Record<SyncStatus | "pending", MaterialSymbolName> = {
-  "signed-out": "cloud_off",
-  offline: "cloud_off",
-  ready: "cloud_sync",
-  pending: "cloud_sync",
-  syncing: "cloud_upload",
-  synced: "cloud_done",
-  error: "cloud_alert"
-};
 
 const footerColumns = [
   {
@@ -92,19 +71,12 @@ function NavList({
 }) {
   const pathname = usePathname();
   const edition = useEdition();
-  const sync = useLearningSync();
-  const syncSummary = sync.summary;
   const { locale, t } = useI18n();
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const settings = useClientSettings(fallbackSettings);
   const currentPath = stripLocalePrefix(pathname);
 
   const selectedTools = toolItems.filter((item) => item.edition === edition);
-  const syncStatus: SyncStatus | "pending" = sync.status === "idle"
-    ? syncSummary?.status ?? "signed-out"
-    : sync.status;
-  const syncTitle = t("nav.syncSettings") + " · " + t(syncStatusLabel[syncStatus]);
-
   function renderNavIcon(icon: MaterialSymbolName) {
     return (
       <span className="app-nav__icon-state" aria-hidden="true">
@@ -162,25 +134,7 @@ function NavList({
         </div>
       </nav>
       <div className="app-drawer__footer" aria-label={t("nav.personalAria")}>
-        {(() => {
-          const href = localizePath(locale, "/user#wrongbook-sync");
-          const pending = pendingPath === "/user";
-          return (
-            <Link
-              href={href as Route}
-              className="rail-action"
-              data-status={syncStatus}
-              data-pending={pending ? "true" : undefined}
-              data-pending-slow={pendingSlowPath === "/user" ? "true" : undefined}
-              aria-busy={pending ? true : undefined}
-              aria-label={syncTitle}
-              title={syncTitle}
-              onClick={(event) => handleClick(href, event)}
-            >
-              <MaterialIcon name={syncStatusIcon[syncStatus]} />
-            </Link>
-          );
-        })()}
+        <SyncMenu onOpen={onNavigate} />
         {personalItems.map((item) => {
           const href = localizePath(locale, item.href);
           const selected = currentPath === item.href || currentPath.startsWith(`${item.href}/`);

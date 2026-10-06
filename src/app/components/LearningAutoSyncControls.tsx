@@ -30,7 +30,7 @@ function checkedFrom(event: FormEvent<HTMLElement>) {
   return Boolean(target.selected ?? target.checked);
 }
 
-export function LearningAutoSyncControls() {
+export function LearningAutoSyncControls({ compact = false }: { compact?: boolean }) {
   const sync = useLearningSync();
   const { locale, t } = useI18n();
   const { showSnackbar } = useSnackbar();
@@ -63,7 +63,7 @@ export function LearningAutoSyncControls() {
     <div className="stack">
       <label className="switch-field">
         <md-switch
-          aria-label={t("sync.auto.title")}
+          data-aria-label={t("sync.auto.title")}
           selected={sync.enabled}
 
           disabled={disabled}
@@ -71,7 +71,7 @@ export function LearningAutoSyncControls() {
         />
         <span>{t("sync.auto.title")}</span>
       </label>
-      <p className="helper-text">{t("sync.auto.description")}</p>
+      {!compact ? <p className="helper-text">{t("sync.auto.description")}</p> : null}
       <p className="helper-text" role="status" aria-live="polite" lang={locale}>{statusText}</p>
     </div>
   );

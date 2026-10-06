@@ -8,7 +8,7 @@ import { isOnline } from "./offline-cache";
 import { canRetrySync, nextSyncAt, retrySyncDelay } from "./learning-sync-policy";
 
 type AutoStatus = "idle" | "pending" | "syncing" | "synced" | "offline" | "signed-out" | "error";
-type LearningSyncState = { summary: WrongBookSyncSummary | null; busy: boolean; enabled: boolean; pending: boolean; error?: string; status: AutoStatus };
+type LearningSyncState = { summary: WrongBookSyncSummary | null; busy: boolean; enabled: boolean; pending: boolean; lastSuccessAt?: string; error?: string; status: AutoStatus };
 const initial: LearningSyncState = { summary: null, busy: false, enabled: false, pending: false, status: "idle" };
 let state = initial;
 const listeners = new Set<() => void>();
@@ -34,7 +34,7 @@ async function inspect() {
   }
   const cached = cachedSyncSummary() ?? state.summary;
   const summary = cached ? { ...cached, localCount: partition.wrongbook.records.length, localMasteryCount: partition.masteryRecords.length, status: !isOnline() ? "offline" as const : halted && state.error === "UNAUTHORIZED" ? "signed-out" as const : cached.status, user: halted && state.error === "UNAUTHORIZED" ? null : cached.user } : null;
-  publish({ enabled, pending, summary, busy: running || manualBusy,
+  publish({ enabled, pending, summary, lastSuccessAt: partition.sync?.lastSuccessAt, busy: running || manualBusy,
     status: running || manualBusy ? "syncing" : !isOnline() ? "offline" : halted || state.error ? state.status : !enabled ? "idle" : pending ? "pending" : partition.sync?.lastSuccessAt ? "synced" : "idle" });
   return partition;
 }

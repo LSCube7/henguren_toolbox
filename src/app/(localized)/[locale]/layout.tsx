@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
+import { LearningOwnerProvider } from "@/app/components/LearningOwnerGate";
 import { AppShell } from "@/app/components/AppShell";
 import { ServiceWorkerRegister } from "@/app/components/ServiceWorkerRegister";
 import { AppThemeProvider } from "@/app/theme/AppThemeProvider";
@@ -62,7 +63,7 @@ export default async function LocaleRootLayout({
           <AppI18nProvider initialLocale={locale}>
             <SnackbarProvider>
               <ServiceWorkerRegister />
-              <AppShell>{children}</AppShell>
+              <LearningOwnerProvider><AppShell>{children}</AppShell></LearningOwnerProvider>
             </SnackbarProvider>
           </AppI18nProvider>
         </AppThemeProvider>

@@ -1,9 +1,10 @@
 "use client";
 
-import { canonicalizeLocalWrongBookRecordIds, getClientId, importWrongBookSnapshot, readLocalWrongBook } from "./client-wrongbook";
-import { mergeMasteryRecords, readMasteryRecords, reconcileMasteryRecords } from "./client-mastery";
+import { getClientId } from "./client-wrongbook";
 import { developerSyncSourceIdentity, readDeveloperSyncSource } from "./developer-sync-config";
 import { isOnline } from "./offline-cache";
+import { assertLearningOwner, currentLearningOwner, initializeLearningStorage, observeAuthenticatedLearningUser, readLearningPartition, updateLearningPartition } from "./client-learning-storage";
+import { mergeVocabSnapshots } from "./vocab-sync";
 import type { UserSession } from "./types";
 import { emptyWrongBook } from "./wrongbook";
 import { parseVocabSnapshot, SyncOperationError, type VocabSyncSnapshot } from "./vocab-sync";
@@ -51,24 +52,32 @@ async function readUser(): Promise<UserSession | null> {
   return data.user as UserSession;
 }
 
-async function readLocalSnapshot() {
-  const wrongbook = await canonicalizeLocalWrongBookRecordIds(getClientId());
-  const masteryRecords = await readMasteryRecords();
-  return parseVocabSnapshot({ ...wrongbook, masteryRecords }, "local");
+async function readLocalSnapshot(owner?: string) {
+  await initializeLearningStorage();
+  const partition = await readLearningPartition(owner ?? currentLearningOwner());
+  return parseVocabSnapshot({ ...partition.wrongbook, clientId: getClientId(), masteryRecords: partition.masteryRecords }, "local");
 }
 
-async function importSyncedWrongBook(snapshot: VocabSyncSnapshot) {
+async function applySyncedLearning(snapshot: VocabSyncSnapshot, owner: string, mode: "pull" | "merge" | "overwrite", accountUpload: boolean) {
   try {
-    await importWrongBookSnapshot(snapshot);
-    // Merge with fresh local data rather than replacing the pre-request snapshot.
-    const local = await readLocalWrongBook(getClientId());
-    await mergeMasteryRecords(snapshot.masteryRecords, local);
-    const latest = await readLocalWrongBook(getClientId());
-    await reconcileMasteryRecords(latest.records, latest.deletedRecords);
+    await updateLearningPartition(owner, (partition) => {
+      if (mode === "overwrite") return { partition: { ...partition, uploaded: accountUpload ? snapshot : partition.uploaded }, result: undefined };
+      const local = parseVocabSnapshot({ ...partition.wrongbook, masteryRecords: partition.masteryRecords }, "local");
+      const merged = mergeVocabSnapshots("local", local, snapshot);
+      return { partition: { ...partition, wrongbook: merged,
+        masteryRecords: [...merged.masteryRecords, ...partition.masteryRecords.filter((record) => !local.masteryRecords.some((entry) => entry.id === record.id) && !merged.records.some((entry) => entry.id === record.id))],
+        uploaded: accountUpload ? snapshot : partition.uploaded }, result: undefined };
+    });
   } catch { throw new SyncOperationError("LOCAL_APPLY_FAILED"); }
 }
 
 export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> {
+  let authenticatedUser: UserSession | null | undefined;
+  if (isOnline() && !readDeveloperSyncSource()) {
+    try { authenticatedUser = await readUser(); }
+    catch { authenticatedUser = undefined; }
+    if (authenticatedUser) await observeAuthenticatedLearningUser(authenticatedUser.id);
+  }
   const local = await readLocalSnapshot();
   const developerSource = readDeveloperSyncSource();
   const base = { localCount: local.records.length, localMasteryCount: local.masteryRecords.length, user: null };
@@ -82,7 +91,7 @@ export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> 
     } catch { return { ...base, status: "error", source: "custom", unavailableReason: "source-unavailable" }; }
   }
   let user: UserSession | null;
-  try { user = await readUser(); }
+  try { user = authenticatedUser === undefined ? await readUser() : authenticatedUser; }
   catch { return { ...base, status: "error", source: "account", unavailableReason: "server-unavailable" }; }
   if (!user) return { ...base, status: "signed-out", source: "local" };
   try {
@@ -100,6 +109,7 @@ export async function readWrongBookSyncSummary(): Promise<WrongBookSyncSummary> 
 async function runSync(mode: "pull" | "merge" | "overwrite", expectedTarget?: string, expectedVersion?: string) {
   if (!isOnline()) throw new SyncOperationError("OFFLINE");
   const source = readDeveloperSyncSource();
+  let owner = currentLearningOwner();
   let snapshot: VocabSyncSnapshot;
   try {
     if (source) {
@@ -116,6 +126,8 @@ async function runSync(mode: "pull" | "merge" | "overwrite", expectedTarget?: st
       const user = await readUser();
       if (!user) throw new SyncOperationError("UNAUTHORIZED", 401);
       if (expectedTarget && `account:${user.id}` !== expectedTarget) throw new SyncOperationError("TARGET_CHANGED", 409);
+      await observeAuthenticatedLearningUser(user.id);
+      owner = currentLearningOwner();
       if (mode === "pull") {
         snapshot = parseVocabSnapshot(await (await syncFetch("/api/wrongbook", { headers: { "X-Sync-User": user.id } })).json(), user.id);
       } else {
@@ -124,7 +136,7 @@ async function runSync(mode: "pull" | "merge" | "overwrite", expectedTarget?: st
         const response = await syncFetch(mode === "merge" ? "/api/wrongbook/merge" : "/api/wrongbook", {
           method: mode === "merge" ? "POST" : "PUT",
           headers: { "Content-Type": "application/json", "X-Sync-User": user.id, ...(version ? { "X-Sync-Version": version } : {}) },
-          body: JSON.stringify(await readLocalSnapshot())
+          body: JSON.stringify(await readLocalSnapshot(owner))
         });
         snapshot = parseVocabSnapshot(await response.json(), user.id);
       }
@@ -133,7 +145,8 @@ async function runSync(mode: "pull" | "merge" | "overwrite", expectedTarget?: st
     if (error instanceof SyncOperationError) throw error;
     throw new SyncOperationError(source ? "SOURCE_UNAVAILABLE" : "INVALID_RESPONSE", 503);
   }
-  if (mode !== "overwrite") await importSyncedWrongBook(snapshot);
+  assertLearningOwner(owner);
+  await applySyncedLearning(snapshot, owner, mode, !source && mode !== "pull");
   return snapshot;
 }
 

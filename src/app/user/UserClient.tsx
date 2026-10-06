@@ -8,6 +8,8 @@ import { useCallback, useEffect, useState } from "react";
 import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
 import { developerSyncSourceIdentity, readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { isOnline } from "@/lib/offline-cache";
+import { adoptGuestLearning, changeLearningOwner, currentLearningOwner, readLearningPartition } from "@/lib/client-learning-storage";
+import { accountLearningOwner, guestLearningOwner } from "@/lib/learning-ownership";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
@@ -133,6 +135,14 @@ export function UserClient() {
   const [loading, setLoading] = useState(true);
   const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false);
   const [overwriteTarget, setOverwriteTarget] = useState<OverwriteTarget | null>(null);
+  const [guestCount, setGuestCount] = useState(0);
+  const [adoptDialogOpen, setAdoptDialogOpen] = useState(false);
+  const [accountChanging, setAccountChanging] = useState(false);
+
+  useEffect(() => {
+    void readLearningPartition(guestLearningOwner, true).then((partition) => setGuestCount(partition.wrongbook.records.length + partition.masteryRecords.length + partition.wrongbook.deletedRecords.length + partition.wrongbook.deletedBatches.length))
+      .catch(() => showSnackbar(t("user.localOwner.error"), "error"));
+  }, [showSnackbar, t]);
 
   useEffect(() => {
     if (authMessageKey) showSnackbar(t(authMessageKey), authStatus === "ok" ? "info" : "error");
@@ -190,9 +200,37 @@ export function UserClient() {
   }, [showSnackbar, t]);
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    showSnackbar(t("user.logoutSuccess"));
-    await refresh(true);
+    if (!isOnline()) { showSnackbar(t("user.localOwner.logoutOffline"), "error"); return; }
+    setAccountChanging(true);
+    try {
+      const owner = currentLearningOwner();
+      const ownerUserId: unknown = owner.startsWith("account:") ? JSON.parse(owner.slice("account:".length)) : undefined;
+      const expectedUserId = typeof ownerUserId === "string" ? ownerUserId : user?.id;
+      const response = await fetch("/api/auth/logout", { method: "POST", cache: "no-store", headers: expectedUserId ? { "X-Sync-User": expectedUserId } : {} });
+      if (!response.ok) throw new Error("LOGOUT_FAILED");
+      await changeLearningOwner(guestLearningOwner, true);
+      window.location.reload();
+    } catch { showSnackbar(t("user.localOwner.logoutFailed"), "error"); }
+    finally { setAccountChanging(false); }
+  }
+
+  async function adoptGuest() {
+    setAdoptDialogOpen(false);
+    if (!user || currentLearningOwner() !== accountLearningOwner(user.id)) return;
+    setAccountChanging(true);
+    try {
+      const response = await fetch("/api/me", { cache: "no-store" });
+      const data = await response.json() as { authenticated: boolean; user: UserSession | null };
+      if (!response.ok || !data.authenticated || data.user?.id !== user.id) {
+        showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
+        return;
+      }
+      await adoptGuestLearning(user.id);
+      setGuestCount(0);
+      await refresh();
+    }
+    catch { showSnackbar(t("user.localOwner.error"), "error"); }
+    finally { setAccountChanging(false); }
   }
 
   async function runSync(action: "pull" | "overwrite" | "merge", expectedTarget?: string, expectedVersion?: string) {
@@ -255,7 +293,7 @@ export function UserClient() {
   }
 
   const canSync = syncSummary?.status === "ready" && (Boolean(user) || syncSummary.source === "custom");
-  const syncUnavailable = !canSync || syncing || !isOnline();
+  const syncUnavailable = !canSync || syncing || accountChanging || !isOnline();
   const syncReadDisabled = syncUnavailable;
   const currentSyncIcon = syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
   const currentSyncText = syncing && syncAction
@@ -290,13 +328,23 @@ export function UserClient() {
         </div>
         <div className="cluster">
           <md-outlined-button onClick={() => void refresh(true)}>{t("common.refresh")}</md-outlined-button>
-          {user ? (
-            <md-outlined-button onClick={() => void logout()}>{t("user.logout")}</md-outlined-button>
-          ) : (
-            <md-filled-button href={loginHref}>{t("user.login")}</md-filled-button>
-          )}
+          {user || currentLearningOwner() !== guestLearningOwner ? (
+            <md-outlined-button disabled={syncing || accountChanging} onClick={() => void logout()}>{t("user.logout")}</md-outlined-button>
+          ) : null}
+          {!user ? <md-filled-button href={loginHref}>{t("user.login")}</md-filled-button> : null}
         </div>
       </section>
+      <section className="md-card stack" aria-label={t("user.localOwner.title")}>
+        <h2 className="section-title">{t("user.localOwner.title")}</h2>
+        <p>{currentLearningOwner() === guestLearningOwner ? t("user.localOwner.guest") : user ? t("user.localOwner.account", { name: user.name }) : t("user.localOwner.expired")}</p>
+        <p className="helper-text">{t("user.localOwner.description")}</p>
+        {user && guestCount > 0 ? <md-outlined-button disabled={syncing || accountChanging} onClick={() => setAdoptDialogOpen(true)}>{t("user.localOwner.adopt")}</md-outlined-button> : null}
+      </section>
+      <md-dialog open={adoptDialogOpen} onClose={() => setAdoptDialogOpen(false)} onCancel={() => setAdoptDialogOpen(false)}>
+        <div slot="headline">{t("user.localOwner.adopt")}</div>
+        <div slot="content">{t("user.localOwner.adoptConfirm", { name: user?.name ?? "" })}</div>
+        <div slot="actions"><md-text-button onClick={() => setAdoptDialogOpen(false)}>{t("common.cancel")}</md-text-button><md-text-button onClick={() => void adoptGuest()}>{t("user.localOwner.adoptAction")}</md-text-button></div>
+      </md-dialog>
       <section className="md-card spread" id="wrongbook-sync" aria-label={t("user.wrongbookSyncAria")}>
         <div>
           <h2 className="section-title">{t("user.wrongbookSync.title")}</h2>

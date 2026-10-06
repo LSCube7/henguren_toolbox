@@ -9,6 +9,7 @@ import { ThemePicker } from "../components/ThemePicker";
 import { defaultSettingsForLocale, type ToolboxSettings } from "@/lib/types";
 import { useEdition, writeEdition } from "@/lib/edition";
 import { restartOnboarding } from "@/lib/onboarding";
+import { LearningOwnerGate } from "../components/LearningOwnerGate";
 import { DataManagement } from "./DataManagement";
 import { readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -137,7 +138,7 @@ export function SettingsClient() {
         description="settings.onboarding.description"
         control={<md-outlined-button onClick={restartInitialGuide}>{t("settings.onboarding.action")}</md-outlined-button>}
       />
-      <DataManagement fallbackSettings={fallbackSettings} />
+      <LearningOwnerGate><DataManagement fallbackSettings={fallbackSettings} /></LearningOwnerGate>
       <section className="settings-group" aria-labelledby="advanced-settings-title">
         <div className="settings-group__header">
           <p className="breadcrumb">Settings</p>

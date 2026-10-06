@@ -4,6 +4,8 @@ import "client-only";
 
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import type { ToolboxSettings, WrongBookSnapshot } from "./types";
+import { saveVocabSnapshot, type VocabSnapshotStore } from "./vocab-sync-store";
+import type { VocabSyncSnapshot } from "./vocab-sync";
 import {
   developerSettingsKey,
   developerWrongBookBackupKey,
@@ -24,24 +26,30 @@ function createClient(source: DeveloperSyncSource) {
 }
 
 export async function readDeveloperJson<T>(source: DeveloperSyncSource, key: string): Promise<T | null> {
+  return (await readVersionedDeveloperJson<T>(source, key)).value;
+}
+
+export async function readVersionedDeveloperJson<T>(source: DeveloperSyncSource, key: string): Promise<{ value: T | null; etag: string | null }> {
   try {
     const response = await createClient(source).send(new GetObjectCommand({ Bucket: source.bucketName, Key: key }));
     const body = await response.Body?.transformToString();
-    return body ? (JSON.parse(body) as T) : null;
+    if (!body || !response.ETag) throw new Error("R2_INVALID_OBJECT");
+    return { value: JSON.parse(body) as T, etag: response.ETag };
   } catch (error) {
     const name = error instanceof Error ? error.name : "";
-    if (name === "NoSuchKey" || name === "NotFound") return null;
+    if (name === "NoSuchKey" || name === "NotFound") return { value: null, etag: null };
     throw error;
   }
 }
 
-export async function writeDeveloperJson(source: DeveloperSyncSource, key: string, value: unknown) {
+export async function writeDeveloperJson(source: DeveloperSyncSource, key: string, value: unknown, expectedVersion?: string | null) {
   await createClient(source).send(
     new PutObjectCommand({
       Bucket: source.bucketName,
       Key: key,
       Body: JSON.stringify(value, null, 2),
-      ContentType: "application/json; charset=utf-8"
+      ContentType: "application/json; charset=utf-8",
+      ...(expectedVersion === undefined ? {} : expectedVersion === null ? { IfNoneMatch: "*" } : { IfMatch: expectedVersion })
     })
   );
 }
@@ -51,8 +59,19 @@ export async function readDeveloperWrongBook(source: DeveloperSyncSource) {
 }
 
 export async function writeDeveloperWrongBook(source: DeveloperSyncSource, snapshot: WrongBookSnapshot) {
-  await writeDeveloperJson(source, developerWrongBookKey(source), snapshot);
-  await writeDeveloperJson(source, developerWrongBookBackupKey(source, snapshot.updatedAt.replaceAll(":", "-")), snapshot);
+  return saveDeveloperVocab(source, snapshot, "overwrite");
+}
+
+export function developerVocabStore(source: DeveloperSyncSource): VocabSnapshotStore {
+  return {
+    read: () => readVersionedDeveloperJson(source, developerWrongBookKey(source)),
+    write: (snapshot, etag) => writeDeveloperJson(source, developerWrongBookKey(source), snapshot, etag),
+    backup: (snapshot, id) => writeDeveloperJson(source, developerWrongBookBackupKey(source, id), snapshot, null)
+  };
+}
+
+export function saveDeveloperVocab(source: DeveloperSyncSource, snapshot: WrongBookSnapshot | VocabSyncSnapshot, mode: "merge" | "overwrite", expectedVersion?: string | null) {
+  return saveVocabSnapshot(developerVocabStore(source), source.profileId, snapshot, mode, expectedVersion);
 }
 
 export async function readDeveloperSettings(source: DeveloperSyncSource) {

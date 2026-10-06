@@ -1,26 +1,27 @@
-import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { readJsonFromR2, writeJsonToR2, wrongBookBackupKey, wrongBookKey } from "@/lib/r2";
-import { emptyWrongBook, mergeWrongBooks, normalizeWrongBook } from "@/lib/wrongbook";
-import type { WrongBookSnapshot } from "@/lib/types";
+import { emptyWrongBook } from "@/lib/wrongbook";
+import { parseVocabSnapshot } from "@/lib/vocab-sync";
+import { saveVocabSnapshot } from "@/lib/vocab-sync-store";
+import { accountVocabStore, readSyncRequest, syncErrorResponse, syncResponse } from "@/lib/server-vocab-sync";
 
-export async function GET() {
+export async function GET(request: Request) {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const snapshot = await readJsonFromR2<WrongBookSnapshot>(wrongBookKey(user.id));
-  return NextResponse.json(snapshot ?? emptyWrongBook(user.id));
+  if (!user) return syncResponse({ error: "UNAUTHORIZED" }, 401);
+  if (request.headers.has("X-Sync-User") && request.headers.get("X-Sync-User") !== user.id) return syncResponse({ error: "TARGET_CHANGED" }, 409);
+  try {
+    const stored = await accountVocabStore(user.id).read();
+    return syncResponse(parseVocabSnapshot(stored.value ?? emptyWrongBook(user.id), user.id), 200, stored.etag);
+  } catch (error) { return syncErrorResponse(error); }
 }
 
 export async function PUT(request: Request) {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const body = (await request.json()) as Partial<WrongBookSnapshot>;
-  const normalized = normalizeWrongBook({ ...body, updatedAt: new Date().toISOString() }, user.id);
-  const snapshot = mergeWrongBooks(user.id, normalized);
-  await writeJsonToR2(wrongBookKey(user.id), snapshot);
-  await writeJsonToR2(wrongBookBackupKey(user.id, snapshot.updatedAt.replaceAll(":", "-")), snapshot);
-
-  return NextResponse.json(snapshot);
+  if (!user) return syncResponse({ error: "UNAUTHORIZED" }, 401);
+  if (request.headers.has("X-Sync-User") && request.headers.get("X-Sync-User") !== user.id) return syncResponse({ error: "TARGET_CHANGED" }, 409);
+  try {
+    const header = request.headers.get("X-Sync-Version");
+    const expected = header === "missing" ? null : header ?? undefined;
+    const snapshot = await saveVocabSnapshot(accountVocabStore(user.id), user.id, await readSyncRequest(request), "overwrite", expected);
+    return syncResponse(snapshot);
+  } catch (error) { return syncErrorResponse(error); }
 }

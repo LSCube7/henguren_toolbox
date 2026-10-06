@@ -1,6 +1,9 @@
 "use client";
 
-import { nextMasteryRecord, type MasteryRecord } from "./mastery";
+import { nextMasteryRecord, preferredMasteryRecord, type MasteryRecord } from "./mastery";
+import { getClientId, readLocalWrongBook } from "./client-wrongbook";
+import { mergeVocabSnapshots, parseVocabSnapshot } from "./vocab-sync";
+import type { WrongBookSnapshot } from "./types";
 import type { WrongBookRecord, WrongBookTombstone } from "./types";
 import { planMasteryReconciliation } from "./wrongbook";
 
@@ -72,8 +75,8 @@ export async function reconcileMasteryRecords(records: WrongBookRecord[], delete
   }
 }
 
-export async function mergeMasteryRecords(records: MasteryRecord[]) {
-  if (records.length === 0) return;
+export async function mergeMasteryRecords(records: MasteryRecord[], wrongbook?: WrongBookSnapshot) {
+  if (records.length === 0 && !wrongbook) return;
   const db = await openDb();
   try {
     await new Promise<void>((resolve, reject) => {
@@ -84,9 +87,22 @@ export async function mergeMasteryRecords(records: MasteryRecord[]) {
       request.onsuccess = () => {
         try {
           const existingById = new Map((request.result as MasteryRecord[]).map((record) => [record.id, record]));
-          records.forEach((record) => {
+          const candidates = wrongbook ? mergeVocabSnapshots("local",
+            parseVocabSnapshot({ ...wrongbook, masteryRecords: [...existingById.values()] }, "local"),
+            parseVocabSnapshot({ ...wrongbook, masteryRecords: records }, "local")
+          ).masteryRecords : records;
+          if (wrongbook) {
+            const candidateIds = new Set(candidates.map((record) => record.id));
+            existingById.forEach((record, id) => {
+              if (!candidateIds.has(id)) {
+                store.delete(id);
+                existingById.delete(id);
+              }
+            });
+          }
+          candidates.forEach((record) => {
             const current = existingById.get(record.id);
-            if (!current || current.updatedAt < record.updatedAt) {
+            if (wrongbook || !current || preferredMasteryRecord(current, record) === record) {
               store.put(record);
               existingById.set(record.id, record);
             }
@@ -105,6 +121,8 @@ export async function mergeMasteryRecords(records: MasteryRecord[]) {
 }
 
 export async function recordMasteryResult(id: string, correct: boolean) {
+  const wrongbook = await readLocalWrongBook(getClientId());
+  const wrongAttemptIds = wrongbook.records.find((record) => record.id === id)?.wrongAttempts?.map((attempt) => attempt.id) ?? [];
   const db = await openDb();
   try {
     return await new Promise<MasteryRecord>((resolve, reject) => {
@@ -115,7 +133,9 @@ export async function recordMasteryResult(id: string, correct: boolean) {
       let operationError: unknown;
       request.onsuccess = () => {
         try {
-          nextRecord = nextMasteryRecord(id, request.result as MasteryRecord | undefined, correct);
+          const current = request.result as MasteryRecord | undefined;
+          const sameCycle = !current?.wrongAttemptIds || current.wrongAttemptIds.some((attempt) => wrongAttemptIds.includes(attempt));
+          nextRecord = { ...nextMasteryRecord(id, sameCycle ? current : undefined, correct), wrongAttemptIds };
           store.put(nextRecord);
         } catch (error) {
           operationError = error;

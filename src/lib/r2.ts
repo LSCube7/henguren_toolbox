@@ -22,24 +22,30 @@ function getR2Client() {
 }
 
 export async function readJsonFromR2<T>(key: string): Promise<T | null> {
+  return (await readVersionedJsonFromR2<T>(key)).value;
+}
+
+export async function readVersionedJsonFromR2<T>(key: string): Promise<{ value: T | null; etag: string | null }> {
   try {
     const response = await getR2Client().send(new GetObjectCommand({ Bucket: bucket, Key: key }));
     const body = await response.Body?.transformToString();
-    return body ? (JSON.parse(body) as T) : null;
+    if (!body || !response.ETag) throw new Error("R2_INVALID_OBJECT");
+    return { value: JSON.parse(body) as T, etag: response.ETag };
   } catch (error) {
     const name = error instanceof Error ? error.name : "";
-    if (name === "NoSuchKey" || name === "NotFound") return null;
+    if (name === "NoSuchKey" || name === "NotFound") return { value: null, etag: null };
     throw error;
   }
 }
 
-export async function writeJsonToR2(key: string, value: unknown) {
+export async function writeJsonToR2(key: string, value: unknown, expectedVersion?: string | null) {
   await getR2Client().send(
     new PutObjectCommand({
       Bucket: bucket,
       Key: key,
       Body: JSON.stringify(value, null, 2),
-      ContentType: "application/json; charset=utf-8"
+      ContentType: "application/json; charset=utf-8",
+      ...(expectedVersion === undefined ? {} : expectedVersion === null ? { IfNoneMatch: "*" } : { IfMatch: expectedVersion })
     })
   );
 }

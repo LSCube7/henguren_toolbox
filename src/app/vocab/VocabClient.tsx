@@ -13,7 +13,8 @@ import {
   readLocalWrongBook
 } from "@/lib/client-wrongbook";
 import { evaluateAnswer, pickWords } from "@/lib/quiz-engine";
-import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook } from "@/lib/client-sync";
+import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
+import { developerSyncSourceIdentity, readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { deleteMasteryRecord, readMasteryMap, reconcileMasteryRecords, recordMasteryResult } from "@/lib/client-mastery";
 import { isMasteryDue, isMasteryLearning, type MasteryRecord } from "@/lib/mastery";
 import { MaterialIcon } from "../components/MaterialIcon";
@@ -40,6 +41,7 @@ type MasteryFilter = "all" | "due" | "learning" | "mastered";
 type CloudAction = "pull" | "overwrite" | "merge";
 type AnswerOutcome = "correct" | "wrong";
 type DefinitionLanguageMode = "all" | VocabDefinitionLanguage;
+type OverwriteTarget = { identity: string; source: "account" | "custom"; name?: string; profileId?: string; version?: string };
 
 const books = Array.from(new Set(list.map((item) => getBookCode(item.name)))).map((code) => ({ code, title: getBookTitle(code) }));
 const visibleCustomListCount = 3;
@@ -66,6 +68,55 @@ const cloudActionLabel: Record<CloudAction, MessageKey> = {
   overwrite: "user.wrongbookSync.overwriting",
   merge: "user.wrongbookSync.merging"
 };
+
+function cloudSyncMessageKey(summary: WrongBookSyncSummary): MessageKey {
+  if (summary.status === "offline") {
+    if (summary.source === "custom") return "sync.detail.customOffline";
+    return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.detail.offline";
+  }
+  if (summary.status === "error") {
+    if (summary.source === "local") return "user.wrongbookSync.loadError";
+    return summary.source === "custom" ? "sync.detail.customError" : "sync.detail.cloudError";
+  }
+  if (summary.status === "ready") return summary.source === "custom" ? "sync.detail.customReady" : "sync.detail.ready";
+  if (summary.status === "synced") return "sync.synced";
+  return "sync.detail.signedOut";
+}
+
+function cloudSyncIcon(summary: WrongBookSyncSummary | null, syncing: boolean): MaterialSymbolName {
+  if (syncing) return "cloud_sync";
+  if (summary?.status === "offline" || summary?.status === "signed-out") return "cloud_off";
+  if (summary?.status === "error") return "cloud_alert";
+  if (summary?.status === "synced") return "cloud_done";
+  return "cloud_sync";
+}
+
+function getOverwriteTarget(summary: WrongBookSyncSummary | null): OverwriteTarget | null {
+  if (summary?.status !== "ready") return null;
+  if (summary.source === "custom") {
+    const source = readDeveloperSyncSource();
+    return source ? { identity: developerSyncSourceIdentity(source), source: "custom", profileId: source.profileId, version: summary.cloudVersion } : null;
+  }
+  return summary.user ? { identity: `account:${summary.user.id}`, source: "account", name: summary.user.name, version: summary.cloudVersion } : null;
+}
+
+function syncErrorCode(error: unknown) {
+  if (typeof error !== "object" || error === null || !("code" in error)) return "SYNC_FAILED";
+  const code = (error as { code?: unknown }).code;
+  return typeof code === "string" && /^[A-Z0-9_]{1,40}$/.test(code) ? code : "SYNC_FAILED";
+}
+
+function syncErrorMessageKey(error: unknown): MessageKey {
+  switch (syncErrorCode(error)) {
+    case "LOCAL_APPLY_FAILED": return "user.wrongbookSync.localApplyFailed";
+    case "BACKUP_FAILED": return "user.wrongbookSync.backupFailed";
+    case "SYNC_CONFLICT": return "user.wrongbookSync.conflict";
+    case "UNAUTHORIZED": return "user.wrongbookSync.unauthorized";
+    case "TARGET_CHANGED": return "user.wrongbookSync.targetChanged";
+    case "OFFLINE": return "user.wrongbookSync.offline";
+    default: return "user.wrongbookSync.error";
+  }
+}
 
 function nowStamp() {
   return new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
@@ -200,6 +251,9 @@ export function VocabClient() {
   const [testSource, setTestSource] = useState<"selection" | "wrongbook">("selection");
   const [loading, setLoading] = useState(false);
   const [cloudAction, setCloudAction] = useState<CloudAction | null>(null);
+  const [cloudSummary, setCloudSummary] = useState<WrongBookSyncSummary | null>(null);
+  const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false);
+  const [overwriteTarget, setOverwriteTarget] = useState<OverwriteTarget | null>(null);
   const [cacheBusy, setCacheBusy] = useState(false);
   const [vocabCacheStates, setVocabCacheStates] = useState<Record<string, VocabCacheState>>({});
   const [customListDialogOpen, setCustomListDialogOpen] = useState(false);
@@ -234,6 +288,24 @@ export function VocabClient() {
     return applyWrongBookData(await loadWrongBookData(clientId));
   }, [applyWrongBookData, clientId]);
 
+  const refreshCloudSummary = useCallback(async () => {
+    try {
+      const summary = await readWrongBookSyncSummary();
+      return summary;
+    } catch {
+      const summary: WrongBookSyncSummary = {
+        status: "error",
+        source: "local",
+        unavailableReason: "source-unavailable",
+        user: null,
+        localCount: 0,
+        localMasteryCount: 0,
+        cloudMasteryCount: 0
+      };
+      return summary;
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
     async function loadWrongBook() {
@@ -246,6 +318,20 @@ export function VocabClient() {
       active = false;
     };
   }, [applyWrongBookData, clientId]);
+
+  useEffect(() => {
+    let active = true;
+    async function loadSummary() {
+      if (screen !== "wrongbook") return;
+      const summary = await refreshCloudSummary();
+      if (!active) return;
+      setCloudSummary(summary);
+    }
+    void loadSummary();
+    return () => {
+      active = false;
+    };
+  }, [online, refreshCloudSummary, screen]);
 
   const selectedMetas = useMemo(() => list.filter((item) => selectedUnits.includes(item.name)) as VocabListMeta[], [selectedUnits]);
   const selectedCustomLists = useMemo(() => uploadedLists.filter((item) => selectedUploadedIds.includes(item.name)), [selectedUploadedIds, uploadedLists]);
@@ -594,38 +680,75 @@ export function VocabClient() {
   }
 
   async function pullCloud() {
+    if (cloudSummary?.status !== "ready" || !online) return;
     setCloudAction("pull");
     try {
       await pullAndMergeWrongBook();
       const refreshed = await refreshWrongBook();
-      if (refreshed) showSnackbar(t("vocab.cloud.pullSuccess"));
-    } catch {
-      showSnackbar(t("vocab.cloud.pullError"), "error");
+      setCloudSummary(await refreshCloudSummary());
+      if (refreshed) showSnackbar(t("user.wrongbookSync.pullSuccess"));
+    } catch (error) {
+      showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
     } finally {
       setCloudAction(null);
     }
   }
 
-  async function overwriteCloud() {
+  async function overwriteCloud(expectedTarget?: string, expectedVersion?: string) {
+    if (cloudSummary?.status !== "ready" || !online) return;
     setCloudAction("overwrite");
     try {
-      await overwriteCloudWrongBook();
-      showSnackbar(t("vocab.cloud.overwriteSuccess"));
-    } catch {
-      showSnackbar(t("vocab.cloud.overwriteError"), "error");
+      await overwriteCloudWrongBook(expectedTarget, expectedVersion);
+      setCloudSummary(await refreshCloudSummary());
+      showSnackbar(t("user.wrongbookSync.overwriteSuccess"));
+    } catch (error) {
+      showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
     } finally {
       setCloudAction(null);
+    }
+  }
+
+  function openOverwriteDialog() {
+    setOverwriteTarget(getOverwriteTarget(cloudSummary));
+    setOverwriteDialogOpen(true);
+  }
+
+  async function confirmOverwrite() {
+    const expectedTarget = overwriteTarget;
+    setOverwriteDialogOpen(false);
+    if (!expectedTarget) {
+      showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
+      return;
+    }
+    try {
+      const currentSummary = await readWrongBookSyncSummary();
+      const currentTarget = getOverwriteTarget(currentSummary);
+      if (currentTarget?.identity !== expectedTarget.identity) {
+        setCloudSummary(currentSummary);
+        showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
+        return;
+      }
+      setCloudSummary(currentSummary);
+      if (currentTarget.version !== expectedTarget.version) {
+        showSnackbar(t("user.wrongbookSync.conflict"), "error");
+        return;
+      }
+      await overwriteCloud(expectedTarget.identity, expectedTarget.version);
+    } catch (error) {
+      showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
     }
   }
 
   async function mergeCloud() {
+    if (cloudSummary?.status !== "ready" || !online) return;
     setCloudAction("merge");
     try {
       await mergeUploadWrongBook();
       const refreshed = await refreshWrongBook();
-      if (refreshed) showSnackbar(t("vocab.cloud.mergeSuccess"));
-    } catch {
-      showSnackbar(t("vocab.cloud.mergeError"), "error");
+      setCloudSummary(await refreshCloudSummary());
+      if (refreshed) showSnackbar(t("user.wrongbookSync.mergeSuccess"));
+    } catch (error) {
+      showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
     } finally {
       setCloudAction(null);
     }
@@ -914,17 +1037,42 @@ export function VocabClient() {
           <div>
             <h2 className="section-title">{t("vocab.cloudTitle")}</h2>
             <p className="helper-text">{t("vocab.cloudDescription")}</p>
-            <span className="sync-status-chip" data-status={!online ? "offline" : cloudAction ? "syncing" : "ready"}>
-              <MaterialIcon name={!online ? "cloud_off" : cloudAction ? cloudActionIcon[cloudAction] : "cloud_sync"} />
-              <span>{t(!online ? "vocab.cloudOffline" : cloudAction ? cloudActionLabel[cloudAction] : "vocab.cloudReady")}</span>
+            <span className="sync-status-chip" data-status={cloudAction ? "syncing" : cloudSummary?.status ?? "signed-out"}>
+              <MaterialIcon name={cloudAction ? cloudActionIcon[cloudAction] : cloudSyncIcon(cloudSummary, false)} />
+              <span>{cloudAction
+                ? t(cloudActionLabel[cloudAction])
+                : cloudSummary
+                  ? t(cloudSyncMessageKey(cloudSummary), {
+                      localCount: cloudSummary.localCount,
+                      cloudCount: cloudSummary.cloudCount ?? 0,
+                      localMasteryCount: cloudSummary.localMasteryCount ?? 0,
+                      cloudMasteryCount: cloudSummary.cloudMasteryCount ?? 0
+                    })
+                  : t("user.wrongbookSync.loading")}</span>
             </span>
+            <p className="helper-text">{t("user.wrongbookSync.masteryMergeNote")}</p>
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</md-outlined-button>
-            <md-outlined-button disabled={!online || Boolean(cloudAction)} onClick={() => void overwriteCloud()}>{t("vocab.cloudOverwrite")}</md-outlined-button>
-            <md-filled-button disabled={!online || Boolean(cloudAction)} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
+            <md-outlined-button disabled={!online || cloudSummary?.status !== "ready" || Boolean(cloudAction)} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</md-outlined-button>
+            <md-outlined-button disabled={!online || cloudSummary?.status !== "ready" || Boolean(cloudAction)} onClick={openOverwriteDialog}>{t("vocab.cloudOverwrite")}</md-outlined-button>
+            <md-filled-button disabled={!online || cloudSummary?.status !== "ready" || Boolean(cloudAction)} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
           </div>
         </section>
+        <md-dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
+          <div slot="headline">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
+          <div slot="content" className="stack">
+            <p>{t("user.wrongbookSync.overwriteConfirm", {
+              target: overwriteTarget?.source === "custom"
+                ? `${t("user.wrongbookSync.customTarget")}: ${overwriteTarget.profileId}`
+                : overwriteTarget?.name ?? t("user.wrongbookSync.unknownTarget")
+            })}</p>
+            <p className="helper-text">{t("user.wrongbookSync.overwriteScope")}</p>
+          </div>
+          <div slot="actions">
+            <md-text-button onClick={() => setOverwriteDialogOpen(false)}>{t("common.cancel")}</md-text-button>
+            <md-text-button onClick={() => void confirmOverwrite()}>{t("user.wrongbookSync.overwriteConfirmAction")}</md-text-button>
+          </div>
+        </md-dialog>
       </div>
     );
   }

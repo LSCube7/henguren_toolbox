@@ -1,4 +1,5 @@
 import { maxSyncBytes, mergeVocabSnapshots, overwriteVocabSnapshot, parseVocabSnapshot, SyncOperationError, type VocabSyncSnapshot } from "./vocab-sync.ts";
+import { learningContentKey } from "./learning-content.ts";
 import { emptyWrongBook } from "./wrongbook.ts";
 
 export type VersionedSnapshot = { value: unknown | null; etag: string | null };
@@ -6,6 +7,7 @@ export type VocabSnapshotStore = {
   read: () => Promise<VersionedSnapshot>;
   backup: (snapshot: unknown, id: string) => Promise<void>;
   write: (snapshot: VocabSyncSnapshot, etag: string | null) => Promise<void>;
+  getVersion?: () => string | null;
 };
 export function isConditionalConflict(error: unknown) {
   if (!error || typeof error !== "object") return false;
@@ -21,6 +23,9 @@ export async function saveVocabSnapshot(store: VocabSnapshotStore, userId: strin
     if (mode === "overwrite" && expectedVersion !== undefined && current.etag !== expectedVersion) throw new SyncOperationError("SYNC_CONFLICT", 409);
     const cloud = parseVocabSnapshot(current.value ?? emptyWrongBook(userId), userId);
     const snapshot = mode === "merge" ? mergeVocabSnapshots(userId, cloud, incoming) : overwriteVocabSnapshot(userId, incoming, cloud, includesMastery);
+    if (mode === "merge" && current.value !== null && learningContentKey(snapshot) === learningContentKey(cloud)) {
+      return cloud;
+    }
     snapshot.updatedAt = new Date().toISOString();
     snapshot.revision = crypto.randomUUID();
     if (new TextEncoder().encode(JSON.stringify(snapshot)).byteLength > maxSyncBytes) throw new SyncOperationError("SNAPSHOT_TOO_LARGE", 413);

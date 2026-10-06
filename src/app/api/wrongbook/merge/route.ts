@@ -7,6 +7,8 @@ export async function POST(request: Request) {
   if (!user) return syncResponse({ error: "UNAUTHORIZED" }, 401);
   if (request.headers.has("X-Sync-User") && request.headers.get("X-Sync-User") !== user.id) return syncResponse({ error: "TARGET_CHANGED" }, 409);
   try {
-    return syncResponse(await saveVocabSnapshot(accountVocabStore(user.id), user.id, await readSyncRequest(request), "merge"));
+    const store = accountVocabStore(user.id);
+    const snapshot = await saveVocabSnapshot(store, user.id, await readSyncRequest(request), "merge");
+    return syncResponse(snapshot, 200, store.getVersion?.() ?? null);
   } catch (error) { return syncErrorResponse(error); }
 }

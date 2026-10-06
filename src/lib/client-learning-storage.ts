@@ -169,7 +169,8 @@ export function announceLearningChange() {
 
 function announceOwner() {
   try { localStorage.setItem(learningOwnerEventKey, crypto.randomUUID()); }
-  finally { window.dispatchEvent(new Event(learningOwnerEventKey)); }
+  catch { /* The owner transaction is committed; same-tab notification remains available. */ }
+  window.dispatchEvent(new Event(learningOwnerEventKey));
 }
 export async function changeLearningOwner(nextOwner: string, cleanupUploaded: boolean) {
   await initializeLearningStorage();

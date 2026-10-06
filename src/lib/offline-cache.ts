@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import type { VocabListMeta } from "./vocab-data";
 
 export type VocabCacheState = "unsupported" | "cached" | "missing" | "error";
@@ -27,26 +27,20 @@ function textUrl(name: string) {
 }
 
 export function isOnline() {
-  return typeof navigator === "undefined" ? true : navigator.onLine;
+  return typeof window === "undefined" ? true : navigator.onLine;
+}
+
+function subscribeOnlineStatus(update: () => void) {
+  window.addEventListener("online", update);
+  window.addEventListener("offline", update);
+  return () => {
+    window.removeEventListener("online", update);
+    window.removeEventListener("offline", update);
+  };
 }
 
 export function useOnlineStatus() {
-  const [online, setOnline] = useState(() => isOnline());
-
-  useEffect(() => {
-    function update() {
-      setOnline(isOnline());
-    }
-
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
-    return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
-    };
-  }, []);
-
-  return online;
+  return useSyncExternalStore(subscribeOnlineStatus, isOnline, () => true);
 }
 
 export async function readVocabCacheStates(metas: VocabListMeta[]) {

@@ -1,5 +1,6 @@
 import type { WrongBookAttempt, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone } from "./types";
 import type { MasteryRecord } from "./mastery";
+import { preferredMasteryRecord } from "./mastery.ts";
 
 type WrongBookIdentity = Partial<Pick<WrongBookRecord, "sourceName" | "word">>;
 type SynthesizedAttemptIdentity = readonly ["test", string] | readonly ["count", number];
@@ -164,9 +165,7 @@ export function planMasteryRecordIdMigrations(
   return Array.from(aliasesByCanonicalId).flatMap(([canonicalId, aliases]) => {
     const candidates = [masteryById[canonicalId], ...aliases.map((alias) => masteryById[alias])]
       .filter((record): record is MasteryRecord => Boolean(record));
-    const newest = candidates.reduce((current, candidate) => (
-      candidate.updatedAt > current.updatedAt ? candidate : current
-    ));
+    const newest = candidates.reduce(preferredMasteryRecord);
     const canonicalRecord = { ...newest, id: canonicalId };
     return aliases.map((legacyId) => ({ legacyId, canonicalId, record: canonicalRecord }));
   });

@@ -78,16 +78,17 @@ export async function importToolboxBackup(backup: ToolboxBackup, fallbackSetting
   const [wrongbook] = await Promise.all([importWrongBookSnapshot(backup.wrongbook), mergeMasteryRecords(backup.masteryRecords)]);
   await reconcileMasteryRecords(wrongbook.records, wrongbook.deletedRecords);
   const currentSettings = readClientSettings(fallbackSettings);
-  writeClientSettings({
+  const restoredSettings = normalizeToolboxSettings({
     ...backup.settings,
     developerMode: currentSettings.developerMode,
     updatedAt: new Date().toISOString()
-  });
+  }, fallbackSettings);
+  writeClientSettings(restoredSettings);
   writeEdition(backup.edition);
   localStorage.setItem(onboardingStorageKey, JSON.stringify(backup.onboarding));
   window.dispatchEvent(new Event("henguren-theme-change"));
   window.dispatchEvent(new Event(onboardingChangeEvent));
-  return { wrongbookCount: backup.wrongbook.records.length, masteryCount: backup.masteryRecords.length };
+  return { wrongbookCount: backup.wrongbook.records.length, masteryCount: backup.masteryRecords.length, locale: restoredSettings.locale };
 }
 
 export function downloadToolboxBackup(backup: ToolboxBackup) {

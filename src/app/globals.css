@@ -3213,7 +3213,7 @@ md-outlined-text-field.cloze-blank {
 .account-menu-email { overflow-wrap: anywhere; }
 .account-menu-anchor md-menu { max-width: min(360px, calc(100vw - 24px)); }
 button.rail-action { border: 0; cursor: pointer; }
-.sync-menu-panel { position: fixed; inset: auto auto var(--sync-panel-bottom, 12px) var(--sync-panel-left, 76px); margin: 0; width: min(420px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - var(--sync-panel-bottom, 12px) - 12px); overflow: auto; padding: 20px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 24px; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container); box-shadow: 0 8px 24px rgb(0 0 0 / 18%); }
+.sync-menu-panel { position: fixed; inset: auto auto var(--sync-panel-bottom, 12px) var(--sync-panel-left, 76px); margin: 0; width: min(360px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - var(--sync-panel-bottom, 12px) - 12px); overflow: auto; padding: 20px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 24px; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container); box-shadow: 0 8px 24px rgb(0 0 0 / 18%); }
 .sync-menu-panel::backdrop { background: rgb(0 0 0 / 12%); }
 .sync-menu-panel > header { margin-bottom: 16px; }
 .sync-panel-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0; }
@@ -3226,6 +3226,9 @@ button.rail-action { border: 0; cursor: pointer; }
 
 .sync-menu-panel p { margin: 0; }
 .sync-menu-panel .stack { gap: var(--md-sys-spacing-space150); }
-.sync-menu-panel .sync-status-chip { margin-bottom: 12px; }
+.sync-menu-panel .switch-field { min-height: 48px; padding-bottom: 0; font-weight: 500; }
+.sync-panel-status { display: flex; align-items: flex-start; gap: 8px; overflow-wrap: anywhere; }
+.sync-panel-status .material-symbols-rounded { flex-shrink: 0; }
+.sync-panel-status[data-status="error"] { color: var(--md-sys-color-error); }
 .sync-panel-help summary { cursor: pointer; color: var(--md-sys-color-primary); }
 .sync-panel-help > div { padding-top: 12px; }

@@ -65,8 +65,8 @@ function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession
 
 function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
   if (summary.status === "offline") {
-    if (summary.source === "custom") return "sync.detail.customOffline";
-    return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.detail.offline";
+    if (summary.source === "custom") return "sync.panel.offline";
+    return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.panel.offline";
   }
   if (summary.status === "error") {
     if (summary.source === "local") return "user.wrongbookSync.loadError";
@@ -76,7 +76,7 @@ function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
     return "sync.ready";
   }
   if (summary.status === "synced") return "sync.synced";
-  return "sync.detail.signedOut";
+  return "sync.panel.signedOut";
 }
 
 function syncSummaryLoadErrorKey(error: unknown): MessageKey {
@@ -162,9 +162,12 @@ export function LearningSyncPanel() {
 
   const canSync = (syncSummary?.status === "ready" || syncSummary?.status === "synced") && (Boolean(user) || syncSummary.source === "custom");
   const syncUnavailable = !canSync || syncing || Boolean(syncAction) || refreshing || !isOnline();
-  const syncReadDisabled = syncUnavailable;
-  const currentSyncIcon = syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
-  const currentSyncText = sync.status === "pending"
+  const hasSource = Boolean(user) || syncSummary?.source === "custom";
+  const offline = syncSummary?.status === "offline" || !isOnline();
+  const currentSyncIcon = offline ? "cloud_off" : actionError || sync.status === "error" ? "cloud_alert" : syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
+  const currentSyncText = offline && syncSummary?.unavailableReason !== "server-unavailable" ? t("sync.panel.offline") : actionError ?? (sync.status === "error"
+    ? t("sync.auto.error", { code: sync.error ?? "SYNC_FAILED" })
+    : sync.status === "pending"
     ? t("sync.pending")
     : syncing && syncAction
       ? t(syncActionLabel[syncAction])
@@ -179,36 +182,36 @@ export function LearningSyncPanel() {
                 localMasteryCount: syncSummary.localMasteryCount ?? 0,
                 cloudMasteryCount: syncSummary.cloudMasteryCount ?? 0
               })
-            : t("user.wrongbookSync.loading");
-  const currentSyncStatus = sync.status === "idle" ? syncSummary?.status ?? (user ? "ready" : "signed-out") : sync.status;
+            : t("user.wrongbookSync.loading"));
+  const currentSyncStatus = offline ? "offline" : actionError ? "error" : sync.status === "idle" ? syncSummary?.status ?? (user ? "ready" : "signed-out") : sync.status;
 
   const successDate = syncSummary?.source === "account" && sync.lastSuccessAt ? new Date(sync.lastSuccessAt) : null;
   return <div className="stack">
-    <div className="spread"><p className="helper-text">{syncSummary?.source === "custom" ? t("sync.panel.customSource", { name: readDeveloperSyncSource()?.profileId ?? "" }) : user ? t("sync.panel.accountSource", { name: user.name }) : t("sync.detail.signedOut")}</p><md-text-button disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</md-text-button></div>
-    <p className="helper-text">{t("sync.panel.lastSuccess", { time: successDate && !Number.isNaN(successDate.getTime()) ? successDate.toLocaleString(locale) : t("sync.panel.never") })}</p>
-    <dl className="sync-panel-counts" aria-label={t("sync.panel.counts")}>
-      <div><dt>{t("sync.panel.local")}</dt><dd>{t("sync.panel.recordCounts", { words: syncSummary?.localCount ?? 0, mastery: syncSummary?.localMasteryCount ?? 0 })}</dd></div>
-      <div><dt>{t("sync.panel.cloud")}</dt><dd>{syncSummary?.cloudCount === undefined ? t("sync.panel.unknown") : t("sync.panel.recordCounts", { words: syncSummary.cloudCount, mastery: syncSummary.cloudMasteryCount ?? 0 })}</dd></div>
-    </dl>
-    {actionError ? <p className="helper-text" role="alert">{actionError}</p> : null}
-    {!user && syncSummary?.source !== "custom" ? <md-filled-button disabled={syncSummary?.status === "offline" || !syncSummary} onClick={() => { const returnTo = window.location.pathname + window.location.search + "#wrongbook-sync"; window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo)); }}>{t("user.login")}</md-filled-button> : null}
-      <section className="stack" aria-label={t("user.wrongbookSyncAria")}>
-        <div>
-
-          <span role="status" aria-live="polite" className="sync-status-chip" data-status={currentSyncStatus}>
-            <MaterialIcon name={currentSyncIcon} />
-            <span>{currentSyncText}</span>
-          </span>
-
-          <LearningAutoSyncControls compact />
-        </div>
-        <div className="sync-panel-actions">
-          <md-outlined-button disabled={syncReadDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
-          <md-outlined-button disabled={syncUnavailable} onClick={openOverwriteDialog}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
-          <md-filled-button disabled={syncReadDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
-        </div>
-      </section>
-      <details className="sync-panel-help"><summary>{t("sync.panel.help")}</summary><div className="stack"><p className="helper-text">{t("sync.auto.description")}</p><p className="helper-text">{t("user.wrongbookSync.masteryMergeNote")}</p></div></details>
+    {hasSource ? <p className="helper-text">{syncSummary?.source === "custom" ? t("sync.panel.customSource", { name: readDeveloperSyncSource()?.profileId ?? "" }) : t("sync.panel.accountSource", { name: user?.name ?? "" })}</p> : null}
+    <div className="sync-panel-status" data-status={currentSyncStatus} role={!offline && (actionError || sync.status === "error") ? "alert" : "status"} aria-live="polite">
+      <MaterialIcon name={currentSyncIcon} /><span>{currentSyncText}</span>
+    </div>
+    {(offline || !hasSource) && isOnline() && (syncSummary?.status === "error" || syncSummary?.unavailableReason === "server-unavailable") ? <md-text-button disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</md-text-button> : null}
+    {hasSource && successDate && !Number.isNaN(successDate.getTime()) ? <p className="helper-text">{t("sync.panel.lastSuccess", { time: successDate.toLocaleString(locale) })}</p> : null}
+    {!hasSource ? <md-filled-button disabled={offline || !syncSummary} onClick={() => { const returnTo = window.location.pathname + window.location.search + "#wrongbook-sync"; window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo)); }}>{t("user.login")}</md-filled-button> : <>
+      {syncSummary?.source !== "custom" && (!offline || sync.enabled) ? <LearningAutoSyncControls compact showStatus={false} /> : null}
+      {!offline ? <>
+        <md-filled-button disabled={syncUnavailable} onClick={() => void runSync("merge")}>{t("sync.panel.syncNow")}</md-filled-button>
+        <details className="sync-panel-help"><summary>{t("sync.panel.more")}</summary><div className="stack">
+          <div className="sync-panel-actions">
+            <md-outlined-button disabled={syncUnavailable} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
+            <md-outlined-button disabled={syncUnavailable} onClick={openOverwriteDialog}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
+            <md-text-button disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</md-text-button>
+          </div>
+          <dl className="sync-panel-counts" aria-label={t("sync.panel.counts")}>
+            <div><dt>{t("sync.panel.local")}</dt><dd>{t("sync.panel.recordCounts", { words: syncSummary?.localCount ?? 0, mastery: syncSummary?.localMasteryCount ?? 0 })}</dd></div>
+            <div><dt>{t("sync.panel.cloud")}</dt><dd>{syncSummary?.cloudCount === undefined ? t("sync.panel.unknown") : t("sync.panel.recordCounts", { words: syncSummary.cloudCount, mastery: syncSummary.cloudMasteryCount ?? 0 })}</dd></div>
+          </dl>
+          {syncSummary?.source !== "custom" ? <p className="helper-text">{t("sync.auto.description")}</p> : null}
+          <p className="helper-text">{t("user.wrongbookSync.masteryMergeNote")}</p>
+        </div></details>
+      </> : null}
+    </>}
       <md-dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
         <div slot="headline">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
         <div slot="content" className="stack">

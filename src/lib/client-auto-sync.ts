@@ -92,14 +92,16 @@ export function startLearningAutoSync() {
   started = true; stopped = false;
   const changed = () => { void reschedule().catch(fail); };
   let sourceIdentity = readDeveloperSyncSource() ? developerSyncSourceIdentity(readDeveloperSyncSource()!) : "account";
-  const sourceChanged = () => {
+  const sourceChanged = (force = false) => {
     const source = readDeveloperSyncSource(); const identity = source ? developerSyncSourceIdentity(source) : "account";
-    if (identity === sourceIdentity) return;
+    if (!force && identity === sourceIdentity) return;
     sourceIdentity = identity; clearTimeout(timer); halted = false; retryAt = 0; attempts = 0;
     invalidateSyncSummary(); publish({ error: undefined, summary: null, status: "idle" });
     void readWrongBookSyncSummary().then(() => inspect()).then(() => reschedule()).catch(fail);
   };
-  const storage = (event: StorageEvent) => { if (event.key === learningChangeEventKey) changed(); if (event.key === "henguren-v3-dev-sync-source" || event.key === "henguren-v3-settings") sourceChanged(); };
+  const savedSource = () => sourceChanged(true);
+  const settingsChanged = () => sourceChanged();
+  const storage = (event: StorageEvent) => { if (event.key === learningChangeEventKey) changed(); if (event.key === "henguren-v3-dev-sync-source") savedSource(); if (event.key === "henguren-v3-settings") settingsChanged(); };
   const availability = () => { clearTimeout(timer); if (!isOnline()) { publish({ status: "offline" }); return; } void inspect().then(() => execute(true)).catch(fail); };
   const owner = () => stopLearningSync();
   const activity = (event: Event) => { manualBusy = (event as CustomEvent<boolean>).detail; void reschedule().catch(fail); };
@@ -114,7 +116,7 @@ export function startLearningAutoSync() {
   window.addEventListener("online", availability); window.addEventListener("offline", availability);
   window.addEventListener(learningOwnerEventKey, owner); window.addEventListener("henguren-v3-sync-activity", activity);
   document.addEventListener("visibilitychange", availability);
-  window.addEventListener(developerSyncSourceChangeEvent, sourceChanged); window.addEventListener("henguren-settings-change", sourceChanged);
+  window.addEventListener(developerSyncSourceChangeEvent, savedSource); window.addEventListener("henguren-settings-change", settingsChanged);
   void readWrongBookSyncSummary().then(() => inspect()).then(() => execute(true)).catch(fail);
   return () => {
     started = false; stopLearningSync(); unsubscribe();
@@ -122,7 +124,7 @@ export function startLearningAutoSync() {
     window.removeEventListener("online", availability); window.removeEventListener("offline", availability);
     window.removeEventListener(learningOwnerEventKey, owner); window.removeEventListener("henguren-v3-sync-activity", activity);
     document.removeEventListener("visibilitychange", availability);
-    window.removeEventListener(developerSyncSourceChangeEvent, sourceChanged); window.removeEventListener("henguren-settings-change", sourceChanged);
+    window.removeEventListener(developerSyncSourceChangeEvent, savedSource); window.removeEventListener("henguren-settings-change", settingsChanged);
   };
 }
 export function useLearningSync() {

@@ -1,5 +1,6 @@
 "use client";
 
+import { learningContentKey } from "./learning-content";
 import type { MasteryRecord } from "./mastery";
 import { preferredMasteryRecord } from "./mastery";
 import { accountLearningOwner, guestLearningOwner, removeUploadedLearning, type LearningPartition } from "./learning-ownership";
@@ -10,6 +11,7 @@ import { isOnline } from "./offline-cache";
 const partitionsStore = "learning-partitions";
 const stateStore = "learning-state";
 const activeKey = "active";
+export const learningChangeEventKey = "henguren-v3-learning-change";
 export const learningOwnerEventKey = "henguren-v3-learning-owner-event";
 let activeOwner = guestLearningOwner;
 let initializePromise: Promise<void> | undefined;
@@ -125,7 +127,7 @@ export async function readLearningPartition(owner = currentLearningOwner(), allo
   } finally { db.close(); }
 }
 
-export async function updateLearningPartition<T>(owner: string, update: (partition: LearningPartition) => { partition: LearningPartition; result: T }): Promise<T> {
+export async function updateLearningPartition<T>(owner: string, update: (partition: LearningPartition) => { partition: LearningPartition; result: T }, synchronized = false): Promise<T> {
   await initializeLearningStorage();
   const db = await openLearningDb();
   try {
@@ -134,21 +136,35 @@ export async function updateLearningPartition<T>(owner: string, update: (partiti
     const request = store.get(owner);
     const state = transaction.objectStore(stateStore).get(activeKey);
     return await new Promise<T>((resolve, reject) => {
-      let ready = 0; let result: T; let error: unknown;
+      let ready = 0; let result: T; let error: unknown; let changed = false;
       const apply = () => {
         if (++ready !== 2) return;
         try {
           if (state.result.owner !== owner || currentLearningOwner() !== owner) throw new Error("LOCAL_OWNER_CHANGED");
-          const next = update(request.result ?? emptyPartition(owner));
+          const partition: LearningPartition = request.result ?? emptyPartition(owner);
+          const before = JSON.stringify(partition);
+          const beforeContent = learningContentKey({ ...partition.wrongbook, masteryRecords: partition.masteryRecords });
+          const next = update(partition);
           if (next.partition.owner !== owner) throw new Error("LOCAL_OWNER_CHANGED");
-          result = next.result; store.put(next.partition);
+          result = next.result;
+          if (learningContentKey({ ...next.partition.wrongbook, masteryRecords: next.partition.masteryRecords }) !== beforeContent && !synchronized) {
+            const metadata = next.partition.sync ?? { enabled: false, localVersion: 0, confirmedVersion: 0 };
+            next.partition.sync = { ...metadata, localVersion: metadata.localVersion + 1 };
+          }
+          changed = JSON.stringify(next.partition) !== before;
+          store.put(next.partition);
         } catch (failure) { error = failure; transaction.abort(); }
       };
       request.onsuccess = apply; state.onsuccess = apply;
-      transaction.oncomplete = () => resolve(result);
+      transaction.oncomplete = () => { if (changed) announceLearningChange(); resolve(result); };
       transaction.onabort = () => reject(error ?? transaction.error ?? new Error("LOCAL_STORAGE_FAILED"));
     });
   } finally { db.close(); }
+}
+
+export function announceLearningChange() {
+  window.dispatchEvent(new Event(learningChangeEventKey));
+  try { localStorage.setItem(learningChangeEventKey, crypto.randomUUID()); } catch { /* Same-tab notifications still work when localStorage is unavailable. */ }
 }
 
 function announceOwner() {
@@ -213,11 +229,48 @@ export async function adoptGuestLearning(userId: string) {
           const existing = mastery.get(record.id);
           mastery.set(record.id, existing ? preferredMasteryRecord(existing, record) : record);
         });
-        store.put({ ...local, wrongbook: mergeWrongBooks("local", local.wrongbook, source.wrongbook), masteryRecords: [...mastery.values()] });
+        store.put({ ...local, wrongbook: mergeWrongBooks("local", local.wrongbook, source.wrongbook), masteryRecords: [...mastery.values()], sync: { ...(local.sync ?? { enabled: false, confirmedVersion: 0 }), localVersion: (local.sync?.localVersion ?? 0) + 1 } });
         store.put(emptyPartition(guestLearningOwner));
       } catch { transaction.abort(); }
     };
     [guest, target, state].forEach((request) => { request.onsuccess = apply; });
     await done;
   } finally { db.close(); }
+}
+
+export async function setLearningAutoSync(enabled: boolean) {
+  const owner = currentLearningOwner();
+  if (owner === guestLearningOwner) throw new Error("UNAUTHORIZED");
+  await updateLearningPartition(owner, (partition) => ({ partition: { ...partition, sync: { enabled, localVersion: partition.sync?.localVersion ?? 0, confirmedVersion: partition.sync?.confirmedVersion ?? -1, lastSuccessAt: partition.sync?.lastSuccessAt } }, result: undefined }), true);
+}
+
+let syncQueue: Promise<unknown> = Promise.resolve();
+export function withLearningSyncLock<T>(operation: () => Promise<T>): Promise<T> {
+  const owner = currentLearningOwner();
+  const run = async () => {
+    await initializeLearningStorage();
+    assertLearningOwner(owner);
+    const guarded = async () => { await readLearningPartition(owner); return operation(); };
+    if (navigator.locks) return navigator.locks.request("henguren-v3-learning-sync", guarded);
+    // An IndexedDB lease coordinates browsers without Web Locks. Requests have
+    // bounded timeouts; the lease exceeds the longest sync sequence.
+    const db = await openLearningDb();
+    const token = crypto.randomUUID();
+    try {
+      const tx = db.transaction(stateStore, "readwrite");
+      const done = transactionDone(tx);
+      const store = tx.objectStore(stateStore); const r = store.get("sync-lock");
+      let acquired = false;
+      r.onsuccess = () => { if (!r.result || r.result.expires <= Date.now()) { store.put({ id: "sync-lock", token, expires: Date.now() + 180000 }); acquired = true; } };
+      await done;
+      if (!acquired) throw Object.assign(new Error("SYNC_BUSY"), { code: "SYNC_BUSY" });
+      try { return await guarded(); }
+      finally {
+        const release = db.transaction(stateStore, "readwrite"); const released = transactionDone(release);
+        const locks = release.objectStore(stateStore); const lease = locks.get("sync-lock");
+        lease.onsuccess = () => { if (lease.result?.token === token) locks.delete("sync-lock"); }; await released;
+      }
+    } finally { db.close(); }
+  };
+  const next = syncQueue.then(run, run); syncQueue = next.catch(() => undefined); return next;
 }

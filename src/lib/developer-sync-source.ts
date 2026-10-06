@@ -43,7 +43,7 @@ export async function readVersionedDeveloperJson<T>(source: DeveloperSyncSource,
 }
 
 export async function writeDeveloperJson(source: DeveloperSyncSource, key: string, value: unknown, expectedVersion?: string | null) {
-  await createClient(source).send(
+  const response = await createClient(source).send(
     new PutObjectCommand({
       Bucket: source.bucketName,
       Key: key,
@@ -52,6 +52,7 @@ export async function writeDeveloperJson(source: DeveloperSyncSource, key: strin
       ...(expectedVersion === undefined ? {} : expectedVersion === null ? { IfNoneMatch: "*" } : { IfMatch: expectedVersion })
     })
   );
+  return response.ETag ?? null;
 }
 
 export async function readDeveloperWrongBook(source: DeveloperSyncSource) {
@@ -63,10 +64,12 @@ export async function writeDeveloperWrongBook(source: DeveloperSyncSource, snaps
 }
 
 export function developerVocabStore(source: DeveloperSyncSource): VocabSnapshotStore {
+  let version: string | null = null;
   return {
-    read: () => readVersionedDeveloperJson(source, developerWrongBookKey(source)),
-    write: (snapshot, etag) => writeDeveloperJson(source, developerWrongBookKey(source), snapshot, etag),
-    backup: (snapshot, id) => writeDeveloperJson(source, developerWrongBookBackupKey(source, id), snapshot, null)
+    read: async () => { const stored = await readVersionedDeveloperJson(source, developerWrongBookKey(source)); version = stored.etag; return stored; },
+    write: async (snapshot, etag) => { version = await writeDeveloperJson(source, developerWrongBookKey(source), snapshot, etag); },
+    backup: async (snapshot, id) => { await writeDeveloperJson(source, developerWrongBookBackupKey(source, id), snapshot, null); },
+    getVersion: () => version
   };
 }
 

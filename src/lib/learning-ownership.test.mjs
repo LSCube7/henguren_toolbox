@@ -205,3 +205,13 @@ test("assigns a distinct stable owner marker to each account", () => {
   assert.equal(accountLearningOwner("alice"), accountLearningOwner("alice"));
   assert.notEqual(accountLearningOwner("alice"), guestLearningOwner);
 });
+
+test("cleanup invalidates cloud observation so automatic sync can restore the removed local copy", () => {
+  const local = partition({ uploaded: snapshot(), sync: { enabled: true, localVersion: 7, confirmedVersion: 7, lastCloudVersion: "etag-1", lastCheckAt: 100 } });
+  const result = removeUploadedLearning(local);
+  assert.equal(result.sync.enabled, true);
+  assert.equal(result.sync.localVersion, 7);
+  assert.equal(result.sync.confirmedVersion, 7);
+  assert.equal(result.sync.lastCloudVersion, undefined);
+  assert.equal(result.sync.lastCheckAt, undefined);
+});

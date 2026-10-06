@@ -194,12 +194,12 @@ export function LearningSyncPanel() {
     {!user && syncSummary?.source !== "custom" ? <md-filled-button disabled={syncSummary?.status === "offline" || !syncSummary} onClick={() => { const returnTo = window.location.pathname + window.location.search + "#wrongbook-sync"; window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo)); }}>{t("user.login")}</md-filled-button> : null}
       <section className="stack" aria-label={t("user.wrongbookSyncAria")}>
         <div>
-          
+
           <span role="status" aria-live="polite" className="sync-status-chip" data-status={currentSyncStatus}>
             <MaterialIcon name={currentSyncIcon} />
             <span>{currentSyncText}</span>
           </span>
-          
+
           <LearningAutoSyncControls compact />
         </div>
         <div className="sync-panel-actions">

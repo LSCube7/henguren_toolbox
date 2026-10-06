@@ -22,7 +22,7 @@ async function waitFor(check) {
 }
 async function fixture({ developer = false, initialOwner = owner, denyOwnerNotification = false } = {}) {
   const context = await browser.newContext({ serviceWorkers: "block", locale: "zh-CN" });
-  const state = { signedIn: true, cloud: snapshot("review-account"), writes: 0 };
+  const state = { signedIn: true, cloud: snapshot("review-account"), writes: 0, version: "fixture-v1" };
   await context.addInitScript(({ owner, initialOwner, developer, denyOwnerNotification, account, guest }) => {
     localStorage.setItem("henguren-v3-onboarding", JSON.stringify({ completed: true }));
     localStorage.setItem("henguren-v3-settings", JSON.stringify({ locale: "zh-CN", developerMode: developer }));
@@ -58,10 +58,11 @@ async function fixture({ developer = false, initialOwner = owner, denyOwnerNotif
     if (path === "/api/settings") return route.fulfill({ json: { available: false } });
     if (path.startsWith("/api/wrongbook")) {
       if (!state.signedIn) return route.fulfill({ status: 401, json: { error: "UNAUTHORIZED" } });
-      if (request.method() === "GET") return route.fulfill({ json: state.cloud, headers: { "X-Sync-Version": "fixture-v1" } });
+      if (request.method() === "GET") return route.fulfill({ json: new URL(request.url()).searchParams.has("versionOnly") ? { version: state.version } : state.cloud, headers: { "X-Sync-Version": state.version } });
       state.writes++;
+      state.version = "fixture-write-" + state.writes;
       state.cloud = mergeVocabSnapshots("review-account", state.cloud, request.postDataJSON());
-      return route.fulfill({ json: state.cloud, headers: { "X-Sync-Version": "fixture-v2" } });
+      return route.fulfill({ json: state.cloud, headers: { "X-Sync-Version": state.version } });
     }
     return route.abort();
   });
@@ -85,6 +86,8 @@ try {
   const custom = await fixture({ developer: true });
   let releaseOldRead;
   let oldReadHeld = false;
+  let releaseOldCredential;
+  const credentialReads = [];
   const reads = [];
   const writeTargets = [];
   await custom.context.route("**/*.r2.cloudflarestorage.com/**", async route => {
@@ -95,6 +98,12 @@ try {
     const profile = parts[parts.indexOf("wrongbooks") + 1];
     if (request.method() === "GET") {
       reads.push(profile);
+      const authorization = request.headers().authorization || "";
+      credentialReads.push(authorization);
+      if (authorization.includes("Credential=slow-key/")) {
+        await new Promise(resolve => { releaseOldCredential = resolve; });
+        return route.fulfill({ status: 403, headers: cors });
+      }
       if (profile === "slow-profile" && !oldReadHeld) { oldReadHeld = true; await new Promise(resolve => { releaseOldRead = resolve; }); }
       return route.fulfill({ json: snapshot(profile), headers: { ...cors, ETag: '"fixture-' + profile + '"' } });
     }
@@ -124,6 +133,24 @@ try {
   await waitFor(() => writeTargets.includes("latest-profile"));
   assert.ok(writeTargets.every(target => target === "latest-profile"));
   assert.equal(custom.state.writes, 0);
+  await panel.getByRole("button", { name: "关闭", exact: true }).click();
+  // Rotate credentials without changing the logical target; an old failed request
+  // must not replace the state loaded with the new credentials.
+  await developerPage.getByRole("textbox", { name: "访问密钥 ID", exact: true }).fill("slow-key");
+  await waitFor(() => Boolean(releaseOldCredential));
+  await developerPage.getByLabel("访问密钥", { exact: true }).fill("rotated-secret");
+  await developerPage.getByRole("textbox", { name: "访问密钥 ID", exact: true }).fill("latest-key");
+  await developerPage.getByRole("button", { name: /同步设置 ·/ }).click();
+  assert.equal(await panel.getByRole("button", { name: "立即同步", exact: true }).count(), 0);
+  releaseOldCredential();
+  await waitFor(() => credentialReads.some(header => header.includes("Credential=latest-key/")));
+  await panel.getByRole("button", { name: "立即同步", exact: true }).waitFor();
+  await panel.getByRole("button", { name: "关闭", exact: true }).click();
+  const readsBeforeSecretRotation = credentialReads.length;
+  await developerPage.getByLabel("访问密钥", { exact: true }).fill("another-secret");
+  await waitFor(() => credentialReads.length > readsBeforeSecretRotation);
+  await developerPage.getByRole("button", { name: /同步设置 ·/ }).click();
+  await panel.getByRole("button", { name: "立即同步", exact: true }).waitFor();
   await custom.context.close();
 
   // Adoption must update the already-open wrongbook and the other tab's scheduler.
@@ -151,6 +178,41 @@ try {
   assert.equal(adopted.state.cloud.records.length, 2);
   await adopted.context.close();
 
+  // A clean device must converge its local-only content after a remote overwrite.
+  const convergence = await fixture();
+  const convergencePage = await convergence.context.newPage(); watch(convergencePage);
+  await convergencePage.goto(origin + "/zh-CN/user");
+  await convergencePage.getByRole("button", { name: /同步设置 ·/ }).click();
+  await convergencePage.getByRole("dialog", { name: "同步", exact: true }).locator("md-switch").click();
+  await waitFor(() => partition(convergencePage).then(value => value.sync.enabled && value.sync.confirmedVersion === value.sync.localVersion));
+  const pollNow = () => convergencePage.evaluate(async owner => {
+    const db = await new Promise(resolve => { const r = indexedDB.open("henguren-v3", 3); r.onsuccess = () => resolve(r.result); });
+    await new Promise(resolve => {
+      const tx = db.transaction("learning-partitions", "readwrite");
+      const store = tx.objectStore("learning-partitions"); const r = store.get(owner);
+      r.onsuccess = () => { r.result.sync.lastCheckAt = 0; store.put(r.result); };
+      tx.oncomplete = resolve;
+    });
+    db.close(); document.dispatchEvent(new Event("visibilitychange"));
+  }, owner);
+  const beforeOverwrite = convergence.state.writes;
+  convergence.state.cloud = snapshot("review-account", ["cloudword"]);
+  convergence.state.version = "remote-overwrite";
+  await pollNow();
+  await waitFor(() => convergence.state.writes > beforeOverwrite);
+  assert.deepEqual(convergence.state.cloud.records.map(record => record.word).sort(), ["alpha", "cloudword"]);
+  assert.equal(convergence.state.cloud.masteryRecords.length, 2);
+  await waitFor(() => partition(convergencePage).then(value => value.sync.lastCloudVersion === convergence.state.version && value.sync.confirmedVersion === value.sync.localVersion));
+  // Explicit deletion still propagates; missing records alone are not tombstones.
+  const beforeDeletion = convergence.state.writes;
+  convergence.state.cloud = parseVocabSnapshot({ ...snapshot("review-account", ["cloudword"]), deletedRecords: [{ id: "unit:alpha", clientId: "fixture", deletedAttemptIds: ["attempt-alpha"], deletedAt: "2026-01-02T00:00:00.000Z" }] }, "review-account");
+  convergence.state.version = "remote-deletion";
+  await pollNow();
+  await waitFor(() => convergence.state.writes > beforeDeletion);
+  assert.deepEqual(convergence.state.cloud.records.map(record => record.word), ["cloudword"]);
+  assert.equal((await partition(convergencePage)).wrongbook.records.some(record => record.word === "alpha"), false);
+  await convergence.context.close();
+
   // A denied best-effort notification must not fail durable login/logout owner changes.
   const denied = await fixture({ initialOwner: "guest", denyOwnerNotification: true });
   const deniedPage = await denied.context.newPage(); watch(deniedPage);
@@ -162,5 +224,5 @@ try {
   assert.equal((await partition(deniedPage)).wrongbook.records.length, 1, "Unsynced account data is retained after logout");
   await denied.context.close();
   assert.deepEqual(pageErrors, []);
-  console.log("PASS review notifications: custom saves and stale-source races, cross-tab adoption/UI/auto sync, denied owner storage during login/logout");
+  console.log("PASS review notifications: custom saves and credential rotation races, automatic merge convergence and deletions, cross-tab adoption/UI/auto sync, denied owner storage during login/logout");
 } finally { await browser.close(); }

@@ -35,14 +35,15 @@ try{
   }
   return route.abort();
  });
+ await context.route('**/avatar-test.svg',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="#bde"/></svg>'}));
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  const read=()=>page.evaluate(async owner=>{const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('henguren-v3',3);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});const p=await new Promise(resolve=>{const r=db.transaction('learning-partitions').objectStore('learning-partitions').get(owner);r.onsuccess=()=>resolve(r.result);});db.close();return p;},owner);
 
 
  await page.goto(baseUrl+'/zh-CN/user');await page.getByText('当前学习数据属于“账户A”。',{exact:true}).waitFor();
  const trigger=page.getByRole('button',{name:/同步设置 ·/}),panel=page.getByRole('dialog',{name:'同步',exact:true});
- const before=await read();unauthorized=true;await page.reload();await trigger.click();await panel.waitFor();await panel.getByRole('button',{name:'登录 CubeID',exact:true}).waitFor();
- assert.equal(await panel.locator('md-switch').count(),0);await panel.getByRole('button',{name:'关闭',exact:true}).click();await page.getByRole('button',{name:'账户菜单',exact:true}).click();await page.getByRole('menuitem',{name:'重新登录',exact:true}).waitFor();await page.keyboard.press('Escape');assert.deepEqual((await read()).wrongbook,before.wrongbook);assert.deepEqual((await read()).masteryRecords,before.masteryRecords);
+ assert.ok(await page.locator('.user-nav-avatar').count()>0);const before=await read();unauthorized=true;await page.reload();await trigger.click();await panel.waitFor();await panel.getByRole('button',{name:'登录 CubeID',exact:true}).waitFor();
+ assert.equal(await panel.locator('md-switch').count(),0);assert.equal(await page.locator('.user-nav-avatar').count(),0);await panel.getByRole('button',{name:'关闭',exact:true}).click();await page.getByRole('button',{name:'账户菜单',exact:true}).click();await page.getByRole('menuitem',{name:'重新登录',exact:true}).waitFor();await page.keyboard.press('Escape');assert.deepEqual((await read()).wrongbook,before.wrongbook);assert.deepEqual((await read()).masteryRecords,before.masteryRecords);
  unauthorized=false;await page.reload();await trigger.click();await panel.waitFor();await panel.locator('md-switch').click();await wait(()=>read().then(p=>p.sync.enabled));await wait(()=>panel.getByRole('button',{name:'立即同步',exact:true}).isEnabled());
  unauthorized=true;await panel.getByRole('button',{name:'立即同步',exact:true}).click();await panel.getByRole('button',{name:'登录 CubeID',exact:true}).waitFor();await wait(()=>trigger.getAttribute('data-status').then(s=>s==='signed-out'));assert.equal((await read()).sync.enabled,true);const after401=denied;await new Promise(r=>setTimeout(r,16000));assert.equal(denied,after401,'401 pauses automatic retries');assert.equal((await read()).wrongbook.records.length,2);
  unauthorized=false;await page.reload();await trigger.click();await panel.waitFor();await panel.getByRole('button',{name:'立即同步',exact:true}).waitFor();await wait(()=>trigger.getAttribute('data-status').then(s=>s!=='signed-out'));await panel.locator('md-switch').click();await wait(()=>read().then(p=>!p.sync.enabled));

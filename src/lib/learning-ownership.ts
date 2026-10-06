@@ -10,6 +10,7 @@ export type LearningPartition = {
   wrongbook: WrongBookSnapshot;
   masteryRecords: MasteryRecord[];
   uploaded?: VocabSyncSnapshot;
+  sync?: { enabled: boolean; localVersion: number; confirmedVersion: number; lastSuccessAt?: string; lastCloudVersion?: string; lastCheckAt?: number };
 };
 
 function stableValue(value: unknown): unknown {
@@ -38,6 +39,7 @@ export function removeUploadedLearning(partition: LearningPartition): LearningPa
     wrongbook: { ...partition.wrongbook, records: partition.wrongbook.records.filter((record) => !removable.has(record.id)),
       deletedRecords: keepDeletions("deletedRecords"), deletedBatches: keepDeletions("deletedBatches") },
     masteryRecords: partition.masteryRecords.filter((record) => !removable.has(record.id)),
+    sync: partition.sync ? { ...partition.sync, lastCloudVersion: undefined, lastCheckAt: undefined } : undefined,
     uploaded: undefined
   };
 }

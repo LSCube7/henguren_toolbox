@@ -30,7 +30,7 @@ function checkedFrom(event: FormEvent<HTMLElement>) {
   return Boolean(target.selected ?? target.checked);
 }
 
-export function LearningAutoSyncControls({ compact = false }: { compact?: boolean }) {
+export function LearningAutoSyncControls({ compact = false, showStatus = true }: { compact?: boolean; showStatus?: boolean }) {
   const sync = useLearningSync();
   const { locale, t } = useI18n();
   const { showSnackbar } = useSnackbar();
@@ -69,10 +69,10 @@ export function LearningAutoSyncControls({ compact = false }: { compact?: boolea
           disabled={disabled}
           onInput={(event) => void updateEnabled(checkedFrom(event))}
         />
-        <span>{t("sync.auto.title")}</span>
+        <span>{t(compact ? "sync.panel.auto" : "sync.auto.title")}</span>
       </label>
       {!compact ? <p className="helper-text">{t("sync.auto.description")}</p> : null}
-      <p className="helper-text" role="status" aria-live="polite" lang={locale}>{statusText}</p>
+      {showStatus ? <p className="helper-text" role="status" aria-live="polite" lang={locale}>{statusText}</p> : null}
     </div>
   );
 }

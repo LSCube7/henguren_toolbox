@@ -43,7 +43,7 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
     const dialog = panel.current;
     if (!dialog || dialog.open) return;
     const bounds = trigger.current?.getBoundingClientRect();
-    dialog.style.setProperty("--sync-panel-left", Math.min((bounds?.right ?? 64) + 12, Math.max(12, window.innerWidth - 432)) + "px");
+    dialog.style.setProperty("--sync-panel-left", Math.min((bounds?.right ?? 64) + 12, Math.max(12, window.innerWidth - 372)) + "px");
     dialog.style.setProperty("--sync-panel-bottom", Math.max(12, window.innerHeight - (bounds?.bottom ?? window.innerHeight - 12)) + "px");
     dialog.showModal(); setOpen(true); onOpen?.();
   }, [onOpen]);
@@ -56,7 +56,7 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
   return <>
     <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={show}><MaterialIcon name={syncStatusIcon[status]} /></button>
     <dialog ref={panel} id={id} className="sync-menu-panel" aria-labelledby={id + "-title"} onClose={() => { setOpen(false); if (window.matchMedia("(max-width: 899px)").matches) document.querySelector<HTMLButtonElement>(".mobile-menu")?.focus(); else trigger.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close(); } }}>
-      <header className="spread"><h2 id={id + "-title"} className="section-title">{t("nav.syncSettings")}</h2><md-icon-button data-aria-label={t("common.close")} onClick={() => panel.current?.close()}><MaterialIcon name="close" /></md-icon-button></header>
+      <header className="spread"><h2 id={id + "-title"} className="section-title">{t("sync.panel.title")}</h2><md-icon-button data-aria-label={t("common.close")} onClick={() => panel.current?.close()}><MaterialIcon name="close" /></md-icon-button></header>
       <LearningSyncPanel />
     </dialog>
   </>;

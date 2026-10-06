@@ -183,7 +183,7 @@ export function OnboardingClient() {
         setCloudDecision(null);
       }
       try {
-        const response = await fetch("/api/settings?availability=1", { cache: "no-store" });
+        const response = await fetch(`/api/settings?availability=1&locale=${requestFallbackSettings.locale}`, { cache: "no-store" });
         if (!response.ok) {
           if (active) {
             setCloudSettings(null);

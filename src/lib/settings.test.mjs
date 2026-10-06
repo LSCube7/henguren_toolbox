@@ -51,3 +51,12 @@ test("normalizes unsupported restored locales to the current supported locale", 
     assert.equal(choice.localSettings.locale, "zh-CN");
   }
 });
+
+test("cloud snapshots keep explicit languages and fill invalid languages from the route", async () => {
+  const { resolveSettingsLocale } = await import("../i18n/locale-detection.ts");
+  const fallback = defaultSettingsForLocale(resolveSettingsLocale("zh-CN", "en-US"));
+  for (const snapshot of [{ showHint: false }, { locale: "fr" }, { locale: null }]) {
+    assert.equal(normalizeToolboxSettings(snapshot, fallback).locale, "zh-CN");
+  }
+  assert.equal(normalizeToolboxSettings({ locale: "en-US" }, fallback).locale, "en-US");
+});

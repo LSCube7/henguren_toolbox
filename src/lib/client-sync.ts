@@ -229,7 +229,12 @@ export async function automaticLearningSync(options: { force?: boolean } = {}) {
     const body: unknown = await response.json();
     if (!body || typeof body !== "object" || !("version" in body) || typeof body.version !== "string") throw new SyncOperationError("INVALID_RESPONSE");
     const version = body.version;
-    if (version !== partition.sync.lastCloudVersion) await runSync("pull", "account:" + user.id);
+    if (version !== partition.sync.lastCloudVersion) {
+      // Automatic sync is an opted-in merge: local-only content must converge
+      // back to the cloud even when another device replaced its snapshot.
+      await runSync("merge", "account:" + user.id);
+      return; // runSync records the version actually confirmed by the upload.
+    }
     await updateLearningPartition(owner, (latest) => ({ partition: { ...latest, sync: { ...latest.sync!, lastCloudVersion: version, lastCheckAt: Date.now(), lastSuccessAt: new Date().toISOString() } }, result: undefined }), true);
   });
 }

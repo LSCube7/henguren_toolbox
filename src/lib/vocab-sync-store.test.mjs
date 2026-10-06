@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { saveVocabSnapshot } from "./vocab-sync-store.ts";
+import { learningContentKey } from "./learning-content.ts";
+import { readHeadObjectVersion } from "./r2.ts";
 import { wrongBookRecordId } from "./wrongbook.ts";
 
 const userId = "test-user";
@@ -122,6 +124,75 @@ test("merges two concurrent device updates with the already saved snapshot", asy
   assert.equal(store.state().successfulWrites.length, 2);
 });
 
+test("skips merge writes when learning content is unchanged", async () => {
+  const current = { ...payload([record("alpha")], "device-cloud"), revision: "saved-revision" };
+  const incoming = { ...payload([record("alpha")], "device-local"), updatedAt: secondDay, revision: "local-revision" };
+  const store = createStore(current);
+
+  await saveVocabSnapshot(store, userId, incoming, "merge");
+
+  assert.deepEqual(store.state().value, current);
+  assert.equal(store.state().writes, 0);
+  assert.equal(store.state().backups.length, 0);
+});
+
+test("still writes an empty snapshot when no cloud snapshot exists", async () => {
+  const store = createStore(null);
+
+  await saveVocabSnapshot(store, userId, payload([]), "merge");
+
+  assert.deepEqual(store.state().value.records, []);
+  assert.equal(store.state().writes, 1);
+  assert.deepEqual(store.state().backups.map((backup) => backup.id.endsWith("-candidate")), [true]);
+});
+
+test("a changed learning event timestamp is a real merge change", async () => {
+  const cloudRecord = record("alpha", "attempt-alpha", "device-cloud");
+  const incomingRecord = record("alpha", "attempt-alpha", "device-local", secondDay);
+  incomingRecord.wrongAttempts[0].createdAt = secondDay;
+  const store = createStore(payload([cloudRecord], "device-cloud"));
+
+  await saveVocabSnapshot(store, userId, payload([incomingRecord], "device-local"), "merge");
+
+  assert.equal(store.state().writes, 1);
+  assert.equal(store.state().value.records[0].wrongAttempts[0].createdAt, secondDay);
+});
+
+test("learning content keys sort object keys and unordered collections without hiding event times", () => {
+  const left = {
+    records: [{ id: "a", wrongAttempts: [{ id: "event-1", createdAt: firstDay }, { id: "event-2", createdAt: secondDay }] }],
+    masteryRecords: [{ id: "a", wrongAttemptIds: ["event-1", "event-2"] }]
+  };
+  const right = {
+    masteryRecords: [{ wrongAttemptIds: ["event-2", "event-1"], id: "a" }],
+    records: [{ wrongAttempts: [{ createdAt: secondDay, id: "event-2" }, { createdAt: firstDay, id: "event-1" }], id: "a" }]
+  };
+
+  assert.equal(learningContentKey(left), learningContentKey(right));
+  assert.notEqual(learningContentKey(left), learningContentKey({
+    ...right,
+    records: [{ id: "a", wrongAttempts: [{ id: "event-1", createdAt: secondDay }, { id: "event-2", createdAt: secondDay }] }]
+  }));
+});
+
+test("version lookup uses HeadObject and maps a missing object to no version", async () => {
+  let command;
+  const version = await readHeadObjectVersion(async (headCommand) => {
+    command = headCommand;
+    return { ETag: '"etag-7"' };
+  }, "bucket", "wrongbooks/user/current.json");
+
+  assert.equal(command.constructor.name, "HeadObjectCommand");
+  assert.equal(command.input.Bucket, "bucket");
+  assert.equal(command.input.Key, "wrongbooks/user/current.json");
+  assert.equal(version, '"etag-7"');
+  assert.equal(await readHeadObjectVersion(async () => {
+    const error = new Error("missing");
+    error.name = "NotFound";
+    throw error;
+  }, "bucket", "wrongbooks/user/current.json"), null);
+});
+
 test("stops after three failed conditional writes", async () => {
   const store = createStore(null, { alwaysConflict: true });
 
@@ -199,4 +270,10 @@ test("rejects an oversized merged candidate before backing it up or writing curr
   assert.deepEqual(store.state().value, cloud);
   assert.equal(store.state().backups.length, 0);
   assert.equal(store.state().writes, 0);
+});
+
+test("version lookup propagates service errors and rejects missing ETags", async () => {
+  await assert.rejects(readHeadObjectVersion(async () => ({}), "bucket", "key"), /R2_INVALID_OBJECT/);
+  const denied = new Error("AccessDenied");
+  await assert.rejects(readHeadObjectVersion(async () => { throw denied; }, "bucket", "key"), (error) => error === denied);
 });

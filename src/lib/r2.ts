@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client, type HeadObjectCommandOutput } from "@aws-sdk/client-s3";
 
 const bucket = process.env.R2_BUCKET_NAME;
 
@@ -38,8 +38,30 @@ export async function readVersionedJsonFromR2<T>(key: string): Promise<{ value: 
   }
 }
 
+type HeadObjectSender = (command: HeadObjectCommand) => Promise<Pick<HeadObjectCommandOutput, "ETag">>;
+
+export async function readHeadObjectVersion(send: HeadObjectSender, bucketName: string, key: string): Promise<string | null> {
+  try {
+    const response = await send(new HeadObjectCommand({ Bucket: bucketName, Key: key }));
+    if (!response.ETag) throw new Error("R2_INVALID_OBJECT");
+    return response.ETag;
+  } catch (error) {
+    const name = error instanceof Error ? error.name : "";
+    const statusCode = error && typeof error === "object"
+      ? (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
+      : undefined;
+    if (name === "NoSuchKey" || name === "NotFound" || statusCode === 404) return null;
+    throw error;
+  }
+}
+
+export async function headObjectVersionFromR2(key: string): Promise<string | null> {
+  const client = getR2Client();
+  return readHeadObjectVersion((command) => client.send(command), bucket!, key);
+}
+
 export async function writeJsonToR2(key: string, value: unknown, expectedVersion?: string | null) {
-  await getR2Client().send(
+  const response = await getR2Client().send(
     new PutObjectCommand({
       Bucket: bucket,
       Key: key,
@@ -48,6 +70,7 @@ export async function writeJsonToR2(key: string, value: unknown, expectedVersion
       ...(expectedVersion === undefined ? {} : expectedVersion === null ? { IfNoneMatch: "*" } : { IfMatch: expectedVersion })
     })
   );
+  return response.ETag ?? null;
 }
 
 export function wrongBookKey(userId: string) {

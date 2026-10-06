@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
-import { readVersionedJsonFromR2, writeJsonToR2, wrongBookBackupKey, wrongBookKey } from "./r2";
+import { headObjectVersionFromR2, readVersionedJsonFromR2, writeJsonToR2, wrongBookBackupKey, wrongBookKey } from "./r2";
 import { maxSyncBytes, SyncOperationError } from "./vocab-sync";
 import type { VocabSnapshotStore } from "./vocab-sync-store";
 
 export function accountVocabStore(userId: string): VocabSnapshotStore {
+  let currentVersion: string | null = null;
   return {
-    read: () => readVersionedJsonFromR2(wrongBookKey(userId)),
-    write: (snapshot, etag) => writeJsonToR2(wrongBookKey(userId), snapshot, etag),
-    backup: (snapshot, id) => writeJsonToR2(wrongBookBackupKey(userId, id), snapshot, null)
+    read: async () => {
+      const current = await readVersionedJsonFromR2(wrongBookKey(userId));
+      currentVersion = current.etag;
+      return current;
+    },
+    write: async (snapshot, etag) => {
+      currentVersion = await writeJsonToR2(wrongBookKey(userId), snapshot, etag);
+    },
+    backup: async (snapshot, id) => { await writeJsonToR2(wrongBookBackupKey(userId, id), snapshot, null); },
+    getVersion: () => currentVersion
   };
+}
+
+export function readAccountVocabVersion(userId: string) {
+  return headObjectVersionFromR2(wrongBookKey(userId));
 }
 
 export async function readSyncRequest(request: Request): Promise<unknown> {

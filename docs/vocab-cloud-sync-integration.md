@@ -52,3 +52,15 @@ node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON s
 2026-10-06，在独立 `henguren-toolbox-test` 桶使用 24 小时有效期的测试凭据完成上述 R2 和本机生产 API 联调。最终运行及测试对象清理均通过，正式桶未读写。首次建桶使用既有凭据时返回 403，改用用户提供的测试凭据后创建成功；首次测试桶尚未创建时返回 404，未写入对象。中途测试断言已按 JSON 序列化及 API 规范修正；一次并发清理失败的对象单独清理成功，最终脚本改为顺序删除并保留有限重试及错误类型。
 
 401 浏览器回归、112 项现有测试、lint、类型检查和生产构建通过。测试桶保留，凭据不纳入提交。
+
+## Review 通知回归
+
+本机生产服务与已有 Playwright 环境下运行：
+
+```bash
+node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-sync-notifications.mjs
+```
+
+环境变量沿用认证回归脚本。全部账户、学习分区与自定义 R2 响应均为隔离夹具，浏览器阻止实际外部请求。覆盖同标签页填写完整自定义来源、切换目标期间旧请求晚返回、按当前显示目标手动上传、另一标签页错题本无需导航即更新、访客转入后的自动上传，以及 localStorage 仅拒绝归属通知时的登录/退出。三项 Review 回归、原有同步菜单和 401 回归通过；112 项测试、lint、类型检查与生产构建通过。
+
+账户切换和访客转入均在 IndexedDB 提交成功后才发送通知。localStorage 仅作为跨标签页通知通道；该通道不可用时保留同标签页通知，不把已完成的账户切换报告为失败。IndexedDB 本身的失败仍会正常报告。

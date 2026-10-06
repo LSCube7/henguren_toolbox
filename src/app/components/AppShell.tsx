@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
-import { defaultSettingsForLocale, type UserSession } from "@/lib/types";
+import { defaultSettingsForLocale } from "@/lib/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MaterialIcon } from "./MaterialIcon";
 import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
-import { readWrongBookSyncSummary, type SyncStatus, type WrongBookSyncSummary } from "@/lib/client-sync";
+import type { SyncStatus } from "@/lib/client-sync";
+import { useLearningSync } from "@/lib/client-auto-sync";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
@@ -29,19 +30,21 @@ const personalItems = [
   { href: "/settings", label: "nav.settings", icon: "settings" }
 ] as const;
 
-const syncStatusLabel: Record<SyncStatus, MessageKey> = {
+const syncStatusLabel: Record<SyncStatus | "pending", MessageKey> = {
   "signed-out": "sync.signedOut",
   offline: "sync.offline",
   ready: "sync.ready",
+  pending: "sync.pending",
   syncing: "sync.syncing",
   synced: "sync.synced",
   error: "sync.error"
 };
 
-const syncStatusIcon: Record<SyncStatus, MaterialSymbolName> = {
+const syncStatusIcon: Record<SyncStatus | "pending", MaterialSymbolName> = {
   "signed-out": "cloud_off",
   offline: "cloud_off",
   ready: "cloud_sync",
+  pending: "cloud_sync",
   syncing: "cloud_upload",
   synced: "cloud_done",
   error: "cloud_alert"
@@ -87,68 +90,19 @@ function NavList({
   onNavigationRequest: NavigationRequest;
 }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<UserSession | null>(null);
   const edition = useEdition();
-  const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
+  const sync = useLearningSync();
+  const syncSummary = sync.summary;
+  const user = syncSummary?.user ?? null;
   const { locale, t } = useI18n();
   const fallbackSettings = useMemo(() => defaultSettingsForLocale(locale), [locale]);
   const settings = useClientSettings(fallbackSettings);
   const currentPath = stripLocalePrefix(pathname);
 
-  useEffect(() => {
-    let active = true;
-    async function loadUser() {
-      try {
-        const response = await fetch("/api/me");
-        const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
-        if (active) setUser(data.user);
-      } catch {
-        if (active) setUser(null);
-      }
-    }
-    void loadUser();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    async function loadSyncSummary() {
-      try {
-        const summary = await readWrongBookSyncSummary();
-        if (!active) return;
-        setSyncSummary(summary);
-        if (summary.user || summary.status === "signed-out") setUser(summary.user);
-      } catch {
-        if (active) {
-          setSyncSummary({
-            status: "error",
-            source: "account",
-            unavailableReason: "source-unavailable",
-            user: null,
-            localCount: 0
-          });
-        }
-      }
-    }
-
-    function reloadSyncSummary() {
-      void loadSyncSummary();
-    }
-
-    void loadSyncSummary();
-    window.addEventListener("online", reloadSyncSummary);
-    window.addEventListener("offline", reloadSyncSummary);
-    return () => {
-      active = false;
-      window.removeEventListener("online", reloadSyncSummary);
-      window.removeEventListener("offline", reloadSyncSummary);
-    };
-  }, []);
-
   const selectedTools = toolItems.filter((item) => item.edition === edition);
-  const syncStatus = syncSummary?.status ?? (user ? "ready" : "signed-out");
+  const syncStatus: SyncStatus | "pending" = sync.status === "idle"
+    ? syncSummary?.status ?? "signed-out"
+    : sync.status;
   const syncTitle = t(syncStatusLabel[syncStatus]);
   const userTitle = user ? `${user.name}${user.email ? ` · ${user.email}` : ""}` : t("user.signedOut");
 

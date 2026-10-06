@@ -2,18 +2,13 @@
 
 import type { UserSession } from "@/lib/types";
 import { useSnackbar } from "../components/Snackbar";
-import { MaterialIcon } from "../components/MaterialIcon";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
 import { useLearningSync } from "@/lib/client-auto-sync";
 import { logoutAccount } from "@/lib/client-account";
-import { LearningAutoSyncControls } from "../components/LearningAutoSyncControls";
-import { developerSyncSourceIdentity, readDeveloperSyncSource } from "@/lib/developer-sync-config";
 import { isOnline } from "@/lib/offline-cache";
 import { adoptGuestLearning, currentLearningOwner, readLearningPartition } from "@/lib/client-learning-storage";
 import { accountLearningOwner, guestLearningOwner } from "@/lib/learning-ownership";
-import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
 import { localizePath } from "@/lib/localized-routing";
@@ -32,74 +27,6 @@ const authMessages: Record<string, MessageKey> = {
   userinfo_missing_subject: "auth.userinfoMissingSubject"
 };
 
-type SyncAction = "pull" | "overwrite" | "merge";
-type OverwriteTarget = { identity: string; source: "account" | "custom"; name?: string; profileId?: string; version?: string };
-
-function getOverwriteTarget(summary: WrongBookSyncSummary | null, fallbackUser: UserSession | null): OverwriteTarget | null {
-  if (summary?.status !== "ready" && summary?.status !== "synced") return null;
-  if (summary.source === "custom") {
-    const source = readDeveloperSyncSource();
-    return source ? { identity: developerSyncSourceIdentity(source), source: "custom", profileId: source.profileId, version: summary.cloudVersion } : null;
-  }
-  const account = summary.user ?? fallbackUser;
-  return account ? { identity: `account:${account.id}`, source: "account", name: account.name, version: summary.cloudVersion } : null;
-}
-
-function syncErrorCode(error: unknown) {
-  if (typeof error !== "object" || error === null || !("code" in error)) return "SYNC_FAILED";
-  const code = (error as { code?: unknown }).code;
-  return typeof code === "string" && /^[A-Z0-9_]{1,40}$/.test(code) ? code : "SYNC_FAILED";
-}
-
-function syncErrorMessageKey(error: unknown): MessageKey {
-  switch (syncErrorCode(error)) {
-    case "LOCAL_APPLY_FAILED": return "user.wrongbookSync.localApplyFailed";
-    case "BACKUP_FAILED": return "user.wrongbookSync.backupFailed";
-    case "SYNC_CONFLICT": return "user.wrongbookSync.conflict";
-    case "UNAUTHORIZED": return "user.wrongbookSync.unauthorized";
-    case "TARGET_CHANGED": return "user.wrongbookSync.targetChanged";
-    case "OFFLINE": return "user.wrongbookSync.offline";
-    default: return "user.wrongbookSync.error";
-  }
-}
-
-const syncActionIcon: Record<SyncAction, MaterialSymbolName> = {
-  pull: "cloud_download",
-  overwrite: "cloud_upload",
-  merge: "cloud_sync"
-};
-
-const syncActionLabel: Record<SyncAction, MessageKey> = {
-  pull: "user.wrongbookSync.pulling",
-  overwrite: "user.wrongbookSync.overwriting",
-  merge: "user.wrongbookSync.merging"
-};
-
-function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession | null): MaterialSymbolName {
-  if (summary?.status === "signed-out") return "cloud_off";
-  if (summary?.status === "offline") return "cloud_off";
-  if (summary?.status === "error") return "cloud_alert";
-  if (summary?.status === "synced") return "cloud_done";
-  if (summary?.status === "ready" || (!summary && user)) return "cloud_sync";
-  return "cloud_off";
-}
-
-function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
-  if (summary.status === "offline") {
-    if (summary.source === "custom") return "sync.detail.customOffline";
-    return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.detail.offline";
-  }
-  if (summary.status === "error") {
-    if (summary.source === "local") return "user.wrongbookSync.loadError";
-    return summary.source === "custom" ? "sync.detail.customError" : "sync.detail.cloudError";
-  }
-  if (summary.status === "ready") {
-    return summary.source === "custom" ? "sync.detail.customReady" : "sync.detail.ready";
-  }
-  if (summary.status === "synced") return "sync.synced";
-  return "sync.detail.signedOut";
-}
-
 function syncSummaryLoadErrorKey(error: unknown): MessageKey {
   return error instanceof Error && error.message.includes("IDB_UPGRADE_BLOCKED")
     ? "user.wrongbookSync.loadBlocked"
@@ -111,7 +38,7 @@ function syncSummaryLoadErrorKey(error: unknown): MessageKey {
 export function UserClient() {
   const searchParams = useSearchParams();
   const { locale, t } = useI18n();
-  const { clearSnackbar, showSnackbar } = useSnackbar();
+  const { showSnackbar } = useSnackbar();
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
   const sync = useLearningSync();
@@ -119,11 +46,8 @@ export function UserClient() {
   const user = syncSummary?.user ?? null;
   const syncing = sync.busy;
   const refreshShared = sync.refresh;
-  const [syncAction, setSyncAction] = useState<SyncAction | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const loading = !syncSummary || refreshing;
-  const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false);
-  const [overwriteTarget, setOverwriteTarget] = useState<OverwriteTarget | null>(null);
   const [guestCount, setGuestCount] = useState(0);
   const [adoptDialogOpen, setAdoptDialogOpen] = useState(false);
   const [accountChanging, setAccountChanging] = useState(false);
@@ -178,81 +102,6 @@ export function UserClient() {
     finally { setAccountChanging(false); }
   }
 
-  async function runSync(action: "pull" | "overwrite" | "merge", expectedTarget?: string, expectedVersion?: string) {
-    if (!canSync || (syncSummary?.status !== "ready" && syncSummary?.status !== "synced") || !isOnline()) {
-      showSnackbar(t("user.wrongbookSync.offline"), "error");
-      return;
-    }
-    setSyncAction(action);
-    clearSnackbar();
-    try {
-      if (action === "pull") {
-        await pullAndMergeWrongBook();
-        showSnackbar(t("user.wrongbookSync.pullSuccess"));
-      } else if (action === "overwrite") {
-        await overwriteCloudWrongBook(expectedTarget, expectedVersion);
-        showSnackbar(t("user.wrongbookSync.overwriteSuccess"));
-      } else {
-        await mergeUploadWrongBook();
-        showSnackbar(t("user.wrongbookSync.mergeSuccess"));
-      }
-    } catch (error) {
-      showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
-    } finally {
-      setSyncAction(null);
-    }
-  }
-
-  function openOverwriteDialog() {
-    setOverwriteTarget(getOverwriteTarget(syncSummary, user));
-    setOverwriteDialogOpen(true);
-  }
-
-  async function confirmOverwrite() {
-    const expectedTarget = overwriteTarget;
-    setOverwriteDialogOpen(false);
-    if (!expectedTarget) {
-      showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
-      return;
-    }
-    try {
-      const currentSummary = await readWrongBookSyncSummary({ force: true });
-      const currentTarget = getOverwriteTarget(currentSummary, user);
-      if (currentTarget?.identity !== expectedTarget.identity) {
-        showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
-        return;
-      }
-      if (currentTarget.version !== expectedTarget.version) {
-        showSnackbar(t("user.wrongbookSync.conflict"), "error");
-        return;
-      }
-      await runSync("overwrite", expectedTarget.identity, expectedTarget.version);
-    } catch (error) {
-      showSnackbar(t(syncErrorMessageKey(error), { code: syncErrorCode(error) }), "error");
-    }
-  }
-
-  const canSync = (syncSummary?.status === "ready" || syncSummary?.status === "synced") && (Boolean(user) || syncSummary.source === "custom");
-  const syncUnavailable = !canSync || syncing || Boolean(syncAction) || accountChanging || !isOnline();
-  const syncReadDisabled = syncUnavailable;
-  const currentSyncIcon = syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
-  const currentSyncText = sync.status === "pending"
-    ? t("sync.pending")
-    : syncing && syncAction
-      ? t(syncActionLabel[syncAction])
-      : sync.status === "syncing"
-        ? t("sync.syncing")
-        : sync.status === "synced"
-          ? t("sync.synced")
-          : syncSummary
-            ? t(syncSummaryMessageKey(syncSummary), {
-                localCount: syncSummary.localCount,
-                cloudCount: syncSummary.cloudCount ?? 0,
-                localMasteryCount: syncSummary.localMasteryCount ?? 0,
-                cloudMasteryCount: syncSummary.cloudMasteryCount ?? 0
-              })
-            : t("user.wrongbookSync.loading");
-  const currentSyncStatus = sync.status === "idle" ? syncSummary?.status ?? (user ? "ready" : "signed-out") : sync.status;
   const loginHref = `/api/auth/login?returnTo=${encodeURIComponent(localizePath(locale, "/user"))}`;
 
   return (
@@ -290,37 +139,6 @@ export function UserClient() {
         <div slot="headline">{t("user.localOwner.adopt")}</div>
         <div slot="content">{t("user.localOwner.adoptConfirm", { name: user?.name ?? "" })}</div>
         <div slot="actions"><md-text-button onClick={() => setAdoptDialogOpen(false)}>{t("common.cancel")}</md-text-button><md-text-button onClick={() => void adoptGuest()}>{t("user.localOwner.adoptAction")}</md-text-button></div>
-      </md-dialog>
-      <section className="md-card spread" id="wrongbook-sync" aria-label={t("user.wrongbookSyncAria")}>
-        <div>
-          <h2 className="section-title">{t("user.wrongbookSync.title")}</h2>
-          <span className="sync-status-chip" data-status={currentSyncStatus}>
-            <MaterialIcon name={currentSyncIcon} />
-            <span>{currentSyncText}</span>
-          </span>
-          <p className="helper-text">{t("user.wrongbookSync.masteryMergeNote")}</p>
-          <LearningAutoSyncControls />
-        </div>
-        <div className="cluster">
-          <md-outlined-button disabled={syncReadDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
-          <md-outlined-button disabled={syncUnavailable} onClick={openOverwriteDialog}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
-          <md-filled-button disabled={syncReadDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
-        </div>
-      </section>
-      <md-dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
-        <div slot="headline">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
-        <div slot="content" className="stack">
-          <p>{t("user.wrongbookSync.overwriteConfirm", {
-            target: overwriteTarget?.source === "custom"
-              ? `${t("user.wrongbookSync.customTarget")}: ${overwriteTarget.profileId}`
-              : overwriteTarget?.name ?? t("user.wrongbookSync.unknownTarget")
-          })}</p>
-          <p className="helper-text">{t("user.wrongbookSync.overwriteScope")}</p>
-        </div>
-        <div slot="actions">
-          <md-text-button onClick={() => setOverwriteDialogOpen(false)}>{t("common.cancel")}</md-text-button>
-          <md-text-button disabled={syncing} onClick={() => void confirmOverwrite()}>{t("user.wrongbookSync.overwriteConfirmAction")}</md-text-button>
-        </div>
       </md-dialog>
     </div>
   );

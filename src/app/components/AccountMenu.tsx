@@ -55,10 +55,14 @@ export function AccountMenu({ onNavigate }: { onNavigate?: () => void }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />) : <span className="user-nav-icon" aria-hidden="true"><MaterialIcon name={user ? "account_circle" : "person"} /></span>}
     </button>
-    <md-menu ref={menu} id={id + "-menu"} anchor={id} open={open} positioning="popover" anchor-corner="start-end" menu-corner="end-start" aria-label={t("account.menu")}>
-      <div className="account-menu-heading" role="presentation"><strong>{user?.name ?? t(loading ? "account.loading" : expired ? "account.expired" : "user.signedOut")}</strong>{offline ? <span>{t("account.offline")}</span> : null}</div>
-      {user ? <md-menu-item onClick={navigate}><span slot="headline">{t("account.details")}</span></md-menu-item> : null}
-      {user ? <md-menu-item disabled={offline || changing} onClick={() => void logout()}><span slot="headline">{t(changing ? "account.signingOut" : "user.logout")}</span></md-menu-item> : <md-menu-item disabled={offline || loading} onClick={login}><span slot="headline">{t(expired ? "account.signInAgain" : "account.signIn")}</span></md-menu-item>}
+    <md-menu aria-hidden={!open} ref={menu} id={id + "-menu"} anchor={id} open={open} positioning="popover" anchor-corner="start-end" menu-corner="end-start" aria-label={t("account.menu")}>
+      <div className="account-menu-heading" role="presentation"><div className="account-menu-profile">{user?.avatarUrl ? (
+        // Match the rail avatar's no-referrer policy without proxying account images.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
+      ) : <span className="user-nav-icon" aria-hidden="true"><MaterialIcon name={user ? "account_circle" : "person"} /></span>}<div className="account-menu-identity"><strong>{user?.name ?? t(loading ? "account.loading" : expired ? "account.expired" : "user.signedOut")}</strong>{user?.email ? <span className="account-menu-email">{user.email}</span> : null}</div></div>{offline ? <span>{t("account.offline")}</span> : null}</div>
+      {user ? <md-menu-item md-menu-item="" tabIndex={-1} onClick={navigate}><span slot="headline">{t("account.details")}</span></md-menu-item> : null}
+      {user ? <md-menu-item md-menu-item="" tabIndex={-1} disabled={offline || changing} onClick={() => void logout()}><span slot="headline">{t(changing ? "account.signingOut" : "user.logout")}</span></md-menu-item> : <md-menu-item md-menu-item="" tabIndex={-1} disabled={offline || loading} onClick={login}><span slot="headline">{t(expired ? "account.signInAgain" : "account.signIn")}</span></md-menu-item>}
     </md-menu>
   </div>;
 }

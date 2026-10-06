@@ -3208,6 +3208,10 @@ md-outlined-text-field.cloze-blank {
 .account-menu-heading span { font-size: 12px; color: var(--md-sys-color-on-surface-variant); }
 .rail-action[data-status="pending"] { color: var(--md-sys-color-primary); background: var(--md-sys-color-primary-container); }
 
+.account-menu-profile { display: flex; gap: 12px; align-items: center; }
+.account-menu-identity { display: grid; gap: 4px; min-width: 0; }
+.account-menu-email { overflow-wrap: anywhere; }
+.account-menu-anchor md-menu { max-width: min(360px, calc(100vw - 24px)); }
 button.rail-action { border: 0; cursor: pointer; }
 .sync-menu-panel { position: fixed; inset: auto auto var(--sync-panel-bottom, 12px) var(--sync-panel-left, 76px); margin: 0; width: min(420px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - var(--sync-panel-bottom, 12px) - 12px); overflow: auto; padding: 20px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 24px; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container); box-shadow: 0 8px 24px rgb(0 0 0 / 18%); }
 .sync-menu-panel::backdrop { background: rgb(0 0 0 / 12%); }

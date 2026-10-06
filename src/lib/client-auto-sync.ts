@@ -1,6 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import { automaticLearningSync, cachedSyncSummary, cancelSyncRequests, readWrongBookSyncSummary, subscribeSyncSummary, type WrongBookSyncSummary } from "./client-sync";
+import { automaticLearningSync, cachedSyncSummary, invalidateSyncSummary, cancelSyncRequests, readWrongBookSyncSummary, subscribeSyncSummary, type WrongBookSyncSummary } from "./client-sync";
 import { currentLearningOwner, learningChangeEventKey, learningOwnerEventKey, readLearningPartition, setLearningAutoSync } from "./client-learning-storage";
 import { accountLearningOwner } from "./learning-ownership";
 import { developerSyncSourceChangeEvent, developerSyncSourceIdentity, readDeveloperSyncSource } from "./developer-sync-config";
@@ -95,7 +95,8 @@ export function startLearningAutoSync() {
   const sourceChanged = () => {
     const source = readDeveloperSyncSource(); const identity = source ? developerSyncSourceIdentity(source) : "account";
     if (identity === sourceIdentity) return;
-    sourceIdentity = identity; clearTimeout(timer); halted = false; retryAt = 0; attempts = 0; publish({ error: undefined });
+    sourceIdentity = identity; clearTimeout(timer); halted = false; retryAt = 0; attempts = 0;
+    invalidateSyncSummary(); publish({ error: undefined, summary: null, status: "idle" });
     void readWrongBookSyncSummary().then(() => inspect()).then(() => reschedule()).catch(fail);
   };
   const storage = (event: StorageEvent) => { if (event.key === learningChangeEventKey) changed(); if (event.key === "henguren-v3-dev-sync-source" || event.key === "henguren-v3-settings") sourceChanged(); };

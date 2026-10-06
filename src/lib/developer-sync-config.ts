@@ -83,6 +83,7 @@ export function writeDeveloperSyncSource(source: DeveloperSyncSource) {
       updatedAt: new Date().toISOString()
     })
   );
+  window.dispatchEvent(new Event(developerSyncSourceChangeEvent));
 }
 
 export function clearDeveloperSyncSource() {

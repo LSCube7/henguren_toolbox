@@ -9,7 +9,7 @@ Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vu
 Core goals:
 
 - Keep Chinese and English learning tools usable locally.
-- Use Material Design 3 via Material Web and local Material icon fonts.
+- Use Material 3 Expressive via M3E and local Material icon fonts.
 - Keep wrongbook data local-first, with explicit cloud sync after login.
 - Use CubeID for login and Cloudflare R2 for JSON snapshot storage.
 
@@ -23,9 +23,9 @@ Core goals:
 - Package manager: `pnpm`.
 - Framework: Next.js 16 App Router.
 - React: React 19.
-- UI: official `@material/web` custom elements plus project CSS in `src/app/globals.css`.
+- UI: third-party `@m3e/react` per-component bindings, with `@m3e/web` where bindings lack presentation support; project CSS in `src/app/globals.css`.
 - Icons: local `@fontsource-variable/material-symbols-rounded` with the Material Symbols `FILL` axis for state changes.
-- Color: `@material/material-color-utilities`.
+- Color: `M3eTheme` owns Dynamic Color and Material tokens; `@material/material-color-utilities` is retained for the HCT picker.
 - Storage: browser IndexedDB/localStorage/Cache Storage locally; Cloudflare R2 via AWS S3 client on server routes.
 
 ## Important Paths
@@ -94,7 +94,7 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
 
 ## UI Rules
 
-- Use Material Web custom elements for controls where practical.
+- Use M3E React components from per-component subpaths for controls; keep native HTML semantics where appropriate.
 - Keep complex layout, cards, rail, footer, tables, and print layout in project CSS.
 - Do not reintroduce MUI/Emotion.
 - Preserve the product tone: learning toolbox, not cloud platform/account admin console.

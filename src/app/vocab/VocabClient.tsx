@@ -1,5 +1,14 @@
 "use client";
 
+import { TextField } from "@/app/components/TextField";
+import { SelectField } from "@/app/components/SelectField";
+import { M3eOption } from "@m3e/react/option";
+import { Dialog as M3eDialog } from "@/app/components/Dialog";
+import { M3eLoadingIndicator } from "@m3e/react/loading-indicator";
+import { M3eButton } from "@m3e/react/button";
+import { M3eFilterChip } from "@m3e/react/chips";
+import { M3eSwitch } from "@m3e/react/switch";
+
 import list from "@/assets/js/vocabulary/list.json";
 import {
   addWrongWord,
@@ -158,12 +167,12 @@ function persistDefinitionLanguages(languages: VocabDefinitionLanguage[], fallba
   writeClientSettings({ ...settings, vocabDefinitionLanguages: languages, updatedAt: new Date().toISOString() });
 }
 
-function valueFrom(event: FormEvent<HTMLElement>) {
+function valueFrom(event: Event | FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
 }
 
-function checkedFrom(event: FormEvent<HTMLElement>) {
-  return Boolean((event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean }).checked ?? (event.currentTarget as HTMLElement & { selected?: boolean }).selected);
+function checkedFrom(event: Event | FormEvent<HTMLElement>) {
+  return Boolean((event.currentTarget as HTMLElement & { checked?: boolean }).checked);
 }
 
 function toggleValue(current: string[], value: string) {
@@ -261,10 +270,9 @@ export function VocabClient() {
   const [cacheBusy, setCacheBusy] = useState(false);
   const [vocabCacheStates, setVocabCacheStates] = useState<Record<string, VocabCacheState>>({});
   const [customListDialogOpen, setCustomListDialogOpen] = useState(false);
-  const [customListDialogKey, setCustomListDialogKey] = useState(0);
   const customListRef = useRef<HTMLInputElement>(null);
   const importWrongBookRef = useRef<HTMLInputElement>(null);
-  const answerInputRef = useRef<HTMLElement | null>(null);
+  const answerInputRef = useRef<HTMLInputElement | null>(null);
   const answerSubmissionRef = useRef(false);
   const blankAnswerSpaceArmedRef = useRef(false);
   const clientId = useMemo(() => (typeof window === "undefined" ? "server" : getClientId()), []);
@@ -409,9 +417,7 @@ export function VocabClient() {
   }
 
   function openCustomListDialog() {
-    setCustomListDialogKey((current) => current + 1);
-    setCustomListDialogOpen(false);
-    window.setTimeout(() => setCustomListDialogOpen(true), 0);
+    setCustomListDialogOpen(true);
   }
 
   function closeCustomListDialog() {
@@ -780,9 +786,9 @@ export function VocabClient() {
               {t("vocab.progress", { current: currentIndex + 1, total: testWords.length, source: currentWord?.sourceTitle ?? currentWord?.sourceName ?? "—" })}
             </p>
           </div>
-          <md-outlined-button disabled={submittingAnswer} onClick={finishTestEarly}>
+          <M3eButton variant="outlined" disabled={submittingAnswer} onClick={finishTestEarly}>
             {t("vocab.finish")}
-          </md-outlined-button>
+          </M3eButton>
         </section>
         <section className="md-card stack" aria-label={t("vocab.questionAria")}>
           <div className="stack">
@@ -801,7 +807,7 @@ export function VocabClient() {
           </div>
           <div className="cluster">
             {showHint && currentWord ? <span className="badge">{currentWord.word[0]}</span> : null}
-            <md-outlined-text-field
+            <TextField
               ref={answerInputRef}
               label={t("vocab.answerInput")}
               value={answer}
@@ -841,9 +847,9 @@ export function VocabClient() {
               }}
             />
             {answerOutcome ? (
-              <md-filled-button onClick={goNextQuestion}>{t(currentIndex + 1 >= testWords.length ? "vocab.viewResults" : "vocab.nextQuestion")}</md-filled-button>
+              <M3eButton variant="filled" onClick={goNextQuestion}>{t(currentIndex + 1 >= testWords.length ? "vocab.viewResults" : "vocab.nextQuestion")}</M3eButton>
             ) : (
-              <md-filled-button disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>{t("vocab.submit")}</md-filled-button>
+              <M3eButton variant="filled" disabled={!answer.trim() || submittingAnswer || pendingSlip} onClick={() => void submitAnswer()}>{t("vocab.submit")}</M3eButton>
             )}
           </div>
           {answerFeedback ? (
@@ -858,8 +864,8 @@ export function VocabClient() {
           ) : null}
           {pendingSlip ? (
             <div className="cluster">
-              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>{t("vocab.markCorrect")}</md-outlined-button>
-              <md-outlined-button disabled={submittingAnswer} onClick={() => void submitAnswer("wrong")}>{t("vocab.markWrong")}</md-outlined-button>
+              <M3eButton variant="outlined" disabled={submittingAnswer} onClick={() => void submitAnswer("correct")}>{t("vocab.markCorrect")}</M3eButton>
+              <M3eButton variant="outlined" disabled={submittingAnswer} onClick={() => void submitAnswer("wrong")}>{t("vocab.markWrong")}</M3eButton>
             </div>
           ) : null}
         </section>
@@ -888,9 +894,9 @@ export function VocabClient() {
           <div className="spread">
             <h2 className="section-title">{t("vocab.incorrectTitle")}</h2>
             <div className="cluster">
-              <md-outlined-button onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>{t("vocab.downloadErrors")}</md-outlined-button>
-              <md-outlined-button disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>{t("vocab.retryErrors")}</md-outlined-button>
-              <md-filled-button onClick={resetTest}>{t("vocab.backSelection")}</md-filled-button>
+              <M3eButton variant="outlined" onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>{t("vocab.downloadErrors")}</M3eButton>
+              <M3eButton variant="outlined" disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>{t("vocab.retryErrors")}</M3eButton>
+              <M3eButton variant="filled" onClick={resetTest}>{t("vocab.backSelection")}</M3eButton>
             </div>
           </div>
           {incorrectWords.length === 0 ? <p className="helper-text">{t("vocab.noErrors")}</p> : null}
@@ -921,34 +927,34 @@ export function VocabClient() {
             <p className="helper-text">{t("vocab.wrongbookDescription")}</p>
           </div>
           <div className="cluster">
-            <md-outlined-button onClick={() => setScreen("select")}>{t("vocab.backTest")}</md-outlined-button>
-            <md-filled-button disabled={filteredWrongRecords.length === 0} onClick={() => void startTest("wrongbook")}>
+            <M3eButton variant="outlined" onClick={() => setScreen("select")}>{t("vocab.backTest")}</M3eButton>
+            <M3eButton variant="filled" disabled={filteredWrongRecords.length === 0} onClick={() => void startTest("wrongbook")}>
               {t("vocab.reviewFiltered")}
-            </md-filled-button>
+            </M3eButton>
           </div>
         </section>
         <section className="md-card stack" aria-label={t("vocab.recordsAria")}>
           <div className="spread">
             <h2 className="section-title">{t("vocab.records")}</h2>
             <div className="cluster">
-              <md-outlined-button onClick={() => wrongBook && downloadJson(`wrongbook_${nowStamp()}.json`, wrongBook)}>{t("vocab.export")}</md-outlined-button>
-              <md-outlined-button onClick={() => importWrongBookRef.current?.click()}>{t("vocab.import")}</md-outlined-button>
+              <M3eButton variant="outlined" onClick={() => wrongBook && downloadJson(`wrongbook_${nowStamp()}.json`, wrongBook)}>{t("vocab.export")}</M3eButton>
+              <M3eButton variant="outlined" onClick={() => importWrongBookRef.current?.click()}>{t("vocab.import")}</M3eButton>
               <input ref={importWrongBookRef} className="hidden-input" type="file" accept=".json" onChange={(event) => void importWrongBook(event)} />
             </div>
           </div>
           <div className="wrongbook-filters">
-            <md-outlined-text-field label={t("vocab.search")} value={wrongBookSearch} onInput={(event) => setWrongBookSearch(valueFrom(event))} />
+            <TextField label={t("vocab.search")} value={wrongBookSearch} onInput={(event) => setWrongBookSearch(valueFrom(event))} />
             <div className="wrongbook-filter-row">
-              <md-filled-select className="wrongbook-source-select" label={t("vocab.source")} value={wrongBookSource} onInput={(event) => setWrongBookSource(valueFrom(event))}>
-                <md-select-option value="all">
-                  <div slot="headline">{t("vocab.allSources")}</div>
-                </md-select-option>
+              <SelectField className="wrongbook-source-select" label={t("vocab.source")} value={wrongBookSource} onInput={(event) => setWrongBookSource(valueFrom(event))}>
+                <M3eOption value="all">
+                  <div>{t("vocab.allSources")}</div>
+                </M3eOption>
                 {wrongBookSources.map((source) => (
-                  <md-select-option key={source} value={source}>
-                    <div slot="headline">{source}</div>
-                  </md-select-option>
+                  <M3eOption key={source} value={source}>
+                    <div>{source}</div>
+                  </M3eOption>
                 ))}
-              </md-filled-select>
+              </SelectField>
               <div className="filter-section" aria-label={t("vocab.mastery")}>
                 <span className="filter-label">{t("vocab.mastery")}</span>
                 <div className="button-group" role="radiogroup" aria-label={t("vocab.mastery")}>
@@ -957,7 +963,7 @@ export function VocabClient() {
                       className="button-group__item"
                       type="button"
                       role="radio"
-                      aria-checked={masteryFilter === option.value}
+                      aria-checked={(masteryFilter === option.value) ? "true" : "false"}
                       data-selected={masteryFilter === option.value}
                       key={option.value}
                       onClick={() => setMasteryFilter(option.value)}
@@ -970,12 +976,12 @@ export function VocabClient() {
               <div className="filter-section" aria-label={t("vocab.view")}>
                 <span className="filter-label">{t("vocab.view")}</span>
                 <div className="chip-scroll">
-                  <md-filter-chip selected={wrongBookView === "words"} onClick={() => setWrongBookView("words")}>
+                  <M3eFilterChip selected={wrongBookView === "words"} role="radio" aria-checked={(wrongBookView === "words") ? "true" : "false"} onBeforeInput={(event) => { if (wrongBookView === "words") event.preventDefault(); }} onClick={() => setWrongBookView("words")}>
                     {t("vocab.view.words")}
-                  </md-filter-chip>
-                  <md-filter-chip selected={wrongBookView === "batches"} onClick={() => setWrongBookView("batches")}>
+                  </M3eFilterChip>
+                  <M3eFilterChip selected={wrongBookView === "batches"} role="radio" aria-checked={(wrongBookView === "batches") ? "true" : "false"} onBeforeInput={(event) => { if (wrongBookView === "batches") event.preventDefault(); }} onClick={() => setWrongBookView("batches")}>
                     {t("vocab.view.batches")}
-                  </md-filter-chip>
+                  </M3eFilterChip>
                 </div>
               </div>
             </div>
@@ -993,9 +999,9 @@ export function VocabClient() {
                         <span className="info-chip">{isMasteryDue(masteryById[record.id]) ? t("vocab.review.now") : t("vocab.review.next", { date: new Date(masteryById[record.id]!.nextReviewAt).toLocaleDateString(locale) })}</span>
                       </div>
                     </div>
-                    <md-outlined-button onClick={() => void removeWrongRecord(record.id)} aria-label={t("vocab.deleteWordAria", { word: record.word })}>
+                    <M3eButton variant="outlined" onClick={() => void removeWrongRecord(record.id)} aria-label={t("vocab.deleteWordAria", { word: record.word })}>
                       {t("vocab.delete")}
-                    </md-outlined-button>
+                    </M3eButton>
                   </article>
                 ))
               : wrongBookBatches.map((batch) => (
@@ -1006,9 +1012,9 @@ export function VocabClient() {
                         {t("vocab.batchCount", { date: batch.createdAt, count: batch.syncedCount })}
                       </p>
                     </div>
-                    <md-outlined-button onClick={() => void removeWrongBatch(batch.testNo)} aria-label={t("vocab.deleteBatchAria", { batch: batch.testNo })}>
+                    <M3eButton variant="outlined" onClick={() => void removeWrongBatch(batch.testNo)} aria-label={t("vocab.deleteBatchAria", { batch: batch.testNo })}>
                       {t("vocab.delete")}
-                    </md-outlined-button>
+                    </M3eButton>
                   </article>
                 ))}
           </div>
@@ -1040,14 +1046,14 @@ export function VocabClient() {
             <LearningAutoSyncControls />
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</md-outlined-button>
-            <md-outlined-button disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={openOverwriteDialog}>{t("vocab.cloudOverwrite")}</md-outlined-button>
-            <md-filled-button disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</md-filled-button>
+            <M3eButton variant="outlined" disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={() => void pullCloud()}>{t("vocab.cloudPull")}</M3eButton>
+            <M3eButton variant="outlined" disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={openOverwriteDialog}>{t("vocab.cloudOverwrite")}</M3eButton>
+            <M3eButton disabled={!online || (cloudSummary?.status !== "ready" && cloudSummary?.status !== "synced") || Boolean(cloudAction) || sync.busy} onClick={() => void mergeCloud()}>{t("vocab.cloudMerge")}</M3eButton>
           </div>
         </section>
-        <md-dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
-          <div slot="headline">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
-          <div slot="content" className="stack">
+        <M3eDialog open={overwriteDialogOpen} onClosed={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
+          <div slot="header">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
+          <div className="stack">
             <p>{t("user.wrongbookSync.overwriteConfirm", {
               target: overwriteTarget?.source === "custom"
                 ? `${t("user.wrongbookSync.customTarget")}: ${overwriteTarget.profileId}`
@@ -1056,10 +1062,10 @@ export function VocabClient() {
             <p className="helper-text">{t("user.wrongbookSync.overwriteScope")}</p>
           </div>
           <div slot="actions">
-            <md-text-button onClick={() => setOverwriteDialogOpen(false)}>{t("common.cancel")}</md-text-button>
-            <md-text-button onClick={() => void confirmOverwrite()}>{t("user.wrongbookSync.overwriteConfirmAction")}</md-text-button>
+            <M3eButton variant="text" onClick={() => setOverwriteDialogOpen(false)}>{t("common.cancel")}</M3eButton>
+            <M3eButton variant="text" onClick={() => void confirmOverwrite()}>{t("user.wrongbookSync.overwriteConfirmAction")}</M3eButton>
           </div>
-        </md-dialog>
+        </M3eDialog>
       </div>
     );
   }
@@ -1076,16 +1082,16 @@ export function VocabClient() {
         </div>
         <div className="cluster">
           <span className={online ? "badge badge--neutral" : "badge badge--error"}>{t(online ? "vocab.online" : "vocab.offline")}</span>
-          <md-outlined-button disabled={!online || cacheBusy || selectedMetas.length === 0} onClick={() => void cacheSelectedUnits()}>
+          <M3eButton variant="outlined" disabled={!online || cacheBusy || selectedMetas.length === 0} onClick={() => void cacheSelectedUnits()}>
             {t(cacheBusy ? "vocab.caching" : "vocab.cacheSelected")}
-          </md-outlined-button>
-          <md-outlined-button disabled={selectedMetas.length === 0 && selectedCustomLists.length === 0} onClick={() => void preparePrintableVocabulary()}>
+          </M3eButton>
+          <M3eButton variant="outlined" disabled={selectedMetas.length === 0 && selectedCustomLists.length === 0} onClick={() => void preparePrintableVocabulary()}>
             {t("vocab.createPrint")}
-          </md-outlined-button>
-          <md-outlined-button onClick={() => setScreen("wrongbook")}>{t("vocab.openWrongbook")}</md-outlined-button>
-          <md-filled-button disabled={loading} onClick={() => void startTest()}>
+          </M3eButton>
+          <M3eButton variant="outlined" onClick={() => setScreen("wrongbook")}>{t("vocab.openWrongbook")}</M3eButton>
+          <M3eButton variant="filled" disabled={loading} onClick={() => void startTest()}>
             {t("vocab.start")}
-          </md-filled-button>
+          </M3eButton>
         </div>
       </section>
 
@@ -1099,19 +1105,21 @@ export function VocabClient() {
                 <h3 className="card-title" id={`${book.code}-title`}>
                   {book.title}
                 </h3>
-                <md-outlined-button onClick={() => toggleBook(book.code)}>{t(allSelected ? "vocab.allSelected" : "vocab.selectAll")}</md-outlined-button>
+                <M3eButton variant="outlined" onClick={() => toggleBook(book.code)}>{t(allSelected ? "vocab.allSelected" : "vocab.selectAll")}</M3eButton>
               </div>
               <div className="unit-grid">
                 {Array.from({ length: Math.ceil(units.length / 2) }, (_, rowIndex) => (
                   <div className="unit-row" key={`${book.code}-row-${rowIndex}`}>
                     {units.slice(rowIndex * 2, rowIndex * 2 + 2).map((unit) => (
-                      <md-filter-chip
+                      <M3eFilterChip
                         key={unit.name}
                         selected={selectedUnits.includes(unit.name)}
+                        role="checkbox"
+                        aria-checked={(selectedUnits.includes(unit.name)) ? "true" : "false"}
                         onClick={() => setSelectedUnits((current) => toggleValue(current, unit.name))}
                       >
                         Unit {unit.name.slice(-1)}
-                      </md-filter-chip>
+                      </M3eFilterChip>
                     ))}
                   </div>
                 ))}
@@ -1122,7 +1130,7 @@ export function VocabClient() {
         <section className="md-card stack" aria-label={t("vocab.customAria")}>
           <div className="spread">
             <h3 className="card-title">{t("vocab.customTitle")}</h3>
-            <md-outlined-button onClick={() => customListRef.current?.click()}>{t("vocab.upload")}</md-outlined-button>
+            <M3eButton variant="outlined" onClick={() => customListRef.current?.click()}>{t("vocab.upload")}</M3eButton>
             <input ref={customListRef} className="hidden-input" type="file" accept=".json" multiple onChange={(event) => void uploadCustomList(event)} />
           </div>
           <div className="unit-grid">
@@ -1146,13 +1154,15 @@ export function VocabClient() {
                         <span>{item.title}</span>
                       </button>
                     ) : (
-                      <md-filter-chip
+                      <M3eFilterChip
                         key={item.name}
                         selected={selectedUploadedIds.includes(item.name)}
+                        role="checkbox"
+                        aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
                         onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
                       >
                         {item.title}
-                      </md-filter-chip>
+                      </M3eFilterChip>
                     )
                   )}
                 </div>
@@ -1166,21 +1176,21 @@ export function VocabClient() {
       <section className="md-card stack" aria-label={t("vocab.settingsAria")}>
         <h2 className="section-title">{t("vocab.settingsTitle")}</h2>
         <div className="quiz-settings-grid">
-          <md-filled-select key={`${locale}-vocab-mode`} label={t("vocab.mode")} value={testMode} onInput={(event) => setTestMode(valueFrom(event) as TestMode)}>
-            <md-select-option value="all">
-              <div slot="headline">{t("vocab.filter.all")}</div>
-            </md-select-option>
-            <md-select-option value="custom">
-              <div slot="headline">{t("vocab.mode.custom")}</div>
-            </md-select-option>
-          </md-filled-select>
+          <SelectField key={`${locale}-vocab-mode`} label={t("vocab.mode")} value={testMode} onInput={(event) => setTestMode(valueFrom(event) as TestMode)}>
+            <M3eOption value="all">
+              <div>{t("vocab.filter.all")}</div>
+            </M3eOption>
+            <M3eOption value="custom">
+              <div>{t("vocab.mode.custom")}</div>
+            </M3eOption>
+          </SelectField>
           {testMode === "all" ? (
             <div className="material-static-field" aria-disabled="true">
               <span>{t("vocab.modeAllDisabled")}</span>
               <strong>{testCount}</strong>
             </div>
           ) : (
-            <md-outlined-text-field
+            <TextField
               type="number"
               label={t("vocab.testCount")}
               value={testCount}
@@ -1190,11 +1200,11 @@ export function VocabClient() {
             />
           )}
           <label className="switch-field">
-            <md-switch selected={showHint} checked={showHint} onInput={(event) => setShowHint(checkedFrom(event))} />
+            <M3eSwitch aria-label={t("vocab.hint")} checked={showHint} onInput={(event) => setShowHint(checkedFrom(event))} />
             <span>{t("vocab.hint")}</span>
           </label>
           <label className="switch-field">
-            <md-switch selected={enableSlipDetection} checked={enableSlipDetection} onInput={(event) => setEnableSlipDetection(checkedFrom(event))} />
+            <M3eSwitch aria-label={t("vocab.slip")} checked={enableSlipDetection} onInput={(event) => setEnableSlipDetection(checkedFrom(event))} />
             <span>{t("vocab.slip")}</span>
           </label>
           <div className="stack" aria-label={t("vocab.definitionLanguageAria")}>
@@ -1206,7 +1216,7 @@ export function VocabClient() {
                   key={option.value}
                   className="button-group__item"
                   role="radio"
-                  aria-checked={definitionLanguageMode === option.value}
+                  aria-checked={(definitionLanguageMode === option.value) ? "true" : "false"}
                   data-selected={definitionLanguageMode === option.value}
                   onClick={() => selectDefinitionLanguageMode(option.value)}
                 >
@@ -1215,31 +1225,34 @@ export function VocabClient() {
               ))}
             </div>
           </div>
-          <md-outlined-text-field label={t("vocab.batchName")} value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
+          <TextField label={t("vocab.batchName")} value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
         </div>
       </section>
 
-      <md-dialog open={loading}>
-        <div slot="headline">{t("vocab.preparing")}</div>
-        <div slot="content">{t("vocab.preparingDescription")}</div>
-      </md-dialog>
-      <md-dialog key={customListDialogKey} open={customListDialogOpen} onClosed={closeCustomListDialog} onClose={closeCustomListDialog} onCancel={closeCustomListDialog}>
-        <div slot="headline">{t("vocab.customTitle")}</div>
-        <div slot="content" className="custom-list-dialog">
+      <M3eDialog open={loading} disableClose>
+        <M3eLoadingIndicator aria-label={t("vocab.preparing")} />
+        <div slot="header">{t("vocab.preparing")}</div>
+        <div>{t("vocab.preparingDescription")}</div>
+      </M3eDialog>
+      <M3eDialog open={customListDialogOpen} onClosed={closeCustomListDialog} onCancel={closeCustomListDialog}>
+        <div slot="header">{t("vocab.customTitle")}</div>
+        <div className="custom-list-dialog">
           {uploadedLists.map((item) => (
-            <md-filter-chip
+            <M3eFilterChip
               key={item.name}
               selected={selectedUploadedIds.includes(item.name)}
+              role="checkbox"
+              aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
               onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
             >
               {item.title}
-            </md-filter-chip>
+            </M3eFilterChip>
           ))}
         </div>
         <div slot="actions">
-          <md-text-button onClick={closeCustomListDialog}>{t("vocab.customDone")}</md-text-button>
+          <M3eButton variant="text" onClick={closeCustomListDialog}>{t("vocab.customDone")}</M3eButton>
         </div>
-      </md-dialog>
+      </M3eDialog>
     </div>
   );
 }

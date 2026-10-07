@@ -1,5 +1,9 @@
 "use client";
 
+import { TextField } from "@/app/components/TextField";
+import { M3eButton } from "@m3e/react/button";
+import { M3eSwitch } from "@m3e/react/switch";
+
 import { useMemo, useState } from "react";
 import {
   clearDeveloperSyncSource,
@@ -15,13 +19,12 @@ import { useSnackbar } from "../components/Snackbar";
 import { defaultSettingsForLocale } from "@/lib/types";
 import { localizePath } from "@/lib/localized-routing";
 
-function valueFrom(event: React.FormEvent<HTMLElement>) {
+function valueFrom(event: Event | React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
 }
 
-function selectedFrom(event: React.FormEvent<HTMLElement>) {
-  const target = event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean };
-  return Boolean(target.selected ?? target.checked);
+function selectedFrom(event: Event | React.FormEvent<HTMLElement>) {
+  return Boolean((event.currentTarget as HTMLElement & { checked?: boolean }).checked);
 }
 
 export function DeveloperClient() {
@@ -65,7 +68,7 @@ export function DeveloperClient() {
           <p className="helper-text">{t("developer.disabled.description")}</p>
         </div>
         <div>
-          <md-filled-button href={localizePath(locale, "/settings")}>{t("developer.disabled.action")}</md-filled-button>
+          <M3eButton variant="filled" href={localizePath(locale, "/settings")}>{t("developer.disabled.action")}</M3eButton>
         </div>
       </section>
     );
@@ -77,8 +80,7 @@ export function DeveloperClient() {
         title="settings.translationKeys.title"
         description="settings.translationKeys.description"
         control={
-          <md-switch
-            selected={Boolean(settings.showTranslationKeys)}
+          <M3eSwitch aria-label={t("settings.translationKeys.title")}
             checked={Boolean(settings.showTranslationKeys)}
             onInput={(event) => updateSettings(selectedFrom(event))}
           />
@@ -90,24 +92,24 @@ export function DeveloperClient() {
           <p className="helper-text">{t("settings.customSync.description")}</p>
         </div>
         <div className="field-grid">
-          <md-outlined-text-field label={t("settings.customSync.accountId")} value={developerSource.accountId} onInput={(event) => updateDeveloperSource({ accountId: valueFrom(event) })} />
-          <md-outlined-text-field label={t("settings.customSync.bucketName")} value={developerSource.bucketName} onInput={(event) => updateDeveloperSource({ bucketName: valueFrom(event) })} />
-          <md-outlined-text-field label={t("settings.customSync.accessKeyId")} value={developerSource.accessKeyId} onInput={(event) => updateDeveloperSource({ accessKeyId: valueFrom(event) })} />
-          <md-outlined-text-field
+          <TextField label={t("settings.customSync.accountId")} value={developerSource.accountId} onInput={(event) => updateDeveloperSource({ accountId: valueFrom(event) })} />
+          <TextField label={t("settings.customSync.bucketName")} value={developerSource.bucketName} onInput={(event) => updateDeveloperSource({ bucketName: valueFrom(event) })} />
+          <TextField label={t("settings.customSync.accessKeyId")} value={developerSource.accessKeyId} onInput={(event) => updateDeveloperSource({ accessKeyId: valueFrom(event) })} />
+          <TextField
             label={t("settings.customSync.secretAccessKey")}
             type="password"
             value={developerSource.secretAccessKey}
             onInput={(event) => updateDeveloperSource({ secretAccessKey: valueFrom(event) })}
           />
-          <md-outlined-text-field label={t("settings.customSync.keyPrefix")} value={developerSource.keyPrefix} onInput={(event) => updateDeveloperSource({ keyPrefix: valueFrom(event) })} />
-          <md-outlined-text-field label={t("settings.customSync.profileId")} value={developerSource.profileId} onInput={(event) => updateDeveloperSource({ profileId: valueFrom(event) })} />
+          <TextField label={t("settings.customSync.keyPrefix")} value={developerSource.keyPrefix} onInput={(event) => updateDeveloperSource({ keyPrefix: valueFrom(event) })} />
+          <TextField label={t("settings.customSync.profileId")} value={developerSource.profileId} onInput={(event) => updateDeveloperSource({ profileId: valueFrom(event) })} />
         </div>
         <div className="cluster">
           <span className={isDeveloperSyncSourceReady(developerSource) ? "badge" : "badge badge--neutral"}>
             {t(isDeveloperSyncSourceReady(developerSource) ? "settings.customSync.ready" : "settings.customSync.incomplete")}
           </span>
-          <md-outlined-button onClick={() => void testDeveloperSource()}>{t("settings.customSync.test")}</md-outlined-button>
-          <md-outlined-button onClick={clearDeveloperSource}>{t("settings.customSync.clear")}</md-outlined-button>
+          <M3eButton variant="outlined" onClick={() => void testDeveloperSource()}>{t("settings.customSync.test")}</M3eButton>
+          <M3eButton variant="outlined" onClick={clearDeveloperSource}>{t("settings.customSync.clear")}</M3eButton>
         </div>
       </section>
     </div>

@@ -1,5 +1,7 @@
 "use client";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { M3eIconButton } from "@m3e/react/icon-button";
+
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useLearningSync } from "@/lib/client-auto-sync";
 import type { SyncStatus } from "@/lib/client-sync";
@@ -53,10 +55,20 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
     const task = window.setTimeout(legacy, 0);
     return () => { window.clearTimeout(task); window.removeEventListener("hashchange", legacy); };
   }, [pathname, show]);
+  function handlePanelKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
+    // A nested confirmation keeps its own Escape lifecycle. The panel must not
+    // send its Escape to the already closed mobile navigation dialog.
+    const nested = event.target instanceof Element ? event.target.closest("m3e-dialog") : null;
+    if (event.key !== "Escape" || event.shiftKey || event.ctrlKey ||
+      (nested && event.currentTarget.contains(nested))) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.close();
+  }
   return <>
     <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={show}><MaterialIcon name={syncStatusIcon[status]} /></button>
-    <dialog ref={panel} id={id} className="sync-menu-panel" aria-labelledby={id + "-title"} onClose={() => { setOpen(false); if (window.matchMedia("(max-width: 899px)").matches) document.querySelector<HTMLButtonElement>(".mobile-menu")?.focus(); else trigger.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close(); } }}>
-      <header className="spread"><h2 id={id + "-title"} className="section-title">{t("sync.panel.title")}</h2><md-icon-button data-aria-label={t("common.close")} onClick={() => panel.current?.close()}><MaterialIcon name="close" /></md-icon-button></header>
+    <dialog ref={panel} id={id} className="sync-menu-panel" aria-labelledby={id + "-title"} onKeyDownCapture={handlePanelKeyDown} onClose={() => { setOpen(false); if (window.matchMedia("(max-width: 899px)").matches) document.querySelector<HTMLButtonElement>(".mobile-menu")?.focus(); else trigger.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close(); } }}>
+      <header className="spread"><h2 id={id + "-title"} className="section-title">{t("sync.panel.title")}</h2><M3eIconButton aria-label={t("common.close")} onClick={() => panel.current?.close()}><MaterialIcon name="close" /></M3eIconButton></header>
       <LearningSyncPanel />
     </dialog>
   </>;

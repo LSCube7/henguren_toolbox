@@ -1,5 +1,10 @@
 "use client";
 
+import { TextField } from "@/app/components/TextField";
+import { SelectField } from "@/app/components/SelectField";
+import { M3eOption } from "@m3e/react/option";
+import { M3eButton } from "@m3e/react/button";
+
 import textLists from "@/assets/js/text/list.json";
 import {
   createClozeQuiz,
@@ -26,7 +31,7 @@ const difficultyOptions: Array<{ value: ClozeDifficulty; label: MessageKey; desc
   { value: "hard", label: "text.difficulty.hard", description: "text.difficulty.hardDescription" }
 ];
 
-function valueFrom(event: React.FormEvent<HTMLElement>) {
+function valueFrom(event: Event | React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
 }
 
@@ -111,7 +116,7 @@ export function TextClient() {
     showSnackbar(result.correct ? t("text.sentenceCorrect") : t("text.sentenceResult", { correct: result.correctCount, total: result.total }));
   }
 
-  function updateAnswer(blankId: string, event: React.FormEvent<HTMLElement>) {
+  function updateAnswer(blankId: string, event: Event | React.FormEvent<HTMLElement>) {
     const value = valueFrom(event);
     setAnswers((current) => ({ ...current, [blankId]: value }));
   }
@@ -147,7 +152,7 @@ export function TextClient() {
             <h2 className="section-title">{t("text.testTitle")}</h2>
             <p className="helper-text">{t("text.progress", { current: currentIndex + 1, total: questions.length })}</p>
           </div>
-          <md-outlined-button onClick={resetTest}>{t("text.exit")}</md-outlined-button>
+          <M3eButton variant="outlined" onClick={resetTest}>{t("text.exit")}</M3eButton>
         </section>
         <section className="md-card stack" aria-label={t("text.questionAria")}>
           <div className="cloze-sentence">
@@ -157,7 +162,7 @@ export function TextClient() {
               const result = currentResult?.blanks.find((blank) => blank.id === part.id);
               return (
                 <span className="cloze-blank-wrap" key={part.id}>
-                  <md-outlined-text-field
+                  <TextField
                     className="cloze-blank"
                     label={t("text.blankLabel", { number: blankNumber })}
                     value={answers[part.id] ?? ""}
@@ -174,9 +179,9 @@ export function TextClient() {
           </div>
           <div className="cluster">
             {currentResult ? (
-              <md-filled-button onClick={goNext}>{t(currentIndex + 1 >= questions.length ? "text.viewResults" : "text.nextSentence")}</md-filled-button>
+              <M3eButton variant="filled" onClick={goNext}>{t(currentIndex + 1 >= questions.length ? "text.viewResults" : "text.nextSentence")}</M3eButton>
             ) : (
-              <md-filled-button onClick={submitAnswer}>{t("text.submitSentence")}</md-filled-button>
+              <M3eButton variant="filled" onClick={submitAnswer}>{t("text.submitSentence")}</M3eButton>
             )}
           </div>
         </section>
@@ -210,7 +215,7 @@ export function TextClient() {
               <h2 className="section-title">{t("text.reviewTitle")}</h2>
               <p className="helper-text">{t("text.reviewDescription")}</p>
             </div>
-            <md-filled-button onClick={resetTest}>{t("text.retry")}</md-filled-button>
+            <M3eButton variant="filled" onClick={resetTest}>{t("text.retry")}</M3eButton>
           </div>
           {incorrectResults.length === 0 ? <p className="helper-text">{t("text.allCorrect")}</p> : null}
           {incorrectResults.map((result, index) => (
@@ -232,23 +237,23 @@ export function TextClient() {
             <h2 className="section-title">{t("text.selectionTitle")}</h2>
             <p className="helper-text">{t("text.selectionDescription")}</p>
           </div>
-          <md-filled-button disabled={!book || scopeSentences.length === 0} onClick={startTest}>{t("text.start")}</md-filled-button>
+          <M3eButton variant="filled" disabled={!book || scopeSentences.length === 0} onClick={startTest}>{t("text.start")}</M3eButton>
         </div>
-        <md-filled-select label={t("text.list")} value={selected} onInput={(event) => setSelected(valueFrom(event))}>
+        <SelectField label={t("text.list")} value={selected} onInput={(event) => setSelected(valueFrom(event))}>
           {textLists.map((item) => (
-            <md-select-option value={item.name} key={item.name}>
-              <div slot="headline">{item.title}</div>
-            </md-select-option>
+            <M3eOption value={item.name} key={item.name}>
+              <div>{item.title}</div>
+            </M3eOption>
           ))}
-        </md-filled-select>
+        </SelectField>
         {book ? (
           <>
             <div className="cluster" aria-label={t("text.sectionsAria")}>
               {book.sections.map((item, index) =>
                 index === sectionIndex ? (
-                  <md-filled-button key={item.id}>{item.title}</md-filled-button>
+                  <M3eButton variant="filled" key={item.id}>{item.title}</M3eButton>
                 ) : (
-                  <md-outlined-button
+                  <M3eButton variant="outlined"
                     key={item.id}
                     onClick={() => {
                       setSectionIndex(index);
@@ -256,18 +261,18 @@ export function TextClient() {
                     }}
                   >
                     {item.title}
-                  </md-outlined-button>
+                  </M3eButton>
                 )
               )}
             </div>
             <div className="cluster" aria-label={t("text.paragraphsAria")}>
               {section?.paragraphs.map((item, index) =>
                 index === paragraphIndex ? (
-                  <md-filled-button key={item.id}>{t("text.paragraph", { number: index + 1 })}</md-filled-button>
+                  <M3eButton variant="filled" key={item.id}>{t("text.paragraph", { number: index + 1 })}</M3eButton>
                 ) : (
-                  <md-outlined-button key={item.id} onClick={() => setParagraphIndex(index)}>
+                  <M3eButton variant="outlined" key={item.id} onClick={() => setParagraphIndex(index)}>
                     {t("text.paragraph", { number: index + 1 })}
-                  </md-outlined-button>
+                  </M3eButton>
                 )
               )}
             </div>
@@ -280,20 +285,21 @@ export function TextClient() {
       <section className="md-card stack" aria-label={t("text.settingsAria")}>
         <h2 className="section-title">{t("text.settingsTitle")}</h2>
         <div className="field-grid">
-          <md-filled-select key={`${locale}-text-scope`} label={t("text.scope")} value={scope} onInput={(event) => setScope(valueFrom(event) as TestScope)}>
-            <md-select-option value="paragraph"><div slot="headline">{t("text.scope.paragraph")}</div></md-select-option>
-            <md-select-option value="section"><div slot="headline">{t("text.scope.section")}</div></md-select-option>
-            <md-select-option value="book"><div slot="headline">{t("text.scope.book")}</div></md-select-option>
-          </md-filled-select>
-          <md-filled-select key={`${locale}-text-difficulty`} label={t("text.difficulty")} value={difficulty} onInput={(event) => setDifficulty(valueFrom(event) as ClozeDifficulty)}>
+          <SelectField key={`${locale}-text-scope`} label={t("text.scope")} value={scope} onInput={(event) => setScope(valueFrom(event) as TestScope)}>
+            <M3eOption value="paragraph"><div>{t("text.scope.paragraph")}</div></M3eOption>
+            <M3eOption value="section"><div>{t("text.scope.section")}</div></M3eOption>
+            <M3eOption value="book"><div>{t("text.scope.book")}</div></M3eOption>
+          </SelectField>
+          <SelectField key={`${locale}-text-difficulty`} label={t("text.difficulty")} value={difficulty} onInput={(event) => setDifficulty(valueFrom(event) as ClozeDifficulty)}>
+            <span slot="value">{t(difficultyOptions.find((option) => option.value === difficulty)?.label ?? "text.difficulty.standard")}</span>
             {difficultyOptions.map((option) => (
-              <md-select-option value={option.value} key={option.value}>
-                <div slot="headline">{t(option.label)}</div>
-                <div slot="supporting-text">{t(option.description)}</div>
-              </md-select-option>
+              <M3eOption value={option.value} key={option.value}>
+                <div>{t(option.label)}</div>
+                <div className="helper-text">{t(option.description)}</div>
+              </M3eOption>
             ))}
-          </md-filled-select>
-          <md-outlined-text-field
+          </SelectField>
+          <TextField
             label={t("text.questionCount")}
             type="number"
             min={1}

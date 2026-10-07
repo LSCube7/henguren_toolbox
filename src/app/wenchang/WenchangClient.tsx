@@ -1,4 +1,5 @@
 "use client";
+import { M3eButton } from "@m3e/react/button";
 
 import contents from "@/assets/js/wenchang/contents.json";
 import { useMemo, useState } from "react";
@@ -38,9 +39,9 @@ export function WenchangClient() {
     <div className="stack">
       <div className="cluster">
         <span className={filter ? "badge" : "badge badge--neutral"}>{filter ? t("wenchang.filtered", { value: filter.value }) : t("wenchang.all")}</span>
-        <md-outlined-button onClick={() => setFilter(null)} disabled={!filter}>
+        <M3eButton variant="outlined" onClick={() => setFilter(null)} disabled={!filter}>
           {t("wenchang.clear")}
-        </md-outlined-button>
+        </M3eButton>
       </div>
       {filteredGroups.map((group) => (
         <section className="md-card stack" key={group.title} aria-labelledby={`${group.title}-title`}>

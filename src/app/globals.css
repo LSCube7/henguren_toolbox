@@ -2620,6 +2620,7 @@ button.rail-action { border: 0; cursor: pointer; }
 .offline-metric-content:first-child { border-inline-start: 0; }
 .offline-metric-content p { margin: 0; }
 .vocab-selection-actions { flex: 1; justify-content: flex-end; }
+.vocab-selection-panel .vocab-selection-actions { flex: initial; justify-content: flex-start; }
 .vocab-selection-loading-slot { display: inline-grid; width: 40px; min-width: 40px; height: 40px; margin-inline-start: auto; place-items: center; }
 .vocab-selection-loading-slot m3e-loading-indicator { width: 40px; height: 40px; }
 .vocab-answer-field { flex: 1 1 260px; max-width: 32rem; min-width: 0; }

@@ -1,4 +1,5 @@
 "use client";
+import { M3eButton } from "@m3e/react/button";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
@@ -339,10 +340,10 @@ export function OnboardingClient() {
                 <p className="helper-text">{user ? user.email || user.id : t("onboarding.signIn.requiredChoice")}</p>
               </div>
               <div className="cluster">
-                <md-outlined-button onClick={skipLogin} disabled={Boolean(user)}>
+                <M3eButton variant="outlined" onClick={skipLogin} disabled={Boolean(user)}>
                   {t("onboarding.signIn.skip")}
-                </md-outlined-button>
-                <md-filled-button onClick={startLogin}>{t("onboarding.signIn.action")}</md-filled-button>
+                </M3eButton>
+                <M3eButton variant="filled" onClick={startLogin}>{t("onboarding.signIn.action")}</M3eButton>
               </div>
             </div>
           ) : null}
@@ -390,7 +391,7 @@ export function OnboardingClient() {
                   </p>
                 </div>
                 {cloudStatus === "error" ? (
-                  <md-outlined-button onClick={retryCloudSettings}>{t("onboarding.cloud.retry")}</md-outlined-button>
+                  <M3eButton variant="outlined" onClick={retryCloudSettings}>{t("onboarding.cloud.retry")}</M3eButton>
                 ) : null}
               </div>
 
@@ -420,12 +421,12 @@ export function OnboardingClient() {
         </div>
 
         <div className="onboarding-actions">
-          <md-text-button disabled={stepIndex === 0} onClick={goBack}>
+          <M3eButton variant="text" disabled={stepIndex === 0} onClick={goBack}>
             {t("onboarding.previous")}
-          </md-text-button>
-          <md-filled-button disabled={!canGoNext} onClick={goNext}>
+          </M3eButton>
+          <M3eButton variant="filled" size="medium" disabled={!canGoNext} onClick={goNext}>
             {t(step.id === "done" ? "onboarding.finish" : "onboarding.next")}
-          </md-filled-button>
+          </M3eButton>
         </div>
       </div>
     </section>

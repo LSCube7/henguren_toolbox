@@ -1,4 +1,5 @@
 "use client";
+import { M3eButton } from "@m3e/react/button";
 
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -153,8 +154,8 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
             <p className="helper-text">{t("data.backup.description")}</p>
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={Boolean(busy)} onClick={() => void exportBackup()}>{t(busy === "export" ? "data.backup.exporting" : "data.backup.export")}</md-outlined-button>
-            <md-filled-button disabled={Boolean(busy)} onClick={() => importRef.current?.click()}>{t("data.backup.select")}</md-filled-button>
+            <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void exportBackup()}>{t(busy === "export" ? "data.backup.exporting" : "data.backup.export")}</M3eButton>
+            <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => importRef.current?.click()}>{t("data.backup.select")}</M3eButton>
             <input ref={importRef} className="hidden-input" type="file" accept=".json,application/json" onChange={(event) => void selectBackup(event)} />
           </div>
         </div>
@@ -169,8 +170,8 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
             </div>
             <p className="helper-text">{t("data.backup.mergeDescription")}</p>
             <div className="cluster">
-              <md-filled-button disabled={Boolean(busy)} onClick={() => void confirmImport()}>{t(busy === "import" ? "data.backup.importing" : "data.backup.confirm")}</md-filled-button>
-              <md-text-button disabled={Boolean(busy)} onClick={() => setPendingBackup(null)}>{t("common.cancel")}</md-text-button>
+              <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void confirmImport()}>{t(busy === "import" ? "data.backup.importing" : "data.backup.confirm")}</M3eButton>
+              <M3eButton variant="text" disabled={Boolean(busy)} onClick={() => setPendingBackup(null)}>{t("common.cancel")}</M3eButton>
             </div>
           </div>
         ) : null}
@@ -183,9 +184,9 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
             <p className="helper-text">{t("data.offline.description", { vocabCount: vocabLists.length, textCount: textLists.length })}</p>
           </div>
           <div className="cluster">
-            <md-outlined-button disabled={Boolean(busy)} onClick={() => void refreshOfflineSummary()}>{t("data.offline.refresh")}</md-outlined-button>
-            <md-filled-button disabled={Boolean(busy)} onClick={() => void cacheAllLearningData()}>{t(busy === "cache" ? "data.offline.caching" : "data.offline.cacheAll")}</md-filled-button>
-            <md-outlined-button disabled={Boolean(busy)} onClick={() => void clearCaches()}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</md-outlined-button>
+            <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void refreshOfflineSummary()}>{t("data.offline.refresh")}</M3eButton>
+            <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void cacheAllLearningData()}>{t(busy === "cache" ? "data.offline.caching" : "data.offline.cacheAll")}</M3eButton>
+            <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void clearCaches()}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</M3eButton>
           </div>
         </div>
         <div className="md-grid" aria-label={t("data.offline.statusAria")}>

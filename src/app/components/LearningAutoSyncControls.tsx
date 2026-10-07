@@ -1,6 +1,7 @@
 "use client";
+import { M3eSwitch } from "@m3e/react/switch";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useLearningSync } from "@/lib/client-auto-sync";
 import { useSnackbar } from "./Snackbar";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -25,9 +26,8 @@ function errorCode(error: unknown) {
   return typeof code === "string" && /^[A-Z0-9_]{1,40}$/.test(code) ? code : "SYNC_FAILED";
 }
 
-function checkedFrom(event: FormEvent<HTMLElement>) {
-  const target = event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean };
-  return Boolean(target.selected ?? target.checked);
+function checkedFrom(event: Event) {
+  return Boolean((event.currentTarget as HTMLElement & { checked?: boolean }).checked);
 }
 
 export function LearningAutoSyncControls({ compact = false, showStatus = true }: { compact?: boolean; showStatus?: boolean }) {
@@ -62,9 +62,9 @@ export function LearningAutoSyncControls({ compact = false, showStatus = true }:
   return (
     <div className="stack">
       <label className="switch-field">
-        <md-switch
-          data-aria-label={t("sync.auto.title")}
-          selected={sync.enabled}
+        <M3eSwitch
+          aria-label={t("sync.auto.title")}
+          checked={sync.enabled}
 
           disabled={disabled}
           onInput={(event) => void updateEnabled(checkedFrom(event))}

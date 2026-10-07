@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { M3eNavRail } from "@m3e/react/nav-rail";
+import { M3eNavItem } from "@m3e/react/nav-bar";
+import { M3eDialog } from "@m3e/react/dialog";
+import { M3eIconButton } from "@m3e/react/icon-button";
+import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { defaultSettingsForLocale } from "@/lib/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { SyncMenu } from "./SyncMenu";
 import { AccountMenu } from "./AccountMenu";
 import { MaterialIcon } from "./MaterialIcon";
@@ -51,7 +55,13 @@ const footerColumns = [
   }
 ] as const;
 
-type NavigationRequest = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
+type NavigationEvent = Event | React.MouseEvent<HTMLElement>;
+type NavigationRequest = (href: string, event: NavigationEvent) => void;
+
+function modifiedNavigation(event: NavigationEvent) {
+  return (event instanceof MouseEvent || "nativeEvent" in event) &&
+    (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
+}
 type PendingNavigation = { path: string; originPath: string };
 
 function navigationKey(href: string) {
@@ -60,11 +70,13 @@ function navigationKey(href: string) {
 
 function NavList({
   onNavigate,
+  expanded = false,
   pendingPath,
   pendingSlowPath,
   onNavigationRequest
 }: {
   onNavigate?: () => void;
+  expanded?: boolean;
   pendingPath: string | null;
   pendingSlowPath: string | null;
   onNavigationRequest: NavigationRequest;
@@ -77,61 +89,41 @@ function NavList({
   const currentPath = stripLocalePrefix(pathname);
 
   const selectedTools = toolItems.filter((item) => item.edition === edition);
-  function renderNavIcon(icon: MaterialSymbolName) {
-    return (
-      <span className="app-nav__icon-state" aria-hidden="true">
-        <span className="app-nav__icon">
-          <MaterialIcon name={icon} />
-        </span>
-      </span>
-    );
-  }
-
-  function handleClick(href: string, event: React.MouseEvent<HTMLAnchorElement>) {
+  function handleClick(href: string, event: NavigationEvent) {
     onNavigationRequest(href, event);
     onNavigate?.();
   }
 
-  const overviewHref = localizePath(locale, overviewItem.href);
+  const router = useRouter();
+  function navItem(item: { href: string; label: MessageKey; icon: MaterialSymbolName }) {
+    const href = localizePath(locale, item.href);
+    const selected = item.href === "/" ? currentPath === "/" : currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+    const pending = pendingPath === item.href;
+    return <M3eNavItem key={item.href} role="link" href={href} selected={selected}
+      aria-current={selected ? "page" : undefined} aria-busy={pending ? "true" : undefined}
+      data-pending={pending ? "true" : undefined} data-pending-slow={pendingSlowPath === item.href ? "true" : undefined}
+      onClick={(event) => {
+        if (event.defaultPrevented || modifiedNavigation(event)) return;
+        handleClick(href, event);
+        event.preventDefault();
+        router.push(href as Route);
+      }}>
+      <span slot="icon" aria-hidden="true"><MaterialIcon name={item.icon} /></span>
+      <span slot="selected-icon" className="rail-selected-icon" aria-hidden="true"><MaterialIcon name={item.icon} /></span>
+      {t(item.label)}
+    </M3eNavItem>;
+  }
 
   return (
     <div className="app-drawer__panel">
       <nav className="app-nav" aria-label={t("nav.toolsAria")} aria-busy={Boolean(pendingPath)}>
-        <Link
-          href={overviewHref as Route}
-          className="app-nav__item"
-          aria-current={currentPath === overviewItem.href ? "page" : undefined}
-          data-pending={pendingPath === overviewItem.href ? "true" : undefined}
-          data-pending-slow={pendingSlowPath === overviewItem.href ? "true" : undefined}
-          aria-busy={pendingPath === overviewItem.href ? true : undefined}
-          onClick={(event) => handleClick(overviewHref, event)}
-        >
-          {renderNavIcon(overviewItem.icon)}
-          <span className="app-nav__label">{t(overviewItem.label)}</span>
-        </Link>
-        <div className="app-nav__group">
-          <div className="app-nav__group-title">{t("nav.learningTools")}</div>
-          {selectedTools.map((item) => {
-            const href = localizePath(locale, item.href);
-            const selected = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
-            const pending = pendingPath === item.href;
-            return (
-              <Link
-                href={href as Route}
-                className="app-nav__item"
-                aria-current={selected ? "page" : undefined}
-                data-pending={pending ? "true" : undefined}
-                data-pending-slow={pendingSlowPath === item.href ? "true" : undefined}
-                aria-busy={pending ? true : undefined}
-                key={item.href}
-                onClick={(event) => handleClick(href, event)}
-              >
-                {renderNavIcon(item.icon)}
-                <span className="app-nav__label">{t(item.label)}</span>
-              </Link>
-            );
-          })}
-        </div>
+        <M3eNavRail mode={expanded ? "expanded" : "compact"} aria-label={t("nav.toolsAria")}>
+          {navItem(overviewItem)}
+          <div className="app-nav__group">
+            <div className="app-nav__group-title">{t("nav.learningTools")}</div>
+            {selectedTools.map(navItem)}
+          </div>
+        </M3eNavRail>
       </nav>
       <div className="app-drawer__footer" aria-label={t("nav.personalAria")}>
         <SyncMenu onOpen={onNavigate} />
@@ -240,8 +232,15 @@ function AppFooter() {
   );
 }
 
+function subscribeMobile(callback: () => void) {
+  const media = window.matchMedia("(max-width: 899px)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobile = useSyncExternalStore(subscribeMobile, () => window.matchMedia("(max-width: 899px)").matches, () => false);
   const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const [pendingSlowNavigation, setPendingSlowNavigation] = useState<PendingNavigation | null>(null);
   const pathname = usePathname();
@@ -287,8 +286,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     []
   );
 
-  function requestNavigation(href: string, event: React.MouseEvent<HTMLAnchorElement>) {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  function requestNavigation(href: string, event: NavigationEvent) {
+    if (event.defaultPrevented || modifiedNavigation(event)) return;
     const targetPath = navigationKey(href);
     if (targetPath === currentPath) return;
 
@@ -314,18 +313,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <OnboardingGate>
       <div className="app-shell">
-        <button className="mobile-menu" type="button" aria-label={t("nav.open")} onClick={() => setMobileOpen(true)}>
-          ☰
-        </button>
-        <button className="drawer-scrim" data-open={mobileOpen} aria-label={t("nav.close")} onClick={() => setMobileOpen(false)} />
-        <aside className="app-drawer" data-open={mobileOpen} aria-label={t("nav.sidebar")}>
-          <NavList
-            onNavigate={() => setMobileOpen(false)}
-            pendingPath={pendingPath}
-            pendingSlowPath={pendingSlowPath}
-            onNavigationRequest={requestNavigation}
-          />
-        </aside>
+        <M3eIconButton className="mobile-menu" aria-label={t("nav.open")} aria-expanded={mobileOpen ? "true" : "false"} onClick={() => setMobileOpen(true)}>
+          <MaterialIcon name="menu" />
+        </M3eIconButton>
+        {mobile ? <M3eDialog className="mobile-navigation-dialog" open={mobileOpen} dismissible closeLabel={t("nav.close")}
+          onClosed={() => setMobileOpen(false)}>
+          <h2 slot="header">{t("nav.sidebar")}</h2>
+          <NavList expanded onNavigate={() => setMobileOpen(false)} pendingPath={pendingPath}
+            pendingSlowPath={pendingSlowPath} onNavigationRequest={requestNavigation} />
+        </M3eDialog> : <aside className="app-drawer" aria-label={t("nav.sidebar")}>
+          <NavList pendingPath={pendingPath} pendingSlowPath={pendingSlowPath} onNavigationRequest={requestNavigation} />
+        </aside>}
         <main className="app-main">
           <div className="app-content">{children}</div>
           <AppFooter />

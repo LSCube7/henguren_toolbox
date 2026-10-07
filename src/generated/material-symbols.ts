@@ -17,6 +17,7 @@ export const materialSymbolCodepoints = {
   "code": "\u{e86f}",
   "history": "\u{e28e}",
   "home": "\u{e88a}",
+  "menu": "\u{e5d2}",
   "menu_book": "\u{ea19}",
   "palette": "\u{e3b7}",
   "person": "\u{e7fd}",

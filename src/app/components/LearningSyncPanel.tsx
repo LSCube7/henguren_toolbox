@@ -1,4 +1,8 @@
 "use client";
+import { Dialog as M3eDialog } from "./Dialog";
+
+import { M3eButton } from "@m3e/react/button";
+
 import { useState } from "react";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import type { UserSession } from "@/lib/types";
@@ -191,17 +195,17 @@ export function LearningSyncPanel() {
     <div className="sync-panel-status" data-status={currentSyncStatus} role={!offline && (actionError || sync.status === "error") ? "alert" : "status"} aria-live="polite">
       <MaterialIcon name={currentSyncIcon} /><span>{currentSyncText}</span>
     </div>
-    {(offline || !hasSource) && isOnline() && (syncSummary?.status === "error" || syncSummary?.unavailableReason === "server-unavailable") ? <md-text-button disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</md-text-button> : null}
+    {(offline || !hasSource) && isOnline() && (syncSummary?.status === "error" || syncSummary?.unavailableReason === "server-unavailable") ? <M3eButton variant="text" disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</M3eButton> : null}
     {hasSource && successDate && !Number.isNaN(successDate.getTime()) ? <p className="helper-text">{t("sync.panel.lastSuccess", { time: successDate.toLocaleString(locale) })}</p> : null}
-    {!hasSource ? <md-filled-button disabled={offline || !syncSummary} onClick={() => { const returnTo = window.location.pathname + window.location.search + "#wrongbook-sync"; window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo)); }}>{t("user.login")}</md-filled-button> : <>
+    {!hasSource ? <M3eButton variant="filled" disabled={offline || !syncSummary} onClick={() => { const returnTo = window.location.pathname + window.location.search + "#wrongbook-sync"; window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo)); }}>{t("user.login")}</M3eButton> : <>
       {syncSummary?.source !== "custom" && (!offline || sync.enabled) ? <LearningAutoSyncControls compact showStatus={false} /> : null}
       {!offline ? <>
-        <md-filled-button disabled={syncUnavailable} onClick={() => void runSync("merge")}>{t("sync.panel.syncNow")}</md-filled-button>
+        <M3eButton variant="filled" disabled={syncUnavailable} onClick={() => void runSync("merge")}>{t("sync.panel.syncNow")}</M3eButton>
         <details className="sync-panel-help"><summary>{t("sync.panel.more")}</summary><div className="stack">
           <div className="sync-panel-actions">
-            <md-outlined-button disabled={syncUnavailable} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
-            <md-outlined-button disabled={syncUnavailable} onClick={openOverwriteDialog}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
-            <md-text-button disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</md-text-button>
+            <M3eButton variant="outlined" disabled={syncUnavailable} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</M3eButton>
+            <M3eButton variant="outlined" disabled={syncUnavailable} onClick={openOverwriteDialog}>{t("user.wrongbookSync.overwrite")}</M3eButton>
+            <M3eButton variant="text" disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</M3eButton>
           </div>
           <dl className="sync-panel-counts" aria-label={t("sync.panel.counts")}>
             <div><dt>{t("sync.panel.local")}</dt><dd>{t("sync.panel.recordCounts", { words: syncSummary?.localCount ?? 0, mastery: syncSummary?.localMasteryCount ?? 0 })}</dd></div>
@@ -212,9 +216,9 @@ export function LearningSyncPanel() {
         </div></details>
       </> : null}
     </>}
-      <md-dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
-        <div slot="headline">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
-        <div slot="content" className="stack">
+      <M3eDialog open={overwriteDialogOpen} onClosed={() => setOverwriteDialogOpen(false)} onCancel={() => setOverwriteDialogOpen(false)}>
+        <div slot="header">{t("user.wrongbookSync.overwriteConfirmTitle")}</div>
+        <div className="stack">
           <p>{t("user.wrongbookSync.overwriteConfirm", {
             target: overwriteTarget?.source === "custom"
               ? `${t("user.wrongbookSync.customTarget")}: ${overwriteTarget.profileId}`
@@ -223,10 +227,10 @@ export function LearningSyncPanel() {
           <p className="helper-text">{t("user.wrongbookSync.overwriteScope")}</p>
         </div>
         <div slot="actions">
-          <md-text-button onClick={() => setOverwriteDialogOpen(false)}>{t("common.cancel")}</md-text-button>
-          <md-text-button disabled={syncing} onClick={() => void confirmOverwrite()}>{t("user.wrongbookSync.overwriteConfirmAction")}</md-text-button>
+          <M3eButton variant="text" onClick={() => setOverwriteDialogOpen(false)}>{t("common.cancel")}</M3eButton>
+          <M3eButton variant="text" disabled={syncing} onClick={() => void confirmOverwrite()}>{t("user.wrongbookSync.overwriteConfirmAction")}</M3eButton>
         </div>
-      </md-dialog>
+      </M3eDialog>
 
   </div>;
 }

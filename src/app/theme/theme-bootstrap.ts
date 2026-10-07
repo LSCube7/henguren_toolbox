@@ -17,7 +17,7 @@ export const themeBootstrapScript = `(() => {
     root.style.colorScheme = mode;
     if (cache && cache.seed === seed && cache.mode === mode && cache.properties && typeof cache.properties === "object") {
       for (const [name, value] of Object.entries(cache.properties)) {
-        if (name.startsWith("--md-") && typeof value === "string") root.style.setProperty(name, value);
+        if (name.startsWith("--md-sys-color-") && typeof value === "string") root.style.setProperty(name, value);
       }
       window.clearTimeout(fallbackTimer);
       root.removeAttribute("data-theme-pending");

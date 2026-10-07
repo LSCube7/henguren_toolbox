@@ -1,4 +1,5 @@
 "use client";
+import { M3eButton } from "@m3e/react/button";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { initializeLearningStorage, learningOwnerEventKey, observeAuthenticatedLearningUser } from "@/lib/client-learning-storage";
@@ -50,6 +51,6 @@ export function LearningOwnerGate({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
   const status = useContext(LearningOwnerContext);
   if (status === "loading") return <div role="status">{t("user.localOwner.loading")}</div>;
-  if (status === "error") return <div role="alert">{t("user.localOwner.error")} <md-outlined-button onClick={() => window.location.reload()}>{t("common.refresh")}</md-outlined-button></div>;
+  if (status === "error") return <div role="alert">{t("user.localOwner.error")} <M3eButton variant="outlined" onClick={() => window.location.reload()}>{t("common.refresh")}</M3eButton></div>;
   return children;
 }

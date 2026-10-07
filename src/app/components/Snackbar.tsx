@@ -1,6 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import "@m3e/web/snackbar";
+import { M3eButton } from "@m3e/react/button";
+import { M3eIconButton } from "@m3e/react/icon-button";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { MaterialIcon } from "./MaterialIcon";
@@ -20,6 +23,7 @@ type SnackbarContextValue = {
 };
 
 const SnackbarContext = createContext<SnackbarContextValue | null>(null);
+const SnackbarActiveContext = createContext(false);
 const snackbarAutoDismissDuration = 5000;
 const snackbarExitDuration = 200;
 
@@ -81,8 +85,9 @@ function SnackbarSurface({ notice, onDismiss }: { notice: SnackbarNotice; onDism
   }
 
   return (
-    <div
-      className={`app-snackbar${shellless ? " app-snackbar--shellless" : ""}`}
+    <m3e-snackbar
+      open={!closing} duration={0}
+      className={`app-notice${shellless ? " app-notice--shellless" : ""}`}
       data-closing={closing}
       data-tone={notice.tone}
       role={notice.tone === "error" ? "alert" : "status"}
@@ -92,15 +97,15 @@ function SnackbarSurface({ notice, onDismiss }: { notice: SnackbarNotice; onDism
       <span className="app-snackbar__message">{notice.message}</span>
       {notice.tone === "error" ? (
         <div className="app-snackbar__actions">
-          <md-text-button onClick={() => void copyError()}>
+          <M3eButton variant="text" onClick={() => void copyError()}>
             {t(copyState === "copied" ? "common.copied" : copyState === "failed" ? "common.copyFailed" : "common.copy")}
-          </md-text-button>
-          <md-icon-button aria-label={t("common.close")} onClick={dismiss}>
+          </M3eButton>
+          <M3eIconButton aria-label={t("common.close")} onClick={dismiss}>
             <MaterialIcon name="close" />
-          </md-icon-button>
+          </M3eIconButton>
         </div>
       ) : null}
-    </div>
+    </m3e-snackbar>
   );
 }
 
@@ -120,10 +125,17 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <SnackbarContext.Provider value={contextValue}>
-      {children}
-      {notice ? <SnackbarSurface key={notice.id} notice={notice} onDismiss={dismissSnackbar} /> : null}
+      <SnackbarActiveContext.Provider value={Boolean(notice)}>
+        {children}
+        {notice ? <SnackbarSurface key={notice.id} notice={notice} onDismiss={dismissSnackbar} /> : null}
+      </SnackbarActiveContext.Provider>
     </SnackbarContext.Provider>
   );
+}
+
+/** Coordinate presentations with M3E's single visible snackbar. */
+export function useSnackbarActive() {
+  return useContext(SnackbarActiveContext);
 }
 
 export function useSnackbar() {

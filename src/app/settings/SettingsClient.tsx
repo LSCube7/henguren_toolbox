@@ -1,5 +1,12 @@
 "use client";
 
+import { SelectField } from "@/app/components/SelectField";
+import { M3eOption } from "@m3e/react/option";
+import { TextField } from "@/app/components/TextField";
+
+import { M3eButton } from "@m3e/react/button";
+import { M3eSwitch } from "@m3e/react/switch";
+
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { useMemo } from "react";
@@ -17,13 +24,12 @@ import { isAppLocale } from "@/i18n/config";
 import { useClientSettings, writeClientSettings } from "@/lib/client-settings";
 import { localizePath, stripLocalePrefix } from "@/lib/localized-routing";
 
-function valueFrom(event: React.FormEvent<HTMLElement>) {
+function valueFrom(event: Event | React.FormEvent<HTMLElement>) {
   return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
 }
 
-function checkedFrom(event: React.FormEvent<HTMLElement>) {
-  const target = event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean };
-  return Boolean(target.selected ?? target.checked);
+function checkedFrom(event: Event | React.FormEvent<HTMLElement>) {
+  return Boolean((event.currentTarget as HTMLElement & { checked?: boolean }).checked);
 }
 
 export function SettingsClient() {
@@ -77,25 +83,27 @@ export function SettingsClient() {
         title="settings.learningStage.title"
         description="settings.learningStage.description"
         control={
-          <md-filled-select
+          <SelectField
+            label={t("settings.learningStage.title")}
             key={`${locale}-learning-stage`}
             value={edition}
             onInput={(event) => writeEdition(String((event.currentTarget as HTMLElement & { value?: string }).value ?? "junior") === "senior" ? "senior" : "junior")}
           >
-            <md-select-option value="junior">
-              <div slot="headline">{t("edition.junior")}</div>
-            </md-select-option>
-            <md-select-option value="senior">
-              <div slot="headline">{t("edition.senior")}</div>
-            </md-select-option>
-          </md-filled-select>
+            <M3eOption value="junior">
+              <div>{t("edition.junior")}</div>
+            </M3eOption>
+            <M3eOption value="senior">
+              <div>{t("edition.senior")}</div>
+            </M3eOption>
+          </SelectField>
         }
       />
       <SettingsSection
         title="language.setting.title"
         description="language.setting.description"
         control={
-          <md-filled-select
+          <SelectField
+            label={t("language.setting.title")}
             key={`${locale}-interface-language`}
             value={locale}
             onInput={(event) => {
@@ -103,40 +111,40 @@ export function SettingsClient() {
               if (isAppLocale(locale)) update({ locale });
             }}
           >
-            <md-select-option value="zh-CN">
-              <div slot="headline">{t("language.zh-CN")}</div>
-            </md-select-option>
-            <md-select-option value="en-US">
-              <div slot="headline">{t("language.en-US")}</div>
-            </md-select-option>
-          </md-filled-select>
+            <M3eOption value="zh-CN">
+              <div>{t("language.zh-CN")}</div>
+            </M3eOption>
+            <M3eOption value="en-US">
+              <div>{t("language.en-US")}</div>
+            </M3eOption>
+          </SelectField>
         }
       />
       <SettingsSection title="settings.appearance.title" description="settings.appearance.description" control={<ThemePicker settings={settings} onChange={update} />} />
       <SettingsSection
         title="settings.hint.title"
         description="settings.hint.description"
-        control={<md-switch selected={settings.showHint} checked={settings.showHint} onInput={(event) => update({ showHint: checkedFrom(event) })} />}
+        control={<M3eSwitch aria-label={t("settings.hint.title")} checked={settings.showHint} onInput={(event) => update({ showHint: checkedFrom(event) })} />}
       />
       <SettingsSection
         title="settings.slip.title"
         description="settings.slip.description"
-        control={<md-switch selected={settings.enableSlipDetection} checked={settings.enableSlipDetection} onInput={(event) => update({ enableSlipDetection: checkedFrom(event) })} />}
+        control={<M3eSwitch aria-label={t("settings.slip.title")} checked={settings.enableSlipDetection} onInput={(event) => update({ enableSlipDetection: checkedFrom(event) })} />}
       />
       <SettingsSection
         title="settings.testCount.title"
         description="settings.testCount.description"
-        control={<md-outlined-text-field label={t("settings.testCount.label")} type="number" min={1} max={200} value={settings.defaultTestCount} onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })} />}
+        control={<TextField label={t("settings.testCount.label")} type="number" min={1} max={200} value={settings.defaultTestCount} onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })} />}
       />
       <SettingsSection
         title="settings.sync.title"
         description="settings.sync.description"
-        control={<md-filled-button onClick={() => void syncSettings()}>{t("settings.sync.action")}</md-filled-button>}
+        control={<M3eButton variant="filled" onClick={() => void syncSettings()}>{t("settings.sync.action")}</M3eButton>}
       />
       <SettingsSection
         title="settings.onboarding.title"
         description="settings.onboarding.description"
-        control={<md-outlined-button onClick={restartInitialGuide}>{t("settings.onboarding.action")}</md-outlined-button>}
+        control={<M3eButton variant="outlined" onClick={restartInitialGuide}>{t("settings.onboarding.action")}</M3eButton>}
       />
       <LearningOwnerGate><DataManagement fallbackSettings={fallbackSettings} /></LearningOwnerGate>
       <section className="settings-group" aria-labelledby="advanced-settings-title">
@@ -150,7 +158,7 @@ export function SettingsClient() {
         <SettingsSection
           title="settings.developerMode.title"
           description="settings.developerMode.description"
-          control={<md-switch selected={Boolean(settings.developerMode)} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
+          control={<M3eSwitch aria-label={t("settings.developerMode.title")} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
         />
       </section>
     </div>

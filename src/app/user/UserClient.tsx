@@ -1,5 +1,8 @@
 "use client";
 
+import { Dialog as M3eDialog } from "@/app/components/Dialog";
+import { M3eButton } from "@m3e/react/button";
+
 import type { UserSession } from "@/lib/types";
 import { useSnackbar } from "../components/Snackbar";
 import { useSearchParams } from "next/navigation";
@@ -32,7 +35,6 @@ function syncSummaryLoadErrorKey(error: unknown): MessageKey {
     ? "user.wrongbookSync.loadBlocked"
     : "user.wrongbookSync.loadError";
 }
-
 
 
 export function UserClient() {
@@ -122,24 +124,24 @@ export function UserClient() {
           </div>
         </div>
         <div className="cluster">
-          <md-outlined-button disabled={syncing} onClick={() => void refresh(true)}>{t("common.refresh")}</md-outlined-button>
+          <M3eButton variant="outlined" disabled={syncing} onClick={() => void refresh(true)}>{t("common.refresh")}</M3eButton>
           {user || currentLearningOwner() !== guestLearningOwner ? (
-            <md-outlined-button disabled={syncing || accountChanging} onClick={() => void logout()}>{t("user.logout")}</md-outlined-button>
+            <M3eButton variant="outlined" disabled={syncing || accountChanging} onClick={() => void logout()}>{t("user.logout")}</M3eButton>
           ) : null}
-          {!user ? <md-filled-button href={loginHref}>{t("user.login")}</md-filled-button> : null}
+          {!user ? <M3eButton variant="filled" href={loginHref}>{t("user.login")}</M3eButton> : null}
         </div>
       </section>
       <section className="md-card stack" aria-label={t("user.localOwner.title")}>
         <h2 className="section-title">{t("user.localOwner.title")}</h2>
         <p>{currentLearningOwner() === guestLearningOwner ? t("user.localOwner.guest") : user ? t("user.localOwner.account", { name: user.name }) : t("user.localOwner.expired")}</p>
         <p className="helper-text">{t("user.localOwner.description")}</p>
-        {user && guestCount > 0 ? <md-outlined-button disabled={syncing || accountChanging} onClick={() => setAdoptDialogOpen(true)}>{t("user.localOwner.adopt")}</md-outlined-button> : null}
+        {user && guestCount > 0 ? <M3eButton variant="outlined" disabled={syncing || accountChanging} onClick={() => setAdoptDialogOpen(true)}>{t("user.localOwner.adopt")}</M3eButton> : null}
       </section>
-      <md-dialog open={adoptDialogOpen} onClose={() => setAdoptDialogOpen(false)} onCancel={() => setAdoptDialogOpen(false)}>
-        <div slot="headline">{t("user.localOwner.adopt")}</div>
-        <div slot="content">{t("user.localOwner.adoptConfirm", { name: user?.name ?? "" })}</div>
-        <div slot="actions"><md-text-button onClick={() => setAdoptDialogOpen(false)}>{t("common.cancel")}</md-text-button><md-text-button onClick={() => void adoptGuest()}>{t("user.localOwner.adoptAction")}</md-text-button></div>
-      </md-dialog>
+      <M3eDialog open={adoptDialogOpen} onClosed={() => setAdoptDialogOpen(false)} onCancel={() => setAdoptDialogOpen(false)}>
+        <div slot="header">{t("user.localOwner.adopt")}</div>
+        <div>{t("user.localOwner.adoptConfirm", { name: user?.name ?? "" })}</div>
+        <div slot="actions"><M3eButton variant="text" onClick={() => setAdoptDialogOpen(false)}>{t("common.cancel")}</M3eButton><M3eButton variant="text" onClick={() => void adoptGuest()}>{t("user.localOwner.adoptAction")}</M3eButton></div>
+      </M3eDialog>
     </div>
   );
 }

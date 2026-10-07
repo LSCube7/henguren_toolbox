@@ -2642,7 +2642,11 @@ button.rail-action { border: 0; cursor: pointer; }
   scrollbar-width: none;
 }
 .sync-settings-popover-content::-webkit-scrollbar { display: none; }
+/* Keep the closed drawer measurable so M3E never caches a zero width. */
 .sync-settings-drawer-dialog {
+  display: block;
+  visibility: hidden;
+  pointer-events: none;
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -2657,9 +2661,10 @@ button.rail-action { border: 0; cursor: pointer; }
   color: var(--md-sys-color-on-surface);
 }
 .sync-settings-drawer-dialog {
-  transition: display var(--md-sys-motion-duration-medium-4, 400ms) allow-discrete,
+  transition: visibility var(--md-sys-motion-duration-medium-4, 400ms) allow-discrete,
     overlay var(--md-sys-motion-duration-medium-4, 400ms) allow-discrete;
 }
+.sync-settings-drawer-dialog[open] { visibility: visible; pointer-events: auto; }
 .sync-settings-drawer-dialog::backdrop { background: transparent; }
 .sync-settings-drawer { height: 100%; --m3e-drawer-container-width: min(320px, calc(100vw - 56px)); }
 .sync-settings-drawer-content {

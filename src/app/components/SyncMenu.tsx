@@ -186,7 +186,7 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
   return <>
     <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => open ? close() : show()}><MaterialIcon name={syncStatusIcon[status]} />{expanded && <span>{t("nav.syncSettings")}</span>}</button>
     {mounted && createPortal(expanded ?
-      <dialog ref={mobileDialog} id={id} className="sync-settings-drawer-dialog" aria-labelledby={id + "-title"}
+      <dialog ref={mobileDialog} id={id} className="sync-settings-drawer-dialog" inert={!open} aria-labelledby={id + "-title"}
         onKeyDown={(event) => { if (event.key === "Escape") event.stopPropagation(); }}
         onCancel={(event) => { event.preventDefault(); if (!panel.current?.querySelector("m3e-dialog[open]")) close(); }}>
         <M3eDrawerContainer ref={drawer} className="sync-settings-drawer" startMode="over" start={drawerOpen}

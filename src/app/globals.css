@@ -402,6 +402,10 @@ m3e-dialog {
   animation: page-enter var(--md-sys-motion-spring-fast-spatial) both;
 }
 
+.settings-page {
+  animation: page-enter var(--md-sys-motion-spring-fast-spatial) backwards;
+}
+
 .app-footer {
   margin: var(--md-sys-spacing-space600) calc(-1 * var(--app-main-inline-padding)) 0;
   padding: var(--md-sys-spacing-space600) var(--app-main-inline-padding) 0;

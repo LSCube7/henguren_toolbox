@@ -2,6 +2,9 @@
 
 import { M3eButton } from "@m3e/react/button";
 import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard";
+import { M3eCard } from "@m3e/react/card";
+import { M3eIconButton, type M3eIconButtonElement } from "@m3e/react/icon-button";
 import { Dialog as M3eDialog } from "./Dialog";
 import { CorePalette, Hct, argbFromHex, hexFromArgb } from "@material/material-color-utilities";
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
@@ -94,8 +97,8 @@ function hctSliderGradients(hex: string) {
 
 function moveThemeSelection(event: KeyboardEvent<HTMLElement>) {
   if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
-  const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('button[role="radio"], button[role="tab"]'));
-  const index = buttons.indexOf(event.target as HTMLButtonElement);
+  const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[role="radio"], [role="tab"]'));
+  const index = buttons.indexOf(event.target as HTMLElement);
   if (index < 0) return;
   event.preventDefault();
   const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 :
@@ -107,14 +110,21 @@ function moveThemeSelection(event: KeyboardEvent<HTMLElement>) {
 export function ThemePicker({
   settings,
   onChange,
-  showReset = true
+  showReset = true,
+  showModeDescription = true
 }: {
   settings: ToolboxSettings;
   onChange: (next: Partial<ToolboxSettings>) => void;
   showReset?: boolean;
+  showModeDescription?: boolean;
 }) {
   const { t } = useI18n();
   const [prideOpen, setPrideOpen] = useState(false);
+  const prideTriggerRef = useRef<M3eIconButtonElement>(null);
+  function closePridePanel() {
+    setPrideOpen(false);
+    prideTriggerRef.current?.focus();
+  }
   const [selectedPrideFlag, setSelectedPrideFlag] = useState(() => readInitialPrideFlag(settings.themeSeedColor));
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const customDialogAppliedRef = useRef(false);
@@ -242,60 +252,79 @@ export function ThemePicker({
             ))}
           </div>
           <div className="theme-preset-actions" aria-label={t("theme.moreAria")}>
-            <button className="theme-action-circle" type="button" aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
+            <M3eIconButton ref={prideTriggerRef} aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
               <MaterialIcon name="question_mark" />
-            </button>
-            <button className="theme-action-circle" type="button" aria-label={t("theme.custom")} title={t("theme.custom")} data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
+            </M3eIconButton>
+            <M3eIconButton aria-label={t("theme.custom")} title={t("theme.custom")} data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
               <MaterialIcon name="palette" />
-            </button>
+            </M3eIconButton>
           </div>
         </div>
       </div>
-      <section className="theme-preset-popover" id="pride-color-panel" aria-label="Pride Color" data-open={prideOpen} inert={!prideOpen ? true : undefined}>
-        <div className="theme-preset-panel-title">
-          <span>Pride Color</span>
-          <button className="theme-panel-close" type="button" aria-label={t("theme.pride.collapse")} onClick={() => setPrideOpen(false)}>
-            <MaterialIcon name="close" />
-          </button>
-        </div>
-        <div className="pride-picker">
-          <div className="pride-scroll-hint">
-            <MaterialIcon name="swipe" />
-            <span>{t("theme.pride.hint")}</span>
-          </div>
-          <div className="pride-flag-scroll">
-            <button className="pride-scroll-button" type="button" aria-label={t("theme.pride.left")} onClick={() => scrollPrideFlags("left")}>
-              <MaterialIcon name="chevron_left" />
-            </button>
-            <div ref={prideSegmentsRef} className="pride-flag-segments" role="tablist" onKeyDown={moveThemeSelection} aria-label={t("theme.pride.select")}>
-              {prideThemeFlags.map((flag) => (
-                <button key={flag.id} type="button" role="tab" aria-selected={selectedPrideFlag === flag.id} tabIndex={selectedPrideFlag === flag.id ? 0 : -1} data-selected={selectedPrideFlag === flag.id} onClick={() => setSelectedPrideFlag(flag.id)}>
-                  {flag.name}
-                </button>
+      <section className="theme-preset-popover" id="pride-color-panel" aria-label="Pride Color" data-open={prideOpen} inert={!prideOpen ? true : undefined}
+        onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closePridePanel(); } }}>
+        <M3eCard className="theme-preset-card" variant="elevated">
+          <div slot="content" className="theme-preset-card-content">
+          <header className="theme-preset-panel-title">
+            <span>Pride Color</span>
+            <M3eIconButton aria-label={t("theme.pride.collapse")} onClick={closePridePanel}>
+              <MaterialIcon name="close" />
+            </M3eIconButton>
+          </header>
+          <div className="pride-picker">
+            <div className="pride-scroll-hint">
+              <MaterialIcon name="swipe" />
+              <span>{t("theme.pride.hint")}</span>
+            </div>
+            <div className="pride-flag-scroll">
+              <M3eIconButton aria-label={t("theme.pride.left")} onClick={() => scrollPrideFlags("left")}>
+                <MaterialIcon name="chevron_left" />
+              </M3eIconButton>
+              <div ref={prideSegmentsRef} className="pride-flag-segments">
+                <M3eButtonGroup variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.pride.select")}>
+                  {prideThemeFlags.map((flag) => (
+                    <M3eButton
+                      key={flag.id}
+                      variant="tonal"
+                      size="medium"
+                      shape="square"
+                      toggle
+                      selected={selectedPrideFlag === flag.id}
+                      role="radio"
+                      aria-checked={selectedPrideFlag === flag.id ? "true" : "false"}
+                      tabIndex={selectedPrideFlag === flag.id ? 0 : -1}
+                      onBeforeInput={(event) => { if (selectedPrideFlag === flag.id) event.preventDefault(); }}
+                      onClick={() => setSelectedPrideFlag(flag.id)}
+                    >
+                      {flag.name}
+                    </M3eButton>
+                  ))}
+                </M3eButtonGroup>
+              </div>
+              <M3eIconButton aria-label={t("theme.pride.right")} onClick={() => scrollPrideFlags("right")}>
+                <MaterialIcon name="chevron_right" />
+              </M3eIconButton>
+            </div>
+            <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`} onKeyDown={moveThemeSelection}>
+              {pridePresets.map((preset, index) => (
+                <button
+                  className="theme-preset-circle"
+                  style={{ "--theme-preset-color": preset.seedColor, "--theme-preset-background": preset.seedColor } as React.CSSProperties}
+                  data-selected={activePreset === preset.id}
+                  key={preset.id}
+                  type="button"
+                  role="radio"
+                  aria-label={presetLabel(preset)}
+                  title={presetLabel(preset)}
+                  aria-checked={(activePreset === preset.id) ? "true" : "false"}
+                  tabIndex={activePreset === preset.id || (!pridePresets.some((item) => item.id === activePreset) && index === 0) ? 0 : -1}
+                  onClick={() => selectPreset(preset.id, preset.seedColor)}
+                />
               ))}
             </div>
-            <button className="pride-scroll-button" type="button" aria-label={t("theme.pride.right")} onClick={() => scrollPrideFlags("right")}>
-              <MaterialIcon name="chevron_right" />
-            </button>
           </div>
-          <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`} onKeyDown={moveThemeSelection}>
-            {pridePresets.map((preset, index) => (
-              <button
-                className="theme-preset-circle"
-                style={{ "--theme-preset-color": preset.seedColor, "--theme-preset-background": preset.seedColor } as React.CSSProperties}
-                data-selected={activePreset === preset.id}
-                key={preset.id}
-                type="button"
-                role="radio"
-                aria-label={presetLabel(preset)}
-                title={presetLabel(preset)}
-                aria-checked={(activePreset === preset.id) ? "true" : "false"}
-                tabIndex={activePreset === preset.id || (!pridePresets.some((item) => item.id === activePreset) && index === 0) ? 0 : -1}
-                onClick={() => selectPreset(preset.id, preset.seedColor)}
-              />
-            ))}
           </div>
-        </div>
+        </M3eCard>
       </section>
       <div className="custom-theme-row">
         <span className="custom-color-readout" style={{ "--theme-preset-color": customColorValue } as React.CSSProperties}>
@@ -306,12 +335,13 @@ export function ThemePicker({
       <div className="theme-mode-row">
         <div>
           <h3 className="card-title">{t("theme.mode.title")}</h3>
-          <p className="helper-text">{t("theme.mode.description")}</p>
+          {showModeDescription ? <p className="helper-text">{t("theme.mode.description")}</p> : null}
         </div>
-        <M3eButtonGroup variant="connected" aria-label={t("theme.mode.title")}>
+        <M3eButtonGroup variant="connected" onKeyDown={moveButtonGroupSelection} aria-label={t("theme.mode.title")}>
           {(["system", "light", "dark"] as const).map((mode) =>
             <M3eButton key={mode} variant="tonal" shape="square" toggle
               selected={(settings.colorMode ?? "system") === mode}
+              role="radio" tabIndex={(settings.colorMode ?? "system") === mode ? 0 : -1}
               aria-checked={((settings.colorMode ?? "system") === mode) ? "true" : "false"}
               onBeforeInput={(event) => { if ((settings.colorMode ?? "system") === mode) event.preventDefault(); }}
               onClick={() => onChange({ colorMode: mode })}>{t(("theme.mode." + mode) as MessageKey)}</M3eButton>

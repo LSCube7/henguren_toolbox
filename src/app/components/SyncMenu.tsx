@@ -49,6 +49,7 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
   const closeButton = useRef<M3eIconButtonElement>(null);
   const mounted = useSyncExternalStore(subscribeClient, () => true, () => false);
   const [open, setOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const status: SyncStatus | "pending" = sync.status === "idle" ? sync.summary?.status ?? "signed-out" : sync.status;
   const title = t("nav.syncSettings") + " · " + t(syncStatusLabel[status]);
   const show = useCallback(() => {
@@ -63,12 +64,15 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
   }, [pathname, show]);
   const close = useCallback((restoreFocus = true) => {
     setOpen(false);
+    setDrawerOpen(false);
     if (!restoreFocus) return;
-    const anchor = window.matchMedia("(max-width: 899px)").matches
+    // The navigation drawer stays open underneath the sync drawer.
+    const navigation = trigger.current?.closest("m3e-drawer-container");
+    const anchor = window.matchMedia("(max-width: 899px)").matches && !navigation?.start
       ? document.querySelector<HTMLElement>(".mobile-menu") : trigger.current;
     if (mobileDialog.current?.open) mobileDialog.current.close();
     if (drawer.current) {
-      drawer.current.end = false;
+      drawer.current.start = false;
       void drawer.current.updateComplete.then(() => anchor?.focus());
     } else anchor?.focus();
   }, []);
@@ -93,21 +97,33 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
       const dialog = mobileDialog.current;
       if (!dialog) return;
       let active = true;
-      let previousOverflow: string | null = null;
-      const navigation = trigger.current?.closest("m3e-drawer-container");
-      // Release the navigation drawer's trap before showing the sync drawer.
-      void Promise.resolve(navigation?.updateComplete).then(async () => {
-        if (!active) return;
-        previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        dialog.showModal();
-        await drawer.current?.updateComplete;
-        if (active && closeButton.current) await focusWhenReady(closeButton.current, 1000);
+      const previousOverflow = document.body.style.overflow;
+      const ownsScrollLock = previousOverflow !== "hidden";
+      let animationFrame = 0;
+      if (ownsScrollLock) document.body.style.overflow = "hidden";
+      dialog.showModal();
+      // A hidden <dialog> gives M3E a zero drawer width. Wait for an actual
+      // content measurement, then let its ResizeObserver settle before opening.
+      const sizeObserver = new ResizeObserver((entries) => {
+        if (!active || !entries.some((entry) => entry.contentRect.width > 0)) return;
+        sizeObserver.disconnect();
+        animationFrame = window.requestAnimationFrame(() => {
+          animationFrame = window.requestAnimationFrame(() => {
+            if (!active) return;
+            setDrawerOpen(true);
+            if (closeButton.current) void focusWhenReady(closeButton.current, 1000);
+          });
+        });
+      });
+      void drawer.current?.updateComplete.then(() => {
+        if (active) sizeObserver.observe(element);
       });
       return () => {
         active = false;
+        window.cancelAnimationFrame(animationFrame);
+        sizeObserver.disconnect();
         if (dialog.open) dialog.close();
-        if (previousOverflow !== null) document.body.style.overflow = previousOverflow;
+        if (ownsScrollLock) document.body.style.overflow = previousOverflow;
       };
     }
     // A manual popover stays open underneath the overwrite confirmation dialog.
@@ -171,12 +187,13 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
     <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => open ? close() : show()}><MaterialIcon name={syncStatusIcon[status]} />{expanded && <span>{t("nav.syncSettings")}</span>}</button>
     {mounted && createPortal(expanded ?
       <dialog ref={mobileDialog} id={id} className="sync-settings-drawer-dialog" aria-labelledby={id + "-title"}
+        onKeyDown={(event) => { if (event.key === "Escape") event.stopPropagation(); }}
         onCancel={(event) => { event.preventDefault(); if (!panel.current?.querySelector("m3e-dialog[open]")) close(); }}>
-        <M3eDrawerContainer ref={drawer} className="sync-settings-drawer" endMode="over" end={open}
+        <M3eDrawerContainer ref={drawer} className="sync-settings-drawer" startMode="over" start={drawerOpen}
           onKeyDownCapture={handleDrawerTab} onChange={(event) => {
-            if (event.target === drawer.current && drawer.current?.end === false && !panel.current?.querySelector("m3e-dialog[open]")) close();
+            if (event.target === drawer.current && drawer.current?.start === false && !panel.current?.querySelector("m3e-dialog[open]")) close();
           }}>
-          <section ref={panel} slot="end" className="sync-settings-drawer-content">{content}</section>
+          <section ref={panel} slot="start" className="sync-settings-drawer-content">{content}</section>
         </M3eDrawerContainer>
       </dialog> :
       <section ref={panel} id={id} className="sync-settings-popover" popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>

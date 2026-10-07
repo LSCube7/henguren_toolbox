@@ -2117,9 +2117,7 @@ m3e-form-field.cloze-blank {
   }
 
   .app-drawer__footer {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    justify-items: center;
+    align-items: stretch;
   }
 
   .app-main {
@@ -2656,3 +2654,40 @@ button.rail-action { border: 0; cursor: pointer; }
 .offline-metrics { display: grid; gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 1199px) { .offline-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .offline-metric-content:nth-child(odd) { border-inline-start: 0; } }
 @media (max-width: 359px) { .offline-metrics { grid-template-columns: minmax(0, 1fr); } .offline-metric-content { border-inline-start: 0; border-top: 1px solid var(--md-sys-color-outline-variant); } .offline-metric-content:first-child { border-top: 0; } }
+
+.app-drawer__panel[data-expanded="true"] .app-drawer__footer m3e-nav-rail,
+.app-drawer__panel[data-expanded="true"] .app-nav m3e-nav-rail {
+  width: 100%;
+  --m3e-nav-rail-expanded-width: 100%;
+  --m3e-nav-rail-inline-padding: 0;
+  --m3e-nav-rail-top-space: 0;
+  --m3e-nav-rail-bottom-space: 0;
+  --m3e-nav-rail-expanded-item-height: 56px;
+  --m3e-nav-item-label-text-font-size: 14px;
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item {
+  width: 100%;
+}
+.app-drawer__panel[data-expanded="true"] .rail-action,
+.app-drawer__panel[data-expanded="true"] .user-nav-card {
+  width: 100%;
+  min-height: 56px;
+  height: auto;
+  padding: 16px;
+  border: 0;
+  border-radius: 28px;
+  justify-content: flex-start;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: start;
+}
+.app-drawer__panel[data-expanded="true"] .account-menu-anchor { width: 100%; }
+.app-drawer__panel[data-expanded="true"] .user-nav-card m3e-menu-trigger { display: flex; align-items: center; gap: 4px; width: 100%; }
+
+.app-drawer__panel[data-expanded="true"] .user-nav-card { display: flex; }
+.app-drawer__panel[data-expanded="true"] .user-nav-card::before { width: 100%; height: 100%; border-radius: inherit; }
+.app-drawer__panel[data-expanded="true"] .user-nav-icon,
+.app-drawer__panel[data-expanded="true"] .user-nav-avatar { width: 24px; height: 24px; border: 0; }
+.app-drawer__panel[data-expanded="true"] .user-nav-icon { color: inherit; background: transparent; }
+.app-drawer__panel[data-expanded="true"] .user-nav-icon .material-symbols-rounded { font-size: 24px; }

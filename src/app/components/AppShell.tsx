@@ -118,7 +118,7 @@ function NavList({
   }
 
   return (
-    <div className="app-drawer__panel">
+    <div className="app-drawer__panel" data-expanded={expanded ? "true" : "false"}>
       <nav className="app-nav" aria-label={t("nav.toolsAria")} aria-busy={Boolean(pendingPath)}>
         <M3eNavRail mode={expanded ? "expanded" : "compact"} aria-label={t("nav.toolsAria")}>
           {navItem(overviewItem)}
@@ -129,8 +129,11 @@ function NavList({
         </M3eNavRail>
       </nav>
       <div className="app-drawer__footer" aria-label={t("nav.personalAria")}>
-        <SyncMenu onOpen={onNavigate} />
-        {personalItems.map((item) => {
+        <SyncMenu onOpen={onNavigate} expanded={expanded} />
+        {expanded ? <M3eNavRail mode="expanded" aria-label={t("nav.personalAria")}>
+          {personalItems.map(navItem)}
+          {settings.developerMode ? navItem({ href: "/developer", label: "nav.developer", icon: "code" }) : null}
+        </M3eNavRail> : personalItems.map((item) => {
           const href = localizePath(locale, item.href);
           const selected = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
           const pending = pendingPath === item.href;
@@ -151,7 +154,7 @@ function NavList({
             </Link>
           );
         })}
-        {settings.developerMode ? (
+        {!expanded && settings.developerMode ? (
           (() => {
             const href = localizePath(locale, "/developer");
             const pending = pendingPath === "/developer";
@@ -172,7 +175,7 @@ function NavList({
             );
           })()
         ) : null}
-        <AccountMenu onNavigate={onNavigate} />
+        <AccountMenu onNavigate={onNavigate} expanded={expanded} />
       </div>
     </div>
   );

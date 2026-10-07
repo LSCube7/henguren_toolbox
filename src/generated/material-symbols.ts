@@ -5,8 +5,6 @@ export const materialSymbolCodepoints = {
   "article": "\u{ef42}",
   "auto_awesome": "\u{e65f}",
   "check": "\u{e5ca}",
-  "chevron_left": "\u{e408}",
-  "chevron_right": "\u{e409}",
   "close": "\u{e14c}",
   "cloud_alert": "\u{f3cc}",
   "cloud_done": "\u{e2bf}",

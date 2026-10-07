@@ -1,5 +1,7 @@
 "use client";
-import { M3eIconButton } from "@m3e/react/icon-button";
+import { M3eButton } from "@m3e/react/button";
+import { Dialog } from "./Dialog";
+import type { M3eDialogElement } from "@m3e/react/dialog";
 
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { usePathname } from "next/navigation";
@@ -37,17 +39,12 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
   const pathname = usePathname();
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
-  const panel = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const status: SyncStatus | "pending" = sync.status === "idle" ? sync.summary?.status ?? "signed-out" : sync.status;
   const title = t("nav.syncSettings") + " · " + t(syncStatusLabel[status]);
   const show = useCallback(() => {
-    const dialog = panel.current;
-    if (!dialog || dialog.open) return;
-    const bounds = trigger.current?.getBoundingClientRect();
-    dialog.style.setProperty("--sync-panel-left", Math.min((bounds?.right ?? 64) + 12, Math.max(12, window.innerWidth - 372)) + "px");
-    dialog.style.setProperty("--sync-panel-bottom", Math.max(12, window.innerHeight - (bounds?.bottom ?? window.innerHeight - 12)) + "px");
-    dialog.showModal(); setOpen(true); onOpen?.();
+    setOpen(true);
+    onOpen?.();
   }, [onOpen]);
   useEffect(() => {
     const legacy = () => { if (window.location.hash === "#wrongbook-sync") show(); };
@@ -55,21 +52,27 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
     const task = window.setTimeout(legacy, 0);
     return () => { window.clearTimeout(task); window.removeEventListener("hashchange", legacy); };
   }, [pathname, show]);
-  function handlePanelKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
-    // A nested confirmation keeps its own Escape lifecycle. The panel must not
-    // send its Escape to the already closed mobile navigation dialog.
+  function handlePanelKeyDown(event: KeyboardEvent<M3eDialogElement>) {
+    // Let a nested confirmation handle its own Escape without closing this dialog.
     const nested = event.target instanceof Element ? event.target.closest("m3e-dialog") : null;
     if (event.key !== "Escape" || event.shiftKey || event.ctrlKey ||
-      (nested && event.currentTarget.contains(nested))) return;
+      (nested && nested !== event.currentTarget && event.currentTarget.contains(nested))) return;
     event.preventDefault();
     event.stopPropagation();
-    event.currentTarget.close();
+    setOpen(false);
+  }
+  function handleClosed() {
+    setOpen(false);
+    if (window.matchMedia("(max-width: 899px)").matches) document.querySelector<HTMLElement>(".mobile-menu")?.focus();
+    else trigger.current?.focus();
   }
   return <>
     <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={show}><MaterialIcon name={syncStatusIcon[status]} /></button>
-    <dialog ref={panel} id={id} className="sync-menu-panel" aria-labelledby={id + "-title"} onKeyDownCapture={handlePanelKeyDown} onClose={() => { setOpen(false); if (window.matchMedia("(max-width: 899px)").matches) document.querySelector<HTMLButtonElement>(".mobile-menu")?.focus(); else trigger.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close(); } }}>
-      <header className="spread"><h2 id={id + "-title"} className="section-title">{t("sync.panel.title")}</h2><M3eIconButton aria-label={t("common.close")} onClick={() => panel.current?.close()}><MaterialIcon name="close" /></M3eIconButton></header>
+    <Dialog id={id} className="sync-settings-dialog" open={open} aria-labelledby={id + "-title"}
+      onKeyDownCapture={handlePanelKeyDown} onCancel={() => setOpen(false)} onClosed={handleClosed}>
+      <h2 slot="header" id={id + "-title"}>{t("sync.panel.title")}</h2>
       <LearningSyncPanel />
-    </dialog>
+      <div slot="actions"><M3eButton variant="text" onClick={() => setOpen(false)}>{t("common.close")}</M3eButton></div>
+    </Dialog>
   </>;
 }

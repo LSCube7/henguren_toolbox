@@ -5,6 +5,7 @@ import { M3eOption } from "@m3e/react/option";
 import { TextField } from "@/app/components/TextField";
 
 import { M3eButton } from "@m3e/react/button";
+import { M3eCard } from "@m3e/react/card";
 import { M3eSwitch } from "@m3e/react/switch";
 
 import { usePathname, useRouter } from "next/navigation";
@@ -148,18 +149,23 @@ export function SettingsClient() {
       />
       <LearningOwnerGate><DataManagement fallbackSettings={fallbackSettings} /></LearningOwnerGate>
       <section className="settings-group" aria-labelledby="advanced-settings-title">
-        <div className="settings-group__header">
-          <p className="breadcrumb">Settings</p>
-          <h2 className="section-title" id="advanced-settings-title">
-            {t("settings.advanced.title")}
-          </h2>
-          <p className="helper-text">{t("settings.advanced.description")}</p>
-        </div>
-        <SettingsSection
-          title="settings.developerMode.title"
-          description="settings.developerMode.description"
-          control={<M3eSwitch aria-label={t("settings.developerMode.title")} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
-        />
+        <M3eCard variant="outlined">
+          <div className="settings-group-content stack">
+            <div className="settings-group__header">
+              <p className="breadcrumb">Settings</p>
+              <h2 className="section-title" id="advanced-settings-title">
+                {t("settings.advanced.title")}
+              </h2>
+              <p className="helper-text">{t("settings.advanced.description")}</p>
+            </div>
+            <SettingsSection
+              variant="elevated"
+              title="settings.developerMode.title"
+              description="settings.developerMode.description"
+              control={<M3eSwitch aria-label={t("settings.developerMode.title")} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}
+            />
+          </div>
+        </M3eCard>
       </section>
     </div>
   );

@@ -2670,7 +2670,8 @@ button.rail-action { border: 0; cursor: pointer; }
 }
 .app-drawer__panel[data-expanded="true"] .rail-action,
 .app-drawer__panel[data-expanded="true"] .user-nav-card {
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   min-height: 56px;
   height: auto;
   padding: 16px;
@@ -2679,6 +2680,8 @@ button.rail-action { border: 0; cursor: pointer; }
   justify-content: flex-start;
   gap: 4px;
   font-size: 14px;
+  line-height: 16px;
+  letter-spacing: var(--m3e-nav-item-label-text-tracking, 0.5px);
   font-weight: 500;
   text-align: start;
 }

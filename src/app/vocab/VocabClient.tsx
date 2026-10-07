@@ -1115,7 +1115,7 @@ export function VocabClient() {
 
   return (
     <div className="stack">
-      <section className="md-card spread" aria-label={t("vocab.selectionAria")}>
+      <section className="md-card stack vocab-selection-panel" aria-label={t("vocab.selectionAria")}>
         <div>
           <h2 className="section-title">{t("vocab.selectionTitle")}</h2>
           <p className="helper-text">

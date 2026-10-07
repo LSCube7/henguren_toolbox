@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { M3eNavRail } from "@m3e/react/nav-rail";
 import { M3eNavItem } from "@m3e/react/nav-bar";
-import { M3eDialog } from "@m3e/react/dialog";
-import { M3eIconButton } from "@m3e/react/icon-button";
+import { M3eDrawerContainer, type M3eDrawerContainerElement } from "@m3e/react/drawer-container";
+import { M3eFab, type M3eFabElement } from "@m3e/react/fab";
+import { focusWhenReady } from "@m3e/web/core";
+import { M3eIconButton, type M3eIconButtonElement } from "@m3e/react/icon-button";
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { defaultSettingsForLocale } from "@/lib/types";
@@ -247,6 +249,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [navigationPathname, setNavigationPathname] = useState(pathname);
   const { t } = useI18n();
+  const mobileDrawer = useRef<M3eDrawerContainerElement>(null);
+  const mobileClose = useRef<M3eIconButtonElement>(null);
+  const mobileTrigger = useRef<M3eFabElement>(null);
   const slowTimerRef = useRef<number | null>(null);
   const clearTimerRef = useRef<number | null>(null);
   const currentPath = stripLocalePrefix(pathname);
@@ -287,6 +292,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     []
   );
 
+  useEffect(() => {
+    if (!mobile || !mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    let active = true;
+    // Drawer Container traps Tab but does not move focus when opened.
+    void mobileDrawer.current?.updateComplete.then(() => {
+      if (active && mobileClose.current) void focusWhenReady(mobileClose.current, 1000);
+    });
+    return () => { active = false; document.body.style.overflow = previousOverflow; };
+  }, [mobile, mobileOpen]);
+
+  function closeMobileNavigation(restoreFocus = true) {
+    setMobileOpen(false);
+    const drawer = mobileDrawer.current;
+    if (!restoreFocus || !drawer) return;
+    drawer.start = false;
+    void drawer.updateComplete.then(() => mobileTrigger.current?.focus());
+  }
+
   function requestNavigation(href: string, event: NavigationEvent) {
     if (event.defaultPrevented || modifiedNavigation(event)) return;
     const targetPath = navigationKey(href);
@@ -314,18 +339,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <OnboardingGate>
       <div className="app-shell">
-        <M3eIconButton className="mobile-menu" aria-label={t("nav.open")} aria-expanded={mobileOpen ? "true" : "false"} onClick={() => setMobileOpen(true)}>
+        {mobile && <M3eFab ref={mobileTrigger} className="mobile-menu" variant="primary-container" size="medium"
+          aria-label={t("nav.open")} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="mobile-navigation"
+          inert={mobileOpen} onClick={() => setMobileOpen(true)}>
           <MaterialIcon name="menu" />
-        </M3eIconButton>
-        {mobile ? <M3eDialog className="mobile-navigation-dialog" open={mobileOpen} dismissible closeLabel={t("nav.close")}
-          onClosed={() => setMobileOpen(false)}>
-          <h2 slot="header">{t("nav.sidebar")}</h2>
-          <NavList expanded onNavigate={() => setMobileOpen(false)} pendingPath={pendingPath}
-            pendingSlowPath={pendingSlowPath} onNavigationRequest={requestNavigation} />
-        </M3eDialog> : <aside className="app-drawer" aria-label={t("nav.sidebar")}>
+        </M3eFab>}
+        {mobile ? <M3eDrawerContainer ref={mobileDrawer} className="mobile-navigation-container" startMode="over" start={mobileOpen}
+          data-open={mobileOpen} onChange={(event) => {
+            if (event.target === mobileDrawer.current && mobileDrawer.current?.start === false) closeMobileNavigation();
+          }} onKeyDown={(event) => {
+            if (event.key !== "Escape" || event.defaultPrevented || !mobileOpen) return;
+            event.preventDefault();
+            closeMobileNavigation();
+          }}>
+          <section slot="start" id="mobile-navigation" className="mobile-navigation-panel" role="dialog"
+            aria-modal="true" aria-labelledby="mobile-navigation-title">
+            <div className="mobile-navigation-header">
+              <h2 id="mobile-navigation-title">{t("nav.sidebar")}</h2>
+              <M3eIconButton ref={mobileClose} aria-label={t("nav.close")} onClick={() => closeMobileNavigation()}><MaterialIcon name="close" /></M3eIconButton>
+            </div>
+            <NavList expanded onNavigate={() => closeMobileNavigation(false)} pendingPath={pendingPath}
+              pendingSlowPath={pendingSlowPath} onNavigationRequest={requestNavigation} />
+          </section>
+        </M3eDrawerContainer> : <aside className="app-drawer" aria-label={t("nav.sidebar")}>
           <NavList pendingPath={pendingPath} pendingSlowPath={pendingSlowPath} onNavigationRequest={requestNavigation} />
         </aside>}
-        <main className="app-main">
+        <main className="app-main" inert={mobile && mobileOpen}>
           <div className="app-content">{children}</div>
           <AppFooter />
         </main>

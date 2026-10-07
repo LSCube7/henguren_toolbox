@@ -12,7 +12,7 @@ import { useI18n } from "../i18n/AppI18nProvider";
 import { useSnackbar } from "./Snackbar";
 import { MaterialIcon } from "./MaterialIcon";
 
-export function AccountMenu({ onNavigate }: { onNavigate?: () => void }) {
+export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () => void; expanded?: boolean }) {
   const sync = useLearningSync();
   const user = sync.summary?.user;
   const { locale, t } = useI18n();
@@ -64,7 +64,7 @@ export function AccountMenu({ onNavigate }: { onNavigate?: () => void }) {
         // OAuth avatars use the original URL and no-referrer, matching the existing rail.
         // eslint-disable-next-line @next/next/no-img-element
         <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />) : <span className="user-nav-icon" aria-hidden="true"><MaterialIcon name={user ? "account_circle" : "person"} /></span>}
-      </M3eMenuTrigger>
+      {expanded && <span>{t("account.menu")}</span>}</M3eMenuTrigger>
     </button>
     <M3eMenu ref={menu} id={id + "-menu"} positionX="after" positionY="above" onKeyDownCapture={handleMenuKeyDown} aria-label={t("account.menu")} onToggle={(event) => setOpen((event as ToggleEvent).newState === "open")}>
       <div className="account-menu-heading" role="presentation"><div className="account-menu-profile">{user?.avatarUrl ? (

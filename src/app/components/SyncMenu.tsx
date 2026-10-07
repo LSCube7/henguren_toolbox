@@ -36,7 +36,7 @@ const syncStatusIcon: Record<SyncStatus | "pending", MaterialSymbolName> = {
 
 const subscribeClient = () => () => {};
 
-export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
+export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; expanded?: boolean }) {
   const sync = useLearningSync();
   const { t } = useI18n();
   const pathname = usePathname();
@@ -118,7 +118,7 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
   }, [open, mounted, close]);
 
   return <>
-    <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => open ? close() : show()}><MaterialIcon name={syncStatusIcon[status]} /></button>
+    <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => open ? close() : show()}><MaterialIcon name={syncStatusIcon[status]} />{expanded && <span>{t("nav.syncSettings")}</span>}</button>
     {mounted && createPortal(
       <section ref={panel} id={id} className="sync-settings-popover" popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>
         <M3eCard variant="elevated">

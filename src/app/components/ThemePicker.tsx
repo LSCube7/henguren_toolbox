@@ -128,7 +128,6 @@ export function ThemePicker({
   const [selectedPrideFlag, setSelectedPrideFlag] = useState(() => readInitialPrideFlag(settings.themeSeedColor));
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const customDialogAppliedRef = useRef(false);
-  const prideSegmentsRef = useRef<HTMLDivElement>(null);
   const currentSeed = settings.themeSeedColor ?? defaultThemeSeed;
   const customColorValue = isValidHexColor(currentSeed) ? currentSeed : defaultThemeSeed;
   const [customDraftColor, setCustomDraftColor] = useState(() => hctStateFromHex(customColorValue));
@@ -223,13 +222,6 @@ export function ThemePicker({
     previewDraftColor(hex);
   }
 
-  function scrollPrideFlags(direction: "left" | "right") {
-    prideSegmentsRef.current?.scrollBy({
-      left: direction === "left" ? -220 : 220,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth"
-    });
-  }
-
   return (
     <div className="theme-settings">
       <div className="theme-preset-section">
@@ -277,10 +269,7 @@ export function ThemePicker({
               <span>{t("theme.pride.hint")}</span>
             </div>
             <div className="pride-flag-scroll">
-              <M3eIconButton aria-label={t("theme.pride.left")} onClick={() => scrollPrideFlags("left")}>
-                <MaterialIcon name="chevron_left" />
-              </M3eIconButton>
-              <div ref={prideSegmentsRef} className="pride-flag-segments">
+              <div className="pride-flag-segments">
                 <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.pride.select")}>
                   {prideThemeFlags.map((flag) => (
                     <M3eButton size="small"
@@ -300,9 +289,6 @@ export function ThemePicker({
                   ))}
                 </M3eButtonGroup>
               </div>
-              <M3eIconButton aria-label={t("theme.pride.right")} onClick={() => scrollPrideFlags("right")}>
-                <MaterialIcon name="chevron_right" />
-              </M3eIconButton>
             </div>
             <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`} onKeyDown={moveThemeSelection}>
               {pridePresets.map((preset, index) => (

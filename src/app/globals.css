@@ -381,21 +381,9 @@ m3e-dialog {
 .mobile-menu {
   position: fixed;
   z-index: 25;
-  top: 14px;
-  left: 14px;
+  top: max(14px, env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
   display: none;
-  width: 44px;
-  height: 44px;
-  color: var(--md-sys-color-primary);
-  cursor: pointer;
-  background: var(--md-sys-color-surface-container-high);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 999px;
-  box-shadow: var(--app-elevation-level2);
-  font-size: 1.25rem;
-  font-weight: 800;
-  line-height: 1;
-  place-items: center;
 }
 
 .app-main {
@@ -2138,7 +2126,7 @@ m3e-form-field.cloze-blank {
     --app-main-inline-padding: var(--md-sys-spacing-space200);
 
     width: 100%;
-    padding: 72px var(--md-sys-spacing-space200) var(--md-sys-spacing-space400);
+    padding: 88px var(--md-sys-spacing-space200) var(--md-sys-spacing-space400);
     margin-left: 0;
   }
 
@@ -2424,11 +2412,23 @@ m3e-card { --m3e-card-shape: var(--app-radius-xl); }
   --m3e-vertical-nav-item-active-indicator-height: 32px;
 }
 .rail-selected-icon .material-symbols-rounded { font-variation-settings: "FILL" 1; }
-.mobile-navigation-dialog {
-  --m3e-dialog-shape: var(--app-radius-xl);
-  --m3e-dialog-max-width: min(360px, calc(100vw - 32px));
+.mobile-navigation-container {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  height: 100dvh;
+  pointer-events: none;
+  --m3e-drawer-container-width: min(320px, calc(100vw - 56px));
 }
-.mobile-menu { width: 48px; height: 48px; border: 0; }
+.mobile-navigation-container[data-open="true"] { pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .mobile-navigation-container { --md-sys-motion-duration-medium-4: 1ms; }
+}
+.mobile-navigation-panel { display: flex; flex-direction: column; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+.mobile-navigation-panel .app-drawer__panel { flex: 1; }
+.mobile-navigation-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.mobile-navigation-header h2 { margin: 0; font: var(--md-sys-typescale-title-large-font); }
+.mobile-navigation-header m3e-icon-button { --m3e-icon-button-container-height: 48px; }
 
 .theme-mode-row { grid-template-columns: minmax(0, 1fr) auto; }
 .theme-mode-row m3e-button-group { max-width: 100%; }

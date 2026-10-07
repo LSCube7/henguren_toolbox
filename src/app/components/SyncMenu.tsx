@@ -83,14 +83,14 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
       element.style.top = `${Math.max(16, Math.min(top, window.innerHeight - height - 16))}px`;
     };
     position();
-    const navigation = trigger.current?.closest("m3e-dialog");
+    const navigation = trigger.current?.closest("m3e-drawer-container");
     let active = true;
     const focusPanel = () => queueMicrotask(() => {
       if (active) void focusWhenReady(element, 1000);
     });
-    // The mobile navigation restores its trigger after its close animation.
-    navigation?.addEventListener("closed", focusPanel);
-    focusPanel();
+    // Wait until the drawer releases its focus trap before focusing the popover.
+    if (navigation) void navigation.updateComplete.then(focusPanel);
+    else focusPanel();
     const outside = (event: PointerEvent) => {
       if (!(event.target instanceof Node) || element.contains(event.target) || trigger.current?.contains(event.target)) return;
       // A modal confirmation owns dismissal while it is open.
@@ -109,7 +109,6 @@ export function SyncMenu({ onOpen }: { onOpen?: () => void }) {
     document.addEventListener("keydown", escape);
     return () => {
       active = false;
-      navigation?.removeEventListener("closed", focusPanel);
       observer.disconnect();
       window.removeEventListener("resize", position);
       document.removeEventListener("pointerdown", outside);

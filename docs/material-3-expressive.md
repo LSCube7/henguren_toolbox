@@ -10,6 +10,8 @@
 - 卡片、导航和 Henguren 特有的信息层级可保留项目自己的结构，使用 M3E 的主题 token、形状、排版、尺寸层级和交互状态来呈现。
 - Snackbar 等已有稳定业务 API 可以继续负责消息队列和生命周期，由组件层承载 M3E 外观。
 
+普通自定义 `.md-card` 与 M3E Outlined Card 统一使用 `surface` 背景和 `outline-variant` 边框；明确采用 Elevated 的内部卡片使用 `surface-container-low`，不将两种外观混合。
+
 ## 主题
 
 `M3eTheme` 是 Material 主题的唯一核心来源，负责 Dynamic Color 与 Material 主题 token。主题设置层只处理用户偏好及兼容：preset、seed color、light / dark / system、localStorage、主题预览和 Pride Colors。旧设置中的 `system` 映射到 M3E 的 `auto`，读取和迁移时保留用户已有的主题、种子色和模式。

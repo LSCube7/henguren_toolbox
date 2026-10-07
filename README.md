@@ -2,7 +2,7 @@
 
 恨古人工具箱 v3 是基于 Next.js App Router 的重构版本。v3 聚焦 Material 3 Expressive 风格 UI、CubeID 登录、云端错题本、设置同步，以及现有学习工具的逐步迁移。
 
-v3 的界面使用第三方 `@m3e/react` / `@m3e/web` 实现 Material 3 Expressive 风格：无顶栏、桌面 Navigation Rail、移动端 FAB 打开的 Drawer Container、卡片化工具入口、设置面板和状态提示。同步设置在桌面使用悬浮卡片，在手机端使用模态抽屉。它仍然是普通学习工具箱，不是云服务控制台。
+v3 的界面使用第三方 `@m3e/react` / `@m3e/web` 实现 Material 3 Expressive 风格：无顶栏、桌面 Navigation Rail、移动端 FAB 打开的 Drawer Container、卡片化工具入口、设置面板和状态提示。同步设置在桌面使用悬浮卡片，在手机端另开带动画的模态抽屉，覆盖原导航抽屉，关闭后返回导航。它仍然是普通学习工具箱，不是云服务控制台。
 
 卡片以 Filled 为主，使用 `surface-container-highest`，无描边和静止阴影；语义化 HTML 卡片与 M3E Filled Card 使用相同底色，交互状态叠加 `on-surface` 状态层。设置和开发者选项中的连续设置项以间距、标题和分隔线组织，避免逐项嵌套卡片；独立浮出面板可使用 Elevated（`surface-container-low`）。页面的品牌渐变背景保留。
 

@@ -2420,7 +2420,7 @@ m3e-card { --m3e-card-shape: var(--app-radius-xl); }
 }
 .mobile-navigation-container[data-open="true"] { pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) {
-  .mobile-navigation-container, .sync-settings-drawer { --md-sys-motion-duration-medium-4: 1ms; }
+  .mobile-navigation-container, .sync-settings-drawer, .sync-settings-drawer-dialog { --md-sys-motion-duration-medium-4: 1ms; }
 }
 .mobile-navigation-panel { display: flex; flex-direction: column; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
 .mobile-navigation-panel .app-drawer__panel { flex: 1; }
@@ -2656,8 +2656,12 @@ button.rail-action { border: 0; cursor: pointer; }
   background: transparent;
   color: var(--md-sys-color-on-surface);
 }
+.sync-settings-drawer-dialog {
+  transition: display var(--md-sys-motion-duration-medium-4, 400ms) allow-discrete,
+    overlay var(--md-sys-motion-duration-medium-4, 400ms) allow-discrete;
+}
 .sync-settings-drawer-dialog::backdrop { background: transparent; }
-.sync-settings-drawer { height: 100%; --m3e-drawer-container-width: min(400px, calc(100vw - 32px)); }
+.sync-settings-drawer { height: 100%; --m3e-drawer-container-width: min(320px, calc(100vw - 56px)); }
 .sync-settings-drawer-content {
   display: flex;
   flex-direction: column;

@@ -129,7 +129,7 @@ function NavList({
         </M3eNavRail>
       </nav>
       <div className="app-drawer__footer" aria-label={t("nav.personalAria")}>
-        <SyncMenu onOpen={onNavigate} expanded={expanded} />
+        <SyncMenu onOpen={expanded ? undefined : onNavigate} expanded={expanded} />
         {expanded ? <M3eNavRail mode="expanded" aria-label={t("nav.personalAria")}>
           {personalItems.map(navItem)}
           {settings.developerMode ? navItem({ href: "/developer", label: "nav.developer", icon: "code" }) : null}
@@ -311,6 +311,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (event.key !== "Tab" || event.defaultPrevented || !mobileOpen) return;
     if (event.target instanceof Element && event.target.closest("m3e-menu")) return;
     const panel = mobileDrawer.current?.querySelector(".mobile-navigation-panel");
+    if (!(event.target instanceof Node) || !panel?.contains(event.target)) return;
     const controls = Array.from(panel?.querySelectorAll<HTMLElement>("button,a[href],m3e-icon-button,m3e-nav-item") ?? [])
       .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled,[disabled]") && element.getClientRects().length > 0);
     const first = controls[0];

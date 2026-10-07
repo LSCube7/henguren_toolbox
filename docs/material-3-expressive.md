@@ -22,15 +22,19 @@
 
 该版本的 Button Group 会在初始化时设置 radio 状态，而后续选中变化可能只更新 pressed 状态。主题模式按钮集中显式绑定字符串 `aria-checked="true/false"`，避免 React 19 对自定义元素的布尔属性写入空值；多选 FilterChip 也显式使用 checkbox 语义。Snackbar 的 React 导出是命令式服务，现有通知 API 使用按需注册的 `m3e-snackbar` 保持受控生命周期。Option 暂无辅助文本槽，课文难度菜单保留说明，并通过 `value` 槽单独显示所选名称。
 
+单选 Button Group 通过 `button-group-keyboard.ts` 补齐方向键、Home/End 与单一 Tab 入口；打印释义语言使用 `multi` 模式和原生 toggle button 的 `aria-pressed`，避免组件初始化时将 checkbox role 改写为 button 后再被 React 覆盖。
+
 单选按钮和 chip 的 `beforeinput` 阻止再次点击已选项而取消选中，避免受控状态与组件内部状态分离。M3E Snackbar 是单例呈现；PWA 更新提示在普通通知活动期间暂停呈现，通知结束后恢复，更新业务状态不变。
 
 表单 Dialog 使用稳定的受控实例，移除旧组件的重建 key 和重开定时器。M3E 2.9 的 focus trap 无法完整发现跨嵌套槽的原生输入，集中式 `Dialog` 适配器等待原生 `show()` 并用 `focusWhenReady` 进入首个控件，补齐首尾 Tab 环绕；浏览器原生模态仍使背景不可交互，Escape 与回焦沿用 M3E 生命周期。无表单 Dialog 保留原生 focus trap。
 
-移动导航中的账户菜单和同步面板位于 Dialog 内。M3E 2.9 的 Escape 会继续向父 Dialog 冒泡，因此局部捕获处理只关闭当前弹层并回焦，避免一次 Escape 同时关闭菜单与导航。同步面板保留原生 HTML dialog，维持最新 dev 的侧栏锚点定位、移动端底部面板和业务 API。
+移动导航中的账户菜单和同步面板位于 Dialog 内。M3E 2.9 的 Escape 会继续向父 Dialog 冒泡，因此局部捕获处理只关闭当前弹层并回焦，避免一次 Escape 同时关闭菜单与导航。同步设置改为居中的 M3E Dialog，保留现有业务 API；移动导航打开同步设置后收起，关闭时焦点返回导航按钮。
 
 形状、强调排版和弹簧动画遵循 [Material 官方 Expressive 介绍](https://m3.material.io/blog/building-with-m3-expressive)与[Motion 规范](https://m3.material.io/styles/motion)，Web 实现由第三方 M3E 提供。
 
 ## 表单与可访问性
+
+M3E NavItem 的伪链接会在普通 React 点击监听前激活，导致整页导航。Shell 在点击捕获阶段阻止该默认行为并调用 Next router，保留带修饰键的链接操作和页面布局实例。
 
 桌面使用 compact `M3eNavRail`，移动端使用 expanded rail 放在原生模态 `M3eDialog` 中。评估过 `M3eDrawerContainer`：它是管理自身内容滚动和侧边槽的布局原语，未提供 Dialog 的原生 Escape/焦点返回生命周期。这里保留当前页面滚动结构与模态键盘行为，不为换容器改写整个 Shell 布局。
 

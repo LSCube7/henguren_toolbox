@@ -10,7 +10,7 @@ import { M3eIconButton, type M3eIconButtonElement } from "@m3e/react/icon-button
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { defaultSettingsForLocale } from "@/lib/types";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { SyncMenu } from "./SyncMenu";
 import { AccountMenu } from "./AccountMenu";
 import { MaterialIcon } from "./MaterialIcon";
@@ -304,6 +304,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => { active = false; document.body.style.overflow = previousOverflow; };
   }, [mobile, mobileOpen]);
 
+  function handleMobileTab(event: KeyboardEvent<M3eDrawerContainerElement>) {
+    if (event.key !== "Tab" || event.defaultPrevented || !mobileOpen) return;
+    if (event.target instanceof Element && event.target.closest("m3e-menu")) return;
+    const panel = mobileDrawer.current?.querySelector(".mobile-navigation-panel");
+    const controls = Array.from(panel?.querySelectorAll<HTMLElement>("button,a[href],m3e-icon-button,m3e-nav-item") ?? [])
+      .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled,[disabled]") && element.getClientRects().length > 0);
+    const first = controls[0];
+    const last = controls.at(-1);
+    // M3E's sentinels cannot resolve the controls through this nested slot tree.
+    if (first && last && ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last))) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  }
+
   function closeMobileNavigation(restoreFocus = true) {
     setMobileOpen(false);
     const drawer = mobileDrawer.current;
@@ -345,7 +360,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <MaterialIcon name="menu" />
         </M3eFab>}
         {mobile ? <M3eDrawerContainer ref={mobileDrawer} className="mobile-navigation-container" startMode="over" start={mobileOpen}
-          data-open={mobileOpen} onChange={(event) => {
+          data-open={mobileOpen ? "true" : "false"} onKeyDownCapture={handleMobileTab} onChange={(event) => {
             if (event.target === mobileDrawer.current && mobileDrawer.current?.start === false) closeMobileNavigation();
           }} onKeyDown={(event) => {
             if (event.key !== "Escape" || event.defaultPrevented || !mobileOpen) return;

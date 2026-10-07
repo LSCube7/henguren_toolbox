@@ -4,7 +4,7 @@
 
 v3 的界面使用第三方 `@m3e/react` / `@m3e/web` 实现 Material 3 Expressive 风格：无顶栏、侧边导航抽屉、卡片化工具入口、设置面板和状态提示。它仍然是普通学习工具箱，不是云服务控制台。
 
-卡片颜色遵循 Material 3 默认角色：Outlined 使用 `surface`，Elevated 使用 `surface-container-low`，Filled 使用 `surface-container-highest`。语义化 HTML 卡片与 M3E Outlined Card 保持相同底色和边框，交互状态使用 `on-surface` 状态层；页面的品牌渐变背景保留。
+卡片以 Filled 为主，使用 `surface-container-highest`，无描边和静止阴影；语义化 HTML 卡片与 M3E Filled Card 使用相同底色，交互状态叠加 `on-surface` 状态层。设置和开发者选项中的连续设置项以间距、标题和分隔线组织，避免逐项嵌套卡片；独立浮出面板可使用 Elevated（`surface-container-low`）。页面的品牌渐变背景保留。
 
 ## 分支说明
 

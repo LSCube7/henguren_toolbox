@@ -2624,6 +2624,9 @@ button.rail-action { border: 0; cursor: pointer; }
 .vocab-result-metric p { margin: 0; }
 .sync-settings-popover {
   position: fixed;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  scrollbar-width: none;
   inset: auto;
   margin: 0;
   padding: 0;
@@ -2632,11 +2635,11 @@ button.rail-action { border: 0; cursor: pointer; }
   background: transparent;
   color: var(--md-sys-color-on-surface);
 }
+.sync-settings-popover::-webkit-scrollbar { display: none; }
 .sync-settings-popover-content {
   display: grid;
+  min-width: 0;
   gap: var(--md-sys-spacing-space150);
-  max-height: calc(100dvh - 64px);
-  overflow-y: auto;
 }
 .sync-settings-popover h2 { margin: 0; font: var(--md-sys-typescale-title-medium-font); }
 .sync-settings-popover:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 4px; border-radius: var(--md-sys-shape-corner-large); }

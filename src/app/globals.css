@@ -2665,12 +2665,43 @@ button.rail-action { border: 0; cursor: pointer; }
   --m3e-nav-rail-expanded-item-height: 56px;
   --m3e-nav-item-label-text-font-size: 14px;
 }
+/* Expanded M3E items keep their inner indicator at content width.
+   Paint row states on the host using Material tokens instead. */
 .app-drawer__panel[data-expanded="true"] m3e-nav-item {
   width: 100%;
+  max-width: 100%;
+  border-radius: 28px;
+  --m3e-focus-ring-color: transparent;
+  --m3e-nav-item-active-container-color: transparent;
+  --m3e-nav-item-active-hover-state-layer-color: transparent;
+  --m3e-nav-item-active-focus-state-layer-color: transparent;
+  --m3e-nav-item-active-pressed-state-layer-color: transparent;
+  --m3e-nav-item-inactive-hover-state-layer-color: transparent;
+  --m3e-nav-item-inactive-focus-state-layer-color: transparent;
+  --m3e-nav-item-inactive-pressed-state-layer-color: transparent;
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item[selected] {
+  background: var(--md-sys-color-secondary-container);
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item[selected]:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 8%, var(--md-sys-color-secondary-container));
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item:active {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent);
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item[selected]:active {
+  background: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 10%, var(--md-sys-color-secondary-container));
+}
+.app-drawer__panel[data-expanded="true"] m3e-nav-item:focus-visible {
+  outline: 3px solid var(--md-sys-color-secondary);
+  outline-offset: 2px;
 }
 .app-drawer__panel[data-expanded="true"] .rail-action,
 .app-drawer__panel[data-expanded="true"] .user-nav-card {
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   min-height: 56px;
   height: auto;

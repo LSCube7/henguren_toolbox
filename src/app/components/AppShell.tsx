@@ -102,7 +102,8 @@ function NavList({
     return <M3eNavItem key={item.href} role="link" href={href} selected={selected}
       aria-current={selected ? "page" : undefined} aria-busy={pending ? "true" : undefined}
       data-pending={pending ? "true" : undefined} data-pending-slow={pendingSlowPath === item.href ? "true" : undefined}
-      onClick={(event) => {
+      // Capture before M3E activates its pseudo link, preserving the Next layout.
+      onClickCapture={(event) => {
         if (event.defaultPrevented || modifiedNavigation(event)) return;
         handleClick(href, event);
         event.preventDefault();

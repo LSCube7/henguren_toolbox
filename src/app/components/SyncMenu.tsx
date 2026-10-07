@@ -1,10 +1,11 @@
 "use client";
+import { M3eDrawerContainer, type M3eDrawerContainerElement } from "@m3e/react/drawer-container";
 import { M3eCard } from "@m3e/react/card";
-import { M3eIconButton } from "@m3e/react/icon-button";
+import { M3eIconButton, type M3eIconButtonElement } from "@m3e/react/icon-button";
 import { focusWhenReady } from "@m3e/web/core";
 import { createPortal } from "react-dom";
 
-import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useLearningSync } from "@/lib/client-auto-sync";
 import type { SyncStatus } from "@/lib/client-sync";
@@ -43,6 +44,9 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
+  const mobileDialog = useRef<HTMLDialogElement>(null);
+  const drawer = useRef<M3eDrawerContainerElement>(null);
+  const closeButton = useRef<M3eIconButtonElement>(null);
   const mounted = useSyncExternalStore(subscribeClient, () => true, () => false);
   const [open, setOpen] = useState(false);
   const status: SyncStatus | "pending" = sync.status === "idle" ? sync.summary?.status ?? "signed-out" : sync.status;
@@ -62,12 +66,50 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
     if (!restoreFocus) return;
     const anchor = window.matchMedia("(max-width: 899px)").matches
       ? document.querySelector<HTMLElement>(".mobile-menu") : trigger.current;
-    anchor?.focus();
+    if (mobileDialog.current?.open) mobileDialog.current.close();
+    if (drawer.current) {
+      drawer.current.end = false;
+      void drawer.current.updateComplete.then(() => anchor?.focus());
+    } else anchor?.focus();
   }, []);
+
+  function handleDrawerTab(event: KeyboardEvent<M3eDrawerContainerElement>) {
+    const element = panel.current;
+    if (event.key !== "Tab" || event.defaultPrevented || !element || element.querySelector("m3e-dialog[open]")) return;
+    const controls = Array.from(element.querySelectorAll<HTMLElement>("button,a[href],input,select,textarea,m3e-button,m3e-icon-button,m3e-switch,[tabindex]"))
+      .filter((control) => !control.closest("m3e-dialog") && control.tabIndex >= 0 && !control.matches(":disabled,[disabled]") && control.getClientRects().length > 0);
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (first && last && ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last))) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  }
 
   useEffect(() => {
     const element = panel.current;
     if (!open || !element) return;
+    if (expanded) {
+      const dialog = mobileDialog.current;
+      if (!dialog) return;
+      let active = true;
+      let previousOverflow: string | null = null;
+      const navigation = trigger.current?.closest("m3e-drawer-container");
+      // Release the navigation drawer's trap before showing the sync drawer.
+      void Promise.resolve(navigation?.updateComplete).then(async () => {
+        if (!active) return;
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        dialog.showModal();
+        await drawer.current?.updateComplete;
+        if (active && closeButton.current) await focusWhenReady(closeButton.current, 1000);
+      });
+      return () => {
+        active = false;
+        if (dialog.open) dialog.close();
+        if (previousOverflow !== null) document.body.style.overflow = previousOverflow;
+      };
+    }
     // A manual popover stays open underneath the overwrite confirmation dialog.
     element.showPopover();
     const position = () => {
@@ -115,20 +157,31 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
       document.removeEventListener("keydown", escape);
       if (element.matches(":popover-open")) element.hidePopover();
     };
-  }, [open, mounted, close]);
+  }, [open, mounted, close, expanded]);
+
+  const content = <>
+    <div className="theme-preset-panel-title">
+      <h2 id={id + "-title"}>{t("sync.panel.title")}</h2>
+      <M3eIconButton ref={closeButton} aria-label={t("common.close")} onClick={() => close()}><MaterialIcon name="close" /></M3eIconButton>
+    </div>
+    <LearningSyncPanel />
+  </>;
 
   return <>
     <button ref={trigger} type="button" className="rail-action" data-status={status} aria-label={title} title={title} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => open ? close() : show()}><MaterialIcon name={syncStatusIcon[status]} />{expanded && <span>{t("nav.syncSettings")}</span>}</button>
-    {mounted && createPortal(
+    {mounted && createPortal(expanded ?
+      <dialog ref={mobileDialog} id={id} className="sync-settings-drawer-dialog" aria-labelledby={id + "-title"}
+        onCancel={(event) => { event.preventDefault(); if (!panel.current?.querySelector("m3e-dialog[open]")) close(); }}>
+        <M3eDrawerContainer ref={drawer} className="sync-settings-drawer" endMode="over" end={open}
+          onKeyDownCapture={handleDrawerTab} onChange={(event) => {
+            if (event.target === drawer.current && drawer.current?.end === false && !panel.current?.querySelector("m3e-dialog[open]")) close();
+          }}>
+          <section ref={panel} slot="end" className="sync-settings-drawer-content">{content}</section>
+        </M3eDrawerContainer>
+      </dialog> :
       <section ref={panel} id={id} className="sync-settings-popover" popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>
         <M3eCard variant="elevated">
-          <div slot="content" className="sync-settings-popover-content">
-            <div className="theme-preset-panel-title">
-              <h2 id={id + "-title"}>{t("sync.panel.title")}</h2>
-              <M3eIconButton aria-label={t("common.close")} onClick={() => close()}><MaterialIcon name="close" /></M3eIconButton>
-            </div>
-            <LearningSyncPanel />
-          </div>
+          <div slot="content" className="sync-settings-popover-content">{content}</div>
         </M3eCard>
       </section>, document.body)}
   </>;

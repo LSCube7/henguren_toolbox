@@ -2557,29 +2557,27 @@ m3e-card { --m3e-card-shape: var(--app-radius-xl); }
 .account-menu-email { overflow-wrap: anywhere; }
 .account-menu-anchor m3e-menu { max-width: min(360px, calc(100vw - 24px)); }
 button.rail-action { border: 0; cursor: pointer; }
-.sync-menu-panel { position: fixed; inset: auto auto var(--sync-panel-bottom, 12px) var(--sync-panel-left, 76px); margin: 0; width: min(360px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - var(--sync-panel-bottom, 12px) - 12px); overflow: auto; padding: 20px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 24px; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container); box-shadow: 0 8px 24px rgb(0 0 0 / 18%); }
-.sync-menu-panel::backdrop { background: rgb(0 0 0 / 12%); }
-.sync-menu-panel > header { margin-bottom: 16px; }
 .sync-panel-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0; }
 .sync-panel-counts dt { font-size: 12px; color: var(--md-sys-color-on-surface-variant); }
 .sync-panel-counts dd { margin: 4px 0 0; }
 .sync-panel-actions { display: grid; gap: 8px; }
-@media (max-width: 899px) {
-  .sync-menu-panel { inset: auto 0 0; width: 100%; max-height: 90dvh; border-radius: 24px 24px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
-}
 
-.sync-menu-panel p { margin: 0; }
-.sync-menu-panel .stack { gap: var(--md-sys-spacing-space150); }
-.sync-menu-panel .switch-field { min-height: 48px; padding-bottom: 0; font-weight: 500; }
+.sync-settings-dialog p { margin: 0; }
+.sync-settings-dialog .stack { gap: var(--md-sys-spacing-space150); }
+.sync-settings-dialog .switch-field { min-height: 48px; padding-bottom: 0; font-weight: 500; }
 .sync-panel-status { display: flex; align-items: flex-start; gap: 8px; overflow-wrap: anywhere; }
 .sync-panel-status .material-symbols-rounded { flex-shrink: 0; }
 .sync-panel-status[data-status="error"] { color: var(--md-sys-color-error); }
 .sync-panel-help summary { cursor: pointer; color: var(--md-sys-color-primary); }
 .sync-panel-help > div { padding-top: 12px; }
 
-/* M3E control content layout. */
+/* M3E owns component surfaces and states; these rules arrange their content. */
 .theme-preset-card { display: block; }
 .theme-preset-card-content { display: grid; gap: 12px; }
+.settings-group-content { padding: 24px; }
+.settings-group-content > m3e-card { --m3e-card-shape: 20px; }
+.offline-metric-content { display: grid; align-content: center; gap: 8px; min-height: 136px; padding: 20px; }
+.offline-metric-content p { margin: 0; }
 .vocab-selection-actions { flex: 1; justify-content: flex-end; }
 .vocab-selection-loading-slot { display: inline-grid; width: 40px; min-width: 40px; height: 40px; margin-inline-start: auto; place-items: center; }
 .vocab-selection-loading-slot m3e-loading-indicator { width: 40px; height: 40px; }
@@ -2587,8 +2585,18 @@ button.rail-action { border: 0; cursor: pointer; }
 .field-prefix { padding: 2px 6px; margin-inline-end: 8px; border-radius: 8px; color: var(--md-sys-color-on-secondary-container); background: var(--md-sys-color-secondary-container); font-weight: 700; }
 .vocab-result-metric { display: grid; place-content: center; gap: 8px; min-height: 156px; text-align: center; }
 .vocab-result-metric p { margin: 0; }
+.sync-settings-dialog { --m3e-dialog-min-width: min(280px, calc(100vw - 32px)); --m3e-dialog-max-width: min(560px, calc(100vw - 32px)); }
+@media (max-width: 599px) {
+  .settings-group-content { padding: 16px; }
+  .offline-metric-content { min-height: 120px; padding: 16px; }
+}
+
 .theme-preset-actions m3e-icon-button, .pride-flag-scroll > m3e-icon-button, .theme-preset-panel-title m3e-icon-button { --m3e-icon-button-container-height: 48px; }
 .onboarding-edition-choice { display: grid; gap: 20px; justify-items: center; }
 .onboarding-edition-choice__group { width: 100%; }
 .onboarding-edition-choice__group m3e-button { flex: 1; }
 .onboarding-edition-choice__description { margin: 0; text-align: center; }
+
+.offline-metrics { display: grid; gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1199px) { .offline-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 359px) { .offline-metrics { grid-template-columns: minmax(0, 1fr); } }

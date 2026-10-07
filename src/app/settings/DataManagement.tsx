@@ -1,5 +1,6 @@
 "use client";
 import { M3eButton } from "@m3e/react/button";
+import { M3eCard } from "@m3e/react/card";
 
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -141,69 +142,79 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
 
   return (
     <section className="settings-group" aria-labelledby="data-management-title">
-      <div className="settings-group__header">
-        <p className="breadcrumb">Settings</p>
-        <h2 className="section-title" id="data-management-title">{t("data.title")}</h2>
-        <p className="helper-text">{t("data.description")}</p>
-      </div>
+      <M3eCard variant="outlined">
+        <div className="settings-group-content stack">
+          <div className="settings-group__header">
+            <p className="breadcrumb">Settings</p>
+            <h2 className="section-title" id="data-management-title">{t("data.title")}</h2>
+            <p className="helper-text">{t("data.description")}</p>
+          </div>
 
-      <section className="md-card stack" aria-label={t("data.backup.aria")}>
-        <div className="spread">
-          <div>
-            <h3 className="card-title">{t("data.backup.title")}</h3>
-            <p className="helper-text">{t("data.backup.description")}</p>
-          </div>
-          <div className="cluster">
-            <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void exportBackup()}>{t(busy === "export" ? "data.backup.exporting" : "data.backup.export")}</M3eButton>
-            <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => importRef.current?.click()}>{t("data.backup.select")}</M3eButton>
-            <input ref={importRef} className="hidden-input" type="file" accept=".json,application/json" onChange={(event) => void selectBackup(event)} />
-          </div>
-        </div>
-        {pendingBackup ? (
-          <div className="md-card md-card--flat stack" aria-label={t("data.backup.pendingAria")}>
-            <h4 className="card-title">{t("data.backup.pending")}</h4>
-            <p className="helper-text">{t("data.backup.exportedAt", { time: new Date(pendingBackup.exportedAt).toLocaleString(locale) })}</p>
-            <div className="cluster">
-              <span className="info-chip">{t("data.backup.wrongbookCount", { count: pendingBackup.wrongbook.records.length })}</span>
-              <span className="info-chip">{t("data.backup.masteryCount", { count: pendingBackup.masteryRecords.length })}</span>
-              <span className="info-chip">{t(pendingBackup.edition === "senior" ? "edition.senior" : "edition.junior")}</span>
-            </div>
-            <p className="helper-text">{t("data.backup.mergeDescription")}</p>
-            <div className="cluster">
-              <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void confirmImport()}>{t(busy === "import" ? "data.backup.importing" : "data.backup.confirm")}</M3eButton>
-              <M3eButton variant="text" disabled={Boolean(busy)} onClick={() => setPendingBackup(null)}>{t("common.cancel")}</M3eButton>
-            </div>
-          </div>
-        ) : null}
-      </section>
+          <M3eCard variant="elevated">
+            <section className="settings-card-content stack" aria-label={t("data.backup.aria")}>
+              <div className="spread">
+                <div>
+                  <h3 className="card-title">{t("data.backup.title")}</h3>
+                  <p className="helper-text">{t("data.backup.description")}</p>
+                </div>
+                <div className="cluster">
+                  <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void exportBackup()}>{t(busy === "export" ? "data.backup.exporting" : "data.backup.export")}</M3eButton>
+                  <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => importRef.current?.click()}>{t("data.backup.select")}</M3eButton>
+                  <input ref={importRef} className="hidden-input" type="file" accept=".json,application/json" onChange={(event) => void selectBackup(event)} />
+                </div>
+              </div>
+              {pendingBackup ? (
+                <div className="md-card md-card--flat stack" aria-label={t("data.backup.pendingAria")}>
+                  <h4 className="card-title">{t("data.backup.pending")}</h4>
+                  <p className="helper-text">{t("data.backup.exportedAt", { time: new Date(pendingBackup.exportedAt).toLocaleString(locale) })}</p>
+                  <div className="cluster">
+                    <span className="info-chip">{t("data.backup.wrongbookCount", { count: pendingBackup.wrongbook.records.length })}</span>
+                    <span className="info-chip">{t("data.backup.masteryCount", { count: pendingBackup.masteryRecords.length })}</span>
+                    <span className="info-chip">{t(pendingBackup.edition === "senior" ? "edition.senior" : "edition.junior")}</span>
+                  </div>
+                  <p className="helper-text">{t("data.backup.mergeDescription")}</p>
+                  <div className="cluster">
+                    <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void confirmImport()}>{t(busy === "import" ? "data.backup.importing" : "data.backup.confirm")}</M3eButton>
+                    <M3eButton variant="text" disabled={Boolean(busy)} onClick={() => setPendingBackup(null)}>{t("common.cancel")}</M3eButton>
+                  </div>
+                </div>
+              ) : null}
+            </section>
+          </M3eCard>
 
-      <section className="md-card stack" aria-label={t("data.offline.aria")}>
-        <div className="spread">
-          <div>
-            <h3 className="card-title">{t("data.offline.title")}</h3>
-            <p className="helper-text">{t("data.offline.description", { vocabCount: vocabLists.length, textCount: textLists.length })}</p>
-          </div>
-          <div className="cluster">
-            <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void refreshOfflineSummary()}>{t("data.offline.refresh")}</M3eButton>
-            <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void cacheAllLearningData()}>{t(busy === "cache" ? "data.offline.caching" : "data.offline.cacheAll")}</M3eButton>
-            <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void clearCaches()}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</M3eButton>
-          </div>
+          <M3eCard variant="elevated">
+            <section className="settings-card-content stack" aria-label={t("data.offline.aria")}>
+              <div className="spread">
+                <div>
+                  <h3 className="card-title">{t("data.offline.title")}</h3>
+                  <p className="helper-text">{t("data.offline.description", { vocabCount: vocabLists.length, textCount: textLists.length })}</p>
+                </div>
+                <div className="cluster">
+                  <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void refreshOfflineSummary()}>{t("data.offline.refresh")}</M3eButton>
+                  <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void cacheAllLearningData()}>{t(busy === "cache" ? "data.offline.caching" : "data.offline.cacheAll")}</M3eButton>
+                  <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void clearCaches()}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</M3eButton>
+                </div>
+              </div>
+              <div className="offline-metrics" aria-label={t("data.offline.statusAria")}>
+                {[
+                  [t("data.offline.cacheGroups"), offlineSummary?.cacheCount ?? "—"],
+                  [t("data.offline.cacheEntries"), offlineSummary?.entryCount ?? "—"],
+                  [t("data.offline.usage"), formatBytes(offlineSummary?.usage, t("data.unavailable"))],
+                  [t("data.offline.quota"), formatBytes(offlineSummary?.quota, t("data.unavailable"))]
+                ].map(([title, value]) => (
+                  <M3eCard variant="elevated" key={title}>
+                    <article className="offline-metric-content">
+                      <p className="helper-text">{title}</p>
+                      <div className="metric-value">{value}</div>
+                    </article>
+                  </M3eCard>
+                ))}
+              </div>
+              <p className="helper-text">{t("data.offline.persistence", { status: offlineSummary?.persisted === undefined ? t("data.unavailable") : offlineSummary.persisted ? t("data.offline.enabled") : t("data.offline.disabled") })}</p>
+            </section>
+          </M3eCard>
         </div>
-        <div className="md-grid" aria-label={t("data.offline.statusAria")}>
-          {[
-            [t("data.offline.cacheGroups"), offlineSummary?.cacheCount ?? "—"],
-            [t("data.offline.cacheEntries"), offlineSummary?.entryCount ?? "—"],
-            [t("data.offline.usage"), formatBytes(offlineSummary?.usage, t("data.unavailable"))],
-            [t("data.offline.quota"), formatBytes(offlineSummary?.quota, t("data.unavailable"))]
-          ].map(([title, value]) => (
-            <article className="md-card md-card--flat" key={title}>
-              <p className="helper-text">{title}</p>
-              <div className="metric-value">{value}</div>
-            </article>
-          ))}
-        </div>
-        <p className="helper-text">{t("data.offline.persistence", { status: offlineSummary?.persisted === undefined ? t("data.unavailable") : offlineSummary.persisted ? t("data.offline.enabled") : t("data.offline.disabled") })}</p>
-      </section>
+      </M3eCard>
     </section>
   );
 }

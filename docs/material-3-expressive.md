@@ -49,3 +49,7 @@ M3E NavItem 的伪链接会在普通 React 点击监听前激活，导致整页�
 这是 Next.js App Router 的 local-first PWA。UI 迁移不改变 IndexedDB、localStorage、离线缓存、Service Worker、OAuth、云端同步、i18n、onboarding、开发者模式、typed routes 或学习业务逻辑。浏览器 API 仍留在 Client Components 或 client-only 模块；不为换组件库重写 Server / Client Component 边界。
 
 Material Symbols Rounded 继续使用项目生成的本地字体子集，不改用 CDN。新增图标仍按 README 中的生成流程更新配置与产物。
+
+## Button Group 尺寸
+
+组与子按钮必须显式使用相同 `size`（M3E 2.9.1 不会将组尺寸传给按钮）。学习阶段、释义语言和打印选择使用 medium（56px）；错题本筛选、外观模式与 Pride 旗帜使用 small（40px），容器预留 48px 触控层和焦点空间。关联组随内容区域伸展并设置最大宽度，窄屏减少横向留白；长筛选与旗帜保持单行滚动，禁止换行打断连接形状。保留原有选项文案，打印长标签可在组内横向滚动。

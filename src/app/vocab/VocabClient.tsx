@@ -972,9 +972,9 @@ export function VocabClient() {
               </SelectField>
               <div className="filter-section" aria-label={t("vocab.mastery")}>
                 <span className="filter-label">{t("vocab.mastery")}</span>
-                <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.mastery")}>
+                <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.mastery")}>
                   {masteryFilterOptions.map((option) => (
-                    <M3eButton
+                    <M3eButton size="small"
                       key={option.value}
                       type="button"
                       variant="tonal"
@@ -995,8 +995,8 @@ export function VocabClient() {
               <div className="filter-section" aria-label={t("vocab.view")}>
                 <span className="filter-label">{t("vocab.view")}</span>
                 <div className="chip-scroll">
-                  <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.view")}>
-                    <M3eButton
+                  <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.view")}>
+                    <M3eButton size="small"
                       type="button"
                       variant="tonal"
                       shape="square"
@@ -1010,7 +1010,7 @@ export function VocabClient() {
                     >
                       {t("vocab.view.words")}
                     </M3eButton>
-                    <M3eButton
+                    <M3eButton size="small"
                       type="button"
                       variant="tonal"
                       shape="square"
@@ -1259,9 +1259,9 @@ export function VocabClient() {
           </label>
           <div className="stack" aria-label={t("vocab.definitionLanguageAria")}>
             <span className="helper-text">{t("vocab.definitionLanguage")}</span>
-            <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.definitionLanguageAria")}>
+            <M3eButtonGroup size="medium" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.definitionLanguageAria")}>
               {definitionLanguageOptions.map((option) => (
-                <M3eButton
+                <M3eButton size="medium"
                   type="button"
                   key={option.value}
                   variant="tonal"

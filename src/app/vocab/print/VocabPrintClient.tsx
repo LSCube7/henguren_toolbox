@@ -119,8 +119,8 @@ export function VocabPrintClient() {
         <div className="print-option-grid">
           <div className="stack">
             <h3 className="card-title">{t("print.displayTitle")}</h3>
-            <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("print.displayAria")}>
-              <M3eButton
+            <M3eButtonGroup size="medium" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("print.displayAria")}>
+              <M3eButton size="medium"
                 type="button"
                 variant="tonal"
                 shape="square"
@@ -134,7 +134,7 @@ export function VocabPrintClient() {
               >
                 {t("print.definitionPrompt")}
               </M3eButton>
-              <M3eButton
+              <M3eButton size="medium"
                 type="button"
                 variant="tonal"
                 shape="square"
@@ -153,8 +153,8 @@ export function VocabPrintClient() {
 
           <div className="stack">
             <h3 className="card-title">{t("print.languageTitle")}</h3>
-            <M3eButtonGroup className="button-group" variant="connected" multi role="group" aria-label={t("print.languageAria")}>
-              <M3eButton
+            <M3eButtonGroup size="medium" className="button-group" variant="connected" multi role="group" aria-label={t("print.languageAria")}>
+              <M3eButton size="medium"
                 type="button"
                 variant="tonal"
                 shape="square"
@@ -166,7 +166,7 @@ export function VocabPrintClient() {
               >
                 {t("language.chinese")}
               </M3eButton>
-              <M3eButton
+              <M3eButton size="medium"
                 type="button"
                 variant="tonal"
                 shape="square"

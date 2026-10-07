@@ -317,10 +317,9 @@ export function OnboardingClient() {
         <div className="onboarding-content">
           {step.id === "edition" ? (
             <div className="onboarding-edition-choice">
-              <M3eButtonGroup className="onboarding-edition-choice__group" size="medium" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("onboarding.edition.aria")}>
-                <M3eButton
+              <M3eButtonGroup size="medium" className="button-group onboarding-edition-choice__group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("onboarding.edition.aria")}>
+                <M3eButton size="medium"
                   variant="tonal"
-                  size="medium"
                   shape="square"
                   toggle
                   selected={edition === "junior"}
@@ -333,9 +332,8 @@ export function OnboardingClient() {
                   <span slot="icon"><MaterialIcon name="school" /></span>
                   {t("edition.junior")}
                 </M3eButton>
-                <M3eButton
+                <M3eButton size="medium"
                   variant="tonal"
-                  size="medium"
                   shape="square"
                   toggle
                   selected={edition === "senior"}

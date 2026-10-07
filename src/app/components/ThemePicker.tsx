@@ -281,12 +281,11 @@ export function ThemePicker({
                 <MaterialIcon name="chevron_left" />
               </M3eIconButton>
               <div ref={prideSegmentsRef} className="pride-flag-segments">
-                <M3eButtonGroup variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.pride.select")}>
+                <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.pride.select")}>
                   {prideThemeFlags.map((flag) => (
-                    <M3eButton
+                    <M3eButton size="small"
                       key={flag.id}
                       variant="tonal"
-                      size="medium"
                       shape="square"
                       toggle
                       selected={selectedPrideFlag === flag.id}
@@ -337,9 +336,9 @@ export function ThemePicker({
           <h3 className="card-title">{t("theme.mode.title")}</h3>
           {showModeDescription ? <p className="helper-text">{t("theme.mode.description")}</p> : null}
         </div>
-        <M3eButtonGroup variant="connected" onKeyDown={moveButtonGroupSelection} aria-label={t("theme.mode.title")}>
+        <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.mode.title")}>
           {(["system", "light", "dark"] as const).map((mode) =>
-            <M3eButton key={mode} variant="tonal" shape="square" toggle
+            <M3eButton size="small" key={mode} variant="tonal" shape="square" toggle
               selected={(settings.colorMode ?? "system") === mode}
               role="radio" tabIndex={(settings.colorMode ?? "system") === mode ? 0 : -1}
               aria-checked={((settings.colorMode ?? "system") === mode) ? "true" : "false"}

@@ -1,8 +1,8 @@
 # 恨古人工具箱 v3
 
-恨古人工具箱 v3 是基于 Next.js App Router 的重构版本。v3 聚焦新的 Material Design 3 风格 UI、CubeID 登录、云端错题本、设置同步，以及现有学习工具的逐步迁移。
+恨古人工具箱 v3 是基于 Next.js App Router 的重构版本。v3 聚焦 Material 3 Expressive 风格 UI、CubeID 登录、云端错题本、设置同步，以及现有学习工具的逐步迁移。
 
-v3 的界面使用官方 Material Web 实现 Material Design 3 风格：无顶栏、侧边导航抽屉、卡片化工具入口、设置面板和状态提示。它仍然是普通学习工具箱，不是云服务控制台。
+v3 的界面使用第三方 `@m3e/react` / `@m3e/web` 实现 Material 3 Expressive 风格：无顶栏、侧边导航抽屉、卡片化工具入口、设置面板和状态提示。它仍然是普通学习工具箱，不是云服务控制台。
 
 ## 分支说明
 
@@ -17,7 +17,7 @@ v3 的界面使用官方 Material Web 实现 Material Design 3 风格：无顶�
 
 | 模块 | 状态 | 说明 |
 | --- | --- | --- |
-| 首页与全局布局 | 已迁移 | Material Web 工具箱布局、侧边导航抽屉、卡片入口 |
+| 首页与全局布局 | 已迁移 | Material 3 Expressive 工具箱布局、侧边导航抽屉、卡片入口 |
 | 寻找实词 | 已迁移 | 改用安全 React 节点高亮 |
 | 文学常识 | 已迁移 | 沿用 v2 JSON 数据 |
 | 单词测试 | 已迁移 | 多选单元、自定义词表、测试结果、掌握度复习、错题本、导入导出、云同步 |
@@ -121,3 +121,9 @@ v3 首版采用“本地优先、整包同步”的错题本模型：
 MIT License
 
 自动同步学习数据的范围、触发频率及限制见 [自动同步方案](docs/vocab-cloud-sync-auto.md)。自动同步默认关闭，按本机账户分别开启。
+
+## Material 3 Expressive
+
+M3E 是独立的第三方组件库，并非 Google 官方库。组件按子路径引入，M3eTheme 负责 2025 Dynamic Color 和 expressive motion；原有 seed、预设、Pride Colors 和用户保存的设置继续可用。自定义 HCT 选色仍使用 Material Color Utilities，但不再生成第二套应用 palette。
+
+组件语义、主题首屏缓存、键盘焦点和库限制见 [迁移约定](docs/material-3-expressive.md)。

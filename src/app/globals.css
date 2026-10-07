@@ -623,8 +623,7 @@ m3e-dialog {
 }
 
 .md-card--interactive:hover {
-  border-color: var(--md-sys-color-primary);
-  background: var(--md-sys-color-surface-container);
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) var(--md-sys-state-hover-state-layer-opacity, 8%), var(--md-sys-color-surface));
   transform: translateY(-2px);
 }
 
@@ -981,7 +980,7 @@ m3e-dialog {
   grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
   align-items: center;
   padding: var(--md-sys-spacing-space200);
-  background: var(--md-sys-color-surface-container);
+  background: var(--md-sys-color-surface);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--app-radius-lg);
 }
@@ -996,7 +995,7 @@ m3e-dialog {
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   padding: var(--md-sys-spacing-space300);
-  background: var(--md-sys-color-surface-container);
+  background: var(--md-sys-color-surface);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--app-radius-xl);
 }
@@ -2363,7 +2362,11 @@ m3e-form-field.cloze-blank {
     background-color var(--md-sys-motion-spring-fast-effects),
     border-color var(--md-sys-motion-spring-fast-effects);
 }
+.md-card--interactive:focus-visible {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) var(--md-sys-state-focus-state-layer-opacity, 10%), var(--md-sys-color-surface));
+}
 .md-card--interactive:active {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) var(--md-sys-state-pressed-state-layer-opacity, 10%), var(--md-sys-color-surface));
   transform: scale(.98);
   border-radius: var(--app-radius-lg);
 }
@@ -2469,7 +2472,7 @@ m3e-card { --m3e-card-shape: var(--app-radius-xl); }
   gap: var(--md-sys-spacing-space150);
   width: min(420px, 100%);
   padding: var(--md-sys-spacing-space300);
-  background: var(--md-sys-color-surface-container);
+  background: var(--md-sys-color-surface);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-large);
   box-shadow: var(--app-elevation-level1);

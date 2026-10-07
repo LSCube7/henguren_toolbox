@@ -594,7 +594,7 @@ m3e-dialog {
   border: 0;
   border-radius: var(--app-radius-xl);
   box-shadow: var(--app-elevation-level0);
-  animation: card-enter var(--md-sys-motion-spring-fast-spatial) both;
+  animation: card-enter var(--md-sys-motion-spring-fast-spatial) backwards;
 }
 
 .md-card--flat {
@@ -1051,7 +1051,7 @@ m3e-dialog {
   transition:
     opacity var(--md-sys-motion-spring-fast-effects),
     transform var(--md-sys-motion-spring-fast-spatial),
-    visibility var(--md-sys-motion-spring-fast-effects);
+    visibility var(--md-sys-motion-duration-medium-3, 350ms) allow-discrete;
 }
 
 .theme-preset-popover[data-open="true"] {
@@ -1062,7 +1062,7 @@ m3e-dialog {
   transition:
     opacity var(--md-sys-motion-spring-fast-effects),
     transform var(--md-sys-motion-spring-fast-spatial),
-    visibility var(--md-sys-motion-spring-fast-effects);
+    visibility var(--md-sys-motion-duration-medium-3, 350ms) allow-discrete;
 }
 
 .theme-preset-panel-title {
@@ -2632,6 +2632,27 @@ button.rail-action { border: 0; cursor: pointer; }
   border: 0;
   background: transparent;
   color: var(--md-sys-color-on-surface);
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+  transition:
+    opacity var(--md-sys-motion-spring-fast-effects),
+    transform var(--md-sys-motion-spring-fast-spatial),
+    display var(--md-sys-motion-duration-medium-3, 350ms) allow-discrete,
+    overlay var(--md-sys-motion-duration-medium-3, 350ms) allow-discrete;
+}
+.sync-settings-popover:popover-open {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+/* Native popovers start at display:none. Supply the first rendered frame,
+   and retain their top-layer placement until the exit motion finishes. */
+@starting-style {
+  .sync-settings-popover:popover-open {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
 }
 .sync-settings-popover-content {
   display: grid;

@@ -196,7 +196,7 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
           <section ref={panel} slot="start" className="sync-settings-drawer-content">{content}</section>
         </M3eDrawerContainer>
       </dialog> :
-      <section ref={panel} id={id} className="sync-settings-popover" popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>
+      <section ref={panel} id={id} className="sync-settings-popover" inert={!open} popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>
         <M3eCard variant="elevated">
           <div slot="content" className="sync-settings-popover-content">{content}</div>
         </M3eCard>

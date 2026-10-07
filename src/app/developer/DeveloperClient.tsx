@@ -63,7 +63,7 @@ export function DeveloperClient() {
 
   if (!settings.developerMode) {
     return (
-      <M3eCard variant="outlined">
+      <M3eCard variant="filled">
         <section className="settings-group-content stack" aria-labelledby="developer-disabled-title">
           <div>
             <h2 className="section-title" id="developer-disabled-title">{t("developer.disabled.title")}</h2>
@@ -78,10 +78,9 @@ export function DeveloperClient() {
   }
 
   return (
-    <M3eCard variant="outlined">
+    <M3eCard variant="filled">
       <div className="settings-group-content stack">
         <SettingsSection
-          variant="elevated"
           title="settings.translationKeys.title"
           description="settings.translationKeys.description"
           control={
@@ -92,8 +91,7 @@ export function DeveloperClient() {
             />
           }
         />
-        <M3eCard variant="elevated">
-          <section className="settings-card-content stack developer-panel" aria-label={t("settings.customSync.aria")}>
+        <section className="settings-group-section stack developer-panel" aria-label={t("settings.customSync.aria")}>
             <div>
               <h2 className="section-title">{t("settings.customSync.title")}</h2>
               <p className="helper-text">{t("settings.customSync.description")}</p>
@@ -118,8 +116,7 @@ export function DeveloperClient() {
               <M3eButton variant="outlined" onClick={() => void testDeveloperSource()}>{t("settings.customSync.test")}</M3eButton>
               <M3eButton variant="outlined" onClick={clearDeveloperSource}>{t("settings.customSync.clear")}</M3eButton>
             </div>
-          </section>
-        </M3eCard>
+        </section>
       </div>
     </M3eCard>
   );

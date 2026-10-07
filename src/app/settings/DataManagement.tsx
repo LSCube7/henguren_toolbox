@@ -142,7 +142,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
 
   return (
     <section className="settings-group" aria-labelledby="data-management-title">
-      <M3eCard variant="outlined">
+      <M3eCard variant="filled">
         <div className="settings-group-content stack">
           <div className="settings-group__header">
             <p className="breadcrumb">Settings</p>
@@ -150,8 +150,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
             <p className="helper-text">{t("data.description")}</p>
           </div>
 
-          <M3eCard variant="elevated">
-            <section className="settings-card-content stack" aria-label={t("data.backup.aria")}>
+            <section className="settings-group-section stack" aria-label={t("data.backup.aria")}>
               <div className="spread">
                 <div>
                   <h3 className="card-title">{t("data.backup.title")}</h3>
@@ -164,7 +163,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
                 </div>
               </div>
               {pendingBackup ? (
-                <div className="md-card md-card--flat stack" aria-label={t("data.backup.pendingAria")}>
+                <div className="settings-inline-panel stack" aria-label={t("data.backup.pendingAria")}>
                   <h4 className="card-title">{t("data.backup.pending")}</h4>
                   <p className="helper-text">{t("data.backup.exportedAt", { time: new Date(pendingBackup.exportedAt).toLocaleString(locale) })}</p>
                   <div className="cluster">
@@ -180,10 +179,8 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
                 </div>
               ) : null}
             </section>
-          </M3eCard>
 
-          <M3eCard variant="elevated">
-            <section className="settings-card-content stack" aria-label={t("data.offline.aria")}>
+            <section className="settings-group-section stack" aria-label={t("data.offline.aria")}>
               <div className="spread">
                 <div>
                   <h3 className="card-title">{t("data.offline.title")}</h3>
@@ -202,17 +199,14 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
                   [t("data.offline.usage"), formatBytes(offlineSummary?.usage, t("data.unavailable"))],
                   [t("data.offline.quota"), formatBytes(offlineSummary?.quota, t("data.unavailable"))]
                 ].map(([title, value]) => (
-                  <M3eCard variant="elevated" key={title}>
-                    <article className="offline-metric-content">
+                  <article key={title} className="offline-metric-content">
                       <p className="helper-text">{title}</p>
                       <div className="metric-value">{value}</div>
                     </article>
-                  </M3eCard>
                 ))}
               </div>
               <p className="helper-text">{t("data.offline.persistence", { status: offlineSummary?.persisted === undefined ? t("data.unavailable") : offlineSummary.persisted ? t("data.offline.enabled") : t("data.offline.disabled") })}</p>
             </section>
-          </M3eCard>
         </div>
       </M3eCard>
     </section>

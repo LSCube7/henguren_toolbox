@@ -10,7 +10,7 @@
 - 卡片、导航和 Henguren 特有的信息层级可保留项目自己的结构，使用 M3E 的主题 token、形状、排版、尺寸层级和交互状态来呈现。
 - Snackbar 等已有稳定业务 API 可以继续负责消息队列和生命周期，由组件层承载 M3E 外观。
 
-普通自定义 `.md-card` 与 M3E Outlined Card 统一使用 `surface` 背景和 `outline-variant` 边框；明确采用 Elevated 的内部卡片使用 `surface-container-low`，不将两种外观混合。
+普通自定义 `.md-card` 与 M3E Filled Card 统一使用 `surface-container-highest` 背景，无描边和静止阴影。设置、开发者选项和数据管理中的连续内容使用标题、间距与分隔线，避免逐项嵌套卡片；离线统计使用等高原生布局。独立浮出面板（如 Pride 选色）保留 Elevated 的 `surface-container-low`。页面渐变保留。
 
 ## 主题
 

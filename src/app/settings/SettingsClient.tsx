@@ -80,76 +80,80 @@ export function SettingsClient() {
 
   return (
     <div className="stack">
-      <SettingsSection
-        title="settings.learningStage.title"
-        description="settings.learningStage.description"
-        control={
-          <SelectField
-            label={t("settings.learningStage.title")}
-            key={`${locale}-learning-stage`}
-            value={edition}
-            onInput={(event) => writeEdition(String((event.currentTarget as HTMLElement & { value?: string }).value ?? "junior") === "senior" ? "senior" : "junior")}
-          >
-            <M3eOption value="junior">
-              <div>{t("edition.junior")}</div>
-            </M3eOption>
-            <M3eOption value="senior">
-              <div>{t("edition.senior")}</div>
-            </M3eOption>
-          </SelectField>
-        }
-      />
-      <SettingsSection
-        title="language.setting.title"
-        description="language.setting.description"
-        control={
-          <SelectField
-            label={t("language.setting.title")}
-            key={`${locale}-interface-language`}
-            value={locale}
-            onInput={(event) => {
-              const locale = valueFrom(event);
-              if (isAppLocale(locale)) update({ locale });
-            }}
-          >
-            <M3eOption value="zh-CN">
-              <div>{t("language.zh-CN")}</div>
-            </M3eOption>
-            <M3eOption value="en-US">
-              <div>{t("language.en-US")}</div>
-            </M3eOption>
-          </SelectField>
-        }
-      />
-      <SettingsSection title="settings.appearance.title" description="settings.appearance.description" control={<ThemePicker settings={settings} onChange={update} />} />
-      <SettingsSection
-        title="settings.hint.title"
-        description="settings.hint.description"
-        control={<M3eSwitch aria-label={t("settings.hint.title")} checked={settings.showHint} onInput={(event) => update({ showHint: checkedFrom(event) })} />}
-      />
-      <SettingsSection
-        title="settings.slip.title"
-        description="settings.slip.description"
-        control={<M3eSwitch aria-label={t("settings.slip.title")} checked={settings.enableSlipDetection} onInput={(event) => update({ enableSlipDetection: checkedFrom(event) })} />}
-      />
-      <SettingsSection
-        title="settings.testCount.title"
-        description="settings.testCount.description"
-        control={<TextField label={t("settings.testCount.label")} type="number" min={1} max={200} value={settings.defaultTestCount} onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })} />}
-      />
-      <SettingsSection
-        title="settings.sync.title"
-        description="settings.sync.description"
-        control={<M3eButton variant="filled" onClick={() => void syncSettings()}>{t("settings.sync.action")}</M3eButton>}
-      />
-      <SettingsSection
-        title="settings.onboarding.title"
-        description="settings.onboarding.description"
-        control={<M3eButton variant="outlined" onClick={restartInitialGuide}>{t("settings.onboarding.action")}</M3eButton>}
-      />
+      <M3eCard variant="filled">
+        <div className="settings-group-content settings-list">
+          <SettingsSection
+            title="settings.learningStage.title"
+            description="settings.learningStage.description"
+            control={
+              <SelectField
+                label={t("settings.learningStage.title")}
+                key={`${locale}-learning-stage`}
+                value={edition}
+                onInput={(event) => writeEdition(String((event.currentTarget as HTMLElement & { value?: string }).value ?? "junior") === "senior" ? "senior" : "junior")}
+              >
+                <M3eOption value="junior">
+                  <div>{t("edition.junior")}</div>
+                </M3eOption>
+                <M3eOption value="senior">
+                  <div>{t("edition.senior")}</div>
+                </M3eOption>
+              </SelectField>
+            }
+          />
+          <SettingsSection
+            title="language.setting.title"
+            description="language.setting.description"
+            control={
+              <SelectField
+                label={t("language.setting.title")}
+                key={`${locale}-interface-language`}
+                value={locale}
+                onInput={(event) => {
+                  const locale = valueFrom(event);
+                  if (isAppLocale(locale)) update({ locale });
+                }}
+              >
+                <M3eOption value="zh-CN">
+                  <div>{t("language.zh-CN")}</div>
+                </M3eOption>
+                <M3eOption value="en-US">
+                  <div>{t("language.en-US")}</div>
+                </M3eOption>
+              </SelectField>
+            }
+          />
+          <SettingsSection title="settings.appearance.title" description="settings.appearance.description" control={<ThemePicker settings={settings} onChange={update} />} />
+          <SettingsSection
+            title="settings.hint.title"
+            description="settings.hint.description"
+            control={<M3eSwitch aria-label={t("settings.hint.title")} checked={settings.showHint} onInput={(event) => update({ showHint: checkedFrom(event) })} />}
+          />
+          <SettingsSection
+            title="settings.slip.title"
+            description="settings.slip.description"
+            control={<M3eSwitch aria-label={t("settings.slip.title")} checked={settings.enableSlipDetection} onInput={(event) => update({ enableSlipDetection: checkedFrom(event) })} />}
+          />
+          <SettingsSection
+            title="settings.testCount.title"
+            description="settings.testCount.description"
+            control={<TextField label={t("settings.testCount.label")} type="number" min={1} max={200} value={settings.defaultTestCount} onInput={(event) => update({ defaultTestCount: Number(valueFrom(event)) })} />}
+          />
+          <SettingsSection
+            title="settings.sync.title"
+            description="settings.sync.description"
+            control={<M3eButton variant="filled" onClick={() => void syncSettings()}>{t("settings.sync.action")}</M3eButton>}
+          />
+          <SettingsSection
+            title="settings.onboarding.title"
+            description="settings.onboarding.description"
+            control={<M3eButton variant="outlined" onClick={restartInitialGuide}>{t("settings.onboarding.action")}</M3eButton>}
+          />
+        </div>
+      </M3eCard>
       <LearningOwnerGate><DataManagement fallbackSettings={fallbackSettings} /></LearningOwnerGate>
       <section className="settings-group" aria-labelledby="advanced-settings-title">
-        <M3eCard variant="outlined">
+        <M3eCard variant="filled">
           <div className="settings-group-content stack">
             <div className="settings-group__header">
               <p className="breadcrumb">Settings</p>
@@ -159,7 +163,6 @@ export function SettingsClient() {
               <p className="helper-text">{t("settings.advanced.description")}</p>
             </div>
             <SettingsSection
-              variant="elevated"
               title="settings.developerMode.title"
               description="settings.developerMode.description"
               control={<M3eSwitch aria-label={t("settings.developerMode.title")} checked={Boolean(settings.developerMode)} onInput={(event) => update({ developerMode: checkedFrom(event) })} />}

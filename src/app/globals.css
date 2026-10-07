@@ -602,7 +602,7 @@ m3e-dialog {
 
 .md-card {
   padding: var(--md-sys-spacing-space300);
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-color-surface);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--app-radius-xl);
   box-shadow: var(--app-elevation-level0);

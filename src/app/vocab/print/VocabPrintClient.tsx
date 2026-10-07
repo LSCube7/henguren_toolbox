@@ -1,6 +1,7 @@
 "use client";
 import { M3eButton } from "@m3e/react/button";
-import { M3eFilterChip } from "@m3e/react/chips";
+import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard";
 import { M3eSwitch } from "@m3e/react/switch";
 
 import type { VocabWord } from "@/lib/types";
@@ -65,6 +66,10 @@ function toggleLanguage(current: DefinitionLanguage[], value: DefinitionLanguage
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
+function displayVocabularyTitle(title: string) {
+  return title.replace("选择性必修", "选必");
+}
+
 function definitionsFor(word: VocabWord, languages: DefinitionLanguage[], unavailable: string) {
   const definitions = [
     ...(languages.includes("en") ? word.en_definition ?? [] : []),
@@ -81,7 +86,7 @@ export function VocabPrintClient() {
   const [showHint, setShowHint] = useState(true);
 
   const words = useMemo(() => payload?.sources.flatMap((source) => source.words.map((word) => ({ ...word, sourceTitle: word.sourceTitle ?? source.title }))) ?? [], [payload]);
-  const sourceInfo = useMemo(() => payload?.sources.map((source) => source.title || t("print.untitled")).join(", ") ?? t("print.noSource"), [payload, t]);
+  const sourceInfo = useMemo(() => payload?.sources.map((source) => displayVocabularyTitle(source.title || t("print.untitled"))).join(", ") ?? t("print.noSource"), [payload, t]);
   const createdAt = payload?.createdAt ? new Date(payload.createdAt).toLocaleString(locale) : "";
   const answerTitle = t(displayMode === "definition" ? "print.answerWord" : "print.answerDefinition");
 
@@ -114,26 +119,66 @@ export function VocabPrintClient() {
         <div className="print-option-grid">
           <div className="stack">
             <h3 className="card-title">{t("print.displayTitle")}</h3>
-            <div className="cluster" role="radiogroup" aria-label={t("print.displayAria")}>
-              <M3eFilterChip selected={displayMode === "definition"} onClick={() => setDisplayMode("definition")} role="radio" aria-checked={(displayMode === "definition") ? "true" : "false"} onBeforeInput={(event) => { if (displayMode === "definition") event.preventDefault(); }}>
+            <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("print.displayAria")}>
+              <M3eButton
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={displayMode === "definition"}
+                tabIndex={displayMode === "definition" ? 0 : -1}
+                role="radio"
+                aria-checked={displayMode === "definition" ? "true" : "false"}
+                onBeforeInput={(event) => { if (displayMode === "definition") event.preventDefault(); }}
+                onClick={() => setDisplayMode("definition")}
+              >
                 {t("print.definitionPrompt")}
-              </M3eFilterChip>
-              <M3eFilterChip selected={displayMode === "word"} onClick={() => setDisplayMode("word")} role="radio" aria-checked={(displayMode === "word") ? "true" : "false"} onBeforeInput={(event) => { if (displayMode === "word") event.preventDefault(); }}>
+              </M3eButton>
+              <M3eButton
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={displayMode === "word"}
+                tabIndex={displayMode === "word" ? 0 : -1}
+                role="radio"
+                aria-checked={displayMode === "word" ? "true" : "false"}
+                onBeforeInput={(event) => { if (displayMode === "word") event.preventDefault(); }}
+                onClick={() => setDisplayMode("word")}
+              >
                 {t("print.wordPrompt")}
-              </M3eFilterChip>
-            </div>
+              </M3eButton>
+            </M3eButtonGroup>
           </div>
 
           <div className="stack">
             <h3 className="card-title">{t("print.languageTitle")}</h3>
-            <div className="cluster" aria-label={t("print.languageAria")}>
-              <M3eFilterChip selected={definitionLanguages.includes("zh")} role="checkbox" aria-checked={(definitionLanguages.includes("zh")) ? "true" : "false"} onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "zh"))}>
+            <M3eButtonGroup className="button-group" variant="connected" multi role="group" aria-label={t("print.languageAria")}>
+              <M3eButton
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={definitionLanguages.includes("zh")}
+                role="button"
+                aria-pressed={definitionLanguages.includes("zh") ? "true" : "false"}
+                onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "zh"))}
+              >
                 {t("language.chinese")}
-              </M3eFilterChip>
-              <M3eFilterChip selected={definitionLanguages.includes("en")} role="checkbox" aria-checked={(definitionLanguages.includes("en")) ? "true" : "false"} onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "en"))}>
+              </M3eButton>
+              <M3eButton
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={definitionLanguages.includes("en")}
+                role="button"
+                aria-pressed={definitionLanguages.includes("en") ? "true" : "false"}
+                onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "en"))}
+              >
                 {t("language.english")}
-              </M3eFilterChip>
-            </div>
+              </M3eButton>
+            </M3eButtonGroup>
             {definitionLanguages.length === 0 ? <p className="helper-text">{t("print.languageWarning")}</p> : null}
           </div>
 

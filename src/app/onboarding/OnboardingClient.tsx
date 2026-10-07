@@ -1,5 +1,7 @@
 "use client";
 import { M3eButton } from "@m3e/react/button";
+import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
@@ -314,21 +316,46 @@ export function OnboardingClient() {
 
         <div className="onboarding-content">
           {step.id === "edition" ? (
-            <div className="onboarding-choice-grid" role="radiogroup" aria-label={t("onboarding.edition.aria")}>
-              <button className="onboarding-choice" type="button" data-selected={edition === "junior"} onClick={() => updateEdition("junior")}>
-                <MaterialIcon name="school" />
-                <span>{t("edition.junior")}</span>
-                <small>{t("onboarding.edition.juniorTools")}</small>
-              </button>
-              <button className="onboarding-choice" type="button" data-selected={edition === "senior"} onClick={() => updateEdition("senior")}>
-                <MaterialIcon name="workspace_premium" />
-                <span>{t("edition.senior")}</span>
-                <small>{t("onboarding.edition.seniorTools")}</small>
-              </button>
+            <div className="onboarding-edition-choice">
+              <M3eButtonGroup className="onboarding-edition-choice__group" size="medium" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("onboarding.edition.aria")}>
+                <M3eButton
+                  variant="tonal"
+                  size="medium"
+                  shape="square"
+                  toggle
+                  selected={edition === "junior"}
+                  tabIndex={edition === "junior" ? 0 : -1}
+                  role="radio"
+                  aria-checked={edition === "junior" ? "true" : "false"}
+                  onBeforeInput={(event) => { if (edition === "junior") event.preventDefault(); }}
+                  onClick={() => updateEdition("junior")}
+                >
+                  <span slot="icon"><MaterialIcon name="school" /></span>
+                  {t("edition.junior")}
+                </M3eButton>
+                <M3eButton
+                  variant="tonal"
+                  size="medium"
+                  shape="square"
+                  toggle
+                  selected={edition === "senior"}
+                  tabIndex={edition === "senior" ? 0 : -1}
+                  role="radio"
+                  aria-checked={edition === "senior" ? "true" : "false"}
+                  onBeforeInput={(event) => { if (edition === "senior") event.preventDefault(); }}
+                  onClick={() => updateEdition("senior")}
+                >
+                  <span slot="icon"><MaterialIcon name="workspace_premium" /></span>
+                  {t("edition.senior")}
+                </M3eButton>
+              </M3eButtonGroup>
+              <p className="helper-text onboarding-edition-choice__description">
+                {t(edition === "junior" ? "onboarding.edition.juniorTools" : "onboarding.edition.seniorTools")}
+              </p>
             </div>
           ) : null}
 
-          {step.id === "theme" ? <ThemePicker settings={settings} onChange={updateSettings} /> : null}
+          {step.id === "theme" ? <ThemePicker settings={settings} onChange={updateSettings} showModeDescription={false} /> : null}
 
           {step.id === "login" ? (
             <div className="onboarding-login">

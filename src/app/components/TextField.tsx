@@ -1,7 +1,7 @@
 "use client";
 
 import { M3eFormField } from "@m3e/react/form-field";
-import { useId, type InputHTMLAttributes, type Ref, type TextareaHTMLAttributes } from "react";
+import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type TextareaHTMLAttributes } from "react";
 
 type FieldProps = {
   label: string;
@@ -9,13 +9,17 @@ type FieldProps = {
   variant?: "filled" | "outlined";
 };
 
-export function TextField({ label, error, variant = "outlined", className, id, ...props }:
-  FieldProps & InputHTMLAttributes<HTMLInputElement> & { ref?: Ref<HTMLInputElement> }) {
+export function TextField({ label, error, prefix, supportingText, variant = "outlined", className, id, ...props }:
+  FieldProps & Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> & { ref?: Ref<HTMLInputElement>; prefix?: ReactNode; supportingText?: string }) {
   const generatedId = useId();
   const controlId = id ?? generatedId;
+  const hintId = `${controlId}-hint`;
+  const descriptionId = [props["aria-describedby"], supportingText ? hintId : undefined].filter(Boolean).join(" ") || undefined;
   return <M3eFormField className={className} variant={variant} error={Boolean(error)}>
     <label slot="label" htmlFor={controlId}>{label}</label>
-    <input {...props} id={controlId} aria-invalid={error || undefined} />
+    {prefix != null ? <span slot="prefix-text" className="field-prefix" aria-hidden="true">{prefix}</span> : null}
+    <input {...props} id={controlId} aria-describedby={descriptionId} aria-invalid={error || undefined} />
+    {supportingText ? <span slot="hint" id={hintId}>{supportingText}</span> : null}
   </M3eFormField>;
 }
 

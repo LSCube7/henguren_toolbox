@@ -5,6 +5,8 @@ import { SelectField } from "@/app/components/SelectField";
 import { M3eOption } from "@m3e/react/option";
 import { Dialog as M3eDialog } from "@/app/components/Dialog";
 import { M3eLoadingIndicator } from "@m3e/react/loading-indicator";
+import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard";
 import { M3eButton } from "@m3e/react/button";
 import { M3eFilterChip } from "@m3e/react/chips";
 import { M3eSwitch } from "@m3e/react/switch";
@@ -136,6 +138,10 @@ function nowStamp() {
 
 function normalizeCustomWords(words: VocabWord[], sourceName: string, sourceTitle: string) {
   return words.map((word) => ({ ...word, sourceName, sourceTitle }));
+}
+
+function displayVocabularyTitle(title: string) {
+  return title.replace("选择性必修", "选必");
 }
 
 function getSavedQuizSettings() {
@@ -350,6 +356,12 @@ export function VocabClient() {
   const selectedCacheStates = selectedMetas.map((meta) => vocabCacheStates[meta.name] ?? "missing");
   const cachedUnitCount = selectedCacheStates.filter((state) => state === "cached").length;
   const missingUnitCount = selectedMetas.length - cachedUnitCount;
+  const selectionBusy = loading || cacheBusy;
+  const selectionActionStatus = (
+    <span className="vocab-selection-loading-slot" role="status" aria-live="polite">
+      {selectionBusy ? <M3eLoadingIndicator aria-label={t(loading ? "vocab.preparing" : "vocab.caching")} /> : null}
+    </span>
+  );
 
   function toggleBook(bookCode: string) {
     const units = list.filter((item) => getBookCode(item.name) === bookCode).map((item) => item.name);
@@ -783,7 +795,7 @@ export function VocabClient() {
           <div>
             <h2 className="section-title">{t("vocab.testing")}</h2>
             <p className="helper-text">
-              {t("vocab.progress", { current: currentIndex + 1, total: testWords.length, source: currentWord?.sourceTitle ?? currentWord?.sourceName ?? "—" })}
+              {t("vocab.progress", { current: currentIndex + 1, total: testWords.length, source: displayVocabularyTitle(currentWord?.sourceTitle ?? currentWord?.sourceName ?? "—") })}
             </p>
           </div>
           <M3eButton variant="outlined" disabled={submittingAnswer} onClick={finishTestEarly}>
@@ -806,10 +818,12 @@ export function VocabClient() {
             ) : null}
           </div>
           <div className="cluster">
-            {showHint && currentWord ? <span className="badge">{currentWord.word[0]}</span> : null}
             <TextField
               ref={answerInputRef}
+              className="vocab-answer-field"
               label={t("vocab.answerInput")}
+              prefix={showHint && currentWord ? currentWord.word[0] : undefined}
+              supportingText={showHint && currentWord ? t("vocab.hint") + "：" + currentWord.word[0] : undefined}
               value={answer}
               readOnly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
               aria-readonly={Boolean(answerOutcome) || pendingSlip || submittingAnswer}
@@ -884,7 +898,7 @@ export function VocabClient() {
             [t("vocab.correct"), correctWords.length],
             [t("vocab.wrong"), incorrectWords.length]
           ].map(([title, value]) => (
-            <article className="md-card" key={title}>
+            <article className="md-card vocab-result-metric" key={title}>
               <p className="helper-text">{title}</p>
               <div className="metric-value">{value}</div>
             </article>
@@ -909,7 +923,7 @@ export function VocabClient() {
                   {visibleLanguages.includes("en") ? <p className="helper-text">{t("vocab.definition.enPrefix", { definition: word.en_definition.join("; ") || t("vocab.definition.missing") })}</p> : null}
                   {visibleLanguages.includes("zh") ? <p className="helper-text">{t("vocab.definition.zhPrefix", { definition: word.zh_definition.join("；") || t("vocab.definition.missing") })}</p> : null}
                 </div>
-                <span className="badge badge--neutral">{word.sourceTitle ?? word.sourceName}</span>
+                <span className="badge badge--neutral">{displayVocabularyTitle(word.sourceTitle ?? word.sourceName ?? "—")}</span>
               </article>
             );
           })}
@@ -926,11 +940,12 @@ export function VocabClient() {
             <h2 className="section-title">{t("vocab.wrongbook")}</h2>
             <p className="helper-text">{t("vocab.wrongbookDescription")}</p>
           </div>
-          <div className="cluster">
-            <M3eButton variant="outlined" onClick={() => setScreen("select")}>{t("vocab.backTest")}</M3eButton>
-            <M3eButton variant="filled" disabled={filteredWrongRecords.length === 0} onClick={() => void startTest("wrongbook")}>
+          <div className="cluster vocab-selection-actions">
+            <M3eButton variant="outlined" disabled={selectionBusy} onClick={() => setScreen("select")}>{t("vocab.backTest")}</M3eButton>
+            <M3eButton variant="filled" disabled={filteredWrongRecords.length === 0 || selectionBusy} onClick={() => void startTest("wrongbook")}>
               {t("vocab.reviewFiltered")}
             </M3eButton>
+            {selectionActionStatus}
           </div>
         </section>
         <section className="md-card stack" aria-label={t("vocab.recordsAria")}>
@@ -951,37 +966,65 @@ export function VocabClient() {
                 </M3eOption>
                 {wrongBookSources.map((source) => (
                   <M3eOption key={source} value={source}>
-                    <div>{source}</div>
+                    <div>{displayVocabularyTitle(source)}</div>
                   </M3eOption>
                 ))}
               </SelectField>
               <div className="filter-section" aria-label={t("vocab.mastery")}>
                 <span className="filter-label">{t("vocab.mastery")}</span>
-                <div className="button-group" role="radiogroup" aria-label={t("vocab.mastery")}>
+                <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.mastery")}>
                   {masteryFilterOptions.map((option) => (
-                    <button
-                      className="button-group__item"
-                      type="button"
-                      role="radio"
-                      aria-checked={(masteryFilter === option.value) ? "true" : "false"}
-                      data-selected={masteryFilter === option.value}
+                    <M3eButton
                       key={option.value}
+                      type="button"
+                      variant="tonal"
+                      shape="square"
+                      toggle
+                      selected={masteryFilter === option.value}
+                      tabIndex={masteryFilter === option.value ? 0 : -1}
+                      role="radio"
+                      aria-checked={masteryFilter === option.value ? "true" : "false"}
+                      onBeforeInput={(event) => { if (masteryFilter === option.value) event.preventDefault(); }}
                       onClick={() => setMasteryFilter(option.value)}
                     >
                       {t(option.label)}
-                    </button>
+                    </M3eButton>
                   ))}
-                </div>
+                </M3eButtonGroup>
               </div>
               <div className="filter-section" aria-label={t("vocab.view")}>
                 <span className="filter-label">{t("vocab.view")}</span>
                 <div className="chip-scroll">
-                  <M3eFilterChip selected={wrongBookView === "words"} role="radio" aria-checked={(wrongBookView === "words") ? "true" : "false"} onBeforeInput={(event) => { if (wrongBookView === "words") event.preventDefault(); }} onClick={() => setWrongBookView("words")}>
-                    {t("vocab.view.words")}
-                  </M3eFilterChip>
-                  <M3eFilterChip selected={wrongBookView === "batches"} role="radio" aria-checked={(wrongBookView === "batches") ? "true" : "false"} onBeforeInput={(event) => { if (wrongBookView === "batches") event.preventDefault(); }} onClick={() => setWrongBookView("batches")}>
-                    {t("vocab.view.batches")}
-                  </M3eFilterChip>
+                  <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.view")}>
+                    <M3eButton
+                      type="button"
+                      variant="tonal"
+                      shape="square"
+                      toggle
+                      selected={wrongBookView === "words"}
+                      tabIndex={wrongBookView === "words" ? 0 : -1}
+                      role="radio"
+                      aria-checked={wrongBookView === "words" ? "true" : "false"}
+                      onBeforeInput={(event) => { if (wrongBookView === "words") event.preventDefault(); }}
+                      onClick={() => setWrongBookView("words")}
+                    >
+                      {t("vocab.view.words")}
+                    </M3eButton>
+                    <M3eButton
+                      type="button"
+                      variant="tonal"
+                      shape="square"
+                      toggle
+                      selected={wrongBookView === "batches"}
+                      tabIndex={wrongBookView === "batches" ? 0 : -1}
+                      role="radio"
+                      aria-checked={wrongBookView === "batches" ? "true" : "false"}
+                      onBeforeInput={(event) => { if (wrongBookView === "batches") event.preventDefault(); }}
+                      onClick={() => setWrongBookView("batches")}
+                    >
+                      {t("vocab.view.batches")}
+                    </M3eButton>
+                  </M3eButtonGroup>
                 </div>
               </div>
             </div>
@@ -993,7 +1036,7 @@ export function VocabClient() {
                     <div>
                       <h3 className="card-title">{record.word}</h3>
                       <div className="record-chip-row" aria-label={t("vocab.recordAria", { word: record.word })}>
-                        <span className="info-chip">{t("vocab.recordSource", { source: record.sourceTitle ?? record.sourceName })}</span>
+                        <span className="info-chip">{t("vocab.recordSource", { source: displayVocabularyTitle(record.sourceTitle ?? record.sourceName) })}</span>
                         <span className="info-chip info-chip--strong">{t("vocab.wrongCount", { count: record.wrongCount })}</span>
                         <span className="info-chip info-chip--strong">{t(masteryMessageKey(masteryById[record.id]))}</span>
                         <span className="info-chip">{isMasteryDue(masteryById[record.id]) ? t("vocab.review.now") : t("vocab.review.next", { date: new Date(masteryById[record.id]!.nextReviewAt).toLocaleDateString(locale) })}</span>
@@ -1080,18 +1123,19 @@ export function VocabClient() {
             {selectedMetas.length === 0 ? t("vocab.selectionCacheHint") : t("vocab.selectionSummary", { selected: selectedMetas.length, cached: cachedUnitCount, missing: missingUnitCount })}
           </p>
         </div>
-        <div className="cluster">
+        <div className="cluster vocab-selection-actions">
           <span className={online ? "badge badge--neutral" : "badge badge--error"}>{t(online ? "vocab.online" : "vocab.offline")}</span>
-          <M3eButton variant="outlined" disabled={!online || cacheBusy || selectedMetas.length === 0} onClick={() => void cacheSelectedUnits()}>
+          <M3eButton variant="outlined" disabled={!online || selectionBusy || selectedMetas.length === 0} onClick={() => void cacheSelectedUnits()}>
             {t(cacheBusy ? "vocab.caching" : "vocab.cacheSelected")}
           </M3eButton>
-          <M3eButton variant="outlined" disabled={selectedMetas.length === 0 && selectedCustomLists.length === 0} onClick={() => void preparePrintableVocabulary()}>
+          <M3eButton variant="outlined" disabled={selectionBusy || (selectedMetas.length === 0 && selectedCustomLists.length === 0)} onClick={() => void preparePrintableVocabulary()}>
             {t("vocab.createPrint")}
           </M3eButton>
-          <M3eButton variant="outlined" onClick={() => setScreen("wrongbook")}>{t("vocab.openWrongbook")}</M3eButton>
-          <M3eButton variant="filled" disabled={loading} onClick={() => void startTest()}>
+          <M3eButton variant="outlined" disabled={selectionBusy} onClick={() => setScreen("wrongbook")}>{t("vocab.openWrongbook")}</M3eButton>
+          <M3eButton variant="filled" disabled={selectionBusy} onClick={() => void startTest()}>
             {t("vocab.start")}
           </M3eButton>
+          {selectionActionStatus}
         </div>
       </section>
 
@@ -1103,7 +1147,7 @@ export function VocabClient() {
             <section className="md-card stack" key={book.code} aria-labelledby={`${book.code}-title`}>
               <div className="spread">
                 <h3 className="card-title" id={`${book.code}-title`}>
-                  {book.title}
+                  {displayVocabularyTitle(book.title)}
                 </h3>
                 <M3eButton variant="outlined" onClick={() => toggleBook(book.code)}>{t(allSelected ? "vocab.allSelected" : "vocab.selectAll")}</M3eButton>
               </div>
@@ -1140,19 +1184,20 @@ export function VocabClient() {
                 <div className="unit-row" key={`custom-row-${rowIndex}`}>
                   {cells.slice(rowIndex * 2, rowIndex * 2 + 2).map((item) =>
                     item.name === "__more__" ? (
-                      <button
+                      <M3eButton
                         className="more-chip"
+                        variant="outlined"
                         data-state={hiddenCustomSelectionState}
                         key={item.name}
                         type="button"
                         aria-label={t("vocab.moreAria", { selection: hiddenCustomSelectionText })}
                         onClick={openCustomListDialog}
                       >
-                        <span className="more-chip__icon" aria-hidden="true">
+                        <span slot="icon" className="more-chip__icon" aria-hidden="true">
                           {hiddenCustomSelectionIcon}
                         </span>
-                        <span>{item.title}</span>
-                      </button>
+                        <span>{displayVocabularyTitle(item.title)}</span>
+                      </M3eButton>
                     ) : (
                       <M3eFilterChip
                         key={item.name}
@@ -1161,7 +1206,7 @@ export function VocabClient() {
                         aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
                         onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
                       >
-                        {item.title}
+                        {displayVocabularyTitle(item.title)}
                       </M3eFilterChip>
                     )
                   )}
@@ -1185,10 +1230,15 @@ export function VocabClient() {
             </M3eOption>
           </SelectField>
           {testMode === "all" ? (
-            <div className="material-static-field" aria-disabled="true">
-              <span>{t("vocab.modeAllDisabled")}</span>
-              <strong>{testCount}</strong>
-            </div>
+            <TextField
+              type="number"
+              label={t("vocab.testCount")}
+              value={testCount}
+              min={1}
+              max={Math.max(maxTestCount, testCount, 1)}
+              disabled
+              supportingText={t("vocab.modeAllDisabled")}
+            />
           ) : (
             <TextField
               type="number"
@@ -1209,31 +1259,30 @@ export function VocabClient() {
           </label>
           <div className="stack" aria-label={t("vocab.definitionLanguageAria")}>
             <span className="helper-text">{t("vocab.definitionLanguage")}</span>
-            <div className="button-group" role="radiogroup" aria-label={t("vocab.definitionLanguageAria")}>
+            <M3eButtonGroup className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("vocab.definitionLanguageAria")}>
               {definitionLanguageOptions.map((option) => (
-                <button
+                <M3eButton
                   type="button"
                   key={option.value}
-                  className="button-group__item"
+                  variant="tonal"
+                  shape="square"
+                  toggle
+                  selected={definitionLanguageMode === option.value}
+                  tabIndex={definitionLanguageMode === option.value ? 0 : -1}
                   role="radio"
-                  aria-checked={(definitionLanguageMode === option.value) ? "true" : "false"}
-                  data-selected={definitionLanguageMode === option.value}
+                  aria-checked={definitionLanguageMode === option.value ? "true" : "false"}
+                  onBeforeInput={(event) => { if (definitionLanguageMode === option.value) event.preventDefault(); }}
                   onClick={() => selectDefinitionLanguageMode(option.value)}
                 >
                   {t(option.label)}
-                </button>
+                </M3eButton>
               ))}
-            </div>
+            </M3eButtonGroup>
           </div>
           <TextField label={t("vocab.batchName")} value={batchName} onInput={(event) => setBatchName(valueFrom(event))} />
         </div>
       </section>
 
-      <M3eDialog open={loading} disableClose>
-        <M3eLoadingIndicator aria-label={t("vocab.preparing")} />
-        <div slot="header">{t("vocab.preparing")}</div>
-        <div>{t("vocab.preparingDescription")}</div>
-      </M3eDialog>
       <M3eDialog open={customListDialogOpen} onClosed={closeCustomListDialog} onCancel={closeCustomListDialog}>
         <div slot="header">{t("vocab.customTitle")}</div>
         <div className="custom-list-dialog">
@@ -1245,7 +1294,7 @@ export function VocabClient() {
               aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
               onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
             >
-              {item.title}
+              {displayVocabularyTitle(item.title)}
             </M3eFilterChip>
           ))}
         </div>

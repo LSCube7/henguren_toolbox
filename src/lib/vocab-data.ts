@@ -14,10 +14,10 @@ export function getBookTitle(bookCode: string) {
     R1: "必修一",
     R2: "必修二",
     R3: "必修三",
-    O1: "选择性必修一",
-    O2: "选择性必修二",
-    O3: "选择性必修三",
-    O4: "选择性必修四"
+    O1: "选必一",
+    O2: "选必二",
+    O3: "选必三",
+    O4: "选必四"
   };
   return bookMap[bookCode] ?? bookCode;
 }

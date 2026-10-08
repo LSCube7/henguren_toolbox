@@ -1,4 +1,4 @@
-import type { AppLocale } from "./config";
+import { isAppLocale, type AppLocale } from "./config.ts";
 
 export function resolveRequestLocale(acceptLanguage: string | null): AppLocale {
   const preferences = acceptLanguage
@@ -26,4 +26,8 @@ export function resolveRequestLocale(acceptLanguage: string | null): AppLocale {
     })
     .sort((left, right) => right.quality - left.quality || left.index - right.index || left.defaultOrder - right.defaultOrder)[0]?.locale;
   return preferredLocale ?? "en-US";
+}
+
+export function resolveSettingsLocale(explicitLocale: string | null, acceptLanguage: string | null): AppLocale {
+  return isAppLocale(explicitLocale) ? explicitLocale : resolveRequestLocale(acceptLanguage);
 }

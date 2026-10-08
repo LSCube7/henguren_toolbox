@@ -2,7 +2,7 @@ const CACHE_PREFIX = "henguren-v3-offline";
 // Increment shell and data versions independently so an app-shell update does
 // not discard vocabulary or text lists that users explicitly cached offline.
 // Only increment a version after its current value has shipped to users.
-const SHELL_VERSION = "v3";
+const SHELL_VERSION = "v4";
 // Keep this value in sync with dataCacheVersion in src/lib/offline-cache.ts.
 const DATA_VERSION = "v2";
 const APP_CACHE = `${CACHE_PREFIX}-${SHELL_VERSION}-app`;
@@ -11,7 +11,12 @@ const DATA_CACHE = `${CACHE_PREFIX}-${DATA_VERSION}-data`;
 const CURRENT_CACHES = new Set([APP_CACHE, STATIC_CACHE, DATA_CACHE]);
 const LEGACY_DATA_CACHES = [`${CACHE_PREFIX}-v1-data`];
 
-const APP_SHELL_ROUTES = ["/", "/shici", "/wenchang", "/vocab", "/text", "/settings", "/developer", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms", "/offline.html"];
+const APP_SHELL_PATHS = ["/", "/shici", "/wenchang", "/vocab", "/vocab/print", "/text", "/settings", "/developer", "/user", "/onboarding", "/changelog", "/license", "/privacy", "/terms"];
+const APP_SHELL_ROUTES = [
+  ...APP_SHELL_PATHS,
+  ...["zh-CN", "en-US"].flatMap((locale) => APP_SHELL_PATHS.map((path) => `/${locale}${path === "/" ? "" : path}`)),
+  "/offline.html"
+];
 const NEVER_CACHE_PREFIXES = ["/api/auth/", "/api/me", "/api/wrongbook"];
 
 self.addEventListener("install", (event) => {
@@ -153,7 +158,9 @@ async function networkFirstPage(request) {
     if (response.ok) await cache.put(request, response.clone());
     return response;
   } catch {
-    const cached = await cache.match(request);
+    const pathnameUrl = new URL(request.url);
+    pathnameUrl.search = "";
+    const cached = (await cache.match(request)) ?? (await cache.match(pathnameUrl.href));
     return cached ?? (await cache.match("/offline.html")) ?? Response.error();
   }
 }

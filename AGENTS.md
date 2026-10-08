@@ -4,14 +4,14 @@ This file gives coding agents the working rules for this repository. Follow it b
 
 ## Project
 
-Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The current `main` release is v3.1.0; the historical Vue version is preserved on the `v2` branch.
+Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.0 (the current `main` release is v3.1.0 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
 
 Core goals:
 
 - Keep Chinese and English learning tools usable locally.
-- Use Material Design 3 via Material Web and local Material icon fonts.
+- Use Material 3 Expressive via M3E and local Material icon fonts.
 - Keep wrongbook data local-first, with explicit cloud sync after login.
-- Use LSCube OAuth for login and Cloudflare R2 for JSON snapshot storage.
+- Use CubeID for login and Cloudflare R2 for JSON snapshot storage.
 
 ## Do Not Read
 
@@ -23,9 +23,9 @@ Core goals:
 - Package manager: `pnpm`.
 - Framework: Next.js 16 App Router.
 - React: React 19.
-- UI: official `@material/web` custom elements plus project CSS in `src/app/globals.css`.
+- UI: third-party `@m3e/react` per-component bindings, with `@m3e/web` where bindings lack presentation support; project CSS in `src/app/globals.css`.
 - Icons: local `@fontsource-variable/material-symbols-rounded` with the Material Symbols `FILL` axis for state changes.
-- Color: `@material/material-color-utilities`.
+- Color: `M3eTheme` owns Dynamic Color and Material tokens; `@material/material-color-utilities` is retained for the HCT picker.
 - Storage: browser IndexedDB/localStorage/Cache Storage locally; Cloudflare R2 via AWS S3 client on server routes.
 
 ## Important Paths
@@ -88,13 +88,13 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - `wrongbooks/{userId}/current.json`
   - `wrongbooks/{userId}/backups/{timestamp}.json`
   - `settings/{userId}/current.json`
-- Cloud sync must remain explicit. Do not automatically overwrite local or cloud data.
+- Cloud sync defaults to explicit operations. Users may explicitly enable account-scoped automatic merge sync for wrongbook and mastery. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
 - Offline mode must keep local learning tools usable and show cloud sync as unavailable/offline.
 - Secrets must only be read in server-side code or route handlers. Never expose R2 or OAuth secrets to client bundles.
 
 ## UI Rules
 
-- Use Material Web custom elements for controls where practical.
+- Use M3E React components from per-component subpaths for controls; keep native HTML semantics where appropriate.
 - Keep complex layout, cards, rail, footer, tables, and print layout in project CSS.
 - Do not reintroduce MUI/Emotion.
 - Preserve the product tone: learning toolbox, not cloud platform/account admin console.
@@ -152,7 +152,7 @@ Settings are local-first. Upload to cloud only through explicit settings sync.
 - Create a dedicated branch for every pull request. Name it `{type}/{feature}`, where `{type}` matches the Conventional Commit prefix and `{feature}` is a concise kebab-case description, for example `feat/vocab-import` or `fix/offline-sync-status`.
 - Use English Conventional Commit messages whose type and scope match the branch and pull request content.
 - Push feature/content branches and open their pull requests against `dev`. Do not open routine feature or fix pull requests directly against `main`.
-- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the rebase merge strategy.
+- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the merge commit strategy, as explicitly requested by the repository owner.
 - All pull request reviews are performed manually by the repository owner. Agents must not approve, merge, enable auto-merge for, or otherwise bypass review on a pull request.
 - Before pushing each pull request branch, inspect previous local and remote temporary/topic branches. Delete obsolete prior temporary branches only after confirming they contain no uncommitted, unique, or still-unmerged work; never delete an active pull request branch.
 - Any command that uses `gh` requires network access. Explain the intended GitHub operation and request network permission or escalation before running it.

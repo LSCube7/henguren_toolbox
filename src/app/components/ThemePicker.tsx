@@ -1,7 +1,13 @@
 "use client";
 
+import { M3eButton } from "@m3e/react/button";
+import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard";
+import { M3eCard } from "@m3e/react/card";
+import { M3eIconButton, type M3eIconButtonElement } from "@m3e/react/icon-button";
+import { Dialog as M3eDialog } from "./Dialog";
 import { CorePalette, Hct, argbFromHex, hexFromArgb } from "@material/material-color-utilities";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { customThemePresetId, defaultThemeSeed, inferThemePreset, isValidHexColor, normalizeHexColor, prideThemeFlags, themePresets } from "@/lib/theme-presets";
 import type { ToolboxSettings } from "@/lib/types";
 import { MaterialIcon } from "./MaterialIcon";
@@ -89,26 +95,39 @@ function hctSliderGradients(hex: string) {
   };
 }
 
-function valueFrom(event: React.FormEvent<HTMLElement>) {
-  return String((event.currentTarget as HTMLElement & { value?: string }).value ?? "");
+function moveThemeSelection(event: KeyboardEvent<HTMLElement>) {
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+  const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[role="radio"], [role="tab"]'));
+  const index = buttons.indexOf(event.target as HTMLElement);
+  if (index < 0) return;
+  event.preventDefault();
+  const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 :
+    (index + (event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1) + buttons.length) % buttons.length;
+  buttons[next]?.focus();
+  buttons[next]?.click();
 }
 
 export function ThemePicker({
   settings,
   onChange,
-  showReset = true
+  showReset = true,
+  showModeDescription = true
 }: {
   settings: ToolboxSettings;
   onChange: (next: Partial<ToolboxSettings>) => void;
   showReset?: boolean;
+  showModeDescription?: boolean;
 }) {
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   const [prideOpen, setPrideOpen] = useState(false);
+  const prideTriggerRef = useRef<M3eIconButtonElement>(null);
+  function closePridePanel() {
+    setPrideOpen(false);
+    prideTriggerRef.current?.focus();
+  }
   const [selectedPrideFlag, setSelectedPrideFlag] = useState(() => readInitialPrideFlag(settings.themeSeedColor));
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
-  const [customDialogKey, setCustomDialogKey] = useState(0);
   const customDialogAppliedRef = useRef(false);
-  const prideSegmentsRef = useRef<HTMLDivElement>(null);
   const currentSeed = settings.themeSeedColor ?? defaultThemeSeed;
   const customColorValue = isValidHexColor(currentSeed) ? currentSeed : defaultThemeSeed;
   const [customDraftColor, setCustomDraftColor] = useState(() => hctStateFromHex(customColorValue));
@@ -146,9 +165,7 @@ export function ThemePicker({
     customDialogAppliedRef.current = false;
     setPrideOpen(false);
     setCustomDraftColor(hctStateFromHex(customColorValue));
-    setCustomDialogKey((current) => current + 1);
-    setCustomDialogOpen(false);
-    window.setTimeout(() => setCustomDialogOpen(true), 0);
+    setCustomDialogOpen(true);
   }
 
   function closeCustomDialog(applied = false) {
@@ -205,19 +222,12 @@ export function ThemePicker({
     previewDraftColor(hex);
   }
 
-  function scrollPrideFlags(direction: "left" | "right") {
-    prideSegmentsRef.current?.scrollBy({
-      left: direction === "left" ? -220 : 220,
-      behavior: "smooth"
-    });
-  }
-
   return (
     <div className="theme-settings">
       <div className="theme-preset-section">
         <div className="theme-preset-row">
-          <div className="theme-preset-grid" role="radiogroup" aria-label={t("theme.presetAria")}>
-            {standardPresets.map((preset) => (
+          <div className="theme-preset-grid" role="radiogroup" onKeyDown={moveThemeSelection} aria-label={t("theme.presetAria")}>
+            {standardPresets.map((preset, index) => (
               <button
                 className="theme-preset-circle"
                 style={{ "--theme-preset-color": preset.seedColor, "--theme-preset-background": preset.seedColor } as React.CSSProperties}
@@ -227,101 +237,115 @@ export function ThemePicker({
                 role="radio"
                 aria-label={presetLabel(preset)}
                 title={presetLabel(preset)}
-                aria-checked={activePreset === preset.id}
+                aria-checked={(activePreset === preset.id) ? "true" : "false"}
+                tabIndex={activePreset === preset.id || (!standardPresets.some((item) => item.id === activePreset) && index === 0) ? 0 : -1}
                 onClick={() => selectPreset(preset.id, preset.seedColor)}
               />
             ))}
           </div>
           <div className="theme-preset-actions" aria-label={t("theme.moreAria")}>
-            <button className="theme-action-circle" type="button" aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
+            <M3eIconButton ref={prideTriggerRef} aria-expanded={prideOpen} aria-controls="pride-color-panel" aria-label="Pride Color" title="Pride Color" onClick={() => setPrideOpen((current) => !current)}>
               <MaterialIcon name="question_mark" />
-            </button>
-            <button className="theme-action-circle" type="button" aria-label={t("theme.custom")} title={t("theme.custom")} data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
+            </M3eIconButton>
+            <M3eIconButton aria-label={t("theme.custom")} title={t("theme.custom")} data-selected={activePreset === customThemePresetId} onClick={openCustomDialog}>
               <MaterialIcon name="palette" />
-            </button>
+            </M3eIconButton>
           </div>
         </div>
       </div>
-      <section className="theme-preset-popover" id="pride-color-panel" aria-label="Pride Color" data-open={prideOpen} inert={!prideOpen ? true : undefined}>
-        <div className="theme-preset-panel-title">
-          <span>Pride Color</span>
-          <button className="theme-panel-close" type="button" aria-label={t("theme.pride.collapse")} onClick={() => setPrideOpen(false)}>
-            <MaterialIcon name="close" />
-          </button>
-        </div>
-        <div className="pride-picker">
-          <div className="pride-scroll-hint">
-            <MaterialIcon name="swipe" />
-            <span>{t("theme.pride.hint")}</span>
-          </div>
-          <div className="pride-flag-scroll">
-            <button className="pride-scroll-button" type="button" aria-label={t("theme.pride.left")} onClick={() => scrollPrideFlags("left")}>
-              <MaterialIcon name="chevron_left" />
-            </button>
-            <div ref={prideSegmentsRef} className="pride-flag-segments" role="tablist" aria-label={t("theme.pride.select")}>
-              {prideThemeFlags.map((flag) => (
-                <button key={flag.id} type="button" role="tab" aria-selected={selectedPrideFlag === flag.id} data-selected={selectedPrideFlag === flag.id} onClick={() => setSelectedPrideFlag(flag.id)}>
-                  {flag.name}
-                </button>
+      <section className="theme-preset-popover" id="pride-color-panel" aria-label="Pride Color" data-open={prideOpen} inert={!prideOpen ? true : undefined}
+        onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closePridePanel(); } }}>
+        <M3eCard className="theme-preset-card" variant="elevated">
+          <div slot="content" className="theme-preset-card-content">
+          <header className="theme-preset-panel-title">
+            <span>Pride Color</span>
+            <M3eIconButton aria-label={t("theme.pride.collapse")} onClick={closePridePanel}>
+              <MaterialIcon name="close" />
+            </M3eIconButton>
+          </header>
+          <div className="pride-picker">
+            <div className="pride-scroll-hint">
+              <MaterialIcon name="swipe" />
+              <span>{t("theme.pride.hint")}</span>
+            </div>
+            <div className="pride-flag-scroll">
+              <div className="pride-flag-segments">
+                <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.pride.select")}>
+                  {prideThemeFlags.map((flag) => (
+                    <M3eButton size="small"
+                      key={flag.id}
+                      variant="tonal"
+                      shape="square"
+                      toggle
+                      selected={selectedPrideFlag === flag.id}
+                      role="radio"
+                      aria-checked={selectedPrideFlag === flag.id ? "true" : "false"}
+                      tabIndex={selectedPrideFlag === flag.id ? 0 : -1}
+                      onBeforeInput={(event) => { if (selectedPrideFlag === flag.id) event.preventDefault(); }}
+                      onClick={() => setSelectedPrideFlag(flag.id)}
+                    >
+                      {flag.name}
+                    </M3eButton>
+                  ))}
+                </M3eButtonGroup>
+              </div>
+            </div>
+            <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`} onKeyDown={moveThemeSelection}>
+              {pridePresets.map((preset, index) => (
+                <button
+                  className="theme-preset-circle"
+                  style={{ "--theme-preset-color": preset.seedColor, "--theme-preset-background": preset.seedColor } as React.CSSProperties}
+                  data-selected={activePreset === preset.id}
+                  key={preset.id}
+                  type="button"
+                  role="radio"
+                  aria-label={presetLabel(preset)}
+                  title={presetLabel(preset)}
+                  aria-checked={(activePreset === preset.id) ? "true" : "false"}
+                  tabIndex={activePreset === preset.id || (!pridePresets.some((item) => item.id === activePreset) && index === 0) ? 0 : -1}
+                  onClick={() => selectPreset(preset.id, preset.seedColor)}
+                />
               ))}
             </div>
-            <button className="pride-scroll-button" type="button" aria-label={t("theme.pride.right")} onClick={() => scrollPrideFlags("right")}>
-              <MaterialIcon name="chevron_right" />
-            </button>
           </div>
-          <div className="theme-preset-grid theme-preset-grid--compact" role="radiogroup" aria-label={`Pride Color ${selectedPrideFlag}`}>
-            {pridePresets.map((preset) => (
-              <button
-                className="theme-preset-circle"
-                style={{ "--theme-preset-color": preset.seedColor, "--theme-preset-background": preset.seedColor } as React.CSSProperties}
-                data-selected={activePreset === preset.id}
-                key={preset.id}
-                type="button"
-                role="radio"
-                aria-label={presetLabel(preset)}
-                title={presetLabel(preset)}
-                aria-checked={activePreset === preset.id}
-                onClick={() => selectPreset(preset.id, preset.seedColor)}
-              />
-            ))}
           </div>
-        </div>
+        </M3eCard>
       </section>
       <div className="custom-theme-row">
         <span className="custom-color-readout" style={{ "--theme-preset-color": customColorValue } as React.CSSProperties}>
           {customColorValue.toUpperCase()}
         </span>
-        {showReset ? <md-outlined-button onClick={resetDefaultTheme}>{t("theme.reset")}</md-outlined-button> : null}
+        {showReset ? <M3eButton variant="outlined" onClick={resetDefaultTheme}>{t("theme.reset")}</M3eButton> : null}
       </div>
       <div className="theme-mode-row">
         <div>
           <h3 className="card-title">{t("theme.mode.title")}</h3>
-          <p className="helper-text">{t("theme.mode.description")}</p>
+          {showModeDescription ? <p className="helper-text">{t("theme.mode.description")}</p> : null}
         </div>
-        <md-filled-select key={`${locale}-color-mode`} value={settings.colorMode ?? "system"} onInput={(event) => onChange({ colorMode: valueFrom(event) as ToolboxSettings["colorMode"] })}>
-          <md-select-option value="system">
-            <div slot="headline">{t("theme.mode.system")}</div>
-          </md-select-option>
-          <md-select-option value="light">
-            <div slot="headline">{t("theme.mode.light")}</div>
-          </md-select-option>
-          <md-select-option value="dark">
-            <div slot="headline">{t("theme.mode.dark")}</div>
-          </md-select-option>
-        </md-filled-select>
+        <M3eButtonGroup size="small" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("theme.mode.title")}>
+          {(["system", "light", "dark"] as const).map((mode) =>
+            <M3eButton size="small" key={mode} variant="tonal" shape="square" toggle
+              selected={(settings.colorMode ?? "system") === mode}
+              role="radio" tabIndex={(settings.colorMode ?? "system") === mode ? 0 : -1}
+              aria-checked={((settings.colorMode ?? "system") === mode) ? "true" : "false"}
+              onBeforeInput={(event) => { if ((settings.colorMode ?? "system") === mode) event.preventDefault(); }}
+              onClick={() => onChange({ colorMode: mode })}>{t(("theme.mode." + mode) as MessageKey)}</M3eButton>
+          )}
+        </M3eButtonGroup>
       </div>
-      <md-dialog key={customDialogKey} class="hct-dialog" open={customDialogOpen} onClosed={handleCustomDialogClosed} onClose={handleCustomDialogClosed} onCancel={handleCustomDialogClosed}>
-        <div slot="headline">{t("theme.hct.title")}</div>
-        <div slot="content" className="hct-color-dialog">
+      <M3eDialog open={customDialogOpen}
+        onClosed={handleCustomDialogClosed} onCancel={handleCustomDialogClosed}>
+        <div slot="header">{t("theme.hct.title")}</div>
+        <div className="hct-color-dialog">
           <div className="hct-color-preview" style={{ background: customDraftColor.hex }} aria-hidden="true" />
           <div className="hct-field-grid">
             <label className="hex-field" data-error={customDraftHexIsInvalid}>
               <span>HEX</span>
               <div className="hex-input-shell">
                 <span aria-hidden="true">#</span>
-                <input aria-invalid={customDraftHexIsInvalid} aria-label="HEX" value={customDraftColor.hex.replace(/^#/, "")} maxLength={6} onInput={(event) => updateDraftHex((event.currentTarget as HTMLInputElement).value)} />
+                <input aria-invalid={customDraftHexIsInvalid} aria-label="HEX" aria-describedby={customDraftHexIsInvalid ? "hct-hex-error" : undefined} value={customDraftColor.hex.replace(/^#/, "")} maxLength={6} onInput={(event) => updateDraftHex((event.currentTarget as HTMLInputElement).value)} />
               </div>
-              {customDraftHexIsInvalid ? <small>{t("theme.hct.invalidHex")}</small> : null}
+              {customDraftHexIsInvalid ? <small id="hct-hex-error">{t("theme.hct.invalidHex")}</small> : null}
             </label>
             <div className="rgb-field" aria-label="RGB">
               <span>RGB</span>
@@ -332,27 +356,27 @@ export function ThemePicker({
               </div>
             </div>
           </div>
-          <label className="hct-slider hct-slider--hue" style={{ "--hct-slider-track": hctGradients.hue } as React.CSSProperties}>
+          <div className="hct-slider hct-slider--hue" style={{ "--hct-slider-track": hctGradients.hue } as React.CSSProperties}>
             <span>Hue</span>
-            <input className="hct-slider__value" type="number" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
-            <input className="hct-slider__range" type="range" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
-          </label>
-          <label className="hct-slider hct-slider--chroma" style={{ "--hct-slider-track": hctGradients.chroma } as React.CSSProperties}>
+            <input className="hct-slider__value" aria-label="Hue" type="number" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <input className="hct-slider__range" aria-label="Hue" type="range" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
+          </div>
+          <div className="hct-slider hct-slider--chroma" style={{ "--hct-slider-track": hctGradients.chroma } as React.CSSProperties}>
             <span>Chroma</span>
-            <input className="hct-slider__value" type="number" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
-            <input className="hct-slider__range" type="range" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
-          </label>
-          <label className="hct-slider hct-slider--tone" style={{ "--hct-slider-track": hctGradients.tone } as React.CSSProperties}>
+            <input className="hct-slider__value" aria-label="Chroma" type="number" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <input className="hct-slider__range" aria-label="Chroma" type="range" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
+          </div>
+          <div className="hct-slider hct-slider--tone" style={{ "--hct-slider-track": hctGradients.tone } as React.CSSProperties}>
             <span>Tone</span>
-            <input className="hct-slider__value" type="number" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
-            <input className="hct-slider__range" type="range" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
-          </label>
+            <input className="hct-slider__value" aria-label="Tone" type="number" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <input className="hct-slider__range" aria-label="Tone" type="range" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
+          </div>
         </div>
         <div slot="actions">
-          <md-text-button onClick={() => closeCustomDialog(false)}>{t("common.cancel")}</md-text-button>
-          <md-filled-button onClick={applyCustomColor}>{t("common.apply")}</md-filled-button>
+          <M3eButton variant="text" onClick={() => closeCustomDialog(false)}>{t("common.cancel")}</M3eButton>
+          <M3eButton variant="filled" onClick={applyCustomColor}>{t("common.apply")}</M3eButton>
         </div>
-      </md-dialog>
+      </M3eDialog>
     </div>
   );
 }

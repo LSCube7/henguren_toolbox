@@ -1,8 +1,12 @@
 "use client";
+import "@m3e/web/snackbar";
+import { M3eButton } from "@m3e/react/button";
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useI18n } from "../i18n/AppI18nProvider";
+import { stripLocalePrefix } from "@/lib/localized-routing";
+import { useSnackbarActive } from "./Snackbar";
 
 const cachePrefix = "henguren-v3-offline";
 
@@ -19,8 +23,10 @@ async function disableDevelopmentServiceWorker() {
 }
 
 export function ServiceWorkerRegister() {
+  const noticeActive = useSnackbarActive();
   const { t } = useI18n();
   const pathname = usePathname();
+  const shellless = stripLocalePrefix(pathname) === "/onboarding";
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [applyingUpdate, setApplyingUpdate] = useState(false);
 
@@ -106,19 +112,19 @@ export function ServiceWorkerRegister() {
     }
   }
 
-  if (!waitingWorker) return null;
+  if (!waitingWorker || noticeActive) return null;
 
   return (
-    <div
-      className={`service-worker-snackbar${pathname === "/onboarding" ? " service-worker-snackbar--shellless" : ""}`}
+    <m3e-snackbar open duration={0}
+      className={`app-update-notice${shellless ? " app-update-notice--shellless" : ""}`}
       role="status"
       aria-live="polite"
       aria-atomic="true"
     >
       <span>{t("update.ready")}</span>
-      <md-text-button disabled={applyingUpdate} onClick={applyUpdate}>
+      <M3eButton variant="text" disabled={applyingUpdate} onClick={applyUpdate}>
         {t(applyingUpdate ? "update.applying" : "update.action")}
-      </md-text-button>
-    </div>
+      </M3eButton>
+    </m3e-snackbar>
   );
 }

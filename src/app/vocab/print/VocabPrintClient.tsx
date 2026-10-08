@@ -1,9 +1,13 @@
 "use client";
+import { M3eButton } from "@m3e/react/button";
+import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard";
+import { M3eSwitch } from "@m3e/react/switch";
 
 import type { VocabWord } from "@/lib/types";
-import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useI18n } from "../../i18n/AppI18nProvider";
+import { localizePath } from "@/lib/localized-routing";
 
 type PrintableSource = {
   title: string;
@@ -62,6 +66,10 @@ function toggleLanguage(current: DefinitionLanguage[], value: DefinitionLanguage
   return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
+function displayVocabularyTitle(title: string) {
+  return title.replace("选择性必修", "选必");
+}
+
 function definitionsFor(word: VocabWord, languages: DefinitionLanguage[], unavailable: string) {
   const definitions = [
     ...(languages.includes("en") ? word.en_definition ?? [] : []),
@@ -78,7 +86,7 @@ export function VocabPrintClient() {
   const [showHint, setShowHint] = useState(true);
 
   const words = useMemo(() => payload?.sources.flatMap((source) => source.words.map((word) => ({ ...word, sourceTitle: word.sourceTitle ?? source.title }))) ?? [], [payload]);
-  const sourceInfo = useMemo(() => payload?.sources.map((source) => source.title || t("print.untitled")).join(", ") ?? t("print.noSource"), [payload, t]);
+  const sourceInfo = useMemo(() => payload?.sources.map((source) => displayVocabularyTitle(source.title || t("print.untitled"))).join(", ") ?? t("print.noSource"), [payload, t]);
   const createdAt = payload?.createdAt ? new Date(payload.createdAt).toLocaleString(locale) : "";
   const answerTitle = t(displayMode === "definition" ? "print.answerWord" : "print.answerDefinition");
 
@@ -88,9 +96,7 @@ export function VocabPrintClient() {
         <h2 className="section-title">{t("print.emptyTitle")}</h2>
         <p className="helper-text">{t("print.emptyDescription")}</p>
         <div>
-          <Link href="/vocab">
-            <md-filled-button>{t("print.backVocab")}</md-filled-button>
-          </Link>
+          <M3eButton variant="filled" href={localizePath(locale, "/vocab")}>{t("print.backVocab")}</M3eButton>
         </div>
       </section>
     );
@@ -105,41 +111,79 @@ export function VocabPrintClient() {
             <p className="helper-text">{t("print.settingsDescription", { count: words.length })}</p>
           </div>
           <div className="cluster">
-            <Link href="/vocab">
-              <md-outlined-button>{t("print.back")}</md-outlined-button>
-            </Link>
-            <md-filled-button onClick={() => window.print()}>{t("print.action")}</md-filled-button>
+            <M3eButton variant="outlined" href={localizePath(locale, "/vocab")}>{t("print.back")}</M3eButton>
+            <M3eButton variant="filled" onClick={() => window.print()}>{t("print.action")}</M3eButton>
           </div>
         </div>
 
         <div className="print-option-grid">
           <div className="stack">
             <h3 className="card-title">{t("print.displayTitle")}</h3>
-            <div className="cluster" role="radiogroup" aria-label={t("print.displayAria")}>
-              <md-filter-chip selected={displayMode === "definition"} onClick={() => setDisplayMode("definition")} role="radio" aria-checked={displayMode === "definition"}>
+            <M3eButtonGroup size="medium" className="button-group" variant="connected" onKeyDown={moveButtonGroupSelection} role="radiogroup" aria-label={t("print.displayAria")}>
+              <M3eButton size="medium"
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={displayMode === "definition"}
+                tabIndex={displayMode === "definition" ? 0 : -1}
+                role="radio"
+                aria-checked={displayMode === "definition" ? "true" : "false"}
+                onBeforeInput={(event) => { if (displayMode === "definition") event.preventDefault(); }}
+                onClick={() => setDisplayMode("definition")}
+              >
                 {t("print.definitionPrompt")}
-              </md-filter-chip>
-              <md-filter-chip selected={displayMode === "word"} onClick={() => setDisplayMode("word")} role="radio" aria-checked={displayMode === "word"}>
+              </M3eButton>
+              <M3eButton size="medium"
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={displayMode === "word"}
+                tabIndex={displayMode === "word" ? 0 : -1}
+                role="radio"
+                aria-checked={displayMode === "word" ? "true" : "false"}
+                onBeforeInput={(event) => { if (displayMode === "word") event.preventDefault(); }}
+                onClick={() => setDisplayMode("word")}
+              >
                 {t("print.wordPrompt")}
-              </md-filter-chip>
-            </div>
+              </M3eButton>
+            </M3eButtonGroup>
           </div>
 
           <div className="stack">
             <h3 className="card-title">{t("print.languageTitle")}</h3>
-            <div className="cluster" aria-label={t("print.languageAria")}>
-              <md-filter-chip selected={definitionLanguages.includes("zh")} onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "zh"))}>
+            <M3eButtonGroup size="medium" className="button-group" variant="connected" multi role="group" aria-label={t("print.languageAria")}>
+              <M3eButton size="medium"
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={definitionLanguages.includes("zh")}
+                role="button"
+                aria-pressed={definitionLanguages.includes("zh") ? "true" : "false"}
+                onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "zh"))}
+              >
                 {t("language.chinese")}
-              </md-filter-chip>
-              <md-filter-chip selected={definitionLanguages.includes("en")} onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "en"))}>
+              </M3eButton>
+              <M3eButton size="medium"
+                type="button"
+                variant="tonal"
+                shape="square"
+                toggle
+                selected={definitionLanguages.includes("en")}
+                role="button"
+                aria-pressed={definitionLanguages.includes("en") ? "true" : "false"}
+                onClick={() => setDefinitionLanguages((current) => toggleLanguage(current, "en"))}
+              >
                 {t("language.english")}
-              </md-filter-chip>
-            </div>
+              </M3eButton>
+            </M3eButtonGroup>
             {definitionLanguages.length === 0 ? <p className="helper-text">{t("print.languageWarning")}</p> : null}
           </div>
 
           <label className="switch-field print-switch-field">
-            <md-switch selected={showHint} checked={showHint} onInput={(event) => setShowHint(Boolean((event.currentTarget as HTMLElement & { checked?: boolean; selected?: boolean }).checked ?? (event.currentTarget as HTMLElement & { selected?: boolean }).selected))} />
+            <M3eSwitch aria-label={t("print.hint")} checked={showHint} onInput={(event) => setShowHint(Boolean((event.currentTarget as HTMLElement & { checked: boolean }).checked))} />
             <span>{t("print.hint")}</span>
           </label>
         </div>

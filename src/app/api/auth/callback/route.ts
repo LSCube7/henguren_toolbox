@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { setSessionCookie } from "@/lib/session";
 import { userSessionFromOAuthProfile } from "@/lib/oauth-profile";
+import { defaultLocale } from "@/i18n/config";
+import { getLocaleFromPathname, localizePath } from "@/lib/localized-routing";
 
 type TokenResponse = {
   access_token?: string;
@@ -32,13 +34,15 @@ function redirectWithClearedOAuthCookies(url: URL, reason?: string) {
 }
 
 function safeReturnTo(value: string | undefined) {
-  if (!value) return "/user";
+  const fallback = localizePath(defaultLocale, "/user");
+  if (!value) return fallback;
   try {
     const decoded = decodeURIComponent(value);
-    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/api/")) return "/user";
-    return decoded;
+    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/api/")) return fallback;
+    const locale = getLocaleFromPathname(decoded) ?? defaultLocale;
+    return localizePath(locale, decoded);
   } catch {
-    return "/user";
+    return fallback;
   }
 }
 

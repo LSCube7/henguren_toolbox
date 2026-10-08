@@ -1,5 +1,8 @@
 "use client";
 
+import { TextAreaField } from "@/app/components/TextField";
+import { M3eButton } from "@m3e/react/button";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import definitions from "@/assets/js/shici/definitions.json";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -65,18 +68,18 @@ export function ShiciClient() {
     <section className="md-card stack" aria-label={t("shici.aria")}>
       <div className="cluster">
         <span className="badge">{t("shici.found", { count: foundWords.length })}</span>
-        <md-outlined-button onClick={() => void copyLatex()} disabled={foundWords.length === 0}>
+        <M3eButton variant="outlined" onClick={() => void copyLatex()} disabled={foundWords.length === 0}>
           {t("shici.copy")}
-        </md-outlined-button>
-        <md-filled-button onClick={downloadLatex} disabled={foundWords.length === 0}>
+        </M3eButton>
+        <M3eButton variant="filled" onClick={downloadLatex} disabled={foundWords.length === 0}>
           {t("shici.download")}
-        </md-filled-button>
+        </M3eButton>
       </div>
-      <md-outlined-text-field
+      <TextAreaField
         label={t("shici.input")}
         value={text}
         rows={6}
-        type="textarea"
+
         onInput={(event) => setText(String((event.currentTarget as HTMLElement & { value?: string }).value ?? ""))}
       />
       <div className="md-card md-card--flat preview-panel" aria-live="polite" ref={previewRef}>

@@ -1,15 +1,20 @@
 "use client";
 
+import { Dialog as M3eDialog } from "@/app/components/Dialog";
+import { M3eButton } from "@m3e/react/button";
+
 import type { UserSession } from "@/lib/types";
 import { useSnackbar } from "../components/Snackbar";
-import { MaterialIcon } from "../components/MaterialIcon";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { mergeUploadWrongBook, overwriteCloudWrongBook, pullAndMergeWrongBook, readWrongBookSyncSummary, type WrongBookSyncSummary } from "@/lib/client-sync";
+import { useLearningSync } from "@/lib/client-auto-sync";
+import { logoutAccount } from "@/lib/client-account";
 import { isOnline } from "@/lib/offline-cache";
-import type { MaterialSymbolName } from "@/generated/material-symbols";
+import { adoptGuestLearning, currentLearningOwner, readLearningPartition } from "@/lib/client-learning-storage";
+import { accountLearningOwner, guestLearningOwner } from "@/lib/learning-ownership";
 import { useI18n } from "../i18n/AppI18nProvider";
 import type { MessageKey } from "@/i18n/config";
+import { localizePath } from "@/lib/localized-routing";
 
 const authMessages: Record<string, MessageKey> = {
   ok: "auth.ok",
@@ -25,181 +30,81 @@ const authMessages: Record<string, MessageKey> = {
   userinfo_missing_subject: "auth.userinfoMissingSubject"
 };
 
-type SyncAction = "pull" | "overwrite" | "merge";
-
-const syncActionIcon: Record<SyncAction, MaterialSymbolName> = {
-  pull: "cloud_download",
-  overwrite: "cloud_upload",
-  merge: "cloud_sync"
-};
-
-const syncActionLabel: Record<SyncAction, MessageKey> = {
-  pull: "user.wrongbookSync.pulling",
-  overwrite: "user.wrongbookSync.overwriting",
-  merge: "user.wrongbookSync.merging"
-};
-
-function syncSummaryIcon(summary: WrongBookSyncSummary | null, user: UserSession | null): MaterialSymbolName {
-  if (summary?.status === "offline") return "cloud_off";
-  if (summary?.status === "error") return "cloud_alert";
-  if (summary?.status === "synced") return "cloud_done";
-  if (summary?.status === "ready" || user) return "cloud_sync";
-  return "cloud_off";
-}
-
-function syncSummaryMessageKey(summary: WrongBookSyncSummary): MessageKey {
-  if (summary.status === "offline") {
-    if (summary.source === "custom") return "sync.detail.customOffline";
-    return summary.unavailableReason === "server-unavailable" ? "sync.detail.serverUnavailable" : "sync.detail.offline";
-  }
-  if (summary.status === "error") {
-    if (summary.source === "local") return "user.wrongbookSync.loadError";
-    return summary.source === "custom" ? "sync.detail.customError" : "sync.detail.cloudError";
-  }
-  if (summary.status === "ready") {
-    return summary.source === "custom" ? "sync.detail.customReady" : "sync.detail.ready";
-  }
-  if (summary.status === "synced") return "sync.synced";
-  return "sync.detail.signedOut";
-}
-
 function syncSummaryLoadErrorKey(error: unknown): MessageKey {
   return error instanceof Error && error.message.includes("IDB_UPGRADE_BLOCKED")
     ? "user.wrongbookSync.loadBlocked"
     : "user.wrongbookSync.loadError";
 }
 
-async function readSyncSummarySafely() {
-  try {
-    return { summary: await readWrongBookSyncSummary(), error: null };
-  } catch (error) {
-    return {
-      summary: {
-        status: "error",
-        source: "local",
-        unavailableReason: "source-unavailable",
-        user: null,
-        localCount: 0
-      } satisfies WrongBookSyncSummary,
-      error
-    };
-  }
-}
 
 export function UserClient() {
   const searchParams = useSearchParams();
-  const { t } = useI18n();
-  const { clearSnackbar, showSnackbar } = useSnackbar();
+  const { locale, t } = useI18n();
+  const { showSnackbar } = useSnackbar();
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
-  const [user, setUser] = useState<UserSession | null>(null);
-  const [syncSummary, setSyncSummary] = useState<WrongBookSyncSummary | null>(null);
-  const [syncing, setSyncing] = useState(false);
-  const [syncAction, setSyncAction] = useState<SyncAction | null>(null);
-  const [loading, setLoading] = useState(true);
+  const sync = useLearningSync();
+  const syncSummary = sync.summary;
+  const user = syncSummary?.user ?? null;
+  const syncing = sync.busy;
+  const refreshShared = sync.refresh;
+  const [refreshing, setRefreshing] = useState(false);
+  const loading = !syncSummary || refreshing;
+  const [guestCount, setGuestCount] = useState(0);
+  const [adoptDialogOpen, setAdoptDialogOpen] = useState(false);
+  const [accountChanging, setAccountChanging] = useState(false);
+
+  useEffect(() => {
+    void readLearningPartition(guestLearningOwner, true).then((partition) => setGuestCount(partition.wrongbook.records.length + partition.masteryRecords.length + partition.wrongbook.deletedRecords.length + partition.wrongbook.deletedBatches.length))
+      .catch(() => showSnackbar(t("user.localOwner.error"), "error"));
+  }, [showSnackbar, t]);
 
   useEffect(() => {
     if (authMessageKey) showSnackbar(t(authMessageKey), authStatus === "ok" ? "info" : "error");
   }, [authMessageKey, authStatus, showSnackbar, t]);
 
   const refresh = useCallback(async (markLoading = false) => {
-    if (markLoading) setLoading(true);
-    const { summary, error } = await readSyncSummarySafely();
-    if (error) showSnackbar(t(syncSummaryLoadErrorKey(error)), "error");
-    if (isOnline()) {
-      try {
-        const meResponse = await fetch("/api/me");
-        const data = (await meResponse.json()) as { authenticated: boolean; user: UserSession | null };
-        setUser(data.user);
-      } catch {
-        setUser(summary.user);
-      }
+    if (markLoading) setRefreshing(true);
+    try {
+      await refreshShared();
+    } catch (error) {
+      showSnackbar(t(syncSummaryLoadErrorKey(error)), "error");
+    } finally {
+      setRefreshing(false);
     }
-    setSyncSummary(summary);
-    setLoading(false);
-  }, [showSnackbar, t]);
-
-  useEffect(() => {
-    let active = true;
-    async function load() {
-      const { summary, error } = await readSyncSummarySafely();
-      let nextUser = summary.user;
-      if (isOnline()) {
-        try {
-          const response = await fetch("/api/me");
-          const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
-          nextUser = data.user;
-        } catch {
-          nextUser = summary.user;
-        }
-      }
-      if (!active) return;
-      if (error) showSnackbar(t(syncSummaryLoadErrorKey(error)), "error");
-      setUser(nextUser);
-      setSyncSummary(summary);
-      setLoading(false);
-    }
-    function reload() {
-      void load();
-    }
-
-    void load();
-    window.addEventListener("online", reload);
-    window.addEventListener("offline", reload);
-    return () => {
-      active = false;
-      window.removeEventListener("online", reload);
-      window.removeEventListener("offline", reload);
-    };
-  }, [showSnackbar, t]);
+  }, [refreshShared, showSnackbar, t]);
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    showSnackbar(t("user.logoutSuccess"));
-    await refresh(true);
-  }
-
-  async function runSync(action: "pull" | "overwrite" | "merge") {
-    if (syncSummary?.status === "offline" || !isOnline()) {
-      showSnackbar(t("user.wrongbookSync.offline"), "error");
-      return;
-    }
-    setSyncing(true);
-    setSyncAction(action);
-    clearSnackbar();
+    if (!isOnline()) { showSnackbar(t("user.localOwner.logoutOffline"), "error"); return; }
+    setAccountChanging(true);
     try {
-      if (action === "pull") {
-        await pullAndMergeWrongBook();
-        showSnackbar(t("user.wrongbookSync.pullSuccess"));
-      } else if (action === "overwrite") {
-        await overwriteCloudWrongBook();
-        showSnackbar(t("user.wrongbookSync.overwriteSuccess"));
-      } else {
-        await mergeUploadWrongBook();
-        showSnackbar(t("user.wrongbookSync.mergeSuccess"));
-      }
-      await refresh();
+      await logoutAccount(user?.id);
     } catch {
-      showSnackbar(t("user.wrongbookSync.error"), "error");
-    } finally {
-      setSyncing(false);
-      setSyncAction(null);
+      showSnackbar(t("user.localOwner.logoutFailed"), "error");
     }
+    finally { setAccountChanging(false); }
   }
 
-  const canSync = Boolean(user) || syncSummary?.source === "custom";
-  const syncUnavailable = !canSync || syncing || syncSummary?.status === "offline";
-  const syncReadDisabled = syncUnavailable || syncSummary?.status === "error";
-  const currentSyncIcon = syncing && syncAction ? syncActionIcon[syncAction] : syncSummaryIcon(syncSummary, user);
-  const currentSyncText = syncing && syncAction
-    ? t(syncActionLabel[syncAction])
-    : syncSummary
-      ? t(syncSummaryMessageKey(syncSummary), {
-          localCount: syncSummary.localCount,
-          cloudCount: syncSummary.cloudCount ?? 0
-        })
-      : t("user.wrongbookSync.loading");
-  const currentSyncStatus = syncing ? "syncing" : syncSummary?.status ?? (user ? "ready" : "signed-out");
+  async function adoptGuest() {
+    setAdoptDialogOpen(false);
+    if (!user || currentLearningOwner() !== accountLearningOwner(user.id)) return;
+    setAccountChanging(true);
+    try {
+      const response = await fetch("/api/me", { cache: "no-store" });
+      const data = await response.json() as { authenticated: boolean; user: UserSession | null };
+      if (!response.ok || !data.authenticated || data.user?.id !== user.id) {
+        showSnackbar(t("user.wrongbookSync.targetChanged"), "error");
+        return;
+      }
+      await adoptGuestLearning(user.id);
+      setGuestCount(0);
+      await refresh();
+    }
+    catch { showSnackbar(t("user.localOwner.error"), "error"); }
+    finally { setAccountChanging(false); }
+  }
+
+  const loginHref = `/api/auth/login?returnTo=${encodeURIComponent(localizePath(locale, "/user"))}`;
 
   return (
     <div className="stack">
@@ -219,29 +124,24 @@ export function UserClient() {
           </div>
         </div>
         <div className="cluster">
-          <md-outlined-button onClick={() => void refresh(true)}>{t("common.refresh")}</md-outlined-button>
-          {user ? (
-            <md-outlined-button onClick={() => void logout()}>{t("user.logout")}</md-outlined-button>
-          ) : (
-            <md-filled-button href="/api/auth/login">{t("user.login")}</md-filled-button>
-          )}
+          <M3eButton variant="outlined" disabled={syncing} onClick={() => void refresh(true)}>{t("common.refresh")}</M3eButton>
+          {user || currentLearningOwner() !== guestLearningOwner ? (
+            <M3eButton variant="outlined" disabled={syncing || accountChanging} onClick={() => void logout()}>{t("user.logout")}</M3eButton>
+          ) : null}
+          {!user ? <M3eButton variant="filled" href={loginHref}>{t("user.login")}</M3eButton> : null}
         </div>
       </section>
-      <section className="md-card spread" id="wrongbook-sync" aria-label={t("user.wrongbookSyncAria")}>
-        <div>
-          <h2 className="section-title">{t("user.wrongbookSync.title")}</h2>
-          <p className="helper-text">{currentSyncText}</p>
-          <span className="sync-status-chip" data-status={currentSyncStatus}>
-            <MaterialIcon name={currentSyncIcon} />
-            <span>{currentSyncText}</span>
-          </span>
-        </div>
-        <div className="cluster">
-          <md-outlined-button disabled={syncReadDisabled} onClick={() => void runSync("pull")}>{t("user.wrongbookSync.pull")}</md-outlined-button>
-          <md-outlined-button disabled={syncUnavailable} onClick={() => void runSync("overwrite")}>{t("user.wrongbookSync.overwrite")}</md-outlined-button>
-          <md-filled-button disabled={syncReadDisabled} onClick={() => void runSync("merge")}>{t("user.wrongbookSync.merge")}</md-filled-button>
-        </div>
+      <section className="md-card stack" aria-label={t("user.localOwner.title")}>
+        <h2 className="section-title">{t("user.localOwner.title")}</h2>
+        <p>{currentLearningOwner() === guestLearningOwner ? t("user.localOwner.guest") : user ? t("user.localOwner.account", { name: user.name }) : t("user.localOwner.expired")}</p>
+        <p className="helper-text">{t("user.localOwner.description")}</p>
+        {user && guestCount > 0 ? <M3eButton variant="outlined" disabled={syncing || accountChanging} onClick={() => setAdoptDialogOpen(true)}>{t("user.localOwner.adopt")}</M3eButton> : null}
       </section>
+      <M3eDialog open={adoptDialogOpen} onClosed={() => setAdoptDialogOpen(false)} onCancel={() => setAdoptDialogOpen(false)}>
+        <div slot="header">{t("user.localOwner.adopt")}</div>
+        <div>{t("user.localOwner.adoptConfirm", { name: user?.name ?? "" })}</div>
+        <div slot="actions"><M3eButton variant="text" onClick={() => setAdoptDialogOpen(false)}>{t("common.cancel")}</M3eButton><M3eButton variant="text" onClick={() => void adoptGuest()}>{t("user.localOwner.adoptAction")}</M3eButton></div>
+      </M3eDialog>
     </div>
   );
 }

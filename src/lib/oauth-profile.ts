@@ -37,7 +37,7 @@ export function userSessionFromOAuthProfile(profile: unknown): UserSession | nul
 
   return {
     id,
-    name: nonEmptyString(userInfo.name, userInfo.nickname) ?? "LSCube OAuth",
+    name: nonEmptyString(userInfo.name, userInfo.nickname) ?? "CubeID",
     email: nonEmptyString(userInfo.email),
     avatarUrl: nonEmptyString(userInfo.picture, userInfo.avatar_url, userInfo.avatarUrl, userInfo.avatar)
   };

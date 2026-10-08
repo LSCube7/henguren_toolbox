@@ -42,3 +42,21 @@ test("rejects invalid onboarding cloud choice state", () => {
   assert.equal(parseOnboardingCloudChoice("not-json", defaultSettings), null);
   assert.equal(parseOnboardingCloudChoice(JSON.stringify({ version: 1, decision: "cloud" }), defaultSettings), null);
 });
+
+test("normalizes unsupported restored locales to the current supported locale", () => {
+  const fallback = defaultSettingsForLocale("zh-CN");
+  for (const locale of ["fr", "", null, 42, { code: "en-US" }]) {
+    assert.equal(normalizeToolboxSettings({ locale, showHint: false }, fallback).locale, "zh-CN");
+    const choice = parseOnboardingCloudChoice(JSON.stringify({ version: 1, userId: "user-1", decision: "cloud", localSettings: { locale } }), fallback);
+    assert.equal(choice.localSettings.locale, "zh-CN");
+  }
+});
+
+test("cloud snapshots keep explicit languages and fill invalid languages from the route", async () => {
+  const { resolveSettingsLocale } = await import("../i18n/locale-detection.ts");
+  const fallback = defaultSettingsForLocale(resolveSettingsLocale("zh-CN", "en-US"));
+  for (const snapshot of [{ showHint: false }, { locale: "fr" }, { locale: null }]) {
+    assert.equal(normalizeToolboxSettings(snapshot, fallback).locale, "zh-CN");
+  }
+  assert.equal(normalizeToolboxSettings({ locale: "en-US" }, fallback).locale, "en-US");
+});

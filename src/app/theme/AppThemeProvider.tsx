@@ -1,9 +1,8 @@
 "use client";
 
-import "../material-web";
+import { M3eTheme, type M3eThemeElement } from "@m3e/react/theme";
 import { defaultThemeSeed, resolveThemeSeed } from "@/lib/theme-presets";
-import { argbFromHex, hexFromArgb, themeFromSourceColor, type Scheme } from "@material/material-color-utilities";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { themeSettingsKey, themeStyleCacheKey, type CachedThemeStyle } from "./theme-cache";
 
 type StoredTheme = {
@@ -12,189 +11,78 @@ type StoredTheme = {
   colorMode?: "light" | "dark" | "system";
 };
 
-const schemeColorRoles = [
-  "primary",
-  "onPrimary",
-  "primaryContainer",
-  "onPrimaryContainer",
-  "secondary",
-  "onSecondary",
-  "secondaryContainer",
-  "onSecondaryContainer",
-  "tertiary",
-  "onTertiary",
-  "tertiaryContainer",
-  "onTertiaryContainer",
-  "error",
-  "onError",
-  "errorContainer",
-  "onErrorContainer",
-  "background",
-  "onBackground",
-  "surface",
-  "onSurface",
-  "surfaceVariant",
-  "onSurfaceVariant",
-  "outline",
-  "outlineVariant",
-  "shadow",
-  "scrim",
-  "inverseSurface",
-  "inverseOnSurface",
-  "inversePrimary"
-] as const;
-
-const derivedSurfaceProperties = [
-  "--md-sys-color-surface-dim",
-  "--md-sys-color-surface-bright",
-  "--md-sys-color-surface-container-lowest",
-  "--md-sys-color-surface-container-low",
-  "--md-sys-color-surface-container",
-  "--md-sys-color-surface-container-high",
-  "--md-sys-color-surface-container-highest"
-] as const;
-
 function getStoredTheme(): StoredTheme {
   if (typeof window === "undefined") return {};
   try {
     const saved = localStorage.getItem(themeSettingsKey);
-    return saved ? (JSON.parse(saved) as StoredTheme) : {};
+    const parsed: unknown = saved ? JSON.parse(saved) : {};
+    return parsed && typeof parsed === "object" ? parsed as StoredTheme : {};
   } catch {
+    // Storage is optional: private browsing still has a usable default theme.
     return {};
   }
 }
 
-function resolveMode(mode: StoredTheme["colorMode"]) {
-  if (typeof window === "undefined") return "light";
-  if (!mode || mode === "system") {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  return mode;
-}
-
-function roleToCssName(role: string) {
-  return role.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-}
-
-function readSchemeColor(scheme: Scheme, role: (typeof schemeColorRoles)[number]) {
-  return hexFromArgb(scheme.toJSON()[role]);
-}
-
-function setSchemeColor(root: HTMLElement, role: (typeof schemeColorRoles)[number], value: string) {
-  root.style.setProperty(`--md-sys-color-${roleToCssName(role)}`, value);
-}
-
-function hexToRgb(hex: string) {
-  const normalized = hex.replace("#", "");
-  const parsed = Number.parseInt(normalized, 16);
-  return {
-    r: (parsed >> 16) & 255,
-    g: (parsed >> 8) & 255,
-    b: parsed & 255
-  };
-}
-
-function rgbToHex({ r, g, b }: { r: number; g: number; b: number }) {
-  const channel = (value: number) => value.toString(16).padStart(2, "0");
-  return `#${channel(r)}${channel(g)}${channel(b)}`;
-}
-
-function mixHex(from: string, to: string, amount: number) {
-  const start = hexToRgb(from);
-  const end = hexToRgb(to);
-  const mix = (a: number, b: number) => Math.round(a + (b - a) * amount);
-  return rgbToHex({
-    r: mix(start.r, end.r),
-    g: mix(start.g, end.g),
-    b: mix(start.b, end.b)
-  });
-}
-
-function applyTheme(theme: StoredTheme) {
-  const seed = resolveThemeSeed(theme.themeSeedColor || defaultThemeSeed);
-  const mode = resolveMode(theme.colorMode);
+/** Cache M3eTheme's output for first paint; never generate a second palette. */
+function cacheTheme(element: M3eThemeElement) {
   const root = document.documentElement;
-  let materialTheme;
-  try {
-    materialTheme = themeFromSourceColor(argbFromHex(seed));
-  } catch {
-    materialTheme = themeFromSourceColor(argbFromHex(defaultThemeSeed));
+  // Bootstrap's inline snapshot must yield to M3eTheme's adopted stylesheet.
+  for (const name of Array.from(root.style)) {
+    if (name.startsWith("--md-sys-color-")) root.style.removeProperty(name);
   }
-  const scheme = mode === "dark" ? materialTheme.schemes.dark : materialTheme.schemes.light;
+  const computed = getComputedStyle(root);
+  const properties: Record<string, string> = {};
+  for (const name of Array.from(computed)) {
+    if (name.startsWith("--md-sys-color-")) properties[name] = computed.getPropertyValue(name).trim();
+  }
+  const mode = element.isDark ? "dark" : "light";
   root.dataset.theme = mode;
-  root.style.colorScheme = mode;
-  root.style.setProperty("--md-source-color", seed);
-  schemeColorRoles.forEach((role) => setSchemeColor(root, role, readSchemeColor(scheme, role)));
-
-  const surface = readSchemeColor(scheme, "surface");
-  const primaryContainer = readSchemeColor(scheme, "primaryContainer");
-  const secondaryContainer = readSchemeColor(scheme, "secondaryContainer");
-  const onSurface = readSchemeColor(scheme, "onSurface");
-  if (mode === "dark") {
-    root.style.setProperty("--md-sys-color-surface-dim", mixHex(surface, "#000000", 0.08));
-    root.style.setProperty("--md-sys-color-surface-bright", mixHex(surface, primaryContainer, 0.18));
-    root.style.setProperty("--md-sys-color-surface-container-lowest", mixHex(surface, "#000000", 0.22));
-    root.style.setProperty("--md-sys-color-surface-container-low", mixHex(surface, primaryContainer, 0.08));
-    root.style.setProperty("--md-sys-color-surface-container", mixHex(surface, primaryContainer, 0.12));
-    root.style.setProperty("--md-sys-color-surface-container-high", mixHex(surface, secondaryContainer, 0.16));
-    root.style.setProperty("--md-sys-color-surface-container-highest", mixHex(surface, secondaryContainer, 0.22));
-  } else {
-    root.style.setProperty("--md-sys-color-surface-dim", mixHex(surface, onSurface, 0.12));
-    root.style.setProperty("--md-sys-color-surface-bright", surface);
-    root.style.setProperty("--md-sys-color-surface-container-lowest", "#ffffff");
-    root.style.setProperty("--md-sys-color-surface-container-low", mixHex(surface, primaryContainer, 0.2));
-    root.style.setProperty("--md-sys-color-surface-container", mixHex(surface, primaryContainer, 0.28));
-    root.style.setProperty("--md-sys-color-surface-container-high", mixHex(surface, secondaryContainer, 0.34));
-    root.style.setProperty("--md-sys-color-surface-container-highest", mixHex(surface, secondaryContainer, 0.45));
-  }
-
-  const propertyNames = [
-    "--md-source-color",
-    ...schemeColorRoles.map((role) => `--md-sys-color-${roleToCssName(role)}`),
-    ...derivedSurfaceProperties
-  ];
-  const cache: CachedThemeStyle = {
-    seed: seed.toLowerCase(),
-    mode,
-    properties: Object.fromEntries(propertyNames.map((name) => [name, root.style.getPropertyValue(name)]))
-  };
+  const cache: CachedThemeStyle = { seed: element.color.toLowerCase(), mode, properties };
   try {
     localStorage.setItem(themeStyleCacheKey, JSON.stringify(cache));
   } catch {
-    // The active page still receives the theme when storage is unavailable.
+    // Theme application does not depend on persisting its paint cache.
   }
   root.removeAttribute("data-theme-pending");
 }
 
-if (typeof window !== "undefined") applyTheme(getStoredTheme());
-
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-  const [themeState, setThemeState] = useState<StoredTheme>(() => getStoredTheme());
+  const themeRef = useRef<M3eThemeElement>(null);
+  // These non-reflected Lit properties do not change the server's HTML markup.
+  const [theme, setTheme] = useState<StoredTheme>(() => getStoredTheme());
 
   useLayoutEffect(() => {
-    applyTheme(themeState);
-  }, [themeState]);
+    const element = themeRef.current;
+    if (!element) return;
+    const scheme = theme.colorMode === "light" || theme.colorMode === "dark" ? theme.colorMode : "auto";
+    // M3E 2.9's top-level auto resolver honors inline color-scheme first.
+    // Release bootstrap's fixed paint mode before it computes the auto scheme.
+    document.documentElement.style.colorScheme = scheme === "auto" ? "light dark" : scheme;
+    element.color = resolveThemeSeed(theme.themeSeedColor);
+    element.scheme = scheme;
+    element.requestUpdate();
+    let active = true;
+    void element.updateComplete.then(() => { if (active) cacheTheme(element); });
+    return () => { active = false; };
+  }, [theme]);
 
   useEffect(() => {
-    function refreshTheme() {
-      setThemeState(getStoredTheme());
-    }
-    function previewTheme(event: Event) {
-      const preview = (event as CustomEvent<StoredTheme>).detail;
-      applyTheme({ ...getStoredTheme(), ...preview });
-    }
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    window.addEventListener("storage", refreshTheme);
-    window.addEventListener("henguren-theme-change", refreshTheme);
-    window.addEventListener("henguren-theme-preview", previewTheme);
-    media.addEventListener("change", refreshTheme);
+    const refresh = () => setTheme(getStoredTheme());
+    const preview = (event: Event) => setTheme({ ...getStoredTheme(), ...(event as CustomEvent<StoredTheme>).detail });
+    window.addEventListener("storage", refresh);
+    window.addEventListener("henguren-theme-change", refresh);
+    window.addEventListener("henguren-theme-preview", preview);
     return () => {
-      window.removeEventListener("storage", refreshTheme);
-      window.removeEventListener("henguren-theme-change", refreshTheme);
-      window.removeEventListener("henguren-theme-preview", previewTheme);
-      media.removeEventListener("change", refreshTheme);
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("henguren-theme-change", refresh);
+      window.removeEventListener("henguren-theme-preview", preview);
     };
   }, []);
 
-  return children;
+  return <M3eTheme ref={themeRef} color={resolveThemeSeed(theme.themeSeedColor || defaultThemeSeed)}
+    scheme={theme.colorMode === "light" || theme.colorMode === "dark" ? theme.colorMode : "auto"}
+    motion="expressive" density={0} strongFocus contrast="standard" variant="tonal-spot"
+    onChange={(event) => { if (event.target === themeRef.current && themeRef.current) cacheTheme(themeRef.current); }}>
+    {children}
+  </M3eTheme>;
 }

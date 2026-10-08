@@ -14,7 +14,7 @@ export function SettingsSection({
 }) {
   const { t } = useI18n();
   return (
-    <section className="md-card settings-row" aria-labelledby={`${title}-setting`}>
+    <section className="settings-group-section settings-row" aria-labelledby={`${title}-setting`}>
       <div className="stack">
         <h2 className="section-title" id={`${title}-setting`}>
           {t(title)}

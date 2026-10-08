@@ -8,7 +8,17 @@ export type MasteryRecord = {
   lastReviewedAt: string;
   nextReviewAt: string;
   updatedAt: string;
+  /** Wrong attempts observed in this learning cycle; absent in legacy backups. */
+  wrongAttemptIds?: string[];
 };
+
+export function preferredMasteryRecord(left: MasteryRecord, right: MasteryRecord): MasteryRecord {
+  const key = (record: MasteryRecord) => JSON.stringify([
+    record.updatedAt, record.lastReviewedAt, record.level, record.correctStreak,
+    record.reviewCount, record.nextReviewAt, [...(record.wrongAttemptIds ?? [])].sort()
+  ]);
+  return key(left) >= key(right) ? left : right;
+}
 
 const reviewIntervals = [1, 3, 7, 14, 30];
 

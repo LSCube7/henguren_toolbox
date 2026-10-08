@@ -15,6 +15,11 @@ export type DeveloperSyncSource = {
   updatedAt: string;
 };
 
+export function developerSyncSourceIdentity(source: DeveloperSyncSource) {
+  return `custom:${JSON.stringify([source.accountId, source.bucketName, source.keyPrefix, source.profileId])}`;
+}
+
+export const developerSyncSourceChangeEvent = "henguren-v3-developer-sync-source-change";
 const settingsKey = "henguren-v3-settings";
 const sourceKey = "henguren-v3-dev-sync-source";
 
@@ -78,10 +83,12 @@ export function writeDeveloperSyncSource(source: DeveloperSyncSource) {
       updatedAt: new Date().toISOString()
     })
   );
+  window.dispatchEvent(new Event(developerSyncSourceChangeEvent));
 }
 
 export function clearDeveloperSyncSource() {
   localStorage.removeItem(sourceKey);
+  window.dispatchEvent(new Event(developerSyncSourceChangeEvent));
 }
 
 export function isDeveloperSyncSourceReady(source: DeveloperSyncSource) {

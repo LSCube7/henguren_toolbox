@@ -1160,7 +1160,7 @@ export function VocabClient() {
                         selected={selectedUnits.includes(unit.name)}
                         role="checkbox"
                         aria-checked={(selectedUnits.includes(unit.name)) ? "true" : "false"}
-                        onClick={() => setSelectedUnits((current) => toggleValue(current, unit.name))}
+                        onInput={() => setSelectedUnits((current) => toggleValue(current, unit.name))}
                       >
                         Unit {unit.name.slice(-1)}
                       </M3eFilterChip>
@@ -1204,7 +1204,7 @@ export function VocabClient() {
                         selected={selectedUploadedIds.includes(item.name)}
                         role="checkbox"
                         aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
-                        onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
+                        onInput={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
                       >
                         {displayVocabularyTitle(item.title)}
                       </M3eFilterChip>
@@ -1292,7 +1292,7 @@ export function VocabClient() {
               selected={selectedUploadedIds.includes(item.name)}
               role="checkbox"
               aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
-              onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
+              onInput={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
             >
               {displayVocabularyTitle(item.title)}
             </M3eFilterChip>

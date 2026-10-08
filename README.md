@@ -10,7 +10,7 @@ v3 的界面使用第三方 `@m3e/react` / `@m3e/web` 实现 Material 3 Expressi
 
 | 分支 | 状态 | 说明 |
 | --- | --- | --- |
-| `main` | v3.1.0 | Next.js + TypeScript 重构主线 |
+| `main` | v3.1.0（v3.2.0 准备中） | Next.js + TypeScript 重构主线 |
 | `v2` | 冻结归档 | Vue CLI 版本，保留 v2.10.0 状态 |
 
 当前 Vue 版本已归档为 `v2` 分支，并建议与 `v2.10.0` 标签一起作为历史版本保留。
@@ -68,6 +68,8 @@ pnpm build
 
 - 提交到 `dev` 或 `main` 的拉取请求会自动运行测试、lint、类型检查和生产构建。
 - `main` 收到新提交后，发布工作流会再次完成上述检查，并按 `package.json` 中的版本创建 `v<version>` GitHub Release。
+- v3.2.0 的用户变化与升级注意事项见 [发布说明](docs/releases/v3.2.0.md)。
+- 发布 PR 从 `dev` 提交至 `main`，由仓库所有者手动 Review，并使用 Merge commit 合并。
 - 发布前必须先更新 `package.json` 中的版本。若对应标签已经存在，工作流会停止，不会覆盖已有 Release。
 - Release 使用仓库自带的 `GITHUB_TOKEN` 创建，不需要额外配置发布密钥；发布说明包含中文说明和 GitHub 自动生成的变更记录。
 

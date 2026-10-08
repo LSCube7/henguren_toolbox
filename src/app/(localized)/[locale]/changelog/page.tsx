@@ -10,6 +10,15 @@ const entries: Array<{
   groups: Array<{ title: MessageKey; items: MessageKey[] }>;
 }> = [
   {
+    title: "v3.2.0",
+    label: "changelog.release320Label",
+    groups: [
+      { title: "changelog.experience", items: ["changelog.item.26", "changelog.item.27"] },
+      { title: "changelog.learning", items: ["changelog.item.28"] },
+      { title: "changelog.sync", items: ["changelog.item.29", "changelog.item.30", "changelog.item.31"] }
+    ]
+  },
+  {
     title: "v3.1.0",
     label: "changelog.release310Label",
     groups: [
@@ -44,7 +53,7 @@ export default function ChangelogPage() {
                 <p className="helper-text">{t(entry.label)}</p>
                 <h2 className="section-title">{entry.title}</h2>
               </div>
-              <span className="badge">{t(entry.title === "v3.1.0" ? "changelog.current" : "changelog.note")}</span>
+              <span className="badge">{t(entry.title === "v3.2.0" ? "changelog.current" : "changelog.note")}</span>
             </div>
             {entry.groups.map((group) => (
               <section className="stack" key={group.title}>

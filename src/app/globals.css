@@ -2582,11 +2582,13 @@ m3e-card { --m3e-card-shape: var(--app-radius-xl); }
 .account-menu-anchor { position: relative; }
 .account-menu-anchor .user-nav-card { border: 0; background: transparent; cursor: pointer; }
 .account-menu-anchor m3e-menu { min-width: 224px; max-width: calc(100vw - 24px); }
-.account-menu-heading { display: grid; gap: 4px; padding: 12px 16px; color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.account-menu-heading { display: grid; gap: 4px; padding: 12px 16px; line-height: 1.5; color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
 .account-menu-heading span { font-size: 12px; color: var(--md-sys-color-on-surface-variant); }
 .rail-action[data-status="pending"] { color: var(--md-sys-color-primary); background: var(--md-sys-color-primary-container); }
 
 .account-menu-profile { display: flex; gap: 12px; align-items: center; }
+.account-menu-profile > .user-nav-avatar,
+.account-menu-profile > .user-nav-icon { flex-shrink: 0; }
 .account-menu-identity { display: grid; gap: 4px; min-width: 0; }
 .account-menu-email { overflow-wrap: anywhere; }
 .account-menu-anchor m3e-menu { max-width: min(360px, calc(100vw - 24px)); }

@@ -47,7 +47,7 @@ export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () 
     onNavigate?.();
   }
   function login() {
-    if (offline || loading) return;
+    if (offline || changing) return;
     const returnTo = pathname + window.location.search + window.location.hash;
     window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo));
   }
@@ -73,7 +73,7 @@ export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () 
         <img className="user-nav-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
       ) : <span className="user-nav-icon" aria-hidden="true"><MaterialIcon name={user ? "account_circle" : "person"} /></span>}<div className="account-menu-identity"><strong>{user?.name ?? t(loading ? "account.loading" : expired ? "account.expired" : "user.signedOut")}</strong>{user?.email ? <span className="account-menu-email">{user.email}</span> : null}</div></div>{offline ? <span>{t("account.offline")}</span> : null}</div>
       {user ? <M3eMenuItem onClick={navigate}>{t("account.details")}</M3eMenuItem> : null}
-      {user ? <M3eMenuItem disabled={offline || changing} onClick={() => void logout()}>{t(changing ? "account.signingOut" : "user.logout")}</M3eMenuItem> : <M3eMenuItem disabled={offline || loading} onClick={login}>{t(expired ? "account.signInAgain" : "account.signIn")}</M3eMenuItem>}
+      {user ? <M3eMenuItem disabled={offline || changing} onClick={() => void logout()}>{t(changing ? "account.signingOut" : "user.logout")}</M3eMenuItem> : <M3eMenuItem disabled={offline || changing} onClick={login}>{t(expired ? "account.signInAgain" : "account.signIn")}</M3eMenuItem>}
     </M3eMenu>
   </div>;
 }

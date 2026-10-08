@@ -102,7 +102,14 @@ export function startLearningAutoSync() {
   const savedSource = () => sourceChanged(true);
   const settingsChanged = () => sourceChanged();
   const storage = (event: StorageEvent) => { if (event.key === learningChangeEventKey) changed(); if (event.key === "henguren-v3-dev-sync-source") savedSource(); if (event.key === "henguren-v3-settings") settingsChanged(); };
-  const availability = () => { clearTimeout(timer); if (!isOnline()) { publish({ status: "offline" }); return; } void inspect().then(() => execute(true)).catch(fail); };
+  const availability = (event: Event) => {
+    clearTimeout(timer);
+    if (!isOnline()) { publish({ status: "offline" }); return; }
+    const summary = event.type === "online"
+      ? readWrongBookSyncSummary({ force: true })
+      : Promise.resolve();
+    void summary.then(() => inspect()).then(() => execute(true)).catch(fail);
+  };
   const owner = () => stopLearningSync();
   const activity = (event: Event) => { manualBusy = (event as CustomEvent<boolean>).detail; void reschedule().catch(fail); };
   const unsubscribe = subscribeSyncSummary(() => {

@@ -20,10 +20,11 @@ async function waitFor(check) {
   }
   throw new Error("Fixture condition timed out");
 }
-async function fixture({ developer = false, initialOwner = owner, denyOwnerNotification = false } = {}) {
+async function fixture({ developer = false, initialOwner = owner, denyOwnerNotification = false, online = true, signedIn = true } = {}) {
   const context = await browser.newContext({ serviceWorkers: "block", locale: "zh-CN" });
-  const state = { signedIn: true, cloud: snapshot("review-account"), writes: 0, version: "fixture-v1" };
-  await context.addInitScript(({ owner, initialOwner, developer, denyOwnerNotification, account, guest }) => {
+  const state = { signedIn, cloud: snapshot("review-account"), writes: 0, version: "fixture-v1" };
+  await context.addInitScript(({ owner, initialOwner, developer, denyOwnerNotification, online, account, guest }) => {
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: online });
     localStorage.setItem("henguren-v3-onboarding", JSON.stringify({ completed: true }));
     localStorage.setItem("henguren-v3-settings", JSON.stringify({ locale: "zh-CN", developerMode: developer }));
     localStorage.setItem("henguren-v3-edition", "senior");
@@ -49,7 +50,7 @@ async function fixture({ developer = false, initialOwner = owner, denyOwnerNotif
       transaction.objectStore("learning-partitions").put({ owner: "guest", wrongbook: guest, masteryRecords: guest.masteryRecords });
       transaction.oncomplete = () => db.close();
     };
-  }, { owner, initialOwner, developer, denyOwnerNotification, account: snapshot("local", ["alpha"]), guest: snapshot("local", ["guestword"]) });
+  }, { owner, initialOwner, developer, denyOwnerNotification, online, account: snapshot("local", ["alpha"]), guest: snapshot("local", ["guestword"]) });
   await context.route("**/api/**", async route => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
@@ -81,7 +82,34 @@ async function partition(page, key = owner) {
 }
 const pageErrors = [];
 const watch = page => page.on("pageerror", error => pageErrors.push(error.message));
+async function restoreOnline(page) {
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
+    window.dispatchEvent(new Event("online"));
+  });
+}
 try {
+  // Reconnecting must refresh the summary even when automatic sync is disabled.
+  for (const signedIn of [true, false]) {
+    const reconnected = await fixture({ online: false, signedIn, initialOwner: signedIn ? owner : "guest" });
+    const page = await reconnected.context.newPage(); watch(page);
+    await page.goto(origin + "/zh-CN/user");
+    const trigger = page.getByRole("button", { name: /同步设置 ·/ });
+    await waitFor(() => trigger.getAttribute("data-status").then(status => status === "offline"));
+    await trigger.click();
+    const panel = page.getByRole("dialog", { name: "同步", exact: true });
+    await panel.waitFor();
+    await restoreOnline(page);
+    if (signedIn) {
+      await waitFor(() => panel.getByRole("button", { name: "立即同步", exact: true }).isEnabled());
+      assert.equal((await partition(page)).sync.enabled, false);
+    } else {
+      await waitFor(() => panel.getByRole("button", { name: "登录 CubeID", exact: true }).isEnabled());
+    }
+    assert.equal(reconnected.state.writes, 0, "Reconnecting must not upload when automatic sync is disabled");
+    await reconnected.context.close();
+  }
+
   // Completing and editing custom source fields must refresh this same tab immediately.
   const custom = await fixture({ developer: true });
   let releaseOldRead;
@@ -118,6 +146,21 @@ try {
   await developerPage.getByLabel("访问密钥", { exact: true }).fill("fixture-secret");
   await developerPage.getByRole("textbox", { name: "配置 ID", exact: true }).fill("first-profile");
   await waitFor(() => reads.includes("first-profile"));
+  // A custom source must also recover after an offline reload, without uploading.
+  await custom.context.addInitScript(() => {
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: false });
+  });
+  await developerPage.reload();
+  const customTrigger = developerPage.getByRole("button", { name: /同步设置 ·/ });
+  await waitFor(() => customTrigger.getAttribute("data-status").then(status => status === "offline"));
+  await customTrigger.click();
+  const customPanel = developerPage.getByRole("dialog", { name: "同步", exact: true });
+  const readsBeforeReconnect = reads.length;
+  await restoreOnline(developerPage);
+  await waitFor(() => customPanel.getByRole("button", { name: "立即同步", exact: true }).isEnabled());
+  assert.ok(reads.length > readsBeforeReconnect, "Custom source must be read again after reconnecting");
+  assert.equal(writeTargets.length, 0, "Reconnecting must not upload to the custom source");
+  await customPanel.getByRole("button", { name: "关闭", exact: true }).click();
   await developerPage.getByRole("button", { name: /同步设置 ·/ }).click();
   const panel = developerPage.getByRole("dialog", { name: "同步", exact: true });
   await panel.getByText("同步来源：自定义配置 first-profile", { exact: true }).waitFor();
@@ -224,5 +267,5 @@ try {
   assert.equal((await partition(deniedPage)).wrongbook.records.length, 1, "Unsynced account data is retained after logout");
   await denied.context.close();
   assert.deepEqual(pageErrors, []);
-  console.log("PASS review notifications: custom saves and credential rotation races, automatic merge convergence and deletions, cross-tab adoption/UI/auto sync, denied owner storage during login/logout");
+  console.log("PASS review notifications: offline startup/reconnect for manual account, guest and custom source without uploads, custom saves and credential rotation races, automatic merge convergence and deletions, cross-tab adoption/UI/auto sync, denied owner storage during login/logout");
 } finally { await browser.close(); }

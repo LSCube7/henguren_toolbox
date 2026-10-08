@@ -164,7 +164,7 @@ try {
   const userPage = await adopted.context.newPage(); watch(userPage);
   await userPage.goto(origin + "/zh-CN/user");
   await userPage.getByRole("button", { name: /同步设置 ·/ }).click();
-  await userPage.getByRole("dialog", { name: "同步", exact: true }).locator("md-switch").click();
+  await userPage.getByRole("dialog", { name: "同步", exact: true }).locator("m3e-switch").click();
   await waitFor(() => partition(userPage).then(value => value.sync.enabled && value.sync.confirmedVersion === value.sync.localVersion));
   await userPage.getByRole("button", { name: "关闭", exact: true }).click();
   const writesBeforeAdoption = adopted.state.writes;
@@ -183,7 +183,7 @@ try {
   const convergencePage = await convergence.context.newPage(); watch(convergencePage);
   await convergencePage.goto(origin + "/zh-CN/user");
   await convergencePage.getByRole("button", { name: /同步设置 ·/ }).click();
-  await convergencePage.getByRole("dialog", { name: "同步", exact: true }).locator("md-switch").click();
+  await convergencePage.getByRole("dialog", { name: "同步", exact: true }).locator("m3e-switch").click();
   await waitFor(() => partition(convergencePage).then(value => value.sync.enabled && value.sync.confirmedVersion === value.sync.localVersion));
   const pollNow = () => convergencePage.evaluate(async owner => {
     const db = await new Promise(resolve => { const r = indexedDB.open("henguren-v3", 3); r.onsuccess = () => resolve(r.result); });

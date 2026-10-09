@@ -557,6 +557,7 @@ export const zhCN = {
   "vocab.incorrectAria": "错误单词",
   "vocab.incorrectTitle": "错误单词",
   "vocab.downloadErrors": "下载错误 JSON",
+  "vocab.resultProcessing": "正在处理，请稍候…",
   "vocab.retryErrors": "重测本次错题",
   "vocab.backSelection": "返回选择",
   "vocab.noErrors": "没有错误单词。",

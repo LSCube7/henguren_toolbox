@@ -559,6 +559,7 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "vocab.incorrectAria": "Incorrect words",
   "vocab.incorrectTitle": "Incorrect words",
   "vocab.downloadErrors": "Download error JSON",
+  "vocab.resultProcessing": "Processing, please wait…",
   "vocab.retryErrors": "Retry these words",
   "vocab.backSelection": "Back to selection",
   "vocab.noErrors": "No incorrect words.",

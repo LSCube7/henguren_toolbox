@@ -69,7 +69,9 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
+    let updateRequest = 0;
     function updateTheme(next: StoredTheme) {
+      const request = ++updateRequest;
       const element = themeRef.current;
       const seed = resolveThemeSeed(next.themeSeedColor);
       const scheme = next.colorMode === "light" || next.colorMode === "dark" ? next.colorMode : "auto";
@@ -82,6 +84,8 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
       // Capture the old palette before React/Lit apply the new one, then wait
       // for M3E's stylesheet before capturing the new palette.
       const transition = document.startViewTransition(async () => {
+        // Skipping animation still runs its callback; only the latest request may apply.
+        if (request !== updateRequest) return;
         flushSync(() => setTheme(next));
         await element.updateComplete;
       });
@@ -101,6 +105,7 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("henguren-theme-change", refresh);
     window.addEventListener("henguren-theme-preview", preview);
     return () => {
+      ++updateRequest;
       transitionRef.current?.skipTransition();
       window.removeEventListener("storage", refresh);
       window.removeEventListener("henguren-theme-change", refresh);

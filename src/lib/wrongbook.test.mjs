@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryReconciliation, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts, removeWrongBookRecord } from "./wrongbook.ts";
+import { undoNewWrongBookAttempts, mergeWrongBooks, needsWrongBookCanonicalization, normalizeWrongBook, planMasteryReconciliation, planMasteryRecordIdMigrations, removeWrongBookBatchAttempts, removeWrongBookRecord } from "./wrongbook.ts";
 
 const word = {
   id: "unit:example",
@@ -1103,4 +1103,22 @@ test("does not resolve tombstones whose retained aliases target different record
 
   assert.deepEqual(merged.records.map((record) => record.id), ["first:entry", "second:entry"]);
   assert.equal(merged.deletedRecords[0].id, "unknown-alias");
+});
+
+test("session undo preserves existing words and concurrent attempts, and propagates through merge", () => {
+  const attempt = (id, testNo) => ({ id, testNo, clientId: "test", createdAt: word.createdAt });
+  const records = normalizeWrongBook(snapshot({ records: [
+    { ...word, word: "old", id: "unit:old", wrongAttempts: [attempt("old-session", "session")] },
+    { ...word, wrongAttempts: [attempt("session-new", "session"), attempt("other", "other-session")] },
+    { ...word, word: "new", id: "unit:new", wrongAttempts: [attempt("only-new", "session")] }
+  ] }), "user").records;
+  const old = records.find((record) => record.word === "old");
+  const result = undoNewWrongBookAttempts(records, [old.id], "session", word.updatedAt);
+  assert.deepEqual(result.records.map((record) => record.word).sort(), ["example", "old"]);
+  assert.equal(result.records.find((record) => record.word === "old").wrongCount, 1);
+  assert.deepEqual(result.records.find((record) => record.word === "example").wrongAttempts.map((attempt) => attempt.id), ["other"]);
+  const undone = snapshot({ records: result.records, deletedRecords: result.deletions.map(({record, attemptIds}) => ({id: record.id, canonicalRecordId: record.id, clientId: "test", deletedAt: word.updatedAt, deletedAttemptIds: attemptIds})) });
+  const merged = mergeWrongBooks("user", snapshot({records}), undone);
+  assert.deepEqual(merged.records.map((record) => record.word).sort(), ["example", "old"]);
+  assert.equal(undoNewWrongBookAttempts(result.records, [old.id], "session", word.updatedAt).deletions.length, 0);
 });

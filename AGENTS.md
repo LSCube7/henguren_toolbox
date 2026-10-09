@@ -4,7 +4,7 @@ This file gives coding agents the working rules for this repository. Follow it b
 
 ## Project
 
-Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.0 (the current `main` release is v3.1.0 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
+Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.1 (the current `main` release is v3.2.0 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
 
 Core goals:
 
@@ -152,7 +152,7 @@ Settings are local-first. Upload to cloud only through explicit settings sync.
 - Create a dedicated branch for every pull request. Name it `{type}/{feature}`, where `{type}` matches the Conventional Commit prefix and `{feature}` is a concise kebab-case description, for example `feat/vocab-import` or `fix/offline-sync-status`.
 - Use English Conventional Commit messages whose type and scope match the branch and pull request content.
 - Push feature/content branches and open their pull requests against `dev`. Do not open routine feature or fix pull requests directly against `main`.
-- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the merge commit strategy, as explicitly requested by the repository owner.
+- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the rebase merge strategy, as specified by the repository owner for this release.
 - All pull request reviews are performed manually by the repository owner. Agents must not approve, merge, enable auto-merge for, or otherwise bypass review on a pull request.
 - Before pushing each pull request branch, inspect previous local and remote temporary/topic branches. Delete obsolete prior temporary branches only after confirming they contain no uncommitted, unique, or still-unmerged work; never delete an active pull request branch.
 - Any command that uses `gh` requires network access. Explain the intended GitHub operation and request network permission or escalation before running it.

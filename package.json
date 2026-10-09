@@ -1,6 +1,6 @@
 {
   "name": "henguren-toolbox-v3",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "private": true,
   "packageManager": "pnpm@10.8.0",
   "engines": {

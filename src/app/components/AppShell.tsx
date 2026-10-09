@@ -207,7 +207,7 @@ function AppFooter() {
           </span>
           <div className="stack">
             <div>
-              <p className="app-footer__eyebrow">Henguren Toolbox v3.2.0</p>
+              <p className="app-footer__eyebrow">Henguren Toolbox v3.2.1</p>
               <h2 className="app-footer__title">{t("app.name")}</h2>
             </div>
             <p className="app-footer__description">{t("app.description")}</p>

@@ -257,7 +257,8 @@ export function VocabClient() {
   const [testNo, setTestNo] = useState("");
   const existingWrongIdsRef = useRef<string[]>([]);
   const [sessionUndone, setSessionUndone] = useState(false);
-  const [undoBusy, setUndoBusy] = useState(false);
+  const [resultBusy, setResultBusy] = useState(false);
+  const resultActionRef = useRef(false);
   const [testWords, setTestWords] = useState<TestWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -633,8 +634,9 @@ export function VocabClient() {
   }
 
   async function undoSessionWords() {
-    if (undoBusy || sessionUndone) return;
-    setUndoBusy(true);
+    if (resultActionRef.current || sessionUndone) return;
+    resultActionRef.current = true;
+    setResultBusy(true);
     try {
       const snapshot = await undoSessionNewWords(existingWrongIdsRef.current, testNo);
       setWrongBook(snapshot);
@@ -644,11 +646,16 @@ export function VocabClient() {
     } catch {
       await refreshWrongBook();
       showSnackbar(t("vocab.undo.error"), "error");
-    } finally { setUndoBusy(false); }
+    } finally {
+      resultActionRef.current = false;
+      setResultBusy(false);
+    }
   }
 
   async function retryIncorrectWords() {
-    if (incorrectWords.length === 0) return;
+    if (resultActionRef.current || incorrectWords.length === 0) return;
+    resultActionRef.current = true;
+    setResultBusy(true);
     try {
       const snapshot = await readLocalWrongBook(clientId);
       existingWrongIdsRef.current = snapshot.records.map((record) => record.id);
@@ -664,6 +671,10 @@ export function VocabClient() {
       setTestNo(`test-${nowStamp()}`);
       setScreen("testing");
     } catch { showSnackbar(t("vocab.wrongbookLoadError"), "error"); }
+    finally {
+      resultActionRef.current = false;
+      setResultBusy(false);
+    }
   }
 
   async function removeWrongRecord(id: string) {
@@ -712,6 +723,7 @@ export function VocabClient() {
   }
 
   function resetTest() {
+    if (resultActionRef.current) return;
     setScreen("select");
     setTestWords([]);
     setCorrectWords([]);
@@ -964,11 +976,15 @@ export function VocabClient() {
             <h2 className="section-title">{t("vocab.incorrectTitle")}</h2>
             <div className="cluster">
               <M3eButton variant="outlined" onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>{t("vocab.downloadErrors")}</M3eButton>
-              <M3eButton variant="outlined" disabled={undoBusy || incorrectWords.length === 0} onClick={() => void retryIncorrectWords()}>{t("vocab.retryErrors")}</M3eButton>
-              <M3eButton variant="outlined" disabled={undoBusy || sessionUndone || incorrectWords.length === 0} onClick={() => void undoSessionWords()}>{t(sessionUndone ? "vocab.undo.done" : "vocab.undo.action")}</M3eButton>
-              <M3eButton variant="filled" disabled={undoBusy} onClick={resetTest}>{t("vocab.backSelection")}</M3eButton>
+              <M3eButton variant="outlined" disabled={resultBusy || incorrectWords.length === 0} onClick={() => void retryIncorrectWords()}>{t("vocab.retryErrors")}</M3eButton>
+              <M3eButton variant="outlined" disabled={resultBusy || sessionUndone || incorrectWords.length === 0} onClick={() => void undoSessionWords()}>{t(sessionUndone ? "vocab.undo.done" : "vocab.undo.action")}</M3eButton>
+              <M3eButton variant="filled" disabled={resultBusy} onClick={resetTest}>{t("vocab.backSelection")}</M3eButton>
             </div>
           </div>
+          {resultBusy ? <div className="cluster" role="status" aria-live="polite">
+            <M3eLoadingIndicator aria-hidden="true" />
+            <span className="helper-text">{t("vocab.resultProcessing")}</span>
+          </div> : null}
           {incorrectWords.length === 0 ? <p className="helper-text">{t("vocab.noErrors")}</p> : null}
           {incorrectWords.map((word) => {
             const visibleLanguages = getVisibleDefinitionLanguages(word, definitionLanguages);

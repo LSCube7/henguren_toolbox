@@ -37,6 +37,34 @@
   color-scheme: dark;
 }
 
+
+/* Effects motion keeps palette changes smooth without spatial bounce. */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0s;
+}
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: theme-crossfade var(--md-sys-motion-spring-default-effects);
+  mix-blend-mode: normal;
+}
+
+@keyframes theme-crossfade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) { animation: none; }
+}
+
 :root[data-theme-pending="true"] body {
   visibility: hidden;
 }

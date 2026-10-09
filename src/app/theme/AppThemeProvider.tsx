@@ -2,6 +2,7 @@
 
 import { M3eTheme, type M3eThemeElement } from "@m3e/react/theme";
 import { defaultThemeSeed, resolveThemeSeed } from "@/lib/theme-presets";
+import { flushSync } from "react-dom";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { themeSettingsKey, themeStyleCacheKey, type CachedThemeStyle } from "./theme-cache";
 
@@ -48,6 +49,7 @@ function cacheTheme(element: M3eThemeElement) {
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const themeRef = useRef<M3eThemeElement>(null);
+  const transitionRef = useRef<ViewTransition | null>(null);
   // These non-reflected Lit properties do not change the server's HTML markup.
   const [theme, setTheme] = useState<StoredTheme>(() => getStoredTheme());
 
@@ -67,12 +69,39 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    const refresh = () => setTheme(getStoredTheme());
-    const preview = (event: Event) => setTheme({ ...getStoredTheme(), ...(event as CustomEvent<StoredTheme>).detail });
+    function updateTheme(next: StoredTheme) {
+      const element = themeRef.current;
+      const seed = resolveThemeSeed(next.themeSeedColor);
+      const scheme = next.colorMode === "light" || next.colorMode === "dark" ? next.colorMode : "auto";
+      const changed = element && (element.color !== seed || element.scheme !== scheme);
+      transitionRef.current?.skipTransition();
+      if (!changed || !document.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setTheme(next);
+        return;
+      }
+      // Capture the old palette before React/Lit apply the new one, then wait
+      // for M3E's stylesheet before capturing the new palette.
+      const transition = document.startViewTransition(async () => {
+        flushSync(() => setTheme(next));
+        await element.updateComplete;
+      });
+      transitionRef.current = transition;
+      void transition.updateCallbackDone.catch(() => {
+        console.error("Theme transition update failed: THEME_UPDATE_FAILED");
+      });
+      void transition.finished.catch(() => {
+        // Skipping an animation is expected during rapid theme previews.
+      }).finally(() => {
+        if (transitionRef.current === transition) transitionRef.current = null;
+      });
+    }
+    const refresh = () => updateTheme(getStoredTheme());
+    const preview = (event: Event) => updateTheme({ ...getStoredTheme(), ...(event as CustomEvent<StoredTheme>).detail });
     window.addEventListener("storage", refresh);
     window.addEventListener("henguren-theme-change", refresh);
     window.addEventListener("henguren-theme-preview", preview);
     return () => {
+      transitionRef.current?.skipTransition();
       window.removeEventListener("storage", refresh);
       window.removeEventListener("henguren-theme-change", refresh);
       window.removeEventListener("henguren-theme-preview", preview);

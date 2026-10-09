@@ -209,6 +209,7 @@ export const zhCN = {
   "terms.section.7.body": "项目代码按 MIT License 发布，完整许可文本可在项目许可页面查看。本协议可能随功能、法律或安全需要更新；继续使用即表示你接受更新后的约定。",
   "common.cancel": "取消",
   "common.apply": "应用",
+  "common.pageLoading": "正在加载页面…",
   "common.refresh": "刷新",
   "common.copy": "复制",
   "common.copied": "已复制",

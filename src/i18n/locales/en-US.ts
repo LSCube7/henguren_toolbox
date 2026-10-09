@@ -211,6 +211,7 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "terms.section.7.body": "The project code is released under the MIT License, available in full on the license page. These terms may change as features, laws or security needs evolve; continued use indicates acceptance of the updated terms.",
   "common.cancel": "Cancel",
   "common.apply": "Apply",
+  "common.pageLoading": "Loading page…",
   "common.refresh": "Refresh",
   "common.copy": "Copy",
   "common.copied": "Copied",

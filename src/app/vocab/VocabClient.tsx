@@ -2,7 +2,7 @@
 
 import { TextField } from "@/app/components/TextField";
 import { SelectField } from "@/app/components/SelectField";
-import { M3ePaginator } from "@m3e/react/paginator";
+import { WrongBookPaginator } from "./WrongBookPaginator";
 import { M3eOption } from "@m3e/react/option";
 import { Dialog as M3eDialog } from "@/app/components/Dialog";
 import { M3eLoadingIndicator } from "@m3e/react/loading-indicator";
@@ -1013,33 +1013,6 @@ export function VocabClient() {
               <input ref={importWrongBookRef} className="hidden-input" type="file" accept=".json" onChange={(event) => void importWrongBook(event)} />
             </div>
           </div>
-          <M3ePaginator
-            className="wrongbook-paginator"
-            aria-label={t("vocab.pagination.label")}
-            length={wrongBookLength}
-            pageIndex={pageIndex}
-            pageSize={pagination.pageSize}
-            pageSizes="10,20,50"
-            ref={(element) => {
-              if (!element) return;
-              element.rangeLabelFormatter = (index, size, length) => t("vocab.pagination.range", {
-                start: length === 0 ? 0 : index * (size === "all" ? length : size) + 1,
-                end: Math.min((index + 1) * (size === "all" ? length : size), length),
-                total: length
-              });
-              element.requestUpdate();
-            }}
-            itemsPerPageLabel={t("vocab.pagination.size")}
-            firstPageLabel={t("vocab.pagination.first")}
-            previousPageLabel={t("vocab.pagination.previous")}
-            nextPageLabel={t("vocab.pagination.next")}
-            lastPageLabel={t("vocab.pagination.last")}
-            showFirstLastButtons
-            onPage={(event) => {
-              const { pageIndex, pageSize } = event.detail;
-              setPagination({ key: paginationKey, pageIndex, pageSize: pageSize === "all" ? 20 : pageSize });
-            }}
-          />
           <div className="wrongbook-filters">
             <TextField label={t("vocab.search")} value={wrongBookSearch} onInput={(event) => setWrongBookSearch(valueFrom(event))} />
             <div className="wrongbook-filter-row">
@@ -1144,6 +1117,12 @@ export function VocabClient() {
                   </article>
                 ))}
           </div>
+          <WrongBookPaginator
+            length={wrongBookLength}
+            pageIndex={pageIndex}
+            pageSize={pagination.pageSize}
+            onPage={(pageIndex, pageSize) => setPagination({ key: paginationKey, pageIndex, pageSize })}
+          />
         </section>
         <section className="md-card spread" aria-label={t("vocab.cloudAria")}>
           <div>

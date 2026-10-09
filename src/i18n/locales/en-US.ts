@@ -1,6 +1,17 @@
 import type { zhCN } from "./zh-CN";
 
 export const enUS: Record<keyof typeof zhCN, string> = {
+  "vocab.undo.action": "Skip new wrongbook entries",
+  "vocab.undo.done": "New entries undone",
+  "vocab.undo.success": "Undid this session's new entries. Existing entries were kept.",
+  "vocab.undo.error": "Undo or mastery cleanup did not finish. Try again. Debug: module wrongbook, error UNDO_FAILED.",
+  "vocab.pagination.label": "Wrongbook pagination",
+  "vocab.pagination.size": "Items per page",
+  "vocab.pagination.first": "First page",
+  "vocab.pagination.previous": "Previous page",
+  "vocab.pagination.next": "Next page",
+  "vocab.pagination.last": "Last page",
+  "vocab.pagination.range": "{start}–{end} of {total}",
   "app.name": "Henguren Toolbox",
   "app.shortName": "Henguren",
   "app.description": "A lightweight toolbox for Chinese and English learning.",

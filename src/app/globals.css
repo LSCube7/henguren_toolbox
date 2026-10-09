@@ -2793,3 +2793,9 @@ button.rail-action { border: 0; cursor: pointer; }
 .app-drawer__panel[data-expanded="true"] .user-nav-avatar { width: 24px; height: 24px; border: 0; }
 .app-drawer__panel[data-expanded="true"] .user-nav-icon { color: inherit; background: transparent; }
 .app-drawer__panel[data-expanded="true"] .user-nav-icon .material-symbols-rounded { font-size: 24px; }
+
+.wrongbook-paginator {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}

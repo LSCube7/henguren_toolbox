@@ -1,4 +1,5 @@
 "use client";
+import { Dialog } from "../components/Dialog";
 import { M3eButton } from "@m3e/react/button";
 import { M3eCard } from "@m3e/react/card";
 
@@ -32,6 +33,7 @@ function formatBytes(value: number | undefined, unavailable: string) {
 export function DataManagement({ fallbackSettings }: { fallbackSettings: ToolboxSettings }) {
   const router = useRouter();
   const importRef = useRef<HTMLInputElement>(null);
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [offlineSummary, setOfflineSummary] = useState<OfflineStorageSummary | null>(null);
   const [pendingBackup, setPendingBackup] = useState<ToolboxBackup | null>(null);
   const [busy, setBusy] = useState<"export" | "import" | "cache" | "clear" | null>(null);
@@ -127,7 +129,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
   }
 
   async function clearCaches() {
-    if (!window.confirm(t("data.offline.clearConfirm"))) return;
+    if (busy || !clearDialogOpen) return;
     setBusy("clear");
     try {
       const result = await clearOfflineCaches();
@@ -137,6 +139,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
       showSnackbar(t("data.offline.clearError"), "error");
     } finally {
       setBusy(null);
+      setClearDialogOpen(false);
     }
   }
 
@@ -189,7 +192,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
                 <div className="cluster">
                   <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void refreshOfflineSummary()}>{t("data.offline.refresh")}</M3eButton>
                   <M3eButton variant="filled" disabled={Boolean(busy)} onClick={() => void cacheAllLearningData()}>{t(busy === "cache" ? "data.offline.caching" : "data.offline.cacheAll")}</M3eButton>
-                  <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => void clearCaches()}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</M3eButton>
+                  <M3eButton variant="outlined" disabled={Boolean(busy)} onClick={() => setClearDialogOpen(true)}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</M3eButton>
                 </div>
               </div>
               <div className="offline-metrics" aria-label={t("data.offline.statusAria")}>
@@ -209,6 +212,14 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
             </section>
         </div>
       </M3eCard>
+      <Dialog open={clearDialogOpen} dismissible disableClose={Boolean(busy)} closeLabel={t("common.cancel")} onClosed={() => setClearDialogOpen(false)} aria-label={t("data.offline.clear")}>
+        <div slot="header">{t("data.offline.clear")}</div>
+        <p>{t("data.offline.clearConfirm")}</p>
+        <div slot="actions">
+          <M3eButton variant="text" disabled={Boolean(busy)} onClick={() => setClearDialogOpen(false)}>{t("common.cancel")}</M3eButton>
+          <M3eButton variant="text" disabled={Boolean(busy)} onClick={() => void clearCaches()}>{t(busy === "clear" ? "data.offline.clearing" : "data.offline.clear")}</M3eButton>
+        </div>
+      </Dialog>
     </section>
   );
 }

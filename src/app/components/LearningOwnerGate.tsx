@@ -1,4 +1,5 @@
 "use client";
+import { PageLoading } from "./PageLoading";
 import { M3eButton } from "@m3e/react/button";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -50,7 +51,7 @@ export function LearningOwnerProvider({ children }: { children: React.ReactNode 
 export function LearningOwnerGate({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
   const status = useContext(LearningOwnerContext);
-  if (status === "loading") return <div role="status">{t("user.localOwner.loading")}</div>;
+  if (status === "loading") return <PageLoading label={t("user.localOwner.loading")} />;
   if (status === "error") return <div role="alert">{t("user.localOwner.error")} <M3eButton variant="outlined" onClick={() => window.location.reload()}>{t("common.refresh")}</M3eButton></div>;
   return children;
 }

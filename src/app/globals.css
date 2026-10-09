@@ -818,6 +818,17 @@ m3e-dialog {
   place-items: center;
 }
 
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 96px;
+  padding: 24px;
+}
+
+
 .onboarding-shell {
   position: fixed;
   inset: 0;

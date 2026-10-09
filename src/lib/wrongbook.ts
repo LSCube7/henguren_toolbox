@@ -655,3 +655,17 @@ export function mergeWrongBooks(userId: string, ...snapshots: Array<WrongBookSna
     deletedBatches
   };
 }
+
+// Remove only this session's attempts for words absent at session start.
+export function undoNewWrongBookAttempts(records: WrongBookRecord[], existingIds: string[], testNo: string, updatedAt: string) {
+  const existing = new Set(existingIds);
+  const deletions: Array<{ record: WrongBookRecord; attemptIds: string[] }> = [];
+  const remaining = records.flatMap((record) => {
+    if (existing.has(record.id)) return [record];
+    const deletion = removeWrongBookBatchAttempts([record], testNo, updatedAt);
+    if (deletion.deletedAttemptIds.length === 0) return [record];
+    deletions.push({ record, attemptIds: deletion.deletedAttemptIds });
+    return deletion.records;
+  });
+  return { records: remaining, deletions };
+}

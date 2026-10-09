@@ -1,5 +1,5 @@
 import type { WrongBookBatch, WrongBookRecord, WrongBookSnapshot, WrongBookTombstone, VocabWord } from "./types";
-import { mergeWrongBooks, mergeWrongBookTombstones, needsWrongBookCanonicalization, normalizeWrongBook, removeWrongBookBatchAttempts, removeWrongBookRecord as removeWrongBookRecordData, wrongBookRecordId } from "./wrongbook";
+import { undoNewWrongBookAttempts, mergeWrongBooks, mergeWrongBookTombstones, needsWrongBookCanonicalization, normalizeWrongBook, removeWrongBookBatchAttempts, removeWrongBookRecord as removeWrongBookRecordData, wrongBookRecordId } from "./wrongbook";
 
 import { assertLearningOwner, currentLearningOwner, readLearningPartition, updateLearningPartition } from "./client-learning-storage";
 
@@ -179,4 +179,20 @@ export function getClientId() {
   const id = crypto.randomUUID();
   localStorage.setItem(key, id);
   return id;
+}
+
+export function undoSessionNewWords(existingIds: string[], testNo: string) {
+  return withWrongBookWrite(async () => {
+    const clientId = getClientId();
+    const now = new Date().toISOString();
+    return updateLocalWrongBook(clientId, (snapshot) => {
+      const deletion = undoNewWrongBookAttempts(snapshot.records, existingIds, testNo, now);
+      return {
+        ...snapshot, updatedAt: now, records: deletion.records,
+        deletedRecords: mergeWrongBookTombstones([...snapshot.deletedRecords, ...deletion.deletions.map(({ record, attemptIds }) => ({
+          id: record.id, canonicalRecordId: wrongBookRecordId(record), aliases: record.aliases, clientId, deletedAt: now, deletedAttemptIds: attemptIds
+        }))])
+      };
+    });
+  });
 }

@@ -3,6 +3,7 @@
 import { TextField } from "@/app/components/TextField";
 import { SelectField } from "@/app/components/SelectField";
 import { M3eOption } from "@m3e/react/option";
+import { PageLoading } from "../components/PageLoading";
 import { M3eButton } from "@m3e/react/button";
 
 import textLists from "@/assets/js/text/list.json";
@@ -278,7 +279,7 @@ export function TextClient() {
             </div>
           </>
         ) : (
-          <p className="helper-text">{t(loadError ? "text.offlineMissing" : "text.loading")}</p>
+          loadError ? <p className="helper-text" role="alert">{t("text.offlineMissing")}</p> : <PageLoading label={t("text.loading")} />
         )}
       </section>
 

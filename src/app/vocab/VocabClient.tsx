@@ -2,6 +2,7 @@
 
 import { TextField } from "@/app/components/TextField";
 import { SelectField } from "@/app/components/SelectField";
+import { WrongBookPaginator } from "./WrongBookPaginator";
 import { M3eOption } from "@m3e/react/option";
 import { Dialog as M3eDialog } from "@/app/components/Dialog";
 import { M3eLoadingIndicator } from "@m3e/react/loading-indicator";
@@ -14,6 +15,7 @@ import { M3eSwitch } from "@m3e/react/switch";
 import list from "@/assets/js/vocabulary/list.json";
 import {
   addWrongWord,
+  undoSessionNewWords,
   canonicalizeLocalWrongBookRecordIds,
   deleteWrongBatch,
   deleteWrongRecord,
@@ -253,6 +255,10 @@ export function VocabClient() {
   const [definitionLanguages, setDefinitionLanguages] = useState<VocabDefinitionLanguage[]>(savedQuizSettings.vocabDefinitionLanguages);
   const [batchName, setBatchName] = useState("");
   const [testNo, setTestNo] = useState("");
+  const existingWrongIdsRef = useRef<string[]>([]);
+  const [sessionUndone, setSessionUndone] = useState(false);
+  const [resultBusy, setResultBusy] = useState(false);
+  const resultActionRef = useRef(false);
   const [testWords, setTestWords] = useState<TestWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -263,11 +269,12 @@ export function VocabClient() {
   const [correctWords, setCorrectWords] = useState<VocabWord[]>([]);
   const [incorrectWords, setIncorrectWords] = useState<TestWord[]>([]);
   const [wrongBook, setWrongBook] = useState<WrongBookSnapshot | null>(null);
-  const [wrongBookSearch, setWrongBookSearch] = useState("");
-  const [wrongBookSource, setWrongBookSource] = useState("all");
-  const [masteryFilter, setMasteryFilter] = useState<MasteryFilter>("all");
+  const [wrongBookSearch, setWrongBookSearchState] = useState("");
+  const [pagination, setPagination] = useState({ key: "", pageIndex: 0, pageSize: 20 });
+  const [wrongBookSource, setWrongBookSourceState] = useState("all");
+  const [masteryFilter, setMasteryFilterState] = useState<MasteryFilter>("all");
   const [masteryById, setMasteryById] = useState<Record<string, MasteryRecord>>({});
-  const [wrongBookView, setWrongBookView] = useState<WrongBookView>("words");
+  const [wrongBookView, setWrongBookViewState] = useState<WrongBookView>("words");
   const [testSource, setTestSource] = useState<"selection" | "wrongbook">("selection");
   const [loading, setLoading] = useState(false);
   const [cloudAction, setCloudAction] = useState<CloudAction | null>(null);
@@ -353,6 +360,32 @@ export function VocabClient() {
       (masteryFilter === "mastered" && mastery?.level === "mastered");
     return keywordMatch && sourceMatch && masteryMatch;
   });
+  const paginationKey = JSON.stringify([wrongBookSearch, wrongBookSource, masteryFilter, wrongBookView]);
+  const wrongBookLength = wrongBookView === "words" ? filteredWrongRecords.length : wrongBookBatches.length;
+  const pageIndex = pagination.key === paginationKey
+    ? Math.min(pagination.pageIndex, Math.max(0, Math.ceil(wrongBookLength / pagination.pageSize) - 1))
+    : 0;
+  const pageStart = pageIndex * pagination.pageSize;
+  function setWrongBookSearch(value: string) {
+    setPagination((current) => ({ ...current, key: "", pageIndex: 0 }));
+    setWrongBookSearchState(value);
+  }
+
+  function setWrongBookSource(value: string) {
+    setPagination((current) => ({ ...current, key: "", pageIndex: 0 }));
+    setWrongBookSourceState(value);
+  }
+
+  function setMasteryFilter(value: MasteryFilter) {
+    setPagination((current) => ({ ...current, key: "", pageIndex: 0 }));
+    setMasteryFilterState(value);
+  }
+
+  function setWrongBookView(value: WrongBookView) {
+    setPagination((current) => ({ ...current, key: "", pageIndex: 0 }));
+    setWrongBookViewState(value);
+  }
+
   const selectedCacheStates = selectedMetas.map((meta) => vocabCacheStates[meta.name] ?? "missing");
   const cachedUnitCount = selectedCacheStates.filter((state) => state === "cached").length;
   const missingUnitCount = selectedMetas.length - cachedUnitCount;
@@ -472,6 +505,9 @@ export function VocabClient() {
         return;
       }
 
+      const snapshot = await readLocalWrongBook(clientId);
+      existingWrongIdsRef.current = snapshot.records.map((record) => record.id);
+      setSessionUndone(false);
       setTestWords(pickWords(testWordsSource, testMode, testCount));
       setCorrectWords([]);
       setIncorrectWords([]);
@@ -597,18 +633,48 @@ export function VocabClient() {
     setAnswerOutcome(null);
   }
 
-  function retryIncorrectWords() {
-    if (incorrectWords.length === 0) return;
-    setTestWords(pickWords(incorrectWords, "all", incorrectWords.length));
-    setCorrectWords([]);
-    setIncorrectWords([]);
-    setCurrentIndex(0);
-    setAnswer("");
-    setAnswerFeedback("");
-    setPendingSlip(false);
-    setAnswerOutcome(null);
-    setTestNo(`test-${nowStamp()}`);
-    setScreen("testing");
+  async function undoSessionWords() {
+    if (resultActionRef.current || sessionUndone) return;
+    resultActionRef.current = true;
+    setResultBusy(true);
+    try {
+      const snapshot = await undoSessionNewWords(existingWrongIdsRef.current, testNo);
+      setWrongBook(snapshot);
+      await cleanupInactiveMasteryRecords(incorrectWords.map((word) => word.wrongRecordId ?? wrongBookRecordId(word)));
+      setSessionUndone(true);
+      showSnackbar(t("vocab.undo.success"));
+    } catch {
+      await refreshWrongBook();
+      showSnackbar(t("vocab.undo.error"), "error");
+    } finally {
+      resultActionRef.current = false;
+      setResultBusy(false);
+    }
+  }
+
+  async function retryIncorrectWords() {
+    if (resultActionRef.current || incorrectWords.length === 0) return;
+    resultActionRef.current = true;
+    setResultBusy(true);
+    try {
+      const snapshot = await readLocalWrongBook(clientId);
+      existingWrongIdsRef.current = snapshot.records.map((record) => record.id);
+      setSessionUndone(false);
+      setTestWords(pickWords(incorrectWords, "all", incorrectWords.length));
+      setCorrectWords([]);
+      setIncorrectWords([]);
+      setCurrentIndex(0);
+      setAnswer("");
+      setAnswerFeedback("");
+      setPendingSlip(false);
+      setAnswerOutcome(null);
+      setTestNo(`test-${nowStamp()}`);
+      setScreen("testing");
+    } catch { showSnackbar(t("vocab.wrongbookLoadError"), "error"); }
+    finally {
+      resultActionRef.current = false;
+      setResultBusy(false);
+    }
   }
 
   async function removeWrongRecord(id: string) {
@@ -657,6 +723,7 @@ export function VocabClient() {
   }
 
   function resetTest() {
+    if (resultActionRef.current) return;
     setScreen("select");
     setTestWords([]);
     setCorrectWords([]);
@@ -909,10 +976,15 @@ export function VocabClient() {
             <h2 className="section-title">{t("vocab.incorrectTitle")}</h2>
             <div className="cluster">
               <M3eButton variant="outlined" onClick={() => downloadJson(`incorrect_${nowStamp()}.json`, { vocabulary: incorrectWords.map(toVocabWord) })}>{t("vocab.downloadErrors")}</M3eButton>
-              <M3eButton variant="outlined" disabled={incorrectWords.length === 0} onClick={retryIncorrectWords}>{t("vocab.retryErrors")}</M3eButton>
-              <M3eButton variant="filled" onClick={resetTest}>{t("vocab.backSelection")}</M3eButton>
+              <M3eButton variant="outlined" disabled={resultBusy || incorrectWords.length === 0} onClick={() => void retryIncorrectWords()}>{t("vocab.retryErrors")}</M3eButton>
+              <M3eButton variant="outlined" disabled={resultBusy || sessionUndone || incorrectWords.length === 0} onClick={() => void undoSessionWords()}>{t(sessionUndone ? "vocab.undo.done" : "vocab.undo.action")}</M3eButton>
+              <M3eButton variant="filled" disabled={resultBusy} onClick={resetTest}>{t("vocab.backSelection")}</M3eButton>
             </div>
           </div>
+          {resultBusy ? <div className="cluster" role="status" aria-live="polite">
+            <M3eLoadingIndicator aria-hidden="true" />
+            <span className="helper-text">{t("vocab.resultProcessing")}</span>
+          </div> : null}
           {incorrectWords.length === 0 ? <p className="helper-text">{t("vocab.noErrors")}</p> : null}
           {incorrectWords.map((word) => {
             const visibleLanguages = getVisibleDefinitionLanguages(word, definitionLanguages);
@@ -935,13 +1007,13 @@ export function VocabClient() {
   if (screen === "wrongbook") {
     return (
       <div className="stack">
-        <section className="md-card spread" aria-label={t("vocab.wrongbookInfoAria")}>
-          <div>
+        <section className="md-card stack" aria-label={t("vocab.wrongbookInfoAria")}>
+          <div className="spread">
             <h2 className="section-title">{t("vocab.wrongbook")}</h2>
-            <p className="helper-text">{t("vocab.wrongbookDescription")}</p>
-          </div>
-          <div className="cluster vocab-selection-actions">
             <M3eButton variant="outlined" disabled={selectionBusy} onClick={() => setScreen("select")}>{t("vocab.backTest")}</M3eButton>
+          </div>
+          <p className="helper-text">{t("vocab.wrongbookDescription")}</p>
+          <div className="cluster vocab-selection-actions">
             <M3eButton variant="filled" disabled={filteredWrongRecords.length === 0 || selectionBusy} onClick={() => void startTest("wrongbook")}>
               {t("vocab.reviewFiltered")}
             </M3eButton>
@@ -1031,7 +1103,7 @@ export function VocabClient() {
           </div>
           <div className="stack">
             {wrongBookView === "words"
-              ? filteredWrongRecords.map((record) => (
+              ? filteredWrongRecords.slice(pageStart, pageStart + pagination.pageSize).map((record) => (
                   <article className="md-card md-card--flat spread" key={record.id}>
                     <div>
                       <h3 className="card-title">{record.word}</h3>
@@ -1047,7 +1119,7 @@ export function VocabClient() {
                     </M3eButton>
                   </article>
                 ))
-              : wrongBookBatches.map((batch) => (
+              : wrongBookBatches.slice(pageStart, pageStart + pagination.pageSize).map((batch) => (
                   <article className="md-card md-card--flat spread" key={batch.testNo}>
                     <div>
                       <h3 className="card-title">{batch.batchName || batch.testNo}</h3>
@@ -1061,6 +1133,12 @@ export function VocabClient() {
                   </article>
                 ))}
           </div>
+          <WrongBookPaginator
+            length={wrongBookLength}
+            pageIndex={pageIndex}
+            pageSize={pagination.pageSize}
+            onPage={(pageIndex, pageSize) => setPagination({ key: paginationKey, pageIndex, pageSize })}
+          />
         </section>
         <section className="md-card spread" aria-label={t("vocab.cloudAria")}>
           <div>
@@ -1160,7 +1238,7 @@ export function VocabClient() {
                         selected={selectedUnits.includes(unit.name)}
                         role="checkbox"
                         aria-checked={(selectedUnits.includes(unit.name)) ? "true" : "false"}
-                        onClick={() => setSelectedUnits((current) => toggleValue(current, unit.name))}
+                        onInput={() => setSelectedUnits((current) => toggleValue(current, unit.name))}
                       >
                         Unit {unit.name.slice(-1)}
                       </M3eFilterChip>
@@ -1204,7 +1282,7 @@ export function VocabClient() {
                         selected={selectedUploadedIds.includes(item.name)}
                         role="checkbox"
                         aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
-                        onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
+                        onInput={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
                       >
                         {displayVocabularyTitle(item.title)}
                       </M3eFilterChip>
@@ -1292,7 +1370,7 @@ export function VocabClient() {
               selected={selectedUploadedIds.includes(item.name)}
               role="checkbox"
               aria-checked={(selectedUploadedIds.includes(item.name)) ? "true" : "false"}
-              onClick={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
+              onInput={() => setSelectedUploadedIds((current) => toggleValue(current, item.name))}
             >
               {displayVocabularyTitle(item.title)}
             </M3eFilterChip>

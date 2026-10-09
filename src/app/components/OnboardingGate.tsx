@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoading } from "./PageLoading";
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
 import { useEffect, useSyncExternalStore } from "react";
@@ -28,7 +29,7 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const completed = useSyncExternalStore(subscribeToOnboarding, getOnboardingCompleted, getServerOnboardingCompleted);
-  const { locale, t } = useI18n();
+  const { locale } = useI18n();
   const logicalPath = stripLocalePrefix(pathname);
 
   useEffect(() => {
@@ -43,8 +44,8 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
         {children}
       </div>
       {!completed ? (
-        <div className="onboarding-gate__fallback" role="status">
-          {t("onboarding.signIn.loading")}
+        <div className="onboarding-gate__fallback">
+          <PageLoading />
         </div>
       ) : null}
     </>

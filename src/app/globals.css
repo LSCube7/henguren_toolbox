@@ -2841,31 +2841,7 @@ button.rail-action { border: 0; cursor: pointer; }
 .home-welcome > .stack { flex: 1 1 320px; }
 .home-welcome .card-description { color: inherit; }
 .edition-switch { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.guide-button {
-  min-height: 44px;
-  padding: 10px 20px;
-  border: 0;
-  border-radius: 999px;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--md-sys-color-on-primary);
-  background: var(--md-sys-color-primary);
-}
-.guide-button:hover { filter: brightness(0.94); }
-.guide-button--text {
-  color: var(--md-sys-color-primary);
-  background: transparent;
-}
-.edition-switch .guide-button {
-  color: var(--md-sys-color-on-surface-variant);
-  background: var(--md-sys-color-surface-container);
-}
-.edition-switch .guide-button[aria-pressed="true"] {
-  color: var(--md-sys-color-on-secondary-container);
-  background: var(--md-sys-color-secondary-container);
-}
-.guide-button:focus-visible, .onboarding-choice:focus-visible {
+.onboarding-choice:focus-visible {
   outline: 3px solid var(--md-sys-color-primary);
   outline-offset: 3px;
 }
@@ -2904,6 +2880,26 @@ button.rail-action { border: 0; cursor: pointer; }
 }
 .feature-tour__bubble h2 { margin-block: 8px 12px; }
 .feature-tour__bubble p { line-height: 1.6; }
+.feature-tour[data-motion="step"] .feature-tour__bubble {
+  transition:
+    top var(--md-sys-motion-spring-default-spatial),
+    left var(--md-sys-motion-spring-default-spatial);
+}
+.feature-tour[data-motion="step"] .feature-tour__spotlight {
+  transition:
+    top var(--md-sys-motion-spring-default-spatial),
+    left var(--md-sys-motion-spring-default-spatial),
+    width var(--md-sys-motion-spring-default-spatial),
+    height var(--md-sys-motion-spring-default-spatial);
+}
+.feature-tour__content {
+  animation: fade-in-page var(--md-sys-motion-spring-fast-effects) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .feature-tour[data-motion] .feature-tour__bubble,
+  .feature-tour[data-motion] .feature-tour__spotlight { transition: none; }
+  .feature-tour__content { animation: none; }
+}
 .feature-tour__actions {
   display: flex;
   flex-wrap: wrap;
@@ -2912,5 +2908,4 @@ button.rail-action { border: 0; cursor: pointer; }
   gap: 4px;
   margin-top: 20px;
 }
-.feature-tour__actions .guide-button { padding-inline: 14px; }
 .onboarding-panel > m3e-button:first-child { justify-self: end; }

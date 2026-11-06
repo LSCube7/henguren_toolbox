@@ -60,7 +60,6 @@ export function completeOnboarding() {
 }
 
 export function restartOnboarding() {
-  localStorage.removeItem(onboardingStorageKey);
   sessionStorage.removeItem(onboardingStepStorageKey);
   sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
   clearOnboardingCloudChoice();

@@ -14,7 +14,6 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type Keyboa
 import { SyncMenu } from "./SyncMenu";
 import { AccountMenu } from "./AccountMenu";
 import { MaterialIcon } from "./MaterialIcon";
-import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -140,6 +139,7 @@ function NavList({
           return (
             <Link
               href={href as Route}
+              data-tour={item.href === "/settings" ? "settings" : undefined}
               className="rail-action"
               aria-current={selected ? "page" : undefined}
               data-pending={pending ? "true" : undefined}
@@ -356,9 +356,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <OnboardingGate>
+    <>
       <div className="app-shell">
-        {mobile && <M3eFab ref={mobileTrigger} className="mobile-menu" variant="primary-container" size="medium"
+        {mobile && <M3eFab data-tour="menu" ref={mobileTrigger} className="mobile-menu" variant="primary-container" size="medium"
           aria-label={t("nav.open")} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="mobile-navigation"
           inert={mobileOpen} onClick={() => setMobileOpen(true)}>
           <MaterialIcon name="menu" />
@@ -388,6 +388,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <AppFooter />
         </main>
       </div>
-    </OnboardingGate>
+    </>
   );
 }

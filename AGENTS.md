@@ -107,8 +107,9 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - If not logged in, do not render a user avatar image; use the person icon fallback.
 - Onboarding:
   - `/onboarding` is a full-screen shell-less route.
-  - First use redirects there until `henguren-v3-onboarding.completed === true`.
-  - Login may be skipped only after the user explicitly chooses to skip.
+  - First use does not block access to learning tools. The optional welcome card can be dismissed, and the feature tour can be replayed from Settings.
+  - Personalisation is optional and can be exited at any time; already applied preferences remain local.
+  - Login is optional; signed-in users proceed to the cloud settings check. Available cloud settings require an explicit choice, while a failed check offers retry or continuing locally. Setup does not automatically upload data.
   - Theme appearance includes seed color, Pride Color, custom HCT color, and color mode.
   - Default color mode is `system`.
 
@@ -119,6 +120,7 @@ Known localStorage/sessionStorage keys:
 - `henguren-v3-settings`: `ToolboxSettings`.
 - `henguren-v3-edition`: `"junior" | "senior"`.
 - `henguren-v3-onboarding`: onboarding completion state.
+- `henguren-v3-guide`: welcome card dismissal state.
 - `henguren-v3-onboarding-step`: current onboarding step.
 - `henguren-v3-onboarding-cloud-choice`: session-only pre-cloud settings and choice used to restore local preferences if onboarding reloads.
 - `henguren-v3-dev-sync-source`: developer-mode custom R2 sync source; contains browser-stored credentials and must never be uploaded to cloud settings.

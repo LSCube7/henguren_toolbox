@@ -59,7 +59,7 @@ export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () 
     finally { setChanging(false); }
   }
   return <div className="account-menu-anchor">
-    <button ref={trigger} id={id} type="button" className="user-nav-card" aria-label={t("account.menu")} title={t("account.menu")} disabled={changing} onKeyDownCapture={(event) => { if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); menu.current?.hide(true); setOpen(false); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setOpen(true); } }}>
+    <button data-tour="account" ref={trigger} id={id} type="button" className="user-nav-card" aria-label={t("account.menu")} title={t("account.menu")} disabled={changing} onKeyDownCapture={(event) => { if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); menu.current?.hide(true); setOpen(false); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setOpen(true); } }}>
       <M3eMenuTrigger htmlFor={id + "-menu"}>{user?.avatarUrl ? (
         // OAuth avatars use the original URL and no-referrer, matching the existing rail.
         // eslint-disable-next-line @next/next/no-img-element

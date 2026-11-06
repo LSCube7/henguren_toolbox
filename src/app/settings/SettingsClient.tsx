@@ -149,6 +149,8 @@ export function SettingsClient() {
             description="settings.onboarding.description"
             control={<M3eButton variant="outlined" onClick={restartInitialGuide}>{t("settings.onboarding.action")}</M3eButton>}
           />
+          <SettingsSection title="guide.replay.title" description="guide.replay.description"
+            control={<M3eButton variant="outlined" onClick={() => router.push(localizePath(locale, "/?tour=1") as Route)}>{t("guide.start")}</M3eButton>} />
         </div>
       </M3eCard>
       <LearningOwnerGate><DataManagement fallbackSettings={fallbackSettings} /></LearningOwnerGate>

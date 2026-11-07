@@ -4,7 +4,7 @@ This file gives coding agents the working rules for this repository. Follow it b
 
 ## Project
 
-Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.0 (the current `main` release is v3.1.0 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
+Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.2 (the current `main` release is v3.2.1 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
 
 Core goals:
 

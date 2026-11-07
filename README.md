@@ -158,7 +158,7 @@ pnpm run fonts:check
 
 PR 由仓库所有者手动 Review，CI 会执行测试、lint、类型检查和生产构建。发布时更新 `package.json` 中的版本，从 `dev` 向 `main` 创建发布 PR，并使用 Merge commit 合并。
 
-`main` 的发布工作流在检查通过后按 `package.json` 的版本创建 `v<version>` 标签和 GitHub Release；标签已存在时会停止。该流程不负责部署站点，运行环境的部署需另行配置。v3.2.0 的变化与升级说明见[发布说明](docs/releases/v3.2.0.md)。
+`main` 的发布工作流在检查通过后按 `package.json` 的版本创建 `v<version>` 标签和 GitHub Release；标签已存在时会停止。该流程不负责部署站点，运行环境的部署需另行配置。v3.2.2 的变化与升级说明见[发布说明](docs/releases/v3.2.2.md)。
 
 ## 许可
 

@@ -148,7 +148,7 @@ export function DataManagement({ fallbackSettings }: { fallbackSettings: Toolbox
       <M3eCard variant="filled">
         <div className="settings-group-content stack">
           <div className="settings-group__header">
-            <p className="breadcrumb">Settings</p>
+            <p className="breadcrumb">{t("nav.settings")}</p>
             <h2 className="section-title" id="data-management-title">{t("data.title")}</h2>
             <p className="helper-text">{t("data.description")}</p>
           </div>

@@ -64,7 +64,16 @@ export function SyncIntroduction({ open, onOpen, onClose }: { open: boolean; onO
   }, [eligible, onOpen, requested, userId]);
 
   useEffect(() => {
-    if (!requested || !open || !eligible) return;
+    if (!requested) return;
+    if (!open || !eligible) {
+      // A panel dismissed before the tour appears has not consumed this account's introduction.
+      const resetFrame = requestAnimationFrame(() => {
+        attemptedAccount.current = undefined;
+        setRequested(false);
+        setReady(false);
+      });
+      return () => cancelAnimationFrame(resetFrame);
+    }
     let frame = 0;
     let previous: DOMRect | undefined;
     let settledFrames = 0;

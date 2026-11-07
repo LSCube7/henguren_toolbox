@@ -2,9 +2,9 @@
   "name": "henguren-toolbox-v3",
   "version": "3.2.0",
   "private": true,
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@12.18.0",
   "engines": {
-    "node": ">=22.6.0"
+    "node": ">=26.13.0 <27"
   },
   "scripts": {
     "dev": "next dev",
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@fontsource-variable/material-symbols-rounded": "^5.2.45",
-    "@types/node": "^22.10.0",
+    "@types/node": "^26.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.39.4",
@@ -41,10 +41,11 @@
     "subset-font": "^2.5.0",
     "typescript": "^5.7.0"
   },
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "sharp",
-      "unrs-resolver"
-    ]
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "26.13.0",
+      "onFail": "download"
+    }
   }
 }

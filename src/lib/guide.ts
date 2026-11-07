@@ -1,4 +1,5 @@
 import { stripLocalePrefix } from "./localized-routing.ts";
+import { accountLearningOwner } from "./learning-ownership.ts";
 
 export const guideStorageKey = "henguren-v3-guide";
 export const guideChangeEvent = "henguren-guide-change";
@@ -17,6 +18,20 @@ export function isWelcomeDismissed(value: string | null, onboardingValue: string
 
 export const desktopGuideSteps = ["edition", "tools", "settings", "account"] as const;
 export const mobileGuideSteps = ["edition", "tools", "menu"] as const;
+
+export function shouldShowSyncIntroduction(state: {
+  enabled: boolean;
+  introductionSeen: boolean;
+  online: boolean;
+  userId: string | null | undefined;
+  owner: string;
+  source: "account" | "custom" | "local" | undefined;
+  status: "ready" | "synced" | "offline" | "signed-out" | "syncing" | "error" | undefined;
+}): boolean {
+  return state.enabled && !state.introductionSeen && state.online && typeof state.userId === "string" && state.userId.length > 0
+    && state.source === "account" && (state.status === "ready" || state.status === "synced")
+    && state.owner === accountLearningOwner(state.userId);
+}
 /** Only clear a tour request while still on home; preserve history destinations. */
 export function guideExitPath(url: URL): string | null {
   if (stripLocalePrefix(url.pathname) !== "/" || url.searchParams.get("tour") !== "1") return null;

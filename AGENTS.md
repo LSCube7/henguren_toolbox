@@ -10,7 +10,7 @@ Core goals:
 
 - Keep Chinese and English learning tools usable locally.
 - Use Material 3 Expressive via M3E and local Material icon fonts.
-- Keep wrongbook data local-first, with explicit cloud sync after login.
+- Keep wrongbook data local-first, with account-scoped automatic merge sync enabled by default after login.
 - Use CubeID for login and Cloudflare R2 for JSON snapshot storage.
 
 ## Do Not Read
@@ -88,7 +88,7 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - `wrongbooks/{userId}/current.json`
   - `wrongbooks/{userId}/backups/{timestamp}.json`
   - `settings/{userId}/current.json`
-- Cloud sync defaults to explicit operations. Users may explicitly enable account-scoped automatic merge sync for wrongbook and mastery. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
+- Account-scoped automatic merge sync for wrongbook and mastery defaults to enabled only when no local account preference exists; preserve existing disabled preferences. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
 - Offline mode must keep local learning tools usable and show cloud sync as unavailable/offline.
 - Secrets must only be read in server-side code or route handlers. Never expose R2 or OAuth secrets to client bundles.
 
@@ -109,7 +109,7 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - `/onboarding` is a full-screen shell-less route.
   - First use does not block access to learning tools. The optional welcome card can be dismissed, and the feature tour can be replayed from Settings.
   - Personalisation is optional and can be exited at any time; already applied preferences remain local.
-  - Login is optional; signed-in users proceed to the cloud settings check. Available cloud settings require an explicit choice, while a failed check offers retry or continuing locally. Setup does not automatically upload data.
+  - Login is optional; signed-in users proceed to the cloud settings check. Available cloud settings require an explicit choice, while a failed check offers retry or continuing locally. Setup does not automatically upload device settings; account learning data may sync automatically after sign-in.
   - Theme appearance includes seed color, Pride Color, custom HCT color, and color mode.
   - Default color mode is `system`.
 

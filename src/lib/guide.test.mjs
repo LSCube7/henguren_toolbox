@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isWelcomeDismissed, placeGuideBubble, guideExitPath } from "./guide.ts";
+import { isWelcomeDismissed, placeGuideBubble, guideExitPath, shouldShowSyncIntroduction } from "./guide.ts";
+import { accountLearningOwner } from "./learning-ownership.ts";
+
+test("sync introduction requires a confirmed matching account with auto sync enabled", () => {
+  const ready = { enabled: true, introductionSeen: false, online: true, userId: "test-account", owner: accountLearningOwner("test-account"), source: "account", status: "ready" };
+  assert.equal(shouldShowSyncIntroduction(ready), true);
+  assert.equal(shouldShowSyncIntroduction({ ...ready, status: "synced" }), true);
+  for (const changes of [
+    { enabled: false }, { introductionSeen: true }, { online: false }, { userId: null },
+    { owner: "guest" }, { owner: accountLearningOwner("another-account") }, { source: "custom" },
+    { status: "offline" }, { status: "signed-out" }, { status: "error" }, { status: undefined }
+  ]) assert.equal(shouldShowSyncIntroduction({ ...ready, ...changes }), false, JSON.stringify(changes));
+});
 
 test("new visitors see an optional welcome; existing completion remains respected", () => {
   assert.equal(isWelcomeDismissed(null, null), false);

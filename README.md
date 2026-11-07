@@ -23,7 +23,7 @@
 
 ### 运行要求
 
-- Node.js 22.6.0 或更高版本，以及项目声明的 pnpm 10.8.0。
+- Node.js 26 LTS（项目固定为 26.13.0）和 pnpm 12.18.0。版本分别记录在 `.node-version` 与 `package.json` 的 `packageManager`，CI 读取同一声明。
 - 可运行 Next.js 服务端的部署环境，支持 Route Handlers、Cookie 和服务端网络请求。当前项目不能按纯静态站点部署。
 - 生产域名使用 HTTPS。生产模式下登录 Cookie 带有 `Secure` 标记，离线功能也依赖浏览器安全上下文。
 - 开启登录与云同步时，服务端需要能够访问 CubeID 的 OAuth 服务和 Cloudflare R2。
@@ -37,6 +37,8 @@
 ```bash
 pnpm install --frozen-lockfile
 ```
+
+pnpm 按 `devEngines.runtime` 获取项目固定的 Node 运行时，并用于项目脚本；首次安装可能访问 Node.js 官方下载源。使用 `pnpm exec node --version` 和 `pnpm --version` 确认项目版本，部署环境也应选择 Node 26。项目级 pnpm 配置位于 `pnpm-workspace.yaml`。
 
 根据下文配置环境变量。自托管时可以复制 [`.env.example`](.env.example) 为 `.env.local`；托管平台则通过其环境变量管理功能配置。示例中的 OAuth 地址和会话密钥都是占位值，不能直接用于生产。
 

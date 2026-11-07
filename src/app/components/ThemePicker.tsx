@@ -343,33 +343,33 @@ export function ThemePicker({
               <span>HEX</span>
               <div className="hex-input-shell">
                 <span aria-hidden="true">#</span>
-                <input aria-invalid={customDraftHexIsInvalid} aria-label="HEX" aria-describedby={customDraftHexIsInvalid ? "hct-hex-error" : undefined} value={customDraftColor.hex.replace(/^#/, "")} maxLength={6} onInput={(event) => updateDraftHex((event.currentTarget as HTMLInputElement).value)} />
+                <input aria-invalid={customDraftHexIsInvalid} aria-label={t("theme.colorCode")} aria-describedby={customDraftHexIsInvalid ? "hct-hex-error" : undefined} value={customDraftColor.hex.replace(/^#/, "")} maxLength={6} onInput={(event) => updateDraftHex((event.currentTarget as HTMLInputElement).value)} />
               </div>
               {customDraftHexIsInvalid ? <small id="hct-hex-error">{t("theme.hct.invalidHex")}</small> : null}
             </label>
-            <div className="rgb-field" aria-label="RGB">
+            <div className="rgb-field" aria-label={t("theme.rgb")}>
               <span>RGB</span>
               <div className="rgb-inputs">
-                <input aria-label="Red" inputMode="numeric" maxLength={3} value={customDraftRgb.r} onInput={(event) => updateDraftRgb("r", (event.currentTarget as HTMLInputElement).value)} />
-                <input aria-label="Green" inputMode="numeric" maxLength={3} value={customDraftRgb.g} onInput={(event) => updateDraftRgb("g", (event.currentTarget as HTMLInputElement).value)} />
-                <input aria-label="Blue" inputMode="numeric" maxLength={3} value={customDraftRgb.b} onInput={(event) => updateDraftRgb("b", (event.currentTarget as HTMLInputElement).value)} />
+                <input aria-label={t("theme.red")} inputMode="numeric" maxLength={3} value={customDraftRgb.r} onInput={(event) => updateDraftRgb("r", (event.currentTarget as HTMLInputElement).value)} />
+                <input aria-label={t("theme.green")} inputMode="numeric" maxLength={3} value={customDraftRgb.g} onInput={(event) => updateDraftRgb("g", (event.currentTarget as HTMLInputElement).value)} />
+                <input aria-label={t("theme.blue")} inputMode="numeric" maxLength={3} value={customDraftRgb.b} onInput={(event) => updateDraftRgb("b", (event.currentTarget as HTMLInputElement).value)} />
               </div>
             </div>
           </div>
           <div className="hct-slider hct-slider--hue" style={{ "--hct-slider-track": hctGradients.hue } as React.CSSProperties}>
-            <span>Hue</span>
-            <input className="hct-slider__value" aria-label="Hue" type="number" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
-            <input className="hct-slider__range" aria-label="Hue" type="range" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <span>{t("theme.hue")}</span>
+            <input className="hct-slider__value" aria-label={t("theme.hue")} type="number" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <input className="hct-slider__range" aria-label={t("theme.hue")} type="range" min={0} max={360} value={customDraftColor.hue} onInput={(event) => updateDraftHct({ hue: Number((event.currentTarget as HTMLInputElement).value) })} />
           </div>
           <div className="hct-slider hct-slider--chroma" style={{ "--hct-slider-track": hctGradients.chroma } as React.CSSProperties}>
-            <span>Chroma</span>
-            <input className="hct-slider__value" aria-label="Chroma" type="number" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
-            <input className="hct-slider__range" aria-label="Chroma" type="range" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <span>{t("theme.chroma")}</span>
+            <input className="hct-slider__value" aria-label={t("theme.chroma")} type="number" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <input className="hct-slider__range" aria-label={t("theme.chroma")} type="range" min={0} max={150} value={customDraftColor.chroma} onInput={(event) => updateDraftHct({ chroma: Number((event.currentTarget as HTMLInputElement).value) })} />
           </div>
           <div className="hct-slider hct-slider--tone" style={{ "--hct-slider-track": hctGradients.tone } as React.CSSProperties}>
-            <span>Tone</span>
-            <input className="hct-slider__value" aria-label="Tone" type="number" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
-            <input className="hct-slider__range" aria-label="Tone" type="range" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <span>{t("theme.tone")}</span>
+            <input className="hct-slider__value" aria-label={t("theme.tone")} type="number" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
+            <input className="hct-slider__range" aria-label={t("theme.tone")} type="range" min={0} max={100} value={customDraftColor.tone} onInput={(event) => updateDraftHct({ tone: Number((event.currentTarget as HTMLInputElement).value) })} />
           </div>
         </div>
         <div slot="actions">

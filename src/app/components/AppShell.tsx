@@ -14,7 +14,6 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type Keyboa
 import { SyncMenu } from "./SyncMenu";
 import { AccountMenu } from "./AccountMenu";
 import { MaterialIcon } from "./MaterialIcon";
-import { OnboardingGate } from "./OnboardingGate";
 import { useEdition } from "@/lib/edition";
 import type { MaterialSymbolName } from "@/generated/material-symbols";
 import { useI18n } from "../i18n/AppI18nProvider";
@@ -140,6 +139,7 @@ function NavList({
           return (
             <Link
               href={href as Route}
+              data-tour={item.href === "/settings" ? "settings" : undefined}
               className="rail-action"
               aria-current={selected ? "page" : undefined}
               data-pending={pending ? "true" : undefined}
@@ -207,7 +207,7 @@ function AppFooter() {
           </span>
           <div className="stack">
             <div>
-              <p className="app-footer__eyebrow">Henguren Toolbox v3.2.1</p>
+              <p className="app-footer__eyebrow">Henguren Toolbox v3.2.2</p>
               <h2 className="app-footer__title">{t("app.name")}</h2>
             </div>
             <p className="app-footer__description">{t("app.description")}</p>
@@ -308,6 +308,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [mobile, mobileOpen]);
 
   function handleMobileTab(event: KeyboardEvent<M3eDrawerContainerElement>) {
+    if (event.target instanceof Element && event.target.closest(".feature-tour")) return;
     if (event.key !== "Tab" || event.defaultPrevented || !mobileOpen) return;
     if (event.target instanceof Element && event.target.closest("m3e-menu")) return;
     const panel = mobileDrawer.current?.querySelector(".mobile-navigation-panel");
@@ -356,9 +357,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <OnboardingGate>
+    <>
       <div className="app-shell">
-        {mobile && <M3eFab ref={mobileTrigger} className="mobile-menu" variant="primary-container" size="medium"
+        {mobile && <M3eFab data-tour="menu" ref={mobileTrigger} className="mobile-menu" variant="primary-container" size="medium"
           aria-label={t("nav.open")} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="mobile-navigation"
           inert={mobileOpen} onClick={() => setMobileOpen(true)}>
           <MaterialIcon name="menu" />
@@ -388,6 +389,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <AppFooter />
         </main>
       </div>
-    </OnboardingGate>
+    </>
   );
 }

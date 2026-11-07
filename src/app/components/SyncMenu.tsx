@@ -14,6 +14,7 @@ import type { MessageKey } from "@/i18n/config";
 import { useI18n } from "../i18n/AppI18nProvider";
 import { MaterialIcon } from "./MaterialIcon";
 import { LearningSyncPanel } from "./LearningSyncPanel";
+import { SyncIntroduction } from "./SyncIntroduction";
 const syncStatusLabel: Record<SyncStatus | "pending", MessageKey> = {
   "signed-out": "sync.signedOut",
   offline: "sync.offline",
@@ -150,6 +151,7 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
     if (navigation) void navigation.updateComplete.then(focusPanel);
     else focusPanel();
     const outside = (event: PointerEvent) => {
+      if (document.querySelector('.feature-tour[open]')) return;
       if (!(event.target instanceof Node) || element.contains(event.target) || trigger.current?.contains(event.target)) return;
       // A modal confirmation owns dismissal while it is open.
       if (element.querySelector("m3e-dialog[open]")) return;
@@ -193,13 +195,14 @@ export function SyncMenu({ onOpen, expanded = false }: { onOpen?: () => void; ex
           onKeyDownCapture={handleDrawerTab} onChange={(event) => {
             if (event.target === drawer.current && drawer.current?.start === false && !panel.current?.querySelector("m3e-dialog[open]")) close();
           }}>
-          <section ref={panel} slot="start" className="sync-settings-drawer-content">{content}</section>
+          <section ref={panel} data-tour="sync-panel" slot="start" className="sync-settings-drawer-content">{content}</section>
         </M3eDrawerContainer>
       </dialog> :
-      <section ref={panel} id={id} className="sync-settings-popover" inert={!open} popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>
+      <section ref={panel} data-tour="sync-panel" id={id} className="sync-settings-popover" inert={!open} popover="manual" role="dialog" aria-modal="false" aria-labelledby={id + "-title"} tabIndex={-1}>
         <M3eCard variant="elevated">
           <div slot="content" className="sync-settings-popover-content">{content}</div>
         </M3eCard>
       </section>, document.body)}
+    {mounted ? <SyncIntroduction open={open} onOpen={show} onClose={close} /> : null}
   </>;
 }

@@ -5,7 +5,7 @@ import { moveButtonGroupSelection } from "@/app/components/button-group-keyboard
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { MaterialIcon } from "../components/MaterialIcon";
 import { ThemePicker } from "../components/ThemePicker";
 import {
@@ -75,13 +75,13 @@ function readLoginSkipped() {
   return typeof window !== "undefined" && sessionStorage.getItem(onboardingLoginDecisionStorageKey) === "skipped";
 }
 
-function stepIndexFromStorage() {
-  if (typeof window === "undefined") return 0;
+function stepFromStorage(): StepId {
+  if (typeof window === "undefined") return "login";
   const savedValue = sessionStorage.getItem(onboardingStepStorageKey);
   const storedStep = savedValue?.startsWith(`${onboardingFlowVersion}:`) ? savedValue.slice(onboardingFlowVersion.length + 1) : null;
   const saved = (storedStep === "sync" ? "done" : storedStep) as StepId | null;
   const index = steps.findIndex((step) => step.id === saved);
-  return index >= 0 ? index : 0;
+  return index >= 0 ? steps[index].id : "login";
 }
 
 export function OnboardingClient() {
@@ -94,7 +94,8 @@ export function OnboardingClient() {
   const returnTo = safeOnboardingReturnTo(searchParams.get("returnTo"), locale);
   const authStatus = searchParams.get("auth") ?? "";
   const authMessageKey = authMessages[authStatus];
-  const [stepIndex, setStepIndex] = useState(() => stepIndexFromStorage());
+  const [stepId, setStepId] = useState<StepId>(() => stepFromStorage());
+  const skippedRef = useRef(readLoginSkipped());
   const [settings, setSettings] = useState<ToolboxSettings>(() => readClientSettings(requestFallbackSettings));
   const [savedCloudChoice] = useState(() => readOnboardingCloudChoice(requestFallbackSettings));
   const [localSettingsBeforeCloud, setLocalSettingsBeforeCloud] = useState<ToolboxSettings>(() => savedCloudChoice?.localSettings ?? settings);
@@ -117,12 +118,18 @@ export function OnboardingClient() {
       router.replace(localizePath(nextSettings.locale, currentUrl) as Route);
     }
   }, [router]);
-  const step = steps[stepIndex];
+  const visibleSteps = steps.filter((item) => {
+    if (item.id === "login") return !user;
+    if (item.id === "cloud") return (Boolean(user) || (userLoading && stepId === "cloud")) && cloudStatus !== "empty";
+    return true;
+  });
+  const step = steps.find((item) => item.id === stepId) ?? steps[0];
+  const stepIndex = visibleSteps.findIndex((item) => item.id === step.id);
   const canGoNext =
     step.id === "login"
       ? !userLoading && (Boolean(user) || loginSkipped)
       : step.id === "cloud"
-        ? cloudStatus !== "idle" && cloudStatus !== "loading" && (cloudStatus !== "available" || cloudDecision !== null)
+        ? cloudStatus === "available" && cloudDecision !== null
         : true;
 
   useEffect(() => {
@@ -142,18 +149,21 @@ export function OnboardingClient() {
         const response = await fetch("/api/me");
         const data = (await response.json()) as { authenticated: boolean; user: UserSession | null };
         if (active) {
+          if (skippedRef.current) return;
           setUser(data.user);
           if (data.user) {
             sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
             setLoginSkipped(false);
+            setStepId((current) => current === "login" ? "cloud" : current);
           } else if (!readLoginSkipped()) {
-            setStepIndex(0);
+            setStepId("login");
           }
         }
       } catch {
         if (active) {
+          if (skippedRef.current) return;
           setUser(null);
-          if (!readLoginSkipped()) setStepIndex(0);
+          if (!readLoginSkipped()) setStepId("login");
         }
       } finally {
         if (active) setUserLoading(false);
@@ -200,6 +210,7 @@ export function OnboardingClient() {
         if (!data.available || !data.settings) {
           setCloudSettings(null);
           setCloudStatus("empty");
+          setStepId((current) => current === "cloud" ? "edition" : current);
           return;
         }
         setCloudSettings(normalizeToolboxSettings(data.settings, requestFallbackSettings));
@@ -232,36 +243,62 @@ export function OnboardingClient() {
 
   function goNext() {
     if (!canGoNext) return;
-    if (stepIndex < steps.length - 1) {
-      setStepIndex((current) => current + 1);
+    if (stepIndex >= 0 && stepIndex < visibleSteps.length - 1) {
+      setStepId(visibleSteps[stepIndex + 1].id);
       return;
     }
+    if (step.id !== "done") return;
     completeOnboarding();
     router.replace(localizePath(settings.locale, returnTo) as Route);
   }
 
   function goBack() {
-    setStepIndex((current) => Math.max(0, current - 1));
+    if (stepIndex > 0) setStepId(visibleSteps[stepIndex - 1].id);
+  }
+
+  function exitSetup() {
+    sessionStorage.removeItem(onboardingStepStorageKey);
+    sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
+    clearOnboardingCloudChoice();
+    router.replace(localizePath(settings.locale, returnTo) as Route);
+  }
+
+  function handleCloudRadioKeys(event: KeyboardEvent<HTMLButtonElement>, select: () => void) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    const buttons = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+    if (!buttons?.length) return;
+    const current = Array.from(buttons).indexOf(event.currentTarget);
+    const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+    buttons[(current + direction + buttons.length) % buttons.length].focus();
+    select();
   }
 
   function startLogin() {
+    skippedRef.current = false;
     sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
     sessionStorage.setItem(onboardingStepStorageKey, `${onboardingFlowVersion}:login`);
     const target = localizePath(locale, `/onboarding?returnTo=${encodeURIComponent(returnTo)}`);
-    window.location.href = `/api/auth/login?returnTo=${encodeURIComponent(target)}`;
+    const loginUrl = new URL("/api/auth/login", window.location.origin);
+    loginUrl.searchParams.set("returnTo", target);
+    window.location.assign(loginUrl.href);
   }
 
   function skipLogin() {
     const savedChoice = readOnboardingCloudChoice(requestFallbackSettings);
+    skippedRef.current = true;
+    sessionStorage.setItem(onboardingLoginDecisionStorageKey, "skipped");
+    sessionStorage.setItem(onboardingStepStorageKey, `${onboardingFlowVersion}:edition`);
+    setUser(null);
+    setLoginSkipped(true);
+    setCloudStatus("skipped");
+    setStepId("edition");
+    setCloudDecision(null);
     if (savedChoice) {
       setLocalSettingsBeforeCloud(savedChoice.localSettings);
       clearOnboardingCloudChoice();
       applySettings(savedChoice.localSettings);
     }
-    setCloudDecision(null);
-    sessionStorage.setItem(onboardingLoginDecisionStorageKey, "skipped");
-    setLoginSkipped(true);
-    setCloudStatus("skipped");
   }
 
   function applyCloudSettings() {
@@ -289,6 +326,12 @@ export function OnboardingClient() {
     applySettings(cloudDecision === "cloud" ? localSettingsBeforeCloud : settings);
   }
 
+  function continueWithLocalSettings() {
+    sessionStorage.setItem(onboardingStepStorageKey, `${onboardingFlowVersion}:edition`);
+    setStepId("edition");
+    keepLocalSettings();
+  }
+
   function retryCloudSettings() {
     setCloudCheckVersion((current) => current + 1);
   }
@@ -298,8 +341,9 @@ export function OnboardingClient() {
   return (
     <section className="onboarding-shell onboarding-shell--route" aria-label={t("onboarding.aria")}>
       <div className="onboarding-panel">
+        <M3eButton variant="text" onClick={exitSetup}>{t("onboarding.exit")}</M3eButton>
         <div className="onboarding-progress" aria-label={t("onboarding.progress")}>
-          {steps.map((item, index) => (
+          {visibleSteps.map((item, index) => (
             <span className="onboarding-progress__dot" data-active={index <= stepIndex} key={item.id} />
           ))}
         </div>
@@ -308,7 +352,7 @@ export function OnboardingClient() {
             <MaterialIcon name={step.id === "done" ? "check" : "auto_awesome"} />
           </span>
           <div>
-            <p className="breadcrumb">{t("onboarding.step", { current: stepIndex + 1, total: steps.length })}</p>
+            <p className="breadcrumb">{t("onboarding.step", { current: stepIndex + 1, total: visibleSteps.length })}</p>
             <h1 className="page-title">{t(step.title)}</h1>
             <p className="page-description">{t(step.description)}</p>
           </div>
@@ -416,18 +460,21 @@ export function OnboardingClient() {
                   </p>
                 </div>
                 {cloudStatus === "error" ? (
-                  <M3eButton variant="outlined" onClick={retryCloudSettings}>{t("onboarding.cloud.retry")}</M3eButton>
+                  <div className="cluster">
+                    <M3eButton variant="outlined" onClick={retryCloudSettings}>{t("onboarding.cloud.retry")}</M3eButton>
+                    <M3eButton variant="text" onClick={continueWithLocalSettings}>{t("onboarding.cloud.keepLocal")}</M3eButton>
+                  </div>
                 ) : null}
               </div>
 
               {cloudStatus === "available" ? (
                 <div className="onboarding-choice-grid" role="radiogroup" aria-label={t("onboarding.cloud.choiceAria")}>
-                  <button className="onboarding-choice" type="button" data-selected={cloudDecision === "cloud"} onClick={applyCloudSettings}>
+                  <button className="onboarding-choice" type="button" data-selected={cloudDecision === "cloud"} role="radio" aria-checked={cloudDecision === "cloud"} tabIndex={cloudDecision !== "local" ? 0 : -1} onKeyDown={(event) => handleCloudRadioKeys(event, keepLocalSettings)} onClick={applyCloudSettings}>
                     <MaterialIcon name="cloud_download" />
                     <span>{t("onboarding.cloud.useCloud")}</span>
                     <small>{t("onboarding.cloud.useCloudDescription")}</small>
                   </button>
-                  <button className="onboarding-choice" type="button" data-selected={cloudDecision === "local"} onClick={keepLocalSettings}>
+                  <button className="onboarding-choice" type="button" data-selected={cloudDecision === "local"} role="radio" aria-checked={cloudDecision === "local"} tabIndex={cloudDecision === "local" ? 0 : -1} onKeyDown={(event) => handleCloudRadioKeys(event, applyCloudSettings)} onClick={keepLocalSettings}>
                     <MaterialIcon name="touch_app" />
                     <span>{t("onboarding.cloud.keepLocal")}</span>
                     <small>{t("onboarding.cloud.keepLocalDescription")}</small>

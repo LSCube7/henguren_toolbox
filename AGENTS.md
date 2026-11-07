@@ -4,13 +4,13 @@ This file gives coding agents the working rules for this repository. Follow it b
 
 ## Project
 
-Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.1 (the current `main` release is v3.2.0 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
+Henguren Toolbox v3 is a Next.js App Router + TypeScript rewrite of the older Vue toolbox. It is a normal learning toolbox, not a cloud console. The next prepared release is v3.2.2 (the current `main` release is v3.2.1 until the release PR is merged); the historical Vue version is preserved on the `v2` branch.
 
 Core goals:
 
 - Keep Chinese and English learning tools usable locally.
 - Use Material 3 Expressive via M3E and local Material icon fonts.
-- Keep wrongbook data local-first, with explicit cloud sync after login.
+- Keep wrongbook data local-first, with account-scoped automatic merge sync enabled by default after login.
 - Use CubeID for login and Cloudflare R2 for JSON snapshot storage.
 
 ## Do Not Read
@@ -88,7 +88,7 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - `wrongbooks/{userId}/current.json`
   - `wrongbooks/{userId}/backups/{timestamp}.json`
   - `settings/{userId}/current.json`
-- Cloud sync defaults to explicit operations. Users may explicitly enable account-scoped automatic merge sync for wrongbook and mastery. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
+- Account-scoped automatic merge sync for wrongbook and mastery defaults to enabled unless an explicit choice is marked by sync.preferenceSet. Legacy unmarked enabled:false values migrate to enabled because they cannot be distinguished from the old default; subsequent explicit disabled preferences are preserved. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
 - Offline mode must keep local learning tools usable and show cloud sync as unavailable/offline.
 - Secrets must only be read in server-side code or route handlers. Never expose R2 or OAuth secrets to client bundles.
 
@@ -107,8 +107,9 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - If not logged in, do not render a user avatar image; use the person icon fallback.
 - Onboarding:
   - `/onboarding` is a full-screen shell-less route.
-  - First use redirects there until `henguren-v3-onboarding.completed === true`.
-  - Login may be skipped only after the user explicitly chooses to skip.
+  - First use does not block access to learning tools. The optional welcome card can be dismissed, and the feature tour can be replayed from Settings.
+  - Personalisation is optional and can be exited at any time; already applied preferences remain local.
+  - Login is optional; signed-in users proceed to the cloud settings check. Available cloud settings require an explicit choice, while a failed check offers retry or continuing locally. Setup does not automatically upload device settings; account learning data may sync automatically after sign-in.
   - Theme appearance includes seed color, Pride Color, custom HCT color, and color mode.
   - Default color mode is `system`.
 
@@ -119,6 +120,7 @@ Known localStorage/sessionStorage keys:
 - `henguren-v3-settings`: `ToolboxSettings`.
 - `henguren-v3-edition`: `"junior" | "senior"`.
 - `henguren-v3-onboarding`: onboarding completion state.
+- `henguren-v3-guide`: welcome card dismissal state.
 - `henguren-v3-onboarding-step`: current onboarding step.
 - `henguren-v3-onboarding-cloud-choice`: session-only pre-cloud settings and choice used to restore local preferences if onboarding reloads.
 - `henguren-v3-dev-sync-source`: developer-mode custom R2 sync source; contains browser-stored credentials and must never be uploaded to cloud settings.
@@ -152,7 +154,7 @@ Settings are local-first. Upload to cloud only through explicit settings sync.
 - Create a dedicated branch for every pull request. Name it `{type}/{feature}`, where `{type}` matches the Conventional Commit prefix and `{feature}` is a concise kebab-case description, for example `feat/vocab-import` or `fix/offline-sync-status`.
 - Use English Conventional Commit messages whose type and scope match the branch and pull request content.
 - Push feature/content branches and open their pull requests against `dev`. Do not open routine feature or fix pull requests directly against `main`.
-- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the rebase merge strategy, as specified by the repository owner for this release.
+- Only release work may open a pull request from `dev` to `main`, and that release pull request must use the merge commit strategy, as explicitly requested by the repository owner.
 - All pull request reviews are performed manually by the repository owner. Agents must not approve, merge, enable auto-merge for, or otherwise bypass review on a pull request.
 - Before pushing each pull request branch, inspect previous local and remote temporary/topic branches. Delete obsolete prior temporary branches only after confirming they contain no uncommitted, unique, or still-unmerged work; never delete an active pull request branch.
 - Any command that uses `gh` requires network access. Explain the intended GitHub operation and request network permission or escalation before running it.

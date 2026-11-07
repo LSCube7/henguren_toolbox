@@ -49,7 +49,10 @@ export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () 
   function login() {
     if (offline || changing) return;
     const returnTo = pathname + window.location.search + window.location.hash;
-    window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo));
+    // OAuth needs a document navigation so the route handler can set cookies and redirect off-site.
+    const loginUrl = new URL("/api/auth/login", window.location.origin);
+    loginUrl.searchParams.set("returnTo", returnTo);
+    window.location.assign(loginUrl.href);
   }
   async function logout() {
     if (offline || changing) return;
@@ -59,7 +62,7 @@ export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () 
     finally { setChanging(false); }
   }
   return <div className="account-menu-anchor">
-    <button ref={trigger} id={id} type="button" className="user-nav-card" aria-label={t("account.menu")} title={t("account.menu")} disabled={changing} onKeyDownCapture={(event) => { if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); menu.current?.hide(true); setOpen(false); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setOpen(true); } }}>
+    <button data-tour="account" ref={trigger} id={id} type="button" className="user-nav-card" aria-label={t("account.menu")} title={t("account.menu")} disabled={changing} onKeyDownCapture={(event) => { if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); menu.current?.hide(true); setOpen(false); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setOpen(true); } }}>
       <M3eMenuTrigger htmlFor={id + "-menu"}>{user?.avatarUrl ? (
         // OAuth avatars use the original URL and no-referrer, matching the existing rail.
         // eslint-disable-next-line @next/next/no-img-element

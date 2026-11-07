@@ -1,8 +1,11 @@
 "use client";
 
+import { M3eButton } from "@m3e/react/button";
+import { M3eButtonGroup } from "@m3e/react/button-group";
+import { moveButtonGroupSelection } from "./components/button-group-keyboard";
 import { ToolCard } from "./components/ToolCard";
 import { MaterialIcon } from "./components/MaterialIcon";
-import { useEdition } from "@/lib/edition";
+import { useEdition, writeEdition } from "@/lib/edition";
 import { useI18n } from "./i18n/AppI18nProvider";
 
 const tools = [
@@ -31,9 +34,18 @@ export function HomeTools() {
             <p className="helper-text">{t(edition === "junior" ? "home.juniorDescription" : "home.seniorDescription")}</p>
           </div>
         </div>
-        <span className="badge">{t(edition === "junior" ? "edition.junior" : "edition.senior")}</span>
+        <M3eButtonGroup data-tour="edition" className="button-group edition-switch" variant="connected"
+          role="radiogroup" aria-label={t("onboarding.edition.aria")} onKeyDown={moveButtonGroupSelection}>
+          {(["junior", "senior"] as const).map((value) => (
+            <M3eButton key={value} variant="tonal" shape="square" toggle selected={edition === value}
+              role="radio" aria-checked={edition === value ? "true" : "false"} tabIndex={edition === value ? 0 : -1}
+              onBeforeInput={(event) => { if (edition === value) event.preventDefault(); }} onClick={() => writeEdition(value)}>
+              {t(value === "junior" ? "edition.junior" : "edition.senior")}
+            </M3eButton>
+          ))}
+        </M3eButtonGroup>
       </div>
-      <div className="md-grid">
+      <div className="md-grid" data-tour="tools">
         {visibleTools.map((tool) => (
           <ToolCard href={tool.href} title={tool.title} description={tool.body} status={tool.status} icon={<MaterialIcon name={tool.icon} />} key={tool.href} />
         ))}

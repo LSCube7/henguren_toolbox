@@ -61,7 +61,7 @@ export function LearningAutoSyncControls({ compact = false, showStatus = true }:
 
   return (
     <div className="stack">
-      <label className="switch-field">
+      <label className="switch-field" data-tour="auto-sync">
         <M3eSwitch
           aria-label={t("sync.auto.title")}
           checked={sync.enabled}

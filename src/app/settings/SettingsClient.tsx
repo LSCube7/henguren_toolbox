@@ -69,7 +69,7 @@ export function SettingsClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings)
     });
-    showSnackbar(response.ok ? t("settings.sync.cloudSuccess") : t("settings.sync.signInRequired"), response.ok ? "info" : "error");
+    showSnackbar(response.ok ? t("settings.sync.cloudSuccess") : t("settings.sync.error", { status: response.status }), response.ok ? "info" : "error");
   }
 
   function restartInitialGuide() {
@@ -149,6 +149,8 @@ export function SettingsClient() {
             description="settings.onboarding.description"
             control={<M3eButton variant="outlined" onClick={restartInitialGuide}>{t("settings.onboarding.action")}</M3eButton>}
           />
+          <SettingsSection title="guide.replay.title" description="guide.replay.description"
+            control={<M3eButton variant="outlined" onClick={() => router.push(localizePath(locale, "/?tour=1") as Route)}>{t("guide.start")}</M3eButton>} />
         </div>
       </M3eCard>
       <LearningOwnerGate><DataManagement fallbackSettings={fallbackSettings} /></LearningOwnerGate>
@@ -156,7 +158,7 @@ export function SettingsClient() {
         <M3eCard variant="filled">
           <div className="settings-group-content stack">
             <div className="settings-group__header">
-              <p className="breadcrumb">Settings</p>
+              <p className="breadcrumb">{t("nav.settings")}</p>
               <h2 className="section-title" id="advanced-settings-title">
                 {t("settings.advanced.title")}
               </h2>

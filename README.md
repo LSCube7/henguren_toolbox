@@ -53,10 +53,12 @@ v3 的界面使用第三方 `@m3e/react` / `@m3e/web` 实现 Material 3 Expressi
 
 ## 开发
 
-开发环境需要 Node.js 22.6.0 或更高版本，并使用项目声明的 pnpm 版本。
+开发与生产环境统一使用 Node.js 26 LTS（当前固定为 26.13.0）和 pnpm 12.18.0。Node 版本记录在 `.node-version`，pnpm 版本记录在 `package.json` 的 `packageManager`；CI 直接读取这两处声明。
+
+pnpm 安装依赖时会按 `devEngines.runtime` 获取项目固定的 Node 运行时，并用于项目脚本。首次安装可能访问 Node.js 官方下载源；可用 `pnpm exec node --version` 和 `pnpm --version` 确认项目实际使用的版本。宿主机直接执行 `node` 仍可能使用其自身 PATH 中的版本，部署环境也应选择 Node 26。pnpm 的项目设置统一放在 `pnpm-workspace.yaml`。
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 

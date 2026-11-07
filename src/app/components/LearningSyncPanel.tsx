@@ -197,7 +197,11 @@ export function LearningSyncPanel() {
     </div>
     {(offline || !hasSource) && isOnline() && (syncSummary?.status === "error" || syncSummary?.unavailableReason === "server-unavailable") ? <M3eButton variant="text" disabled={syncing || refreshing} onClick={() => void refresh()}>{t("common.refresh")}</M3eButton> : null}
     {hasSource && successDate && !Number.isNaN(successDate.getTime()) ? <p className="helper-text">{t("sync.panel.lastSuccess", { time: successDate.toLocaleString(locale) })}</p> : null}
-    {!hasSource ? <M3eButton variant="filled" disabled={offline || !syncSummary} onClick={() => { const returnTo = window.location.pathname + window.location.search + "#wrongbook-sync"; window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo)); }}>{t("user.login")}</M3eButton> : <>
+    {!hasSource ? <M3eButton variant="filled" disabled={offline || !syncSummary} onClick={() => {
+      const loginUrl = new URL("/api/auth/login", window.location.origin);
+      loginUrl.searchParams.set("returnTo", window.location.pathname + window.location.search + "#wrongbook-sync");
+      window.location.assign(loginUrl.href);
+    }}>{t("user.login")}</M3eButton> : <>
       {syncSummary?.source !== "custom" && (!offline || sync.enabled) ? <LearningAutoSyncControls compact showStatus={false} /> : null}
       {!offline ? <>
         <M3eButton variant="filled" disabled={syncUnavailable} onClick={() => void runSync("merge")}>{t("sync.panel.syncNow")}</M3eButton>

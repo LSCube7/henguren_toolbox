@@ -3,7 +3,7 @@
 import { learningContentKey } from "./learning-content";
 import type { MasteryRecord } from "./mastery";
 import { preferredMasteryRecord } from "./mastery";
-import { accountLearningOwner, guestLearningOwner, removeUploadedLearning, type LearningPartition } from "./learning-ownership";
+import { accountLearningOwner, guestLearningOwner, removeUploadedLearning, withLearningSyncDefaults, type LearningPartition } from "./learning-ownership";
 import { emptyWrongBook, mergeWrongBooks, normalizeWrongBook } from "./wrongbook";
 import type { WrongBookRecord, WrongBookSnapshot } from "./types";
 import { isOnline } from "./offline-cache";
@@ -21,7 +21,7 @@ export function assertLearningOwner(owner: string) {
   if (owner !== activeOwner) throw new Error("LOCAL_OWNER_CHANGED");
 }
 function emptyPartition(owner: string): LearningPartition {
-  return { owner, wrongbook: emptyWrongBook("local"), masteryRecords: [] };
+  return withLearningSyncDefaults({ owner, wrongbook: emptyWrongBook("local"), masteryRecords: [] });
 }
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => { request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
@@ -123,11 +123,11 @@ export async function readLearningPartition(owner = currentLearningOwner(), allo
     const [partition, state] = await Promise.all([requestResult(transaction.objectStore(partitionsStore).get(owner)), requestResult(transaction.objectStore(stateStore).get(activeKey))]);
     await done;
     if (!allowInactive && state.owner !== owner) throw new Error("LOCAL_OWNER_CHANGED");
-    return partition ?? emptyPartition(owner);
+    return withLearningSyncDefaults(partition ?? emptyPartition(owner));
   } finally { db.close(); }
 }
 
-export async function updateLearningPartition<T>(owner: string, update: (partition: LearningPartition) => { partition: LearningPartition; result: T }, synchronized = false): Promise<T> {
+export async function updateLearningPartition<T>(owner: string, update: (partition: LearningPartition) => { partition: LearningPartition; result: T }, synchronized = false, notify = true): Promise<T> {
   await initializeLearningStorage();
   const db = await openLearningDb();
   try {
@@ -141,10 +141,11 @@ export async function updateLearningPartition<T>(owner: string, update: (partiti
         if (++ready !== 2) return;
         try {
           if (state.result.owner !== owner || currentLearningOwner() !== owner) throw new Error("LOCAL_OWNER_CHANGED");
-          const partition: LearningPartition = request.result ?? emptyPartition(owner);
+          const partition = withLearningSyncDefaults(request.result ?? emptyPartition(owner));
           const before = JSON.stringify(partition);
           const beforeContent = learningContentKey({ ...partition.wrongbook, masteryRecords: partition.masteryRecords });
           const next = update(partition);
+          next.partition = withLearningSyncDefaults(next.partition);
           if (next.partition.owner !== owner) throw new Error("LOCAL_OWNER_CHANGED");
           result = next.result;
           if (learningContentKey({ ...next.partition.wrongbook, masteryRecords: next.partition.masteryRecords }) !== beforeContent && !synchronized) {
@@ -156,7 +157,7 @@ export async function updateLearningPartition<T>(owner: string, update: (partiti
         } catch (failure) { error = failure; transaction.abort(); }
       };
       request.onsuccess = apply; state.onsuccess = apply;
-      transaction.oncomplete = () => { if (changed) announceLearningChange(); resolve(result); };
+      transaction.oncomplete = () => { if (changed && notify) announceLearningChange(); resolve(result); };
       transaction.onabort = () => reject(error ?? transaction.error ?? new Error("LOCAL_STORAGE_FAILED"));
     });
   } finally { db.close(); }
@@ -223,14 +224,14 @@ export async function adoptGuestLearning(userId: string) {
       if (++ready !== 3) return;
       try {
         if (state.result.owner !== owner || currentLearningOwner() !== owner) { transaction.abort(); return; }
-        const local: LearningPartition = target.result ?? emptyPartition(owner);
+        const local = withLearningSyncDefaults(target.result ?? emptyPartition(owner));
         const source: LearningPartition = guest.result ?? emptyPartition(guestLearningOwner);
         const mastery = new Map(local.masteryRecords.map((record) => [record.id, record]));
         source.masteryRecords.forEach((record) => {
           const existing = mastery.get(record.id);
           mastery.set(record.id, existing ? preferredMasteryRecord(existing, record) : record);
         });
-        store.put({ ...local, wrongbook: mergeWrongBooks("local", local.wrongbook, source.wrongbook), masteryRecords: [...mastery.values()], sync: { ...(local.sync ?? { enabled: false, confirmedVersion: 0 }), localVersion: (local.sync?.localVersion ?? 0) + 1 } });
+        store.put({ ...local, wrongbook: mergeWrongBooks("local", local.wrongbook, source.wrongbook), masteryRecords: [...mastery.values()], sync: { ...local.sync!, localVersion: (local.sync?.localVersion ?? 0) + 1 } });
         store.put(emptyPartition(guestLearningOwner));
       } catch { transaction.abort(); }
     };
@@ -243,7 +244,7 @@ export async function adoptGuestLearning(userId: string) {
 export async function setLearningAutoSync(enabled: boolean) {
   const owner = currentLearningOwner();
   if (owner === guestLearningOwner) throw new Error("UNAUTHORIZED");
-  await updateLearningPartition(owner, (partition) => ({ partition: { ...partition, sync: { enabled, localVersion: partition.sync?.localVersion ?? 0, confirmedVersion: partition.sync?.confirmedVersion ?? -1, lastSuccessAt: partition.sync?.lastSuccessAt } }, result: undefined }), true);
+  await updateLearningPartition(owner, (partition) => ({ partition: { ...partition, sync: { ...partition.sync!, enabled } }, result: undefined }), true);
 }
 
 let syncQueue: Promise<unknown> = Promise.resolve();

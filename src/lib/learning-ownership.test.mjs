@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { accountLearningOwner, guestLearningOwner, removeUploadedLearning } from "./learning-ownership.ts";
+import { accountLearningOwner, guestLearningOwner, removeUploadedLearning, withLearningSyncDefaults } from "./learning-ownership.ts";
 
 const syncedAt = "2026-02-01T00:00:00.000Z";
 const nextReviewAt = "2026-02-02T00:00:00.000Z";
@@ -214,4 +214,29 @@ test("cleanup invalidates cloud observation so automatic sync can restore the re
   assert.equal(result.sync.confirmedVersion, 7);
   assert.equal(result.sync.lastCloudVersion, undefined);
   assert.equal(result.sync.lastCheckAt, undefined);
+});
+
+test("defaults account sync to enabled without changing learning content", () => {
+  const local = partition();
+  const result = withLearningSyncDefaults(local);
+  assert.deepEqual(result.sync, { enabled: true, localVersion: 0, confirmedVersion: -1 });
+  assert.strictEqual(result.wrongbook, local.wrongbook);
+  assert.strictEqual(result.masteryRecords, local.masteryRecords);
+  assert.equal(local.sync, undefined);
+});
+
+test("preserves explicit account preferences, versions, and local metadata", () => {
+  for (const enabled of [false, true]) {
+    const sync = { enabled, localVersion: 7, confirmedVersion: 4, lastCloudVersion: "etag", introductionSeen: true };
+    assert.deepEqual(withLearningSyncDefaults(partition({ sync })).sync, sync);
+  }
+  assert.deepEqual(withLearningSyncDefaults(partition({ sync: { localVersion: 3, confirmedVersion: 2 } })).sync,
+    { enabled: true, localVersion: 3, confirmedVersion: 2 });
+});
+
+test("never enables automatic sync for the guest partition", () => {
+  const guest = partition({ owner: guestLearningOwner });
+  assert.equal(withLearningSyncDefaults(guest).sync, undefined);
+  const result = withLearningSyncDefaults({ ...guest, sync: { enabled: true, localVersion: 9, confirmedVersion: 3 } });
+  assert.deepEqual(result.sync, { enabled: false, localVersion: 9, confirmedVersion: 3 });
 });

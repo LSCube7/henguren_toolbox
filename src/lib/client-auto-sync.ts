@@ -1,17 +1,18 @@
 "use client";
 import { useSyncExternalStore } from "react";
 import { automaticLearningSync, cachedSyncSummary, invalidateSyncSummary, cancelSyncRequests, readWrongBookSyncSummary, subscribeSyncSummary, type WrongBookSyncSummary } from "./client-sync";
-import { currentLearningOwner, learningChangeEventKey, learningOwnerEventKey, readLearningPartition, setLearningAutoSync } from "./client-learning-storage";
+import { currentLearningOwner, learningChangeEventKey, learningOwnerEventKey, readLearningPartition, setLearningAutoSync, updateLearningPartition } from "./client-learning-storage";
 import { accountLearningOwner } from "./learning-ownership";
 import { developerSyncSourceChangeEvent, developerSyncSourceIdentity, readDeveloperSyncSource } from "./developer-sync-config";
 import { isOnline } from "./offline-cache";
 import { canRetrySync, nextSyncAt, retrySyncDelay } from "./learning-sync-policy";
 
 type AutoStatus = "idle" | "pending" | "syncing" | "synced" | "offline" | "signed-out" | "error";
-type LearningSyncState = { summary: WrongBookSyncSummary | null; busy: boolean; enabled: boolean; pending: boolean; lastSuccessAt?: string; error?: string; status: AutoStatus };
-const initial: LearningSyncState = { summary: null, busy: false, enabled: false, pending: false, status: "idle" };
+type LearningSyncState = { summary: WrongBookSyncSummary | null; busy: boolean; enabled: boolean; pending: boolean; introductionSeen: boolean; lastSuccessAt?: string; error?: string; status: AutoStatus };
+const initial: LearningSyncState = { summary: null, busy: false, enabled: false, pending: false, introductionSeen: false, status: "idle" };
 let state = initial;
 const listeners = new Set<() => void>();
+const syncMetadataChangeKey = "henguren-v3-sync-metadata-change";
 let timer: ReturnType<typeof setTimeout> | undefined;
 let started = false, stopped = false, running = false, halted = false, manualBusy = false;
 let observedVersion = -1, lastChange = Date.now(), firstPending = Date.now(), retryAt = 0, attempts = 0;
@@ -34,7 +35,7 @@ async function inspect() {
   }
   const cached = cachedSyncSummary() ?? state.summary;
   const summary = cached ? { ...cached, localCount: partition.wrongbook.records.length, localMasteryCount: partition.masteryRecords.length, status: !isOnline() ? "offline" as const : halted && state.error === "UNAUTHORIZED" ? "signed-out" as const : cached.status, user: halted && state.error === "UNAUTHORIZED" ? null : cached.user } : null;
-  publish({ enabled, pending, summary, lastSuccessAt: partition.sync?.lastSuccessAt, busy: running || manualBusy,
+  publish({ enabled, pending, introductionSeen: Boolean(partition.sync?.introductionSeen), summary, lastSuccessAt: partition.sync?.lastSuccessAt, busy: running || manualBusy,
     status: running || manualBusy ? "syncing" : !isOnline() ? "offline" : halted || state.error ? state.status : !enabled ? "idle" : pending ? "pending" : partition.sync?.lastSuccessAt ? "synced" : "idle" });
   return partition;
 }
@@ -85,6 +86,17 @@ async function setEnabled(enabled: boolean) {
   await inspect();
   if (enabled) await execute(true); else clearTimeout(timer);
 }
+async function markIntroductionSeen() {
+  const owner = currentLearningOwner();
+  if (!owner.startsWith("account:")) throw new Error("UNAUTHORIZED");
+  await updateLearningPartition(owner, (partition) => ({
+    partition: { ...partition, sync: { ...partition.sync!, introductionSeen: true } },
+    result: undefined
+  }), true, false);
+  await inspect();
+  try { localStorage.setItem(syncMetadataChangeKey, crypto.randomUUID()); }
+  catch { /* The account marker is durable in IndexedDB and this tab is refreshed. */ }
+}
 export function stopLearningSync() { stopped = true; clearTimeout(timer); cancelSyncRequests(); }
 export function resumeLearningSync() { stopped = false; void reschedule().catch(fail); }
 export function startLearningAutoSync() {
@@ -101,7 +113,8 @@ export function startLearningAutoSync() {
   };
   const savedSource = () => sourceChanged(true);
   const settingsChanged = () => sourceChanged();
-  const storage = (event: StorageEvent) => { if (event.key === learningChangeEventKey) changed(); if (event.key === "henguren-v3-dev-sync-source") savedSource(); if (event.key === "henguren-v3-settings") settingsChanged(); };
+  const metadataChanged = () => { void inspect().catch(() => console.error("Sync introduction state refresh failed: LOCAL_STORAGE_FAILED")); };
+  const storage = (event: StorageEvent) => { if (event.key === learningChangeEventKey) changed(); if (event.key === syncMetadataChangeKey) metadataChanged(); if (event.key === "henguren-v3-dev-sync-source") savedSource(); if (event.key === "henguren-v3-settings") settingsChanged(); };
   const availability = (event: Event) => {
     clearTimeout(timer);
     if (!isOnline()) { publish({ status: "offline" }); return; }
@@ -136,5 +149,5 @@ export function startLearningAutoSync() {
 }
 export function useLearningSync() {
   const value = useSyncExternalStore((listener) => { listeners.add(listener); return () => { listeners.delete(listener); }; }, () => state, () => initial);
-  return { ...value, setEnabled, refresh };
+  return { ...value, setEnabled, refresh, markIntroductionSeen };
 }

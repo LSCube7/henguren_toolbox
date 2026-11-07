@@ -308,6 +308,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [mobile, mobileOpen]);
 
   function handleMobileTab(event: KeyboardEvent<M3eDrawerContainerElement>) {
+    if (event.target instanceof Element && event.target.closest(".feature-tour")) return;
     if (event.key !== "Tab" || event.defaultPrevented || !mobileOpen) return;
     if (event.target instanceof Element && event.target.closest("m3e-menu")) return;
     const panel = mobileDrawer.current?.querySelector(".mobile-navigation-panel");

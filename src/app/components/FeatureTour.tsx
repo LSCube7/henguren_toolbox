@@ -4,6 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { M3eButton } from "@m3e/react/button";
 import { desktopGuideSteps, mobileGuideSteps, placeGuideBubble } from "@/lib/guide";
 import { useI18n } from "../i18n/AppI18nProvider";
+import type { MessageKey } from "@/i18n/config";
+
+export type FeatureTourStep = {
+  id: string;
+  target: string;
+  title: MessageKey;
+  description: MessageKey;
+};
 
 type TourLayout = {
   animate: boolean;
@@ -11,7 +19,7 @@ type TourLayout = {
   bubble: { top: number; left: number; maxWidth: number; maxHeight: number };
 };
 
-export function FeatureTour({ onClose }: { onClose: () => void }) {
+export function FeatureTour({ onClose, steps: customSteps }: { onClose: () => void; steps?: readonly FeatureTourStep[] }) {
   const { t } = useI18n();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -20,7 +28,9 @@ export function FeatureTour({ onClose }: { onClose: () => void }) {
   const [index, setIndex] = useState(0);
   const [mobile] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 899px)").matches);
   const [layout, setLayout] = useState<TourLayout | null>(null);
-  const steps = mobile ? mobileGuideSteps : desktopGuideSteps;
+  const steps = customSteps ?? (mobile ? mobileGuideSteps : desktopGuideSteps).map((id) => ({
+    id, target: `[data-tour="${id}"]`, title: `guide.${id}.title` as const, description: `guide.${id}.description` as const
+  }));
   const step = steps[index];
   const isLastStep = index === steps.length - 1;
   const closeRef = useRef(onClose);
@@ -46,7 +56,7 @@ export function FeatureTour({ onClose }: { onClose: () => void }) {
   }, []);
 
   useEffect(() => {
-    const target = document.querySelector<HTMLElement>(`[data-tour="${step}"]`);
+    const target = document.querySelector<HTMLElement>(step.target);
     const bubble = bubbleRef.current;
     if (!target || !bubble || target.getClientRects().length === 0) {
       closeRef.current();
@@ -102,25 +112,26 @@ export function FeatureTour({ onClose }: { onClose: () => void }) {
       window.visualViewport?.removeEventListener("resize", update);
       window.visualViewport?.removeEventListener("scroll", update);
     };
-  }, [step]);
+  }, [step.target]);
 
   useEffect(() => {
-    if (layout && focusedStepRef.current !== step) {
+    if (layout && focusedStepRef.current !== step.id) {
       headingRef.current?.focus({ preventScroll: true });
-      focusedStepRef.current = step;
+      focusedStepRef.current = step.id;
     }
-  }, [layout, step]);
+  }, [layout, step.id]);
 
   return (
     <dialog className="feature-tour" ref={dialogRef} data-motion={layout?.animate ? "step" : "follow"}
       aria-labelledby="feature-tour-title" aria-describedby="feature-tour-description"
+      onKeyDown={(event) => { if (event.key === "Escape") event.stopPropagation(); }}
       onCancel={(event) => { event.preventDefault(); onClose(); }}>
       {layout ? <div className="feature-tour__spotlight" aria-hidden="true" style={layout.target} /> : null}
       <div className="feature-tour__bubble" ref={bubbleRef} style={layout ? layout.bubble : { visibility: "hidden" }}>
-        <div className="feature-tour__content" key={step}>
+        <div className="feature-tour__content" key={step.id}>
           <p className="helper-text">{t("guide.progress", { current: index + 1, total: steps.length })}</p>
-          <h2 className="card-title" id="feature-tour-title" tabIndex={-1} ref={headingRef}>{t(`guide.${step}.title`)}</h2>
-          <p id="feature-tour-description">{t(`guide.${step}.description`)}</p>
+          <h2 className="card-title" id="feature-tour-title" tabIndex={-1} ref={headingRef}>{t(step.title)}</h2>
+          <p id="feature-tour-description">{t(step.description)}</p>
           <div className="feature-tour__actions">
             {!isLastStep ? <M3eButton variant="text" onClick={onClose}>{t("guide.end")}</M3eButton> : null}
             {index > 0 ? <M3eButton variant="text" onClick={() => setIndex((current) => current - 1)}>{t("onboarding.previous")}</M3eButton> : null}

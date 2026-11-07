@@ -10,10 +10,10 @@ export type LearningPartition = {
   wrongbook: WrongBookSnapshot;
   masteryRecords: MasteryRecord[];
   uploaded?: VocabSyncSnapshot;
-  sync?: { enabled: boolean; localVersion: number; confirmedVersion: number; lastSuccessAt?: string; lastCloudVersion?: string; lastCheckAt?: number; introductionSeen?: boolean };
+  sync?: { enabled: boolean; preferenceSet?: boolean; localVersion: number; confirmedVersion: number; lastSuccessAt?: string; lastCloudVersion?: string; lastCheckAt?: number; introductionSeen?: boolean };
 };
 
-/** Supply account defaults without overwriting an existing preference or version. */
+/** Legacy false also represented a default, so only marked choices override the new default. */
 export function withLearningSyncDefaults(partition: LearningPartition): LearningPartition {
   const account = partition.owner.startsWith("account:");
   if (!account && !partition.sync) return partition;
@@ -23,7 +23,7 @@ export function withLearningSyncDefaults(partition: LearningPartition): Learning
       localVersion: 0,
       confirmedVersion: -1,
       ...partition.sync,
-      enabled: account ? partition.sync?.enabled ?? true : false
+      enabled: account ? partition.sync?.preferenceSet === true ? partition.sync.enabled : true : false
     }
   };
 }

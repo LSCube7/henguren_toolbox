@@ -244,7 +244,7 @@ export async function adoptGuestLearning(userId: string) {
 export async function setLearningAutoSync(enabled: boolean) {
   const owner = currentLearningOwner();
   if (owner === guestLearningOwner) throw new Error("UNAUTHORIZED");
-  await updateLearningPartition(owner, (partition) => ({ partition: { ...partition, sync: { ...partition.sync!, enabled } }, result: undefined }), true);
+  await updateLearningPartition(owner, (partition) => ({ partition: { ...partition, sync: { ...partition.sync!, enabled, preferenceSet: true } }, result: undefined }), true);
 }
 
 let syncQueue: Promise<unknown> = Promise.resolve();

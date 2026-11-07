@@ -88,7 +88,7 @@ OAuth uses PKCE S256. `/api/auth/login` supports a safe same-site `returnTo`; ca
   - `wrongbooks/{userId}/current.json`
   - `wrongbooks/{userId}/backups/{timestamp}.json`
   - `settings/{userId}/current.json`
-- Account-scoped automatic merge sync for wrongbook and mastery defaults to enabled only when no local account preference exists; preserve existing disabled preferences. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
+- Account-scoped automatic merge sync for wrongbook and mastery defaults to enabled unless an explicit choice is marked by sync.preferenceSet. Legacy unmarked enabled:false values migrate to enabled because they cannot be distinguished from the old default; subsequent explicit disabled preferences are preserved. Never automatically execute destructive overwrite, adopt guest data, sync device settings, or use developer custom R2 sources.
 - Offline mode must keep local learning tools usable and show cloud sync as unavailable/offline.
 - Secrets must only be read in server-side code or route handlers. Never expose R2 or OAuth secrets to client bundles.
 

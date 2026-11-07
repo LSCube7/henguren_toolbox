@@ -14,8 +14,7 @@ const entries: Array<{
     label: "changelog.release322Label",
     groups: [
       { title: "changelog.experience", items: ["changelog.item.32", "changelog.item.34"] },
-      { title: "changelog.sync", items: ["changelog.item.33"] },
-      { title: "changelog.compliance", items: ["changelog.item.35"] }
+      { title: "changelog.sync", items: ["changelog.item.33"] }
     ]
   },
   {

@@ -175,7 +175,6 @@ export const enUS: Record<keyof typeof zhCN, string> = {
   "changelog.item.32": "Start learning on your first visit, with an optional welcome card and feature tour. Replay the tour from Settings.",
   "changelog.item.33": "Signed-in accounts automatically merge wrongbook and mastery data by default. You can turn this off. Legacy preferences without an explicit choice migrate to enabled; adopting guest data and syncing device settings still require confirmation.",
   "changelog.item.34": "Exit personalisation at any time while keeping applied preferences. Refined buttons, settings and messages in both languages.",
-  "changelog.item.35": "Updated deployment and maintenance guidance. Deployments now use Node.js 26.13.0, pnpm 12.18.0 and Next.js 16.4.5.",
   "changelog.item.36": "Undo newly added mistakes from test results. The wrongbook supports pagination, while review includes all matching results.",
   "changelog.item.37": "Improved theme transitions and loading feedback; fixed word-list selection, account menu layout and delays at the sign-in entry.",
   "changelog.release321Label": "Learning experience fixes",

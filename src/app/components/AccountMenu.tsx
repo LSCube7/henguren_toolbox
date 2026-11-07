@@ -49,7 +49,10 @@ export function AccountMenu({ onNavigate, expanded = false }: { onNavigate?: () 
   function login() {
     if (offline || changing) return;
     const returnTo = pathname + window.location.search + window.location.hash;
-    window.location.assign("/api/auth/login?returnTo=" + encodeURIComponent(returnTo));
+    // OAuth needs a document navigation so the route handler can set cookies and redirect off-site.
+    const loginUrl = new URL("/api/auth/login", window.location.origin);
+    loginUrl.searchParams.set("returnTo", returnTo);
+    window.location.assign(loginUrl.href);
   }
   async function logout() {
     if (offline || changing) return;

@@ -279,7 +279,9 @@ export function OnboardingClient() {
     sessionStorage.removeItem(onboardingLoginDecisionStorageKey);
     sessionStorage.setItem(onboardingStepStorageKey, `${onboardingFlowVersion}:login`);
     const target = localizePath(locale, `/onboarding?returnTo=${encodeURIComponent(returnTo)}`);
-    window.location.href = `/api/auth/login?returnTo=${encodeURIComponent(target)}`;
+    const loginUrl = new URL("/api/auth/login", window.location.origin);
+    loginUrl.searchParams.set("returnTo", target);
+    window.location.assign(loginUrl.href);
   }
 
   function skipLogin() {
